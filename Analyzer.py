@@ -1,11 +1,8 @@
+from asyncio import sleep
 import Repository as data
-from LiveStrategy import LiveStrategy
 
-# constants
-csv_filename = "data/nq_6months_2024-09-15_2025-03-15.csv"
-starting_date = "2024-09-15"
-# csv_filename = "data/nq_2years_2023-03-15_2025-03-15.csv"
-# starting_date = "2023-03-15"
+csv_filename = "data/nq_6months_2024-09-15_2025-03-15.csv" # "data/nq_2years_2023-03-15_2025-03-15.csv"
+starting_date = "2024-09-15" # "2023-03-15"
 ending_date = "2025-03-15"
 symbol = "NQ.v.0"
 schema = "ohlcv-1m"
@@ -20,8 +17,8 @@ schema = "ohlcv-1m"
 # df_prices.to_excel(csv_filename.replace(".csv", ".xlsx"))
 
 # todo read from csv instead
-ohlc = data.getOhlc(csv_filename=csv_filename)
+ohlc = data.getOhlc(csv_filename)
 
+# todo run test
 def run():
-
-    # todo run test
+    sleep(1000)
