@@ -1,2 +1,5 @@
 databento~=0.53.0
 pandas~=2.2.3
+numpy~=2.2.5
+matplotlib~=3.10.1
+tqdm~=4.67.1
