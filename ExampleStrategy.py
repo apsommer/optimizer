@@ -1,4 +1,4 @@
-from Order import Order
+from model.Order import Order
 
 class ExampleStrategy():
 
@@ -55,5 +55,5 @@ class ExampleStrategy():
         return self.data.loc[self.current_idx]['Close']
 
     def on_bar(self):
-        """ Overriden by implementers """
+        """ Override by implementers """
         pass

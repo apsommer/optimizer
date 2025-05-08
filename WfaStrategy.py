@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import Repository as repo
 
+
 def ema(prices, bars, smoothing):
 
     raw = (pd.DataFrame(prices).rolling(window=bars, win_type='exponential').mean())
