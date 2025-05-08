@@ -79,12 +79,6 @@ class Engine:
         portfolio = pd.DataFrame({
             'cash': self.cash_series})
 
-        # assets under management
-        portfolio['total_aum'] = portfolio['stock'] + portfolio['cash']
-
-        # average exposure: percent of stock relative to total aum
-        metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
-
         # annualized returns: ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
         aum = portfolio.total_aum
         metrics['returns_annualized'] = (
