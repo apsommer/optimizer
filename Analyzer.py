@@ -5,27 +5,31 @@ from ExampleStrategy import ExampleStrategy
 plt.rcParams['figure.figsize'] = [20, 12]
 
 class SMACrossover(ExampleStrategy):
+
+    def __init__(self):
+        super().__init__()
+        self.order_size = 1
+
     def on_bar(self):
-        if self.position_size == 0:
-            if self.data.loc[self.current_idx].sma_12 > self.data.loc[self.current_idx].sma_24:
-                limit_price = self.close * 0.995
-                # BUY AS MANY SHARES AS WE CAN!
-                order_size = self.cash / limit_price
-                self.buy_limit('AAPL', size=order_size, limit_price=limit_price)
+
+        if (self.position_size == 0 and
+                self.data.loc[self.current_idx].sma_12 > self.data.loc[self.current_idx].sma_24):
+            self.buy('long', size=self.order_size)
+
         elif self.data.loc[self.current_idx].sma_12 < self.data.loc[self.current_idx].sma_24:
-            limit_price = self.close * 1.005
-            self.sell_limit('AAPL', size=self.position_size, limit_price=limit_price)
+            self.sell('close long', size=self.position_size)
 
 # get ohlc prices
 csv_filename = "data/nq_6months_2024-09-15_2025-03-15.csv"
-ohlc = repo.getOhlc(csv_filename=csv_filename)
-ohlc['sma_12'] = ohlc.Close.rolling(12).mean()
-ohlc['sma_24'] = ohlc.Close.rolling(24).mean()
+data = repo.getOhlc(csv_filename=csv_filename)
+data['sma_12'] = data.Close.rolling(12).mean()
+data['sma_24'] = data.Close.rolling(24).mean()
 
 # init engine
 engine = Engine(initial_cash=1_000_000)
-engine.add_data(ohlc)
+engine.add_data(data)
 engine.add_strategy(SMACrossover())
+
 stats = engine.run()
 
 # print
@@ -35,5 +39,5 @@ print("")
 for stat, value in stats.items():
     print("{}: {}".format(stat, round(value, 5)))
 print("")
-plt.plot(ohlc['Close'])
+plt.plot(data['Close'])
 plt.show()
