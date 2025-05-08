@@ -25,26 +25,6 @@ class ExampleStrategy():
                 size = -size,
                 idx = self.current_idx))
 
-    def buy_limit(self, ticker, limit_price, size = 1):
-        self.orders.append(
-            Order(
-                ticker = ticker,
-                side = 'buy',
-                size = size,
-                idx = self.current_idx,
-                type = 'limit',
-                limit_price = limit_price))
-
-    def sell_limit(self, ticker, limit_price, size = 1):
-        self.orders.append(
-            Order(
-                ticker = ticker,
-                side = 'sell',
-                size = -size,
-                idx = self.current_idx,
-                type = 'limit',
-                limit_price = limit_price))
-
     @property
     def position_size(self):
         # todo awkward, refactor, add up all trades and take difference ... seems expensive
