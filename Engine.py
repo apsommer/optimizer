@@ -49,7 +49,7 @@ class Engine:
 
         for order in self.strategy.orders:
 
-            fill_price = self.data.loc[self.current_idx]['Close']
+            fill_price = self.data.loc[self.current_idx]['Open']
 
             trade = Trade(
                 ticker = order.ticker,

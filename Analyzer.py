@@ -12,7 +12,7 @@ csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"
 data = repo.getOhlc(csv_filename=csv_filename) # repo.getOhlc()
 
 # init engine
-engine = Engine(initial_cash=1_000_000)
+engine = Engine(initial_cash=1000)
 engine.add_data(data)
 engine.add_strategy(HalfwayStrategy())
 stats = engine.run()
@@ -25,6 +25,7 @@ print("")
 for stat, value in stats.items():
     print("{}: {}".format(stat, round(value, 5)))
 print("")
+print(engine.strategy.trades)
 
 # plt.plot(data['Close'])
 plt.show()
