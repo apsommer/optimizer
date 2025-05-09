@@ -41,6 +41,7 @@ class Engine:
 
             # track cash and stock holdings
             self.cash_series[idx] = self.cash
+            self.stock_series[idx] = self.strategy.position_size * self.data.loc[self.current_idx]['Close']
 
         return self._get_stats()
 
@@ -73,6 +74,9 @@ class Engine:
         metrics['total_return'] = (
                 ((self.data.loc[self.current_idx]['Close']
                   * self.strategy.position_size + self.cash) / self.initial_cash - 1) * 100)
+
+        # total number of trades
+        metrics['trades'] = len(self.strategy.trades)
 
         # benchmark reference: buy and hold max allowed shares from start to end
         portfolio_buy_hold = (self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close
