@@ -1,6 +1,6 @@
 from model.Order import Order
 
-class ExampleStrategy():
+class BaselineStrategy():
 
     def __init__(self):
         self.current_idx = None

@@ -1,34 +1,22 @@
 import matplotlib.pyplot as plt
 import Repository as repo
 from Engine import Engine
-from ExampleStrategy import ExampleStrategy
+from SMACrossoverStrategy import SMACrossoverStrategy
+import logging
+
 plt.rcParams['figure.figsize'] = [20, 12]
-
-class SMACrossover(ExampleStrategy):
-
-    def __init__(self):
-        super().__init__()
-        self.order_size = 1
-
-    def on_bar(self):
-
-        if (self.position_size == 0 and
-                self.data.loc[self.current_idx].sma_12 > self.data.loc[self.current_idx].sma_24):
-            self.buy('long', size=self.order_size)
-
-        elif self.data.loc[self.current_idx].sma_12 < self.data.loc[self.current_idx].sma_24:
-            self.sell('close long', size=self.position_size)
+logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
 
 # get ohlc prices
 csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"
-data = repo.getOhlc() # repo.getOhlc(csv_filename=csv_filename)
+data = repo.getOhlc(csv_filename=csv_filename) # repo.getOhlc()
 data['sma_12'] = data.Close.rolling(12).mean()
 data['sma_24'] = data.Close.rolling(24).mean()
 
 # init engine
 engine = Engine(initial_cash=1_000_000)
 engine.add_data(data)
-engine.add_strategy(SMACrossover())
+engine.add_strategy(SMACrossoverStrategy())
 
 stats = engine.run()
 

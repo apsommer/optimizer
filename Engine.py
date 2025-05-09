@@ -67,7 +67,7 @@ class Engine:
 
     def _get_stats(self):
 
-        metrics = {}
+        metrics = { }
 
         # total percent return
         metrics['total_return'] = (
@@ -110,8 +110,8 @@ class Engine:
             'volatility_ann_buy_hold']
 
         # max drawdown, percent
-        metrics['max_drawdown'] = self.get_max_drawdown(portfolio.total_aum)
-        metrics['max_drawdown_buy_hold'] = self.get_max_drawdown(portfolio_buy_hold)
+        metrics['max_drawdown'] = get_max_drawdown(portfolio.total_aum)
+        metrics['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
 
         # capture portfolios for plotting
         self.portfolio = portfolio
@@ -132,16 +132,16 @@ class Engine:
             print(trade)
         print("")
 
-    def get_max_drawdown(close):
-        roll_max = close.cummax()
-        daily_drawdown = close / roll_max - 1.0
-        max_daily_drawdown = daily_drawdown.cummin()
-        return max_daily_drawdown.min() * 100
+def get_max_drawdown(close):
+    roll_max = close.cummax()
+    daily_drawdown = close / roll_max - 1.0
+    max_daily_drawdown = daily_drawdown.cummin()
+    return max_daily_drawdown.min() * 100
 
-    def print_stats(metrics):
-        print("")
-        print("Performance:")
-        print("")
-        for stat, value in metrics.items():
-            print("{}: {}".format(stat, round(value, 5)))
-        print("")
+def print_stats(metrics):
+    print("")
+    print("Performance:")
+    print("")
+    for stat, value in metrics.items():
+        print("{}: {}".format(stat, round(value, 5)))
+    print("")
