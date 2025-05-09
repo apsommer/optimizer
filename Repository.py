@@ -14,8 +14,8 @@ def getOhlc(
     csv_filename = None,
     symbol = "NQ.v.0",
     schema = "ohlcv-1m",
-    starting_date = "2024-10-01",
-    ending_date = "2025-01-01"):
+    starting_date = "2025-02-01",
+    ending_date = "2025-05-01"):
 
     # return cached data in csv format
     if csv_filename is not None:
@@ -46,5 +46,8 @@ def getOhlc(
     # normalize timestamps
     ohlc.index = ohlc.index.tz_localize(None)
     ohlc.index = pd.to_datetime(ohlc.index)
+
+    csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"
+    ohlc.to_csv(csv_filename)
 
     return ohlc

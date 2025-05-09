@@ -20,8 +20,8 @@ class SMACrossover(ExampleStrategy):
             self.sell('close long', size=self.position_size)
 
 # get ohlc prices
-csv_filename = "data/nq_6months_2024-09-15_2025-03-15.csv"
-data = repo.getOhlc(csv_filename=csv_filename)
+csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"
+data = repo.getOhlc() # repo.getOhlc(csv_filename=csv_filename)
 data['sma_12'] = data.Close.rolling(12).mean()
 data['sma_24'] = data.Close.rolling(24).mean()
 
