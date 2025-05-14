@@ -5,7 +5,6 @@ class BaselineStrategy():
     def __init__(self):
         self.current_idx = None
         self.data = None
-        self.cash = None
         self.orders = []
 
     def buy(self, ticker = 'NQ', size = 1):
@@ -14,7 +13,8 @@ class BaselineStrategy():
                 ticker = ticker,
                 side = 'buy',
                 size = size,
-                idx = self.current_idx))
+                idx = self.current_idx, # todo where is this updated?
+                price = self.close))
 
     def sell(self, ticker = 'NQ', size = 1):
         self.orders.append(
@@ -22,11 +22,12 @@ class BaselineStrategy():
                 ticker = ticker,
                 side = 'sell',
                 size = -size,
-                idx = self.current_idx))
+                idx = self.current_idx,
+                price = self.close))
 
     @property
     def position_size(self):
-        return sum([trade.size for trade in self.trades])
+        return sum([order.size for order in self.orders])
 
     @property
     def open(self):

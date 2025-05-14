@@ -5,9 +5,7 @@ class HalfwayStrategy(BaselineStrategy):
 
     def __init__(self):
         super().__init__()
-
         self.barIndex = -1
-        self.order_size = 1
 
     def on_bar(self):
 
