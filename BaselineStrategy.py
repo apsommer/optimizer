@@ -7,7 +7,6 @@ class BaselineStrategy():
         self.data = None
         self.cash = None
         self.orders = []
-        self.trades = []
 
     def buy(self, ticker = 'NQ', size = 1):
         self.orders.append(
@@ -27,13 +26,16 @@ class BaselineStrategy():
 
     @property
     def position_size(self):
-        # todo awkward, refactor, add up all trades and take difference ... seems expensive
         return sum([trade.size for trade in self.trades])
+
+    @property
+    def open(self):
+        return self.data.loc[self.current_idx]['Open']
 
     @property
     def close(self):
         return self.data.loc[self.current_idx]['Close']
 
+    """ Override by implementers """
     def on_bar(self):
-        """ Override by implementers """
         pass

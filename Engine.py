@@ -6,14 +6,14 @@ from model.Trade import Trade
 
 class Engine:
 
-    def __init__(self, initial_cash = 100_000):
+    def __init__(self, initial_cash = 1_000):
         self.data = None
         self.strategy = None
         self.current_idx = None
-        self.initial_cash = initial_cash
+        self.trades = []
         self.cash = initial_cash
         self.cash_series = { }
-        self.stock_series = { }
+        self.asset_series = { }
 
     def add_data(self, data: pd.DataFrame):
         self.data = data
@@ -23,48 +23,55 @@ class Engine:
 
     def run(self):
 
-        # pass data to strategy
+        # init strategy
         self.strategy.data = self.data
         self.strategy.cash = self.cash
 
-        # tqdm library shows progress bar in terminal
+        # loop timestamps
         for idx in tqdm(self.data.index, colour='BLUE'):
 
+            # set index
             self.current_idx = idx
             self.strategy.current_idx = self.current_idx
 
             # fill orders from previous period
             self._fill_orders()
 
-            # execute this bar
+            # execute strat
             self.strategy.on_bar()
 
-            # track cash and stock holdings
+            # track cash and asset holdings
             self.cash_series[idx] = self.cash
-            self.stock_series[idx] = self.strategy.position_size * self.data.loc[self.current_idx]['Close']
+            self.asset_series[idx] = self.strategy.position_size * self.data.loc[self.current_idx]['Close']
 
         return self._get_stats()
 
     def _fill_orders(self):
 
-        for order in self.strategy.orders:
+        order = self.strategy.orders[-1]
 
-            fill_price = self.data.loc[self.current_idx]['Open']
+        fill_price = self.data.loc[self.current_idx]['Open']
 
-            trade = Trade(
-                ticker = order.ticker,
-                side = order.side,
-                price = fill_price,
-                size = order.size,
-                type= order.type,
-                idx = self.current_idx)
+        trade = Trade(
+            ticker = order.ticker,
+            side = order.side,
+            price = fill_price,
+            size = order.size,
+            type= order.type,
+            idx = self.current_idx)
 
-            self.strategy.trades.append(trade)
-            self.cash -= trade.price * trade.size
-            self.strategy.cash = self.cash
+        last_trade = self.trades[-1]
+        self.trades.append(trade)
+
+        if trade.side == 'buy':
+            if 0 > self.strategy.position_size:
+                self.cash += self.trades[-2]
+
+        # self.cash -= trade.price * trade.size
+        # self.strategy.cash = self.cash
 
         # clearing orders here assumes all limit orders are valid DAY, not GTC
-        self.strategy.orders = []
+        # self.strategy.orders = []
 
     def _get_stats(self):
 
@@ -82,7 +89,7 @@ class Engine:
         portfolio_buy_hold = (self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close
 
         portfolio = pd.DataFrame({
-            'stock': self.stock_series,
+            'stock': self.asset_series,
             'cash': self.cash_series})
 
         # assets under management
