@@ -23,8 +23,14 @@ class HalfwayStrategy(BaselineStrategy):
         is_long = self.position_size > 0
         is_short = 0 > self.position_size
 
-        if (is_flat):
+        if is_flat and barIndex % 182 == 0:
             self.buy()
 
-        if (is_long and isprime(barIndex)):
+        if is_long and barIndex % 42 == 0:
             self.sell()
+
+        if is_flat and barIndex % 66 == 0:
+            self.sell()
+
+        if is_short and barIndex % 182 == 0:
+            self.buy()
