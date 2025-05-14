@@ -51,21 +51,10 @@ class Engine:
 
     def _fill_order(self):
 
-        entry_order = self.strategy.orders[-2]
-        exit_order = self.strategy.orders[-1]
+        last_order = self.strategy.orders[-1]
+        last_trade = self.trades[-1]
 
-        if entry_order.side == 'buy' and exit_order.side == 'sell' and self.strategy.position_size == 0:
-            profit = exit_order.price - entry_order.price
-        elif entry_order.side == 'sell' and exit_order.side == 'buy' and self.strategy.position_size == 0:
-            profit = entry_order.price - exit_order.price
-
-        trade = Trade(
-            ticker = exit_order.ticker,
-            side = exit_order.side,
-            size = exit_order.size,
-            idx = self.current_idx,
-            type = exit_order.type,
-            profit = profit)
+        
 
         self.trades.append(trade)
         self.cash = sum([trade.profit for trade in self.trades])
