@@ -15,6 +15,19 @@ class Trade:
     def is_closed(self):
         return self.entry_order is not None and self.exit_order is not None
 
+    def profit(self):
+
+        entry_price = self.entry_order.price
+        exit_price = self.exit_order.price
+
+        if entry_price is None or exit_price is None:
+            return None
+        if self.side == 'long':
+            return exit_price - entry_price
+        if self.side == 'short':
+            return entry_price - exit_price
+
+
     # string representation of class, called "dunder" for double under underscores
     def __repr__(self):
         return f'\nticker: {self.ticker}\nside: {self.side}\nsize: {self.size}\nidx: {self.idx}\nentry_order: {self.entry_order}\nexit_order: {self.exit_order}\n'

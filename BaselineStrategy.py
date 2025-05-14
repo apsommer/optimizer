@@ -7,21 +7,38 @@ class BaselineStrategy():
         self.data = None
         self.orders = []
 
-    def buy(self, ticker = 'NQ', size = 1):
+    def buy(self, ticker, size):
         self.orders.append(
             Order(
                 ticker = ticker,
-                side = 'buy',
+                sentiment = 'long',
                 size = size,
-                idx = self.current_idx, # todo where is this updated?
+                idx = self.current_idx,
                 price = self.close))
 
-    def sell(self, ticker = 'NQ', size = 1):
+    def sell(self, ticker, size):
         self.orders.append(
             Order(
                 ticker = ticker,
-                side = 'sell',
+                sentiment = 'short',
                 size = -size,
+                idx = self.current_idx,
+                price = self.close))
+
+    def flat(self, ticker, size):
+
+        # flatten previous order
+        last_order = self.orders[-1]
+        if last_order.sentiment == 'long':
+            size = -1
+        if last_order.sentiment == 'short':
+            size = 1
+
+        self.orders.append(
+            Order(
+                ticker = ticker,
+                sentiment = 'flat',
+                size = size,
                 idx = self.current_idx,
                 price = self.close))
 

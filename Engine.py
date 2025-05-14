@@ -54,9 +54,21 @@ class Engine:
         last_order = self.strategy.orders[-1]
         last_trade = self.trades[-1]
 
-        
+        if (last_order.sentiment == 'long'
+                or last_order.sentiment == 'short'):
 
-        self.trades.append(trade)
+            trade = Trade(
+                ticker = last_order.ticker,
+                side = last_order.sentiment, # long, short
+                size = last_order.size,
+                entry_order = last_order,
+                exit_order = None)
+
+            self.trades.append(trade)
+
+        if last_order.sentiment == 'flat':
+            last_trade.exit_order = last_order
+
         self.cash = sum([trade.profit for trade in self.trades])
 
     def _get_stats(self):

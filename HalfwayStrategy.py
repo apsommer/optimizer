@@ -9,6 +9,9 @@ class HalfwayStrategy(BaselineStrategy):
 
     def on_bar(self):
 
+        ticker = 'NQ'
+        size = 1
+
         self.barIndex += 1
         barIndex = self.barIndex
 
@@ -21,14 +24,14 @@ class HalfwayStrategy(BaselineStrategy):
         is_long = self.position_size > 0
         is_short = 0 > self.position_size
 
-        if is_flat and barIndex % 182 == 0:
-            self.buy()
+        if is_flat and barIndex == 11:
+            self.buy(ticker, size)
 
-        if is_long and barIndex % 42 == 0:
-            self.sell()
+        if is_long and barIndex == 22:
+            self.sell(ticker, size)
 
-        if is_flat and barIndex % 66 == 0:
-            self.sell()
+        if is_flat and barIndex == 33:
+            self.sell(ticker, size)
 
-        if is_short and barIndex % 182 == 0:
-            self.buy()
+        if is_short and barIndex == 44:
+            self.buy(ticker, size)
