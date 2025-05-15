@@ -29,12 +29,12 @@ def getOhlc(
     # request network data synchronous!
     client = db.Historical(keys.bento_api_key)
     ohlc = (client.timeseries.get_range(
-        dataset="GLBX.MDP3",
-        symbols=[symbol],
-        stype_in="continuous",
-        schema=schema,
-        start=starting_date,
-        end=ending_date)
+        dataset = "GLBX.MDP3",
+        symbols = [symbol],
+        stype_in = "continuous",
+        schema = schema,
+        start = starting_date,
+        end = ending_date)
             .to_df())
 
     logm("Downloaded OHLC from databento, costs $$$ ...")

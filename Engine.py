@@ -6,7 +6,7 @@ from model.Trade import Trade
 
 class Engine:
 
-    def __init__(self, initial_cash = 1_000):
+    def __init__(self, initial_cash):
         self.data = None
         self.strategy = None
         self.current_idx = None
@@ -28,7 +28,7 @@ class Engine:
         self.strategy.cash = self.cash
 
         # loop timestamps
-        for idx in tqdm(self.data.index, colour='BLUE', nrows=3):
+        for idx in tqdm(self.data.index, colour='BLUE'):
 
             # set index todo refactor to single index, remove replication
             self.current_idx = idx
@@ -84,15 +84,8 @@ class Engine:
         # reference buy and hold
         portfolio_buy_hold = (self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close
 
-        portfolio = pd.DataFrame({
-            'stock': self.cash_series, # todo temp for development
-            'cash': self.cash_series})
-
-        # assets under management
-        portfolio['total_aum'] = portfolio['stock'] + portfolio['cash']
-
         # average exposure: percent of stock relative to total aum
-        metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
+        # metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
 
         # annualized returns: ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
         # aum = portfolio['total_aum']
@@ -117,17 +110,18 @@ class Engine:
         #     'volatility_ann_buy_hold']
 
         # max drawdown, percent
-        metrics['max_drawdown'] = get_max_drawdown(portfolio.total_aum)
+        cash_df = pd.DataFrame({'cash': self.cash_series})
+        metrics['max_drawdown'] = get_max_drawdown(cash_df['cash'])
         metrics['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
 
         # capture portfolios for plotting
-        self.portfolio = portfolio
+        self.portfolio = cash_df
         self.portfolio_buy_hold = portfolio_buy_hold
 
         return metrics
 
     def plot(self):
-        plt.plot(self.portfolio['total_aum'], label='Strategy')
+        plt.plot(self.portfolio['cash'], label='Strategy')
         plt.plot(self.portfolio_buy_hold, label='Buy & Hold')
         plt.grid(color='#dee0df', linewidth=0.1)
         plt.legend()
