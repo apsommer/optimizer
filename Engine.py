@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import matplotlib
 import matplotlib.pyplot as plt
 from model.Trade import Trade
 
@@ -122,25 +123,36 @@ class Engine:
 
     def plot(self):
 
+        plt.get_current_fig_manager().full_screen_toggle()
+
+        font = {'family': 'Ubuntu',
+                'size': 16}
+
+        matplotlib.rc('font', **font)
+
         plt.plot(self.portfolio['cash'], label='strategy')
-        plt.plot(self.portfolio_buy_hold, label='b&h')
+        plt.plot(self.portfolio_buy_hold, label='b & h')
 
         xmin = min(self.data.index)
         xmax = max(self.data.index)
-        x_ticks = pd.date_range(xmin, xmax, 20)
+        x_ticks = pd.date_range(xmin, xmax, 15)
         plt.xticks(x_ticks, rotation = 90)
         plt.xlim(xmin, xmax)
 
         ymax = 1.10 * max(self.portfolio_buy_hold)
-        y_ticks = np.arange(0, ymax, 20)
+        y_ticks = np.arange(0, ymax, 50)
         plt.yticks(y_ticks)
         plt.ylim(0, ymax)
+
+        plt.tick_params(tick1On = False)
+        plt.tick_params(tick2On = False)
 
         plt.grid(
             color = '#f2f2f2',
             linewidth = 0.5)
 
         plt.legend()
+        plt.tight_layout()
         plt.show()
 
     def print_trades(self):
