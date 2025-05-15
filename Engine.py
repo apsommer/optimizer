@@ -148,8 +148,10 @@ class Engine:
         plt.xticks(x_ticks, rotation = 90)
         plt.xlim(xmin, xmax)
 
-        ymin = round(1.10 * min(self.portfolio_buy_hold), -2)
-        ymax = round(1.10 * max(self.portfolio_buy_hold), -2)
+        abs_ymin = min(min(self.cash_series.values()), min(self.portfolio_buy_hold))
+        abs_ymax = max(max(self.cash_series.values()), max(self.portfolio_buy_hold))
+        ymin = round(1.10 * abs_ymin, -2)
+        ymax = round(1.10 * abs_ymax, -2)
         ystep = round((ymax - ymin) / 20, -2)
         y_ticks = np.arange(ymin, ymax, ystep)
         plt.yticks(y_ticks)
