@@ -1,10 +1,8 @@
 import numpy as np
 import pandas as pd
-from fontTools.misc.plistlib import PlistTarget
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from model.Trade import Trade
-import datetime
 
 class Engine:
 
@@ -125,23 +123,21 @@ class Engine:
     def plot(self):
 
         plt.plot(self.portfolio['cash'], label='strategy')
-        plt.plot(self.portfolio_buy_hold, label='buy & hold')
+        plt.plot(self.portfolio_buy_hold, label='b&h')
 
         xmin = min(self.data.index)
         xmax = max(self.data.index)
-        major_ticks = pd.date_range(xmin, xmax, 20)
-        minor_ticks = pd.date_range(xmin, xmax, 5)
-        plt.xticks(major_ticks)
-        plt.xticks(minor_ticks, minor = True)
+        x_ticks = pd.date_range(xmin, xmax, 20)
+        plt.xticks(x_ticks, rotation = 90)
+        plt.xlim(xmin, xmax)
 
-        ymax = max(self.portfolio_buy_hold)
-        major_ticks = np.arange(0, ymax, 20)
-        minor_ticks = np.arange(0, ymax, 5)
-        plt.yticks(major_ticks)
-        plt.yticks(minor_ticks, minor = True)
+        ymax = 1.10 * max(self.portfolio_buy_hold)
+        y_ticks = np.arange(0, ymax, 20)
+        plt.yticks(y_ticks)
+        plt.ylim(0, ymax)
 
         plt.grid(
-            color = '#D3D3D3',
+            color = '#f2f2f2',
             linewidth = 0.5)
 
         plt.legend()
