@@ -28,21 +28,19 @@ class Engine:
         self.strategy.cash = self.cash
 
         # loop timestamps
-        for idx in tqdm(self.data.index, colour='BLUE'):
+        for idx in tqdm(self.data.index, colour='BLUE', nrows=3):
 
             # set index todo refactor to single index, remove replication
             self.current_idx = idx
             self.strategy.current_idx = self.current_idx
 
-            if len(self.strategy.orders) == 0: continue
-
-            # fill order from previous period
-            last_order = self.strategy.orders[-1]
-            if last_order.idx == self.current_idx:
-                self._fill_order()
-
             # execute strat
             self.strategy.on_bar()
+
+            # fill order, if needed
+            orders = self.strategy.orders
+            if len(orders) > 0 and orders[-1].idx == self.current_idx:
+                self._fill_order()
 
             # track cash and asset holdings
             self.cash_series[idx] = self.cash
@@ -52,7 +50,7 @@ class Engine:
     def _fill_order(self):
 
         last_order = self.strategy.orders[-1]
-        last_trade = self.trades[-1]
+        profit = 0
 
         if (last_order.sentiment == 'long'
                 or last_order.sentiment == 'short'):
@@ -66,10 +64,13 @@ class Engine:
 
             self.trades.append(trade)
 
-        if last_order.sentiment == 'flat':
-            last_trade.exit_order = last_order
+        elif last_order.sentiment == 'flat':
 
-        self.cash = sum([trade.profit for trade in self.trades])
+            last_trade = self.trades[-1]
+            last_trade.exit_order = last_order
+            profit = last_trade.profit
+
+        self.cash += profit
 
     def _get_stats(self):
 
@@ -77,6 +78,7 @@ class Engine:
 
         metrics['total_return'] = (self.cash / self.initial_cash) * 100
         metrics['trades'] = len(self.trades)
+        metrics['cash'] = self.cash
 
         # reference buy and hold
         portfolio_buy_hold = (self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close

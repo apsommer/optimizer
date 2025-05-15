@@ -4,6 +4,7 @@ class BaselineStrategy():
 
     def __init__(self):
         self.current_idx = None
+        self.bar_index = -1
         self.data = None
         self.orders = []
 
@@ -14,6 +15,7 @@ class BaselineStrategy():
                 sentiment = 'long',
                 size = size,
                 idx = self.current_idx,
+                bar_index = self.bar_index,
                 price = self.close))
 
     def sell(self, ticker, size):
@@ -23,6 +25,7 @@ class BaselineStrategy():
                 sentiment = 'short',
                 size = -size,
                 idx = self.current_idx,
+                bar_index = self.bar_index,
                 price = self.close))
 
     def flat(self, ticker, size):
@@ -40,6 +43,7 @@ class BaselineStrategy():
                 sentiment = 'flat',
                 size = size,
                 idx = self.current_idx,
+                bar_index = self.bar_index,
                 price = self.close))
 
     @property
