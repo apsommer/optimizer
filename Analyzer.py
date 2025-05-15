@@ -20,14 +20,14 @@ engine.add_strategy(HalfwayStrategy())
 stats = engine.run()
 
 # print
-print("\nPerformance:\n")
+print("\nPerformance:")
+count = 0
 for stat, value in stats.items():
-
-    # todo enforce type checking another way?
-    if type(value) is str: pass
-    else: value = round(value, 5)
-
+    if count % 5 == 0: print()
+    if type(value) == float: value = round(value, 5)
     print("{}: {}".format(stat, value))
+    count += 1
+print()
 
 # print(engine.trades)
 # plt.plot(data['Close'])

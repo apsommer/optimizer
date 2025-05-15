@@ -23,7 +23,7 @@ def getOhlc(
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
 
-        logm("Uploaded OHLC from " + csv_filename)
+        logm("\nUploaded OHLC from " + csv_filename)
         return ohlc
 
     # request network data synchronous!
@@ -37,7 +37,7 @@ def getOhlc(
         end = ending_date)
             .to_df())
 
-    logm("Downloaded OHLC from databento, costs $$$ ...")
+    logm("\nDownloaded OHLC from databento, costs $$$ ...")
 
     # rename, drop
     ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)

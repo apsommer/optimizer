@@ -77,19 +77,28 @@ class Engine:
 
         stats = { }
 
+        stats['start_date'] = str(self.data.index[0])
+        stats['end_date'] = str(self.data.index[-1])
         stats['initial_cash'] = self.initial_cash
         stats['cash'] = self.cash
         stats['trades'] = len(self.trades)
+
+        days = (self.data.index[-1] - self.data.index[0]).days
+        stats['days'] = days
 
         if self.cash > self.initial_cash:
             stats['total_return'] = (self.cash / self.initial_cash) * 100
         else:
             stats['total_return'] = ((self.cash - self.initial_cash) / self.initial_cash) * 100
 
-        stats['annualized_return'] = 'todo'
-
         entry_price = self.data.loc[self.data.index[0]]['Open']
-        portfolio_buy_hold = self.initial_cash + self.data.Close - entry_price
+        exit_price = self.data.loc[self.data.index[-1]]['Close']
+        bh = self.data.Close - entry_price
+
+        if exit_price > entry_price:
+            stats['total_return_b&h'] = (bh.iloc[-1] / self.initial_cash) * 100
+        else:
+            stats['total_return_b&h'] = ((bh.iloc[-1] - self.initial_cash) / self.initial_cash) * 100
 
         # apples = sum([trade.profit for trade in self.trades])
         # stats['exposure'] = p_diff
@@ -99,11 +108,7 @@ class Engine:
         # metrics['returns_annualized'] = (
         #         ((aum.iloc[-1] / aum.iloc[0])
         #          ** (1 / ((aum.index[-1] - aum.index[0]).days / 365)) - 1) * 100)
-
-        ref = portfolio_buy_hold
-        stats['returns_annualized_buy_hold'] = (
-                ((ref.iloc[-1] / ref.iloc[0])
-                 ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1) * 100)
+        stats['annualized_return'] = np.nan
 
         # annualized volatility: std_dev * sqrt(periods/year)
         self.trading_days = 252
@@ -119,11 +124,11 @@ class Engine:
         # max drawdown, percent
         cash_df = pd.DataFrame({'cash': self.cash_series})
         stats['max_drawdown'] = get_max_drawdown(cash_df['cash'])
-        stats['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
+        stats['max_drawdown_buy_hold'] = get_max_drawdown(bh)
 
         # capture portfolios for plotting
         self.portfolio = cash_df
-        self.portfolio_buy_hold = portfolio_buy_hold
+        self.portfolio_buy_hold = bh
 
         return stats
 
