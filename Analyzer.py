@@ -25,7 +25,7 @@ print("")
 for stat, value in stats.items():
     print("{}: {}".format(stat, round(value, 5)))
 print("")
-print(engine.strategy.trades)
+# print(engine.trades)
 
 # plt.plot(data['Close'])
 plt.show()
