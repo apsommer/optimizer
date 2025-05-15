@@ -20,13 +20,11 @@ def getOhlc(
     # return cached data in csv format
     if csv_filename is not None:
 
-        logm("Upload OHLC from " + csv_filename)
-
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
-        return ohlc
 
-    logm("Download OHLC from databento costs $$$ ...")
+        logm("Uploaded OHLC from " + csv_filename)
+        return ohlc
 
     # request network data synchronous!
     client = db.Historical(keys.bento_api_key)
@@ -36,7 +34,10 @@ def getOhlc(
         stype_in="continuous",
         schema=schema,
         start=starting_date,
-        end=ending_date).to_df())
+        end=ending_date)
+            .to_df())
+
+    logm("Downloaded OHLC from databento, costs $$$ ...")
 
     # rename, drop
     ohlc.rename(columns={"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace=True)
