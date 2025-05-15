@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import matplotlib
 import matplotlib.pyplot as plt
 from model.Trade import Trade
 
 class Engine:
 
-    def __init__(self, initial_cash = 1_000):
+    def __init__(self, initial_cash):
         self.data = None
         self.strategy = None
         self.current_idx = None
@@ -28,7 +29,7 @@ class Engine:
         self.strategy.cash = self.cash
 
         # loop timestamps
-        for idx in tqdm(self.data.index, colour='BLUE', nrows=3):
+        for idx in tqdm(self.data.index, colour='BLUE'):
 
             # set index todo refactor to single index, remove replication
             self.current_idx = idx
@@ -74,36 +75,40 @@ class Engine:
 
     def _get_stats(self):
 
-        metrics = { }
+        stats = { }
 
-        metrics['total_return'] = (self.cash / self.initial_cash) * 100
-        metrics['trades'] = len(self.trades)
-        metrics['initial_cash'] = self.initial_cash
-        metrics['cash'] = self.cash
+        stats['start_date'] = str(self.data.index[0])
+        stats['end_date'] = str(self.data.index[-1])
+        stats['initial_cash'] = self.initial_cash
+        stats['cash'] = self.cash
+        stats['trades'] = len(self.trades)
 
-        # reference buy and hold
-        portfolio_buy_hold = (self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close
+        days = (self.data.index[-1] - self.data.index[0]).days
+        stats['days'] = days
 
-        portfolio = pd.DataFrame({
-            'stock': self.cash_series, # todo temp for development
-            'cash': self.cash_series})
+        if self.cash > self.initial_cash:
+            stats['total_return'] = (self.cash / self.initial_cash) * 100
+        else:
+            stats['total_return'] = ((self.cash - self.initial_cash) / self.initial_cash) * 100
 
-        # assets under management
-        portfolio['total_aum'] = portfolio['stock'] + portfolio['cash']
+        entry_price = self.data.loc[self.data.index[0]]['Open']
+        exit_price = self.data.loc[self.data.index[-1]]['Close']
+        bh = self.data.Close - entry_price
 
-        # average exposure: percent of stock relative to total aum
-        metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
+        if exit_price > entry_price:
+            stats['total_return_b&h'] = (bh.iloc[-1] / self.initial_cash) * 100
+        else:
+            stats['total_return_b&h'] = ((bh.iloc[-1] - self.initial_cash) / self.initial_cash) * 100
+
+        # apples = sum([trade.profit for trade in self.trades])
+        # stats['exposure'] = p_diff
 
         # annualized returns: ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
         # aum = portfolio['total_aum']
         # metrics['returns_annualized'] = (
         #         ((aum.iloc[-1] / aum.iloc[0])
         #          ** (1 / ((aum.index[-1] - aum.index[0]).days / 365)) - 1) * 100)
-
-        ref = portfolio_buy_hold
-        metrics['returns_annualized_buy_hold'] = (
-                ((ref.iloc[-1] / ref.iloc[0])
-                 ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1) * 100)
+        stats['annualized_return'] = np.nan
 
         # annualized volatility: std_dev * sqrt(periods/year)
         self.trading_days = 252
@@ -117,20 +122,48 @@ class Engine:
         #     'volatility_ann_buy_hold']
 
         # max drawdown, percent
-        metrics['max_drawdown'] = get_max_drawdown(portfolio.total_aum)
-        metrics['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
+        cash_df = pd.DataFrame({'cash': self.cash_series})
+        stats['max_drawdown'] = get_max_drawdown(cash_df['cash'])
+        stats['max_drawdown_buy_hold'] = get_max_drawdown(bh)
 
         # capture portfolios for plotting
-        self.portfolio = portfolio
-        self.portfolio_buy_hold = portfolio_buy_hold
+        self.portfolio = cash_df
+        self.portfolio_buy_hold = bh
 
-        return metrics
+        return stats
 
     def plot(self):
-        plt.plot(self.portfolio['total_aum'], label='Strategy')
-        plt.plot(self.portfolio_buy_hold, label='Buy & Hold')
-        plt.grid(color='#dee0df', linewidth=0.1)
+
+        plt.get_current_fig_manager().full_screen_toggle()
+        font = {'family': 'Ubuntu', 'size': 16}
+        matplotlib.rc('font', **font)
+
+        plt.plot(self.portfolio['cash'], label='strategy', color = 'blue')
+        plt.plot(self.portfolio_buy_hold, label='b & h', color = 'green')
+
+        xmin = min(self.data.index)
+        xmax = max(self.data.index)
+        xstep = 20
+        x_ticks = pd.date_range(xmin, xmax, xstep)
+        plt.xticks(x_ticks, rotation = 90)
+        plt.xlim(xmin, xmax)
+
+        abs_ymin = min(min(self.cash_series.values()), min(self.portfolio_buy_hold))
+        abs_ymax = max(max(self.cash_series.values()), max(self.portfolio_buy_hold))
+        ymin = round(1.10 * abs_ymin, -2)
+        ymax = round(1.10 * abs_ymax, -2)
+        ystep = round((ymax - ymin) / 20, -2)
+        y_ticks = np.arange(ymin, ymax, ystep)
+        plt.yticks(y_ticks)
+        plt.ylim(ymin, ymax)
+
+        plt.tick_params(tick1On = False)
+        plt.tick_params(tick2On = False)
+
+        plt.grid(color = '#f2f2f2', linewidth = 0.5)
+
         plt.legend()
+        plt.tight_layout()
         plt.show()
 
     def print_trades(self):

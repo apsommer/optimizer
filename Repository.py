@@ -23,25 +23,25 @@ def getOhlc(
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
 
-        logm("Uploaded OHLC from " + csv_filename)
+        logm("\nUploaded OHLC from " + csv_filename)
         return ohlc
 
     # request network data synchronous!
     client = db.Historical(keys.bento_api_key)
     ohlc = (client.timeseries.get_range(
-        dataset="GLBX.MDP3",
-        symbols=[symbol],
-        stype_in="continuous",
-        schema=schema,
-        start=starting_date,
-        end=ending_date)
+        dataset = "GLBX.MDP3",
+        symbols = [symbol],
+        stype_in = "continuous",
+        schema = schema,
+        start = starting_date,
+        end = ending_date)
             .to_df())
 
-    logm("Downloaded OHLC from databento, costs $$$ ...")
+    logm("\nDownloaded OHLC from databento, costs $$$ ...")
 
     # rename, drop
-    ohlc.rename(columns={"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace=True)
-    ohlc.index.rename("timestamp", inplace=True)
+    ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
+    ohlc.index.rename("timestamp", inplace = True)
     ohlc = ohlc[ohlc.columns.drop(['symbol', 'rtype', 'instrument_id', 'publisher_id', 'volume'])]
 
     # normalize timestamps
