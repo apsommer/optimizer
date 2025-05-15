@@ -20,16 +20,16 @@ class HalfwayStrategy(BaselineStrategy):
 
         if is_flat and bar_index == 11:
             self.buy(ticker, size)
-            print(f'{bar_index}: long enter')
+            # print(f'{bar_index}: long enter')
 
-        if is_long and bar_index == 22:
+        if is_long and bar_index == 222:
             self.flat(ticker, size)
-            print(f'{bar_index}: long exit')
+            # print(f'{bar_index}: long exit')
 
-        if is_flat and bar_index == 33:
+        if is_flat and bar_index == 333:
             self.sell(ticker, size)
-            print(f'{bar_index}: short enter')
+            # print(f'{bar_index}: short enter')
 
-        if is_short and bar_index == 44:
+        if is_short and bar_index == 4444:
             self.flat(ticker, size)
-            print(f'{bar_index}: short exit')
+            # print(f'{bar_index}: short exit')

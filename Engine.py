@@ -78,6 +78,7 @@ class Engine:
 
         metrics['total_return'] = (self.cash / self.initial_cash) * 100
         metrics['trades'] = len(self.trades)
+        metrics['initial_cash'] = self.initial_cash
         metrics['cash'] = self.cash
 
         # reference buy and hold

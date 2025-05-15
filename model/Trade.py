@@ -6,15 +6,6 @@ class Trade:
         self.entry_order = entry_order
         self.exit_order = exit_order
 
-    def is_new(self):
-        return self.entry_order is None and self.exit_order is None
-
-    def is_open(self):
-        return self.entry_order is not None and self.exit_order is None
-
-    def is_closed(self):
-        return self.entry_order is not None and self.exit_order is not None
-
     @property
     def profit(self):
 
