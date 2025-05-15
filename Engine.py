@@ -83,7 +83,7 @@ class Engine:
         metrics['cash'] = self.cash
 
         # reference buy and hold
-        portfolio_buy_hold = (self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close
+        portfolio_buy_hold = self.initial_cash + self.data.Close - self.data.loc[self.data.index[0]]['Open']
 
         # average exposure: percent of stock relative to total aum
         # metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
@@ -124,32 +124,30 @@ class Engine:
     def plot(self):
 
         plt.get_current_fig_manager().full_screen_toggle()
-
-        font = {'family': 'Ubuntu',
-                'size': 16}
-
+        font = {'family': 'Ubuntu', 'size': 16}
         matplotlib.rc('font', **font)
 
-        plt.plot(self.portfolio['cash'], label='strategy')
-        plt.plot(self.portfolio_buy_hold, label='b & h')
+        plt.plot(self.portfolio['cash'], label='strategy', color = 'blue')
+        plt.plot(self.portfolio_buy_hold, label='b & h', color = 'green')
 
         xmin = min(self.data.index)
         xmax = max(self.data.index)
-        x_ticks = pd.date_range(xmin, xmax, 15)
+        xstep = 20
+        x_ticks = pd.date_range(xmin, xmax, xstep)
         plt.xticks(x_ticks, rotation = 90)
         plt.xlim(xmin, xmax)
 
-        ymax = 1.10 * max(self.portfolio_buy_hold)
-        y_ticks = np.arange(0, ymax, 50)
+        ymin = round(1.10 * min(self.portfolio_buy_hold), -2)
+        ymax = round(1.10 * max(self.portfolio_buy_hold), -2)
+        ystep = round((ymax - ymin) / 20, -2)
+        y_ticks = np.arange(ymin, ymax, ystep)
         plt.yticks(y_ticks)
-        plt.ylim(0, ymax)
+        plt.ylim(ymin, ymax)
 
         plt.tick_params(tick1On = False)
         plt.tick_params(tick2On = False)
 
-        plt.grid(
-            color = '#f2f2f2',
-            linewidth = 0.5)
+        plt.grid(color = '#f2f2f2', linewidth = 0.5)
 
         plt.legend()
         plt.tight_layout()

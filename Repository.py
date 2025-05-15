@@ -40,8 +40,8 @@ def getOhlc(
     logm("Downloaded OHLC from databento, costs $$$ ...")
 
     # rename, drop
-    ohlc.rename(columns={"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace=True)
-    ohlc.index.rename("timestamp", inplace=True)
+    ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
+    ohlc.index.rename("timestamp", inplace = True)
     ohlc = ohlc[ohlc.columns.drop(['symbol', 'rtype', 'instrument_id', 'publisher_id', 'volume'])]
 
     # normalize timestamps
