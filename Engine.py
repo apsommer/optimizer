@@ -75,18 +75,24 @@ class Engine:
 
     def _get_stats(self):
 
-        metrics = { }
+        stats = { }
 
-        metrics['total_return'] = (self.cash / self.initial_cash) * 100
-        metrics['trades'] = len(self.trades)
-        metrics['initial_cash'] = self.initial_cash
-        metrics['cash'] = self.cash
+        stats['initial_cash'] = self.initial_cash
+        stats['cash'] = self.cash
+        stats['trades'] = len(self.trades)
 
-        # reference buy and hold
-        portfolio_buy_hold = self.initial_cash + self.data.Close - self.data.loc[self.data.index[0]]['Open']
+        if self.cash > self.initial_cash:
+            stats['total_return'] = (self.cash / self.initial_cash) * 100
+        else:
+            stats['total_return'] = ((self.cash - self.initial_cash) / self.initial_cash) * 100
 
-        # average exposure: percent of stock relative to total aum
-        # metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
+        stats['annualized_return'] = 'todo'
+
+        entry_price = self.data.loc[self.data.index[0]]['Open']
+        portfolio_buy_hold = self.initial_cash + self.data.Close - entry_price
+
+        # apples = sum([trade.profit for trade in self.trades])
+        # stats['exposure'] = p_diff
 
         # annualized returns: ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
         # aum = portfolio['total_aum']
@@ -95,7 +101,7 @@ class Engine:
         #          ** (1 / ((aum.index[-1] - aum.index[0]).days / 365)) - 1) * 100)
 
         ref = portfolio_buy_hold
-        metrics['returns_annualized_buy_hold'] = (
+        stats['returns_annualized_buy_hold'] = (
                 ((ref.iloc[-1] / ref.iloc[0])
                  ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1) * 100)
 
@@ -112,14 +118,14 @@ class Engine:
 
         # max drawdown, percent
         cash_df = pd.DataFrame({'cash': self.cash_series})
-        metrics['max_drawdown'] = get_max_drawdown(cash_df['cash'])
-        metrics['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
+        stats['max_drawdown'] = get_max_drawdown(cash_df['cash'])
+        stats['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
 
         # capture portfolios for plotting
         self.portfolio = cash_df
         self.portfolio_buy_hold = portfolio_buy_hold
 
-        return metrics
+        return stats
 
     def plot(self):
 

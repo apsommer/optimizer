@@ -15,17 +15,21 @@ data = repo.getOhlc(csv_filename=csv_filename) # repo.getOhlc()
 engine = Engine(initial_cash = 1000)
 engine.add_data(data)
 engine.add_strategy(HalfwayStrategy())
+
+# run engine
 stats = engine.run()
-engine.plot()
 
 # print
-print("")
-print("Performance:")
-print("")
+print("\nPerformance:\n")
 for stat, value in stats.items():
-    print("{}: {}".format(stat, round(value, 5)))
-print("")
-# print(engine.trades)
 
+    # todo enforce type checking another way?
+    if type(value) is str: pass
+    else: value = round(value, 5)
+
+    print("{}: {}".format(stat, value))
+
+# print(engine.trades)
 # plt.plot(data['Close'])
-plt.show()
+
+engine.plot()
