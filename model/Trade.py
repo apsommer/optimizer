@@ -15,9 +15,9 @@ class Trade:
         if entry_price is None or exit_price is None:
             return None
         if self.side == 'long':
-            return exit_price - entry_price
+            return tick_value * (exit_price - entry_price)
         if self.side == 'short':
-            return entry_price - exit_price
+            return tick_value * (entry_price - exit_price)
 
     # string representation of class, called "dunder" for double under underscores
     def __repr__(self):

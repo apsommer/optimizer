@@ -1,5 +1,11 @@
 from BaselineStrategy import BaselineStrategy
-from sympy import *
+
+ticker = {
+    'symbol': 'MNQ',
+    'tick_value': 0.50 # MNQ: 0.50 USD/tick, NQ = 5 USD/tick
+}
+tick_value = 0.50
+size = 1
 
 class HalfwayStrategy(BaselineStrategy):
 
@@ -7,10 +13,6 @@ class HalfwayStrategy(BaselineStrategy):
         super().__init__()
 
     def on_bar(self):
-
-        ticker = 'NQ'
-        size = 1
-        tick_value = 5 # $ per tick
 
         self.bar_index += 1
         bar_index = self.bar_index

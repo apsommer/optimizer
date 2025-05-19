@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import Repository as repo
-from Engine import Engine
+from Engine import Engine, print_stats
 from HalfwayStrategy import HalfwayStrategy
 import logging
 
@@ -20,21 +20,6 @@ engine.add_strategy(HalfwayStrategy())
 # run engine
 stats = engine.run()
 
-# print
-print("\nPerformance:")
-
-for stat, value in stats.items():
-
-    if type(value) == np.float64 or type(value) == float:
-        value = round(value, 1)
-        if value > 100:
-            value = round(value)
-    # print(str(type(value)))
-    print("{}: {}".format(stat, value))
-
-print()
-
-# print(engine.trades)
-# plt.plot(data['Close'])
-
+# plot results
+print_stats(stats)
 engine.plot()

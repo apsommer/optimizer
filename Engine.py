@@ -15,6 +15,7 @@ class Engine:
         self.initial_cash = initial_cash
         self.cash = initial_cash
         self.cash_series = { }
+        self.stats = { }
 
     def add_data(self, data: pd.DataFrame):
         self.data = data
@@ -75,37 +76,41 @@ class Engine:
 
     def _get_stats(self):
 
-        stats = { }
+        stats = self.stats
 
         stats['start_date'] = str(self.data.index[0])
         stats['end_date'] = str(self.data.index[-1])
         days = (self.data.index[-1] - self.data.index[0]).days
         stats['days'] = days
-        stats['trades'] = len(self.trades)
-        stats[''] = ''
         stats['initial_cash'] = self.initial_cash
+        stats[''] = ''
+        stats['ticker'] = self.strategy.ticker
+        stats['size'] = self.strategy.size
+        stats['trades'] = len(self.trades)
         stats['cash'] = self.cash
-        stats[':'] = ''
-
+        stats['profit'] = self.cash - self.initial_cash
 
         total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
         if self.initial_cash > self.cash:
             total_return = - total_return
         stats['total_return [%]'] = total_return
 
-        entry_price = self.data.loc[self.data.index[0]]['Open']
-        exit_price = self.data.loc[self.data.index[-1]]['Close']
-        buy_hold = self.data.Close - entry_price
-
-        total_return_buy_hold = (abs(exit_price - entry_price) / entry_price ) * 100
-        if exit_price > entry_price:
-            total_return_buy_hold = - total_return_buy_hold
-        stats['total_return_buy_hold [%]'] = total_return_buy_hold
-
-        # max drawdown, percent
         cash_df = pd.DataFrame({'cash': self.cash_series})
         stats['max_drawdown [%]'] = get_max_drawdown(cash_df['cash'])
-        stats['max_drawdown_buy_hold [%]'] = get_max_drawdown(buy_hold)
+        stats['annualized_return [%]'] = 'todo'
+
+        stats[':'] = ''
+
+        entry_price = self.data.loc[self.data.index[0]]['Open']
+        exit_price = self.data.loc[self.data.index[-1]]['Close']
+        buy_hold_df = self.data.Close - entry_price
+        stats['profit_buy_hold'] = self.strategy.tick_value * (exit_price - entry_price)
+
+        total_return_buy_hold = (abs(exit_price - entry_price) / entry_price ) * 100
+        if entry_price > exit_price:
+            total_return_buy_hold = - total_return_buy_hold
+        stats['total_return_buy_hold [%]'] = total_return_buy_hold
+        stats['max_drawdown_buy_hold [%]'] = get_max_drawdown(buy_hold_df)
 
         # apples = sum([trade.profit for trade in self.trades])
         # stats['exposure'] = p_diff
@@ -115,7 +120,9 @@ class Engine:
         # metrics['returns_annualized'] = (
         #         ((aum.iloc[-1] / aum.iloc[0])
         #          ** (1 / ((aum.index[-1] - aum.index[0]).days / 365)) - 1) * 100)
-        stats['annualized_return'] = np.nan
+
+        stats['::'] = ''
+
 
         # annualized volatility: std_dev * sqrt(periods/year)
         self.trading_days = 252
@@ -130,7 +137,7 @@ class Engine:
 
         # capture portfolios for plotting
         self.portfolio = cash_df
-        self.portfolio_buy_hold = buy_hold
+        self.portfolio_buy_hold = buy_hold_df
 
         return stats
 
@@ -180,10 +187,12 @@ def get_max_drawdown(prices):
     max_daily_drawdown = daily_drawdown.cummin()
     return max_daily_drawdown.min() * 100
 
-def print_stats(metrics):
-    print("")
-    print("Performance:")
-    print("")
-    for stat, value in metrics.items():
-        print("{}: {}".format(stat, round(value, 5)))
-    print("")
+def print_stats(stats):
+    print()
+    for stat, value in stats.items():
+        if type(value) == np.float64 or type(value) == float:
+            value = round(value, 1)
+            if abs(value) > 100:
+                value = round(value)
+        print("{}: {}".format(stat, value))
+    print()
