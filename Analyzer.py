@@ -1,5 +1,3 @@
-from unittest.mock import inplace
-
 import matplotlib.pyplot as plt
 import numpy as np
 import Repository as repo
@@ -28,8 +26,10 @@ print("\nPerformance:")
 for stat, value in stats.items():
 
     if type(value) == np.float64 or type(value) == float:
-        value = round(value, 2)
-
+        value = round(value, 1)
+        if value > 100:
+            value = round(value)
+    # print(str(type(value)))
     print("{}: {}".format(stat, value))
 
 print()
