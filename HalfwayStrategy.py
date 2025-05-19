@@ -1,16 +1,14 @@
 from BaselineStrategy import BaselineStrategy
-
-ticker = {
-    'symbol': 'MNQ',
-    'tick_value': 0.50 # MNQ: 0.50 USD/tick, NQ = 5 USD/tick
-}
-tick_value = 0.50
-size = 1
+from model.Asset import Ticker
 
 class HalfwayStrategy(BaselineStrategy):
 
     def __init__(self):
         super().__init__()
+        self.size = 1
+        self.ticker = Ticker(
+            symbol = 'MNQ',
+            tick_value = 0.50)
 
     def on_bar(self):
 
@@ -22,17 +20,17 @@ class HalfwayStrategy(BaselineStrategy):
         is_short = 0 > self.position_size
 
         if is_flat and bar_index % 321 == 0:
-            self.buy(ticker, size)
+            self.buy(self.ticker, self.size)
             # print(f'{bar_index}: long enter')
 
         if is_long and bar_index % 987 == 0:
-            self.flat(ticker, size)
+            self.flat(self.ticker, self.size)
             # print(f'{bar_index}: long exit')
 
         if is_flat and bar_index % 1113 == 0:
-            self.sell(ticker, size)
+            self.sell(self.ticker, self.size)
             # print(f'{bar_index}: short enter')
 
         if is_short and bar_index % 3109 == 0:
-            self.flat(ticker, size)
+            self.flat(self.ticker, self.size)
             # print(f'{bar_index}: short exit')

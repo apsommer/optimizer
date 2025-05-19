@@ -1,6 +1,5 @@
 class Trade:
-    def __init__(self, ticker, side, size, entry_order, exit_order):
-        self.ticker = ticker
+    def __init__(self, side, size, entry_order, exit_order):
         self.side = side # long, short
         self.size = size
         self.entry_order = entry_order
@@ -11,6 +10,7 @@ class Trade:
 
         entry_price = self.entry_order.price
         exit_price = self.exit_order.price
+        tick_value = self.entry_order.ticker.tick_value
 
         if entry_price is None or exit_price is None:
             return None
@@ -19,6 +19,5 @@ class Trade:
         if self.side == 'short':
             return tick_value * (entry_price - exit_price)
 
-    # string representation of class, called "dunder" for double under underscores
     def __repr__(self):
-        return f'\nticker: {self.ticker}\nside: {self.side}\nsize: {self.size}\nentry_order: {self.entry_order}\nexit_order: {self.exit_order}\n'
+        return f'\nside: {self.side}\nsize: {self.size}\nentry_order: {self.entry_order}\nexit_order: {self.exit_order}'

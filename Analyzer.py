@@ -22,4 +22,6 @@ stats = engine.run()
 
 # plot results
 print_stats(stats)
+engine.print_trades()
+
 engine.plot()

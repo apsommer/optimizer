@@ -58,7 +58,6 @@ class Engine:
                 or last_order.sentiment == 'short'):
 
             trade = Trade(
-                ticker = last_order.ticker,
                 side = last_order.sentiment, # long, short
                 size = last_order.size,
                 entry_order = last_order,
@@ -84,7 +83,7 @@ class Engine:
         stats['days'] = days
         stats['initial_cash'] = self.initial_cash
         stats[''] = ''
-        stats['ticker'] = self.strategy.ticker
+        stats['ticker'] = self.strategy.ticker.symbol
         stats['size'] = self.strategy.size
         stats['trades'] = len(self.trades)
         stats['cash'] = self.cash
@@ -104,7 +103,7 @@ class Engine:
         entry_price = self.data.loc[self.data.index[0]]['Open']
         exit_price = self.data.loc[self.data.index[-1]]['Close']
         buy_hold_df = self.data.Close - entry_price
-        stats['profit_buy_hold'] = self.strategy.tick_value * (exit_price - entry_price)
+        stats['profit_buy_hold'] = self.strategy.ticker.tick_value * (exit_price - entry_price)
 
         total_return_buy_hold = (abs(exit_price - entry_price) / entry_price ) * 100
         if entry_price > exit_price:
