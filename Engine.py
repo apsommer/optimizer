@@ -86,19 +86,19 @@ class Engine:
         days = (self.data.index[-1] - self.data.index[0]).days
         stats['days'] = days
 
-        if self.cash > self.initial_cash:
-            stats['total_return'] = (self.cash / self.initial_cash) * 100
-        else:
-            stats['total_return'] = ((self.cash - self.initial_cash) / self.initial_cash) * 100
+        total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
+        if self.initial_cash > self.cash:
+            total_return = - total_return
+        stats['total_return [%]'] = total_return
 
         entry_price = self.data.loc[self.data.index[0]]['Open']
         exit_price = self.data.loc[self.data.index[-1]]['Close']
         bh = self.data.Close - entry_price
 
+        total_return_bh = (abs(exit_price - entry_price) / entry_price ) * 100
         if exit_price > entry_price:
-            stats['total_return_b&h'] = (bh.iloc[-1] / self.initial_cash) * 100
-        else:
-            stats['total_return_b&h'] = ((bh.iloc[-1] - self.initial_cash) / self.initial_cash) * 100
+            total_return_bh = - total_return_bh
+        stats['total_return_bh [%]'] = total_return_bh
 
         # apples = sum([trade.profit for trade in self.trades])
         # stats['exposure'] = p_diff
