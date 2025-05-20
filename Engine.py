@@ -82,9 +82,11 @@ class Engine:
     def _get_stats(self):
 
         stats = self.stats
+        trading_days = 252
+        risk_free_rate = 0
 
+        # config
         stats['Config:'] = ''
-
         stats['start_date'] = str(self.data.index[0])
         stats['end_date'] = str(self.data.index[-1])
         days = (self.data.index[-1] - self.data.index[0]).days
@@ -93,51 +95,41 @@ class Engine:
         stats['size'] = self.strategy.size
         stats['initial_cash [$]'] = self.initial_cash
 
-        # ______________________________________________________________________________________________________________
-
-        stats['Strategy:'] = ''
-
-        stats['trades'] = len(self.trades)
-        stats['profit [$]'] = self.cash - self.initial_cash
-
+        # strategy
+        cash_df = pd.DataFrame({'cash': self.cash_series})
         total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
         if self.initial_cash > self.cash:
             total_return = - total_return
-        stats['total_return [%]'] = total_return
+        annualized_return = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
+        volatility = cash_df['cash'].pct_change().std() * np.sqrt(trading_days) * 100
 
-        cash_df = pd.DataFrame({'cash': self.cash_series})
-        stats['annualized_return [%]'] = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
+        stats['Strategy:'] = ''
+        stats['trades'] = len(self.trades)
+        stats['profit [$]'] = self.cash - self.initial_cash
+        stats['total_return [%]'] = total_return
+        stats['annualized_return [%]'] = annualized_return
         stats['max_drawdown [%]'] = self._get_max_drawdown(cash_df['cash'])
         stats['pf'] = self._get_profit_factor()
+        stats['volatility_ann [%]'] = volatility # todo check
+        stats['sharpe_ratio'] = (annualized_return - risk_free_rate) / volatility # todo check
 
-        # ______________________________________________________________________________________________________________
-
-        stats['Buy & Hold:'] = ''
-
+        # reference simple "buy and hold"
         buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.first_bar_close)
-
         profit_buy_hold = buy_hold_df.iloc[-1] - buy_hold_df.iloc[0]
-        stats['profit_bh [$]'] =  profit_buy_hold
-
         total_return_buy_hold = (abs(profit_buy_hold) / buy_hold_df.iloc[0]) * 100
         if self.first_bar_close > self.last_bar_close:
             total_return_buy_hold = - total_return_buy_hold
+        annualized_return_buy_hold = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
+        volatility_buy_hold = buy_hold_df.pct_change().std() * np.sqrt(trading_days) * 100
+
+        stats['Buy & Hold:'] = ''
+        stats['profit_bh [$]'] = profit_buy_hold
         stats['total_return_bh [%]'] = total_return_buy_hold
-        stats['annualized_return_bh [%]'] = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
+        stats['annualized_return_bh [%]'] = annualized_return_buy_hold
         stats['max_drawdown_bh [%]'] = self._get_max_drawdown(buy_hold_df)
+        stats['volatility_ann_bh [%]'] = volatility_buy_hold # todo check
+        stats['sharpe_ratio_bh'] = (annualized_return_buy_hold - risk_free_rate) / volatility_buy_hold # todo check
 
-        # todo annualized volatility: std_dev * sqrt(periods/year)
-        self.trading_days = 252
-        # metrics['volatility_ann'] = aum.pct_change().std() * np.sqrt(self.trading_days) * 100
-        # metrics['volatility_ann_buy_hold'] = ref.pct_change().std() * np.sqrt(self.trading_days) * 100
-
-        # sharpe ratio: (rate - risk_free_rate) / volatility
-        self.risk_free_rate = 0
-        # metrics['sharpe_ratio'] = (metrics['returns_annualized'] - self.risk_free_rate) / metrics['volatility_ann']
-        # metrics['sharpe_ratio_buy_hold'] = (metrics['returns_annualized_buy_hold'] - self.risk_free_rate) / metrics[
-        #     'volatility_ann_buy_hold']
-
-        # capture portfolios for plotting
         self.portfolio = cash_df
         self.portfolio_buy_hold = buy_hold_df
 
