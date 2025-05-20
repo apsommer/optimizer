@@ -155,7 +155,7 @@ class Engine:
         abs_ymin = min(min(self.cash_series.values()), min(self.portfolio_buy_hold))
         abs_ymax = max(max(self.cash_series.values()), max(self.portfolio_buy_hold))
         ymin = round(0.90 * abs_ymin, -2)
-        ymax = round(1.10 * abs_ymax, -2)
+        ymax = 25000 # round(1.10 * abs_ymax, -2)
         ystep = round((ymax - ymin) / 20, -2)
         y_ticks = np.arange(ymin, ymax, ystep)
         plt.yticks(y_ticks)
@@ -170,6 +170,19 @@ class Engine:
         plt.plot(self.portfolio['cash'], label='strategy', color = 'green')
         plt.plot(self.portfolio_buy_hold, label='buy hold', color = 'black')
         # todo trades
+
+        x_trade = []
+        y_trade = []
+        for trade in self.trades:
+            if trade.entry_order is not None:
+                x_trade.append(trade.entry_order.idx)
+                y_trade.append(trade.entry_order.price)
+            if trade.exit_order is not None:
+                x_trade.append(trade.exit_order.idx)
+                y_trade.append(trade.exit_order.price)
+        apples = pd.DataFrame(index=x_trade, data=y_trade)
+        print(apples)
+        plt.plot(apples, 'or', markersize=10, label='apples')
 
         # show
         plt.legend()
