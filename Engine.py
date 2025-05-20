@@ -17,12 +17,6 @@ class Engine:
         self.cash_series = { }
         self.stats = { }
 
-    def add_data(self, data: pd.DataFrame):
-        self.data = data
-
-    def add_strategy(self, strategy):
-        self.strategy = strategy
-
     def run(self):
 
         # init strategy
