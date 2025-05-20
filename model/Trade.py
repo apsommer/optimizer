@@ -8,12 +8,13 @@ class Trade:
     @property
     def profit(self):
 
+        if self.entry_order is None or self.exit_order is None:
+            return 0
+
         entry_price = self.entry_order.price
         exit_price = self.exit_order.price
         tick_value = self.entry_order.ticker.tick_value
 
-        if entry_price is None or exit_price is None:
-            return None
         if self.side == 'long':
             return tick_value * (exit_price - entry_price)
         if self.side == 'short':

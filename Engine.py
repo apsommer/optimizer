@@ -108,11 +108,11 @@ class Engine:
         cash_df = pd.DataFrame({'cash': self.cash_series})
         stats['annualized_return [%]'] = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
         stats['max_drawdown [%]'] = self._get_max_drawdown(cash_df['cash'])
+        stats['pf'] = self._get_profit_factor()
 
         # ______________________________________________________________________________________________________________
-        
+
         stats['Buy & Hold:'] = ''
-        stats['trades_bh'] = 1
 
         buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.first_bar_close)
 
@@ -155,9 +155,8 @@ class Engine:
         losses = [trade.profit for trade in trades if trade.profit < 0]
         total_wins = sum(wins)
         total_losses = sum(losses)
-        if abs(total_losses) > total_wins:
-            return None
-        return total_wins / total_losses
+        if abs(total_losses) > total_wins: return None
+        return total_wins / -total_losses
 
     def plot(self):
 
@@ -204,7 +203,11 @@ def print_stats(stats):
     for stat, value in stats.items():
         if type(value) == np.float64 or type(value) == float:
             value = round(value, 1)
-            if abs(value) > 10:
+            if abs(value) > 0 and abs(value) < 10:
+                value = round(value, 2)
+            if abs(value) > 10 and abs(value) < 100:
+                    value = round(value, 1)
+            if abs(value) > 100:
                 value = round(value)
         if ":" in stat:
             print(stat)
