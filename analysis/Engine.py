@@ -178,24 +178,31 @@ class Engine:
     def plot_trades(self):
 
         # plt.get_current_fig_manager().full_screen_toggle()
-
         plt.figure(2)
 
-        x_trade = []
-        y_trade = []
+        x_trade, y_trade = [], []
+        color = 'white'
+
         for trade in self.trades:
-            if trade.entry_order is not None:
-                x_trade.append(trade.entry_order.idx)
-                y_trade.append(trade.entry_order.price)
-                plt.plot(x_trade, y_trade, 'ro', markersize=10)
-            if trade.exit_order is not None:
-                x_trade.append(trade.exit_order.idx)
-                y_trade.append(trade.exit_order.price)
+
+            if trade.entry_order is None or trade.exit_order is None:
+                continue
+
+            x_trade.append(trade.entry_order.idx)
+            y_trade.append(trade.entry_order.price)
+            if trade.entry_order.sentiment == 'long': color = 'blue'
+            if trade.entry_order.sentiment == 'short': color = 'red'
+            plt.plot(trade.entry_order.idx, trade.entry_order.price, color=color, marker='o', markersize=10)
+
+            x_trade.append(trade.exit_order.idx)
+            y_trade.append(trade.exit_order.price)
+            plt.plot(trade.exit_order.idx, trade.exit_order.price, color=color, marker='o', markersize=20)
 
         trade_df = pd.DataFrame(index=x_trade, data=y_trade)
 
         plt.get_current_fig_manager().full_screen_toggle()
-        plt.plot(trade_df, 'blue')
+        plt.plot(self.data.Close, 'black', label='MNQ')
+        plt.plot(trade_df, 'blue', label='trades')
         plt.plot()
 
         # show
