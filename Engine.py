@@ -93,6 +93,8 @@ class Engine:
         stats['size'] = self.strategy.size
         stats['initial_cash [$]'] = self.initial_cash
 
+        # ______________________________________________________________________________________________________________
+
         stats['Strategy:'] = ''
 
         stats['trades'] = len(self.trades)
@@ -105,8 +107,10 @@ class Engine:
 
         cash_df = pd.DataFrame({'cash': self.cash_series})
         stats['annualized_return [%]'] = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
-        stats['max_drawdown [%]'] = get_max_drawdown(cash_df['cash'])
+        stats['max_drawdown [%]'] = self._get_max_drawdown(cash_df['cash'])
 
+        # ______________________________________________________________________________________________________________
+        
         stats['Buy & Hold:'] = ''
         stats['trades_bh'] = 1
 
@@ -120,7 +124,7 @@ class Engine:
             total_return_buy_hold = - total_return_buy_hold
         stats['total_return_bh [%]'] = total_return_buy_hold
         stats['annualized_return_bh [%]'] = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
-        stats['max_drawdown_bh [%]'] = get_max_drawdown(buy_hold_df)
+        stats['max_drawdown_bh [%]'] = self._get_max_drawdown(buy_hold_df)
 
         # todo annualized volatility: std_dev * sqrt(periods/year)
         self.trading_days = 252
@@ -138,6 +142,22 @@ class Engine:
         self.portfolio_buy_hold = buy_hold_df
 
         return stats
+
+    def _get_max_drawdown(self, prices):
+        roll_max = prices.cummax()
+        daily_drawdown = prices / roll_max - 1.0
+        max_daily_drawdown = daily_drawdown.cummin()
+        return max_daily_drawdown.min() * 100
+
+    def _get_profit_factor(self):
+        trades = self.trades
+        wins = [trade.profit for trade in trades if trade.profit > 0]
+        losses = [trade.profit for trade in trades if trade.profit < 0]
+        total_wins = sum(wins)
+        total_losses = sum(losses)
+        if abs(total_losses) > total_wins:
+            return None
+        return total_wins / total_losses
 
     def plot(self):
 
@@ -178,12 +198,6 @@ class Engine:
         for trade in self.trades:
             print(trade)
         print("")
-
-def get_max_drawdown(prices):
-    roll_max = prices.cummax()
-    daily_drawdown = prices / roll_max - 1.0
-    max_daily_drawdown = daily_drawdown.cummin()
-    return max_daily_drawdown.min() * 100
 
 def print_stats(stats):
     print()
