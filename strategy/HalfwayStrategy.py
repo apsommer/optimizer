@@ -1,4 +1,4 @@
-from BaselineStrategy import BaselineStrategy
+from strategy.BaselineStrategy import BaselineStrategy
 from model.Ticker import Ticker
 
 class HalfwayStrategy(BaselineStrategy):
@@ -25,16 +25,12 @@ class HalfwayStrategy(BaselineStrategy):
 
         if is_flat and bar_index % 321 == 0:
             self.buy(self.ticker, self.size)
-            # print(f'{bar_index}: long enter')
 
         if is_long and bar_index % 987 == 0:
             self.flat(self.ticker, self.size)
-            # print(f'{bar_index}: long exit')
 
         if is_flat and bar_index % 1113 == 0:
             self.sell(self.ticker, self.size)
-            # print(f'{bar_index}: short enter')
 
         if is_short and bar_index % 3109 == 0:
             self.flat(self.ticker, self.size)
-            # print(f'{bar_index}: short exit')

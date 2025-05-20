@@ -48,7 +48,7 @@ def getOhlc(
     ohlc.index = ohlc.index.tz_localize(None)
     ohlc.index = pd.to_datetime(ohlc.index)
 
-    csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"
+    csv_filename = "raw/nq_3months_2025-02-01_2025-05-01.csv"
     ohlc.to_csv(csv_filename)
 
     return ohlc

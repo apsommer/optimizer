@@ -4,20 +4,7 @@ from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
 from model.Trade import Trade
-
-def get_max_drawdown(prices):
-    roll_max = prices.cummax()
-    daily_drawdown = prices / roll_max - 1.0
-    max_daily_drawdown = daily_drawdown.cummin()
-    return max_daily_drawdown.min() * 100
-
-def get_profit_factor(trades):
-    wins = [trade.profit for trade in trades if trade.profit > 0]
-    losses = [trade.profit for trade in trades if trade.profit < 0]
-    total_wins = sum(wins)
-    total_losses = sum(losses)
-    if abs(total_losses) > total_wins: return None
-    return total_wins / -total_losses
+from Utils import *
 
 class Engine:
 

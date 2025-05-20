@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import Repository as repo
+from data import Repository as repo
 
 
 def ema(prices, bars, smoothing):
