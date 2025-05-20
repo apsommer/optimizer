@@ -7,7 +7,6 @@ class Order:
         self.bar_index = bar_index
         self.price = price
 
-    # string representation of class, called "dunder" for double under underscores
     def __repr__(self):
-        return f'\n\tticker: {self.ticker}\n\tside: {self.sentiment}\n\tsize: {self.size}\n\tidx: {self.idx}\n\tbar_index: {self.bar_index}\n\tprice: {self.price}'
+        return f'\n\tticker: {self.ticker}\n\tsentiment: {self.sentiment}\n\tsize: {self.size}\n\tidx: {self.idx}\n\tbar_index: {self.bar_index}\n\tprice: {self.price}'
 
