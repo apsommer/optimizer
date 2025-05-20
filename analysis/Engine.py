@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from fontTools.unicodedata import block
 from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
@@ -136,12 +137,14 @@ class Engine:
 
         return stats
 
-    def plot(self):
+    def plot_strategy(self):
 
         # config plot
-        plt.get_current_fig_manager().full_screen_toggle()
         font = {'family': 'Ubuntu', 'size': 16}
         matplotlib.rc('font', **font)
+        plt.tick_params(tick1On = False)
+        plt.tick_params(tick2On = False)
+        plt.grid(color = '#f2f2f2', linewidth = 0.5)
 
         # x-axis
         xmin = min(self.data.index)
@@ -155,21 +158,28 @@ class Engine:
         abs_ymin = min(min(self.cash_series.values()), min(self.portfolio_buy_hold))
         abs_ymax = max(max(self.cash_series.values()), max(self.portfolio_buy_hold))
         ymin = round(0.90 * abs_ymin, -2)
-        ymax = 25000 # round(1.10 * abs_ymax, -2)
+        ymax = round(1.10 * abs_ymax, -2)
         ystep = round((ymax - ymin) / 20, -2)
         y_ticks = np.arange(ymin, ymax, ystep)
         plt.yticks(y_ticks)
         plt.ylim(ymin, ymax)
 
-        # config plot
-        plt.tick_params(tick1On = False)
-        plt.tick_params(tick2On = False)
-        plt.grid(color = '#f2f2f2', linewidth = 0.5)
-
         # add series
+        plt.figure(1)
+        # plt.get_current_fig_manager().full_screen_toggle()
         plt.plot(self.portfolio['cash'], label='strategy', color = 'green')
         plt.plot(self.portfolio_buy_hold, label='buy hold', color = 'black')
-        # todo trades
+
+        # show
+        plt.legend()
+        plt.tight_layout()
+        plt.show(block=False)
+
+    def plot_trades(self):
+
+        # plt.get_current_fig_manager().full_screen_toggle()
+
+        plt.figure(2)
 
         x_trade = []
         y_trade = []
@@ -177,17 +187,21 @@ class Engine:
             if trade.entry_order is not None:
                 x_trade.append(trade.entry_order.idx)
                 y_trade.append(trade.entry_order.price)
+                plt.plot(x_trade, y_trade, 'ro', markersize=10)
             if trade.exit_order is not None:
                 x_trade.append(trade.exit_order.idx)
                 y_trade.append(trade.exit_order.price)
-        apples = pd.DataFrame(index=x_trade, data=y_trade)
-        print(apples)
-        plt.plot(apples, 'or', markersize=10, label='apples')
+
+        trade_df = pd.DataFrame(index=x_trade, data=y_trade)
+
+        plt.get_current_fig_manager().full_screen_toggle()
+        plt.plot(trade_df, 'blue')
+        plt.plot()
 
         # show
         plt.legend()
         plt.tight_layout()
-        plt.show()
+        plt.show(block=True)
 
     def print_trades(self):
         print("")

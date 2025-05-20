@@ -25,4 +25,5 @@ engine.data = data
 results = engine.run()
 print_stats(results)
 # engine.print_trades()
-engine.plot()
+engine.plot_strategy()
+engine.plot_trades()
