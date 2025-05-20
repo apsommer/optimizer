@@ -1,5 +1,5 @@
 from BaselineStrategy import BaselineStrategy
-from model.Asset import Ticker
+from model.Ticker import Ticker
 
 class HalfwayStrategy(BaselineStrategy):
 
@@ -8,7 +8,8 @@ class HalfwayStrategy(BaselineStrategy):
         self.size = 1
         self.ticker = Ticker(
             symbol = 'MNQ',
-            tick_value = 0.50)
+            tick_value = 0.50,
+            margin_requirement = 3552) # http://tradestation.com/pricing/futures-margin-requirements/
 
     def on_bar(self):
 

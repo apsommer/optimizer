@@ -7,19 +7,29 @@ from model.Trade import Trade
 
 class Engine:
 
-    def __init__(self, initial_cash):
+    def __init__(self):
         self.data = None
         self.strategy = None
-        self.current_idx = None
+        self.current_idx = -1
+        self.initial_cash = float(0.1)
+        self.cash = self.initial_cash
         self.trades = []
-        self.initial_cash = initial_cash
-        self.cash = initial_cash
-        self.cash_series = { }
+        self.cash_series = { } # todo refactor to series
         self.stats = { }
+
+    @property
+    def first_bar_close(self):
+        return self.data.iloc[0]['Close']
+
+    @property
+    def last_bar_close(self):
+        return self.data.iloc[-1]['Close']
 
     def run(self):
 
-        # init strategy
+        # init
+        # self.initial_cash = 0 # self.first_bar_close
+        # self.cash = self.initial_cash
         self.strategy.data = self.data
         self.strategy.cash = self.cash
 
@@ -86,7 +96,7 @@ class Engine:
         total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
         if self.initial_cash > self.cash:
             total_return = - total_return
-        stats['total_return [%]'] = total_return
+        stats['total_return'] = total_return
 
         cash_df = pd.DataFrame({'cash': self.cash_series})
         stats['max_drawdown [%]'] = get_max_drawdown(cash_df['cash'])
@@ -94,8 +104,8 @@ class Engine:
 
         stats[':'] = ''
 
-        entry_price = self.data.loc[self.data.index[0]]['Open']
-        exit_price = self.data.loc[self.data.index[-1]]['Close']
+        entry_price = self.first_bar_close
+        exit_price = self.last_bar_close
         buy_hold_df = self.data.Close - entry_price
         stats['profit_buy_hold'] = self.strategy.ticker.tick_value * (exit_price - entry_price)
 
