@@ -5,6 +5,20 @@ import matplotlib
 import matplotlib.pyplot as plt
 from model.Trade import Trade
 
+def get_max_drawdown(prices):
+    roll_max = prices.cummax()
+    daily_drawdown = prices / roll_max - 1.0
+    max_daily_drawdown = daily_drawdown.cummin()
+    return max_daily_drawdown.min() * 100
+
+def get_profit_factor(trades):
+    wins = [trade.profit for trade in trades if trade.profit > 0]
+    losses = [trade.profit for trade in trades if trade.profit < 0]
+    total_wins = sum(wins)
+    total_losses = sum(losses)
+    if abs(total_losses) > total_wins: return None
+    return total_wins / -total_losses
+
 class Engine:
 
     def __init__(self):
@@ -105,11 +119,11 @@ class Engine:
 
         stats['Strategy:'] = ''
         stats['trades'] = len(self.trades)
+        stats['pf'] = get_profit_factor(self.trades)
         stats['profit [$]'] = self.cash - self.initial_cash
         stats['total_return [%]'] = total_return
         stats['annualized_return [%]'] = annualized_return
-        stats['max_drawdown [%]'] = self._get_max_drawdown(cash_df['cash'])
-        stats['pf'] = self._get_profit_factor()
+        stats['max_drawdown [%]'] = get_max_drawdown(cash_df['cash'])
         stats['volatility_ann [%]'] = volatility # todo check
         stats['sharpe_ratio'] = (annualized_return - risk_free_rate) / volatility # todo check
 
@@ -126,7 +140,7 @@ class Engine:
         stats['profit_bh [$]'] = profit_buy_hold
         stats['total_return_bh [%]'] = total_return_buy_hold
         stats['annualized_return_bh [%]'] = annualized_return_buy_hold
-        stats['max_drawdown_bh [%]'] = self._get_max_drawdown(buy_hold_df)
+        stats['max_drawdown_bh [%]'] = get_max_drawdown(buy_hold_df)
         stats['volatility_ann_bh [%]'] = volatility_buy_hold # todo check
         stats['sharpe_ratio_bh'] = (annualized_return_buy_hold - risk_free_rate) / volatility_buy_hold # todo check
 
@@ -134,21 +148,6 @@ class Engine:
         self.portfolio_buy_hold = buy_hold_df
 
         return stats
-
-    def _get_max_drawdown(self, prices):
-        roll_max = prices.cummax()
-        daily_drawdown = prices / roll_max - 1.0
-        max_daily_drawdown = daily_drawdown.cummin()
-        return max_daily_drawdown.min() * 100
-
-    def _get_profit_factor(self):
-        trades = self.trades
-        wins = [trade.profit for trade in trades if trade.profit > 0]
-        losses = [trade.profit for trade in trades if trade.profit < 0]
-        total_wins = sum(wins)
-        total_losses = sum(losses)
-        if abs(total_losses) > total_wins: return None
-        return total_wins / -total_losses
 
     def plot(self):
 
