@@ -32,7 +32,7 @@ class Engine:
         size = self.strategy.size
 
         # init
-        self.initial_cash = margin_requirement * self.first_bar_close
+        self.initial_cash = 10e3 # margin_requirement * self.first_bar_close
         self.cash = self.initial_cash
         self.strategy.data = self.data
 
@@ -138,13 +138,12 @@ class Engine:
 
     def plot(self):
 
+        # config plot
         plt.get_current_fig_manager().full_screen_toggle()
         font = {'family': 'Ubuntu', 'size': 16}
         matplotlib.rc('font', **font)
 
-        plt.plot(self.portfolio['cash'], label='strategy', color = 'blue')
-        plt.plot(self.portfolio_buy_hold, label='b & h', color = 'green')
-
+        # x-axis
         xmin = min(self.data.index)
         xmax = max(self.data.index)
         xstep = 20
@@ -152,20 +151,27 @@ class Engine:
         plt.xticks(x_ticks, rotation = 90)
         plt.xlim(xmin, xmax)
 
+        # y-axis
         abs_ymin = min(min(self.cash_series.values()), min(self.portfolio_buy_hold))
         abs_ymax = max(max(self.cash_series.values()), max(self.portfolio_buy_hold))
-        ymin = round(1.10 * abs_ymin, -2)
+        ymin = round(0.90 * abs_ymin, -2)
         ymax = round(1.10 * abs_ymax, -2)
         ystep = round((ymax - ymin) / 20, -2)
         y_ticks = np.arange(ymin, ymax, ystep)
         plt.yticks(y_ticks)
         plt.ylim(ymin, ymax)
 
+        # config plot
         plt.tick_params(tick1On = False)
         plt.tick_params(tick2On = False)
-
         plt.grid(color = '#f2f2f2', linewidth = 0.5)
 
+        # add series
+        plt.plot(self.portfolio['cash'], label='strategy', color = 'green')
+        plt.plot(self.portfolio_buy_hold, label='buy hold', color = 'black')
+        # todo trades
+
+        # show
         plt.legend()
         plt.tight_layout()
         plt.show()

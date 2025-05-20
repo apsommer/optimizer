@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def get_max_drawdown(prices):
     roll_max = prices.cummax()
     daily_drawdown = prices / roll_max - 1.0
@@ -8,6 +11,6 @@ def get_profit_factor(trades):
     wins = [trade.profit for trade in trades if trade.profit > 0]
     losses = [trade.profit for trade in trades if trade.profit < 0]
     total_wins = sum(wins)
-    total_losses = sum(losses)
-    if abs(total_losses) > total_wins: return None
-    return total_wins / -total_losses
+    total_losses = -sum(losses)
+    if total_losses > total_wins: return np.nan
+    return total_wins / total_losses
