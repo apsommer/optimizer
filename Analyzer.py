@@ -9,19 +9,20 @@ plt.rcParams['figure.figsize'] = [20, 12]
 logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
 
 # get ohlc prices
-csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"
+csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv" # 3 months
+# csv_filename = "data/nq_2years_2023-03-15_2025-03-15.csv" # 2 years
+
 data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
-# init engine
+# init
+strategy = HalfwayStrategy()
 engine = Engine()
+engine.strategy = strategy
 engine.data = data
-engine.strategy = HalfwayStrategy()
 
-# run engine
-stats = engine.run()
-
-# plot results
-print_stats(stats)
+# run
+results = engine.run()
+print_stats(results)
 # engine.print_trades()
 engine.plot()

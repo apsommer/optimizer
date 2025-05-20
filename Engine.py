@@ -11,7 +11,7 @@ class Engine:
         self.data = None
         self.strategy = None
         self.current_idx = -1
-        self.initial_cash = float(0.1)
+        self.initial_cash = 0
         self.cash = self.initial_cash
         self.trades = []
         self.cash_series = { } # todo refactor to series
@@ -27,11 +27,13 @@ class Engine:
 
     def run(self):
 
+        margin_requirement = self.strategy.ticker.margin_requirement
+        size = self.strategy.size
+
         # init
-        # self.initial_cash = 0 # self.first_bar_close
-        # self.cash = self.initial_cash
+        self.initial_cash = margin_requirement * self.first_bar_close
+        self.cash = self.initial_cash
         self.strategy.data = self.data
-        self.strategy.cash = self.cash
 
         # loop timestamps
         for idx in tqdm(self.data.index, colour='BLUE'):
@@ -81,53 +83,46 @@ class Engine:
 
         stats = self.stats
 
+        stats['Config:'] = ''
+
         stats['start_date'] = str(self.data.index[0])
         stats['end_date'] = str(self.data.index[-1])
         days = (self.data.index[-1] - self.data.index[0]).days
         stats['days'] = days
-        stats['initial_cash'] = self.initial_cash
-        stats[''] = ''
         stats['ticker'] = self.strategy.ticker.symbol
         stats['size'] = self.strategy.size
+        stats['initial_cash [$]'] = self.initial_cash
+
+        stats['Strategy:'] = ''
+
         stats['trades'] = len(self.trades)
-        stats['cash'] = self.cash
-        stats['profit'] = self.cash - self.initial_cash
+        stats['profit [$]'] = self.cash - self.initial_cash
 
         total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
         if self.initial_cash > self.cash:
             total_return = - total_return
-        stats['total_return'] = total_return
+        stats['total_return [%]'] = total_return
 
         cash_df = pd.DataFrame({'cash': self.cash_series})
+        stats['annualized_return [%]'] = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
         stats['max_drawdown [%]'] = get_max_drawdown(cash_df['cash'])
-        stats['annualized_return [%]'] = 'todo'
 
-        stats[':'] = ''
+        stats['Buy & Hold:'] = ''
+        stats['trades_bh'] = 1
 
-        entry_price = self.first_bar_close
-        exit_price = self.last_bar_close
-        buy_hold_df = self.data.Close - entry_price
-        stats['profit_buy_hold'] = self.strategy.ticker.tick_value * (exit_price - entry_price)
+        buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.first_bar_close)
 
-        total_return_buy_hold = (abs(exit_price - entry_price) / entry_price ) * 100
-        if entry_price > exit_price:
+        profit_buy_hold = buy_hold_df.iloc[-1] - buy_hold_df.iloc[0]
+        stats['profit_bh [$]'] =  profit_buy_hold
+
+        total_return_buy_hold = (abs(profit_buy_hold) / buy_hold_df.iloc[0]) * 100
+        if self.first_bar_close > self.last_bar_close:
             total_return_buy_hold = - total_return_buy_hold
-        stats['total_return_buy_hold [%]'] = total_return_buy_hold
-        stats['max_drawdown_buy_hold [%]'] = get_max_drawdown(buy_hold_df)
+        stats['total_return_bh [%]'] = total_return_buy_hold
+        stats['annualized_return_bh [%]'] = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
+        stats['max_drawdown_bh [%]'] = get_max_drawdown(buy_hold_df)
 
-        # apples = sum([trade.profit for trade in self.trades])
-        # stats['exposure'] = p_diff
-
-        # annualized returns: ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
-        # aum = portfolio['total_aum']
-        # metrics['returns_annualized'] = (
-        #         ((aum.iloc[-1] / aum.iloc[0])
-        #          ** (1 / ((aum.index[-1] - aum.index[0]).days / 365)) - 1) * 100)
-
-        stats['::'] = ''
-
-
-        # annualized volatility: std_dev * sqrt(periods/year)
+        # todo annualized volatility: std_dev * sqrt(periods/year)
         self.trading_days = 252
         # metrics['volatility_ann'] = aum.pct_change().std() * np.sqrt(self.trading_days) * 100
         # metrics['volatility_ann_buy_hold'] = ref.pct_change().std() * np.sqrt(self.trading_days) * 100
@@ -195,7 +190,10 @@ def print_stats(stats):
     for stat, value in stats.items():
         if type(value) == np.float64 or type(value) == float:
             value = round(value, 1)
-            if abs(value) > 100:
+            if abs(value) > 10:
                 value = round(value)
-        print("{}: {}".format(stat, value))
+        if ":" in stat:
+            print(stat)
+            continue
+        print("\t{}: {}".format(stat, value))
     print()

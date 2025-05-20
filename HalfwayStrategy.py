@@ -3,13 +3,16 @@ from model.Ticker import Ticker
 
 class HalfwayStrategy(BaselineStrategy):
 
-    def __init__(self):
-        super().__init__()
-        self.size = 1
-        self.ticker = Ticker(
+    @property
+    def ticker(self):
+        return Ticker(
             symbol = 'MNQ',
             tick_value = 0.50,
-            margin_requirement = 3552) # http://tradestation.com/pricing/futures-margin-requirements/
+            margin_requirement = 0.10) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
+
+    @property
+    def size(self):
+        return 1
 
     def on_bar(self):
 
