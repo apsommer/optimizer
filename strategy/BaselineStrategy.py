@@ -32,10 +32,8 @@ class BaselineStrategy():
 
         # flatten previous order
         last_order = self.orders[-1]
-        if last_order.sentiment == 'long':
-            size = -1
-        if last_order.sentiment == 'short':
-            size = 1
+        if last_order.sentiment == 'long': size = -1
+        if last_order.sentiment == 'short': size = 1
 
         self.orders.append(
             Order(

@@ -186,6 +186,7 @@ class Engine:
         for trade in self.trades:
 
             if trade.entry_order is None or trade.exit_order is None:
+                print(f'entry: {trade.entry_order}, exit: {trade.exit_order}')
                 continue
 
             x_trade.append(trade.entry_order.idx)
