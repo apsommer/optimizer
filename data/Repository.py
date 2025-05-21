@@ -1,14 +1,6 @@
-import logging
-import sys
 import databento as db
 import pandas as pd
 import local.api_keys as keys
-
-log_format = "%(message)s"
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=log_format)
-
-def logm(message):
-        logging.info(message)
 
 def getOhlc(
     csv_filename = None,
@@ -23,7 +15,7 @@ def getOhlc(
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
 
-        logm("\nUploaded OHLC from " + csv_filename)
+        print("\nUploaded OHLC from " + csv_filename)
         return ohlc
 
     # request network data synchronous!
@@ -37,7 +29,7 @@ def getOhlc(
         end = ending_date)
             .to_df())
 
-    logm("\nDownloaded OHLC from databento, costs $$$ ...")
+    print("\nDownloaded OHLC from databento, costs $$$ ...")
 
     # rename, drop
     ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
