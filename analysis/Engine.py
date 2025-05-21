@@ -140,11 +140,24 @@ class Engine:
     def plot_strategy(self):
 
         # config plot
-        font = {'family': 'Ubuntu', 'size': 16}
+        font = {'family': 'Ubuntu', 'size': 14}
         matplotlib.rc('font', **font)
+
+        color = 'white'
+        matplotlib.rcParams['text.color'] = color
+        matplotlib.rcParams['axes.labelcolor'] = color
+        matplotlib.rcParams['xtick.color'] = color
+        matplotlib.rcParams['ytick.color'] = color
+
         plt.tick_params(tick1On = False)
         plt.tick_params(tick2On = False)
-        plt.grid(color = '#f2f2f2', linewidth = 0.5)
+        plt.grid(color = '#1D193B', linewidth = 0.5)
+
+        fig = plt.figure(1)
+        ax = plt.gca()
+
+        fig.patch.set_facecolor('#0D0B1A') # outside grid
+        ax.patch.set_facecolor('#131026') # inside grid
 
         # x-axis
         xmin = min(self.data.index)
@@ -165,13 +178,12 @@ class Engine:
         plt.ylim(ymin, ymax)
 
         # add series
-        plt.figure(1)
         # plt.get_current_fig_manager().full_screen_toggle()
-        plt.plot(self.portfolio['cash'], label='strategy', color = 'blue')
-        plt.plot(self.portfolio_buy_hold, label='buy hold', color = 'black')
+        plt.plot(self.portfolio['cash'], label='strategy', color = 'green')
+        plt.plot(self.portfolio_buy_hold, label='buy hold', color = 'white')
 
         # show
-        plt.legend()
+        plt.legend(facecolor = '#0D0B1A')
         plt.tight_layout()
         plt.show(block=False)
 
