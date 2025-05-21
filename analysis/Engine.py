@@ -4,7 +4,6 @@ from EngineUtils import *
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as matplotlib
 
 class Engine:
 
@@ -28,15 +27,14 @@ class Engine:
 
     def run(self):
 
+        # init
         margin_requirement = self.strategy.ticker.margin_requirement
         size = self.strategy.size
-
-        # init
         self.initial_cash = 10e3 # margin_requirement * self.first_bar_close
         self.cash = self.initial_cash
         self.strategy.data = self.data
 
-        # loop timestamps
+        # loop each bar
         for idx in tqdm(self.data.index, colour='BLUE'):
 
             # set index todo refactor to single index, remove replication
@@ -51,7 +49,7 @@ class Engine:
             if len(orders) > 0 and orders[-1].idx == self.current_idx:
                 self._fill_order()
 
-            # track cash and asset holdings
+            # track cash balance
             self.cash_series[idx] = self.cash
 
         return self._get_stats()
@@ -82,7 +80,7 @@ class Engine:
 
     def _get_stats(self):
 
-        stats = self.stats
+        stats = { }
         trading_days = 252
         risk_free_rate = 0
 
@@ -151,8 +149,8 @@ class Engine:
         # todo encapsulate engine for analysis storage?
         self.cash_df = cash_df
         self.buy_hold_df = buy_hold_df
-        self.stats = stats
 
+        self.stats = stats
         return stats
 
     def plot_equity(self):
