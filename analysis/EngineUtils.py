@@ -1,15 +1,15 @@
 import numpy as np
-import matplotlib as matplotlib
-import matplotlib.pyplot as plt
-import pandas as pd
 
 def get_max_drawdown(prices):
-    roll_max = prices.cummax()
+
+    initial_price = prices[0]
+    roll_max = prices.cummax() # series, rolling maximum
     daily_drawdown = prices / roll_max - 1.0
-    max_daily_drawdown = daily_drawdown.cummin()
-    return max_daily_drawdown.min() * 100
+    max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
+    return max_daily_drawdown.min() * initial_price
 
 def get_profit_factor(trades):
+
     wins = [trade.profit for trade in trades if trade.profit > 0]
     losses = [trade.profit for trade in trades if trade.profit < 0]
     total_wins = sum(wins)

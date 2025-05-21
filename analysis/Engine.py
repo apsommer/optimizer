@@ -1,11 +1,10 @@
-import numpy as np
-import pandas as pd
-from fontTools.unicodedata import block
 from tqdm import tqdm
-import matplotlib
-import matplotlib.pyplot as plt
 from model.Trade import Trade
 from EngineUtils import *
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as matplotlib
 
 class Engine:
 
@@ -99,6 +98,9 @@ class Engine:
 
         # strategy
         cash_df = pd.DataFrame({'cash': self.cash_series})
+        trades = len(self.trades)
+        profit = self.cash - self.initial_cash
+        max_drawdown = -get_max_drawdown(cash_df['cash'])
         total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
         if self.initial_cash > self.cash:
             total_return = - total_return
@@ -106,14 +108,17 @@ class Engine:
         volatility = cash_df['cash'].pct_change().std() * np.sqrt(trading_days) * 100
 
         stats['Strategy:'] = ''
-        stats['trades'] = len(self.trades)
+        stats['trades'] = trades
         stats['pf'] = get_profit_factor(self.trades)
-        stats['profit [$]'] = self.cash - self.initial_cash
+        stats['profit [$]'] = profit
         stats['total_return [%]'] = total_return
         stats['annualized_return [%]'] = annualized_return
-        stats['max_drawdown [%]'] = get_max_drawdown(cash_df['cash'])
-        stats['volatility_ann [%]'] = volatility # todo check
-        stats['sharpe_ratio'] = (annualized_return - risk_free_rate) / volatility # todo check
+        stats['max_drawdown [$]'] = max_drawdown
+        stats['drawdown/profit [%]'] = (max_drawdown / profit) * 100
+        stats['annualized_volatility [%]'] = volatility # todo check
+        stats['sharpe'] = (annualized_return - risk_free_rate) / volatility # todo check
+        stats['expectancy'] = 'todo'
+        stats['trades/day'] = trades / days
 
         # reference simple "buy and hold"
         buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.first_bar_close)
