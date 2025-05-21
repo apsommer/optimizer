@@ -147,6 +147,30 @@ class Engine:
         # config plot
         fig_id = 1
         data = self.portfolio['cash']
+        pos, neg = [], []
+        for balance in data:
+
+            over = balance >= self.initial_cash
+            under = balance < self.initial_cash
+            cross_over = over and len(pos) > 0 and np.isnan(pos[-1])
+            cross_under = under and len(pos) > 0 and np.isnan(neg[-1])
+
+            if over:
+                pos.append(balance)
+                neg.append(np.nan)
+            elif under:
+                pos.append(np.nan)
+                neg.append(balance)
+
+            if cross_over:
+                pos[-2] = neg[-2]
+            if cross_under:
+                neg[-2] = pos[-2]
+
+        pos_df = pd.DataFrame({'pos': pos})
+        neg_df = pd.DataFrame({'neg': neg})
+        pos_df.index = data.index
+        neg_df.index = data.index
 
         # todo duplicate
         font = {'family': 'Ubuntu', 'size': 14}
@@ -189,7 +213,8 @@ class Engine:
         plt.grid(color='#1D193B', linewidth=0.5)
 
         # add series
-        plt.plot(data, color = 'green', label='strategy')
+        plt.plot(pos_df, color = 'green', label='strategy (pos)')
+        plt.plot(neg_df, color = 'red', label='strategy (neg)')
         plt.plot(self.portfolio_buy_hold, color = '#3C3C3C', label='buy/hold')
 
         # show

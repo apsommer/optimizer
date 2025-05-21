@@ -2,7 +2,7 @@ import numpy as np
 
 def get_max_drawdown(prices):
 
-    initial_price = prices[0]
+    initial_price = prices.iloc[0]
     roll_max = prices.cummax() # series, rolling maximum
     daily_drawdown = prices / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
