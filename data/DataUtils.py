@@ -18,7 +18,7 @@ def getOhlc(
         print("\nUploaded OHLC from " + csv_filename)
         return ohlc
 
-    # request network data synchronous!
+    # request network data synchronous! costs $!
     client = db.Historical(keys.bento_api_key)
     ohlc = (client.timeseries.get_range(
         dataset = "GLBX.MDP3",
@@ -40,7 +40,7 @@ def getOhlc(
     ohlc.index = ohlc.index.tz_localize(None)
     ohlc.index = pd.to_datetime(ohlc.index)
 
-    csv_filename = "raw/nq_3months_2025-02-01_2025-05-01.csv"
+    csv_filename = "nq_3months_2025-02-01_2025-05-01.csv"
     ohlc.to_csv(csv_filename)
 
     return ohlc
