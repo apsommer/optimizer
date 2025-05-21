@@ -106,7 +106,6 @@ class Engine:
             total_return = - total_return
         annualized_return = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
         volatility = cash_df['cash'].pct_change().std() * np.sqrt(trading_days) * 100
-
         winners = [trade.profit for trade in self.trades if trade.profit > 0]
         losers = [trade.profit for trade in self.trades if 0 >= trade.profit]
         win_rate = len(winners) / trades
@@ -149,8 +148,10 @@ class Engine:
         stats['volatility_ann_bh [%]'] = volatility_buy_hold # todo check
         stats['sharpe_ratio_bh'] = (annualized_return_buy_hold - risk_free_rate) / volatility_buy_hold # todo check
 
-        self.portfolio = cash_df
-        self.portfolio_buy_hold = buy_hold_df
+        # todo encapsulate engine for analysis storage?
+        self.cash_df = cash_df
+        self.buy_hold_df = buy_hold_df
+        self.stats = stats
 
         return stats
 
@@ -158,10 +159,10 @@ class Engine:
 
         # init figure
         fig_id = 1
-        cash_series = self.portfolio['cash']
+        cash_series = self.cash_df['cash']
         init_figure(
             fig_id=fig_id,
-            data=self.portfolio_buy_hold)
+            data=self.buy_hold_df)
 
         # split cash balance into profit, and loss
         pos, neg = [], []
@@ -191,7 +192,7 @@ class Engine:
         # add series
         plt.plot(pos_df, color = 'green', label='equity (pos)')
         plt.plot(neg_df, color = 'red', label='equity (neg)')
-        plt.plot(self.portfolio_buy_hold, color = '#3C3C3C', label='buy/hold')
+        plt.plot(self.buy_hold_df, color ='#3C3C3C', label='buy/hold')
 
         # show
         plt.legend(
