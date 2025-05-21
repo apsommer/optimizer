@@ -139,53 +139,8 @@ class Engine:
 
     def plot_strategy(self):
 
-        # config plot
-        font = {'family': 'Ubuntu', 'size': 14}
-        matplotlib.rc('font', **font)
-
-        color = 'white'
-        matplotlib.rcParams['text.color'] = color
-        matplotlib.rcParams['axes.labelcolor'] = color
-        matplotlib.rcParams['xtick.color'] = color
-        matplotlib.rcParams['ytick.color'] = color
-
-        plt.tick_params(tick1On = False)
-        plt.tick_params(tick2On = False)
-        plt.grid(color = '#1D193B', linewidth = 0.5)
-
-        fig = plt.figure(1)
-        ax = plt.gca()
-
-        fig.patch.set_facecolor('#0D0B1A') # outside grid
-        ax.patch.set_facecolor('#131026') # inside grid
-
-        # x-axis
-        xmin = min(self.data.index)
-        xmax = max(self.data.index)
-        xstep = 20
-        x_ticks = pd.date_range(xmin, xmax, xstep)
-        plt.xticks(x_ticks, rotation = 90)
-        plt.xlim(xmin, xmax)
-
-        # y-axis
-        abs_ymin = min(min(self.cash_series.values()), min(self.portfolio_buy_hold))
-        abs_ymax = max(max(self.cash_series.values()), max(self.portfolio_buy_hold))
-        ymin = round(0.90 * abs_ymin, -2)
-        ymax = round(1.10 * abs_ymax, -2)
-        ystep = round((ymax - ymin) / 20, -2)
-        y_ticks = np.arange(ymin, ymax, ystep)
-        plt.yticks(y_ticks)
-        plt.ylim(ymin, ymax)
-
-        # add series
-        # plt.get_current_fig_manager().full_screen_toggle()
-        plt.plot(self.portfolio['cash'], label='strategy', color = 'green')
-        plt.plot(self.portfolio_buy_hold, label='buy hold', color = 'white')
-
-        # show
-        plt.legend(facecolor = '#0D0B1A')
-        plt.tight_layout()
-        plt.show(block=False)
+        plot(1, self.portfolio['cash'], label='strategy', data_color = 'green')
+        plot(1, self.portfolio_buy_hold, label='buy hold', data_color = 'white')
 
     def plot_trades(self):
 
