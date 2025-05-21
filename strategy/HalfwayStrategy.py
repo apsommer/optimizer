@@ -17,20 +17,19 @@ class HalfwayStrategy(BaselineStrategy):
     def on_bar(self):
 
         self.bar_index += 1
-        bar_index = self.bar_index
 
-        is_flat = self.position_size == 0
-        is_long = self.position_size > 0
-        is_short = 0 > self.position_size
-
-        if is_flat and bar_index % 321 == 0:
+        # entry long
+        if self.is_flat and self.bar_index % 321 == 0:
             self.buy(self.ticker, self.size)
 
-        if is_long and bar_index % 987 == 0:
+        # exit long
+        elif self.is_long and self.bar_index % 987 == 0:
             self.flat(self.ticker, self.size)
 
-        if is_flat and bar_index % 1113 == 0:
+        # entry short
+        elif self.is_flat and self.bar_index % 1113 == 0:
             self.sell(self.ticker, self.size)
 
-        if is_short and bar_index % 3109 == 0:
+        # exit short
+        elif self.is_short and self.bar_index % 3109 == 0:
             self.flat(self.ticker, self.size)

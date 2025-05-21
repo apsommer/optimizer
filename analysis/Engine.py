@@ -179,35 +179,39 @@ class Engine:
 
         # plt.get_current_fig_manager().full_screen_toggle()
         plt.figure(2)
-
-        x_trade, y_trade = [], []
-        color = 'white'
+        plt.get_current_fig_manager().full_screen_toggle()
+        color = 'grey'
+        plt.plot(self.data.Close, color, label='MNQ')
 
         for trade in self.trades:
 
-            if trade.entry_order is None or trade.exit_order is None:
-                print(f'entry: {trade.entry_order}, exit: {trade.exit_order}')
-                continue
+            # skip last open trade, if needed
+            if trade.exit_order is None: continue
 
-            x_trade.append(trade.entry_order.idx)
-            y_trade.append(trade.entry_order.price)
-            if trade.entry_order.sentiment == 'long': color = 'blue'
-            if trade.entry_order.sentiment == 'short': color = 'red'
-            plt.plot(trade.entry_order.idx, trade.entry_order.price, color=color, marker='o', markersize=10)
+            trade_idx, trade_price = [], []
 
-            x_trade.append(trade.exit_order.idx)
-            y_trade.append(trade.exit_order.price)
-            plt.plot(trade.exit_order.idx, trade.exit_order.price, color=color, marker='o', markersize=20)
+            sentiment = trade.entry_order.sentiment
+            entry_idx = trade.entry_order.idx
+            exit_idx = trade.exit_order.idx
+            entry_price = trade.entry_order.price
+            exit_price = trade.exit_order.price
 
-        trade_df = pd.DataFrame(index=x_trade, data=y_trade)
+            # set color
+            match sentiment:
+                case 'long': color = 'blue'
+                case 'short': color = 'red'
 
-        plt.get_current_fig_manager().full_screen_toggle()
-        plt.plot(self.data.Close, 'black', label='MNQ')
-        plt.plot(trade_df, 'blue', label='trades')
-        plt.plot()
+            trade_idx.append(entry_idx)
+            trade_price.append(entry_price)
+            trade_idx.append(exit_idx)
+            trade_price.append(exit_price)
+            trade_df = pd.DataFrame(index=trade_idx, data=trade_price)
+
+            plt.plot(trade_df, color)
+            plt.plot(entry_idx, entry_price, color=color, marker='o', markersize=10)
+            plt.plot(exit_idx, exit_price, color=color, marker='o', markersize=20)
 
         # show
-        plt.legend()
         plt.tight_layout()
         plt.show(block=True)
 
