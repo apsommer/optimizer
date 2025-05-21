@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def get_max_drawdown(prices):
     roll_max = prices.cummax()
     daily_drawdown = prices / roll_max - 1.0

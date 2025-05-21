@@ -5,7 +5,7 @@ from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
 from model.Trade import Trade
-from Utils import *
+from EngineUtils import *
 
 class Engine:
 
