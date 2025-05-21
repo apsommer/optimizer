@@ -167,7 +167,7 @@ class Engine:
         # add series
         plt.figure(1)
         # plt.get_current_fig_manager().full_screen_toggle()
-        plt.plot(self.portfolio['cash'], label='strategy', color = 'green')
+        plt.plot(self.portfolio['cash'], label='strategy', color = 'blue')
         plt.plot(self.portfolio_buy_hold, label='buy hold', color = 'black')
 
         # show
@@ -180,15 +180,13 @@ class Engine:
         # plt.get_current_fig_manager().full_screen_toggle()
         plt.figure(2)
         plt.get_current_fig_manager().full_screen_toggle()
-        color = 'grey'
-        plt.plot(self.data.Close, color, label='MNQ')
+        color = 'black'
+        plt.plot(self.data.Close, color)
 
         for trade in self.trades:
 
             # skip last open trade, if needed
             if trade.exit_order is None: continue
-
-            trade_idx, trade_price = [], []
 
             sentiment = trade.entry_order.sentiment
             entry_idx = trade.entry_order.idx
@@ -196,16 +194,13 @@ class Engine:
             entry_price = trade.entry_order.price
             exit_price = trade.exit_order.price
 
-            # set color
+            trade_df = pd.DataFrame(
+                index = [entry_idx, exit_idx],
+                data = [entry_price, exit_price])
+
             match sentiment:
                 case 'long': color = 'blue'
-                case 'short': color = 'red'
-
-            trade_idx.append(entry_idx)
-            trade_price.append(entry_price)
-            trade_idx.append(exit_idx)
-            trade_price.append(exit_price)
-            trade_df = pd.DataFrame(index=trade_idx, data=trade_price)
+                case 'short': color = 'aqua'
 
             plt.plot(trade_df, color)
             plt.plot(entry_idx, entry_price, color=color, marker='o', markersize=10)
