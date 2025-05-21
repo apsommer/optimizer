@@ -23,7 +23,11 @@ engine.data = data
 
 # run
 results = engine.run()
+
+# print results to console
 print_stats(results)
 # engine.print_trades()
+
+# plot results
 engine.plot_strategy()
 engine.plot_trades()

@@ -139,16 +139,105 @@ class Engine:
 
     def plot_strategy(self):
 
-        plot(1, self.portfolio['cash'], label='strategy', data_color = 'green')
-        plot(1, self.portfolio_buy_hold, label='buy hold', data_color = 'white')
+        # config plot
+        fig_id = 1
+        data = self.portfolio['cash']
 
-    def plot_trades(self):
+        # todo duplicate
+        font = {'family': 'Ubuntu', 'size': 14}
+        matplotlib.rc('font', **font)
 
-        # plt.get_current_fig_manager().full_screen_toggle()
-        plt.figure(2)
-        plt.get_current_fig_manager().full_screen_toggle()
-        color = 'black'
-        plt.plot(self.data.Close, color)
+        color = 'white'
+        matplotlib.rcParams['text.color'] = color
+        matplotlib.rcParams['axes.labelcolor'] = color
+        matplotlib.rcParams['xtick.color'] = color
+        matplotlib.rcParams['ytick.color'] = color
+
+        fig = plt.figure(fig_id)
+        ax = plt.gca()
+
+        fig.patch.set_facecolor('#0D0B1A')  # outside grid
+        ax.patch.set_facecolor('#131026')  # inside grid
+
+        # x-axis
+        xmin = min(data.index)
+        xmax = max(data.index)
+        xstep = 20
+        x_ticks = pd.date_range(xmin, xmax, xstep)
+        plt.xticks(x_ticks, rotation=90)
+        plt.xlim(xmin, xmax)
+
+        # y-axis
+        data_min = min(data)
+        data_max = max(data)
+        buy_hold_min = min(self.portfolio_buy_hold)
+        buy_hold_max = max(self.portfolio_buy_hold)
+        ymin = round(0.95 * min(data_min, buy_hold_min), -2)
+        ymax = round(1.05 * max(data_max, buy_hold_max), -2)
+        ystep = round((ymax - ymin) / 20, -2)
+        y_ticks = np.arange(ymin, ymax, ystep)
+        plt.yticks(y_ticks)
+        plt.ylim(ymin, ymax)
+
+        plt.tick_params(tick1On=False)
+        plt.tick_params(tick2On=False)
+        plt.grid(color='#1D193B', linewidth=0.5)
+
+        # add series
+        plt.plot(data, color = 'green', label='strategy')
+        plt.plot(self.portfolio_buy_hold, color = '#3C3C3C', label='buy/hold')
+
+        # show
+        plt.legend(
+            facecolor='#0D0B1A',
+            frameon=False)
+        plt.tight_layout()
+        plt.show(block=False)
+
+    def plot_trades(self,):
+
+        # config plot
+        fig_id = 2
+        data = self.data.Close
+
+        # todo duplicate
+        font = {'family': 'Ubuntu', 'size': 14}
+        matplotlib.rc('font', **font)
+
+        color = 'white'
+        matplotlib.rcParams['text.color'] = color
+        matplotlib.rcParams['axes.labelcolor'] = color
+        matplotlib.rcParams['xtick.color'] = color
+        matplotlib.rcParams['ytick.color'] = color
+
+        fig = plt.figure(fig_id)
+        ax = plt.gca()
+
+        fig.patch.set_facecolor('#0D0B1A')  # outside grid
+        ax.patch.set_facecolor('#131026')  # inside grid
+
+        # x-axis
+        xmin = min(data.index)
+        xmax = max(data.index)
+        xstep = 20
+        x_ticks = pd.date_range(xmin, xmax, xstep)
+        plt.xticks(x_ticks, rotation=90)
+        plt.xlim(xmin, xmax)
+
+        # y-axis
+        ymin = round(0.90 * min(data), -2)
+        ymax = round(1.10 * max(data), -2)
+        ystep = round((ymax - ymin) / 20, -2)
+        y_ticks = np.arange(ymin, ymax, ystep)
+        plt.yticks(y_ticks)
+        plt.ylim(ymin, ymax)
+
+        plt.tick_params(tick1On=False)
+        plt.tick_params(tick2On=False)
+        plt.grid(color='#1D193B', linewidth=0.5)
+
+        # add series
+        plt.plot(data, color = '#3C3C3C')
 
         for trade in self.trades:
 
@@ -170,8 +259,8 @@ class Engine:
                 case 'short': color = 'aqua'
 
             plt.plot(trade_df, color)
-            plt.plot(entry_idx, entry_price, color=color, marker='o', markersize=10)
-            plt.plot(exit_idx, exit_price, color=color, marker='o', markersize=20)
+            plt.plot(entry_idx, entry_price, color=color, marker='o', markersize=5)
+            plt.plot(exit_idx, exit_price, color=color, marker='o', markersize=10)
 
         # show
         plt.tight_layout()
