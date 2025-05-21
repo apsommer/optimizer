@@ -1,16 +1,23 @@
+import time
+
 import matplotlib.pyplot as plt
-from data import Repository as repo
+from data import DataUtils as repo
 from Engine import Engine, print_stats
 from strategy.HalfwayStrategy import HalfwayStrategy
 import logging
+
+# config
+start_time = time.time()
+plt.rcParams['figure.figsize'] = [20, 12]
+logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
 
 # config
 plt.rcParams['figure.figsize'] = [20, 12]
 logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
 
 # get ohlc prices
-csv_filename = "data/raw/nq_3months_2025-02-01_2025-05-01.csv"  # 3 months
-# csv_filename = "data/raw/nq_2years_2023-03-15_2025-03-15.csv" # 2 years
+csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"  # 3 months
+# csv_filename = "data/nq_2years_2023-03-15_2025-03-15.csv" # 2 years
 
 data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
@@ -23,6 +30,15 @@ engine.data = data
 
 # run
 results = engine.run()
+
+########################################################################
+end_time = time.time()
+print(f'Elapsed time: {round(end_time - start_time, 2)} seconds')
+
+# print results to console
 print_stats(results)
 # engine.print_trades()
-engine.plot()
+
+# plot results
+engine.plot_strategy()
+engine.plot_trades()

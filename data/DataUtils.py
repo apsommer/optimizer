@@ -1,14 +1,6 @@
-import logging
-import sys
 import databento as db
 import pandas as pd
 import local.api_keys as keys
-
-log_format = "%(message)s"
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=log_format)
-
-def logm(message):
-        logging.info(message)
 
 def getOhlc(
     csv_filename = None,
@@ -23,10 +15,10 @@ def getOhlc(
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
 
-        logm("\nUploaded OHLC from " + csv_filename)
+        print("\nUploaded OHLC from " + csv_filename)
         return ohlc
 
-    # request network data synchronous!
+    # request network data synchronous! costs $!
     client = db.Historical(keys.bento_api_key)
     ohlc = (client.timeseries.get_range(
         dataset = "GLBX.MDP3",
@@ -37,7 +29,7 @@ def getOhlc(
         end = ending_date)
             .to_df())
 
-    logm("\nDownloaded OHLC from databento, costs $$$ ...")
+    print("\nDownloaded OHLC from databento, costs $$$ ...")
 
     # rename, drop
     ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
@@ -48,7 +40,7 @@ def getOhlc(
     ohlc.index = ohlc.index.tz_localize(None)
     ohlc.index = pd.to_datetime(ohlc.index)
 
-    csv_filename = "raw/nq_3months_2025-02-01_2025-05-01.csv"
+    csv_filename = "nq_3months_2025-02-01_2025-05-01.csv"
     ohlc.to_csv(csv_filename)
 
     return ohlc
