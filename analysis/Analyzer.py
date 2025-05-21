@@ -40,5 +40,5 @@ print_stats(results)
 # engine.print_trades()
 
 # plot results
-engine.plot_strategy()
+engine.plot_equity()
 engine.plot_trades()

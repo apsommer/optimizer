@@ -142,13 +142,18 @@ class Engine:
 
         return stats
 
-    def plot_strategy(self):
+    def plot_equity(self):
 
-        # config plot
+        # init figure
         fig_id = 1
-        data = self.portfolio['cash']
+        cash_series = self.portfolio['cash']
+        init_figure(
+            fig_id=fig_id,
+            data=self.portfolio_buy_hold)
+
+        # split cash balance into profit, and loss
         pos, neg = [], []
-        for balance in data:
+        for balance in cash_series:
 
             over = balance >= self.initial_cash
             under = balance < self.initial_cash
@@ -162,59 +167,18 @@ class Engine:
                 pos.append(np.nan)
                 neg.append(balance)
 
-            if cross_over:
-                pos[-2] = neg[-2]
-            if cross_under:
-                neg[-2] = pos[-2]
+            # keep balance line continuous
+            if cross_over: pos[-2] = neg[-2]
+            if cross_under: neg[-2] = pos[-2]
 
         pos_df = pd.DataFrame({'pos': pos})
         neg_df = pd.DataFrame({'neg': neg})
-        pos_df.index = data.index
-        neg_df.index = data.index
-
-        # todo duplicate
-        font = {'family': 'Ubuntu', 'size': 14}
-        matplotlib.rc('font', **font)
-
-        color = 'white'
-        matplotlib.rcParams['text.color'] = color
-        matplotlib.rcParams['axes.labelcolor'] = color
-        matplotlib.rcParams['xtick.color'] = color
-        matplotlib.rcParams['ytick.color'] = color
-
-        fig = plt.figure(fig_id)
-        ax = plt.gca()
-
-        fig.patch.set_facecolor('#0D0B1A')  # outside grid
-        ax.patch.set_facecolor('#131026')  # inside grid
-
-        # x-axis
-        xmin = min(data.index)
-        xmax = max(data.index)
-        xstep = 20
-        x_ticks = pd.date_range(xmin, xmax, xstep)
-        plt.xticks(x_ticks, rotation=90)
-        plt.xlim(xmin, xmax)
-
-        # y-axis
-        data_min = min(data)
-        data_max = max(data)
-        buy_hold_min = min(self.portfolio_buy_hold)
-        buy_hold_max = max(self.portfolio_buy_hold)
-        ymin = round(0.95 * min(data_min, buy_hold_min), -2)
-        ymax = round(1.05 * max(data_max, buy_hold_max), -2)
-        ystep = round((ymax - ymin) / 20, -2)
-        y_ticks = np.arange(ymin, ymax, ystep)
-        plt.yticks(y_ticks)
-        plt.ylim(ymin, ymax)
-
-        plt.tick_params(tick1On=False)
-        plt.tick_params(tick2On=False)
-        plt.grid(color='#1D193B', linewidth=0.5)
+        pos_df.index = cash_series.index
+        neg_df.index = cash_series.index
 
         # add series
-        plt.plot(pos_df, color = 'green', label='strategy (pos)')
-        plt.plot(neg_df, color = 'red', label='strategy (neg)')
+        plt.plot(pos_df, color = 'green', label='equity (pos)')
+        plt.plot(neg_df, color = 'red', label='equity (neg)')
         plt.plot(self.portfolio_buy_hold, color = '#3C3C3C', label='buy/hold')
 
         # show
@@ -224,50 +188,17 @@ class Engine:
         plt.tight_layout()
         plt.show(block=False)
 
-    def plot_trades(self,):
+    def plot_trades(self):
 
-        # config plot
+        # init figure
         fig_id = 2
-        data = self.data.Close
+        close = self.data.Close
+        init_figure(
+            fig_id=fig_id,
+            data=close)
 
-        # todo duplicate
-        font = {'family': 'Ubuntu', 'size': 14}
-        matplotlib.rc('font', **font)
-
-        color = 'white'
-        matplotlib.rcParams['text.color'] = color
-        matplotlib.rcParams['axes.labelcolor'] = color
-        matplotlib.rcParams['xtick.color'] = color
-        matplotlib.rcParams['ytick.color'] = color
-
-        fig = plt.figure(fig_id)
-        ax = plt.gca()
-
-        fig.patch.set_facecolor('#0D0B1A')  # outside grid
-        ax.patch.set_facecolor('#131026')  # inside grid
-
-        # x-axis
-        xmin = min(data.index)
-        xmax = max(data.index)
-        xstep = 20
-        x_ticks = pd.date_range(xmin, xmax, xstep)
-        plt.xticks(x_ticks, rotation=90)
-        plt.xlim(xmin, xmax)
-
-        # y-axis
-        ymin = round(0.90 * min(data), -2)
-        ymax = round(1.10 * max(data), -2)
-        ystep = round((ymax - ymin) / 20, -2)
-        y_ticks = np.arange(ymin, ymax, ystep)
-        plt.yticks(y_ticks)
-        plt.ylim(ymin, ymax)
-
-        plt.tick_params(tick1On=False)
-        plt.tick_params(tick2On=False)
-        plt.grid(color='#1D193B', linewidth=0.5)
-
-        # add series
-        plt.plot(data, color = '#3C3C3C')
+        # plot underlying
+        plt.plot(close, color = '#3C3C3C')
 
         for trade in self.trades:
 
@@ -284,6 +215,7 @@ class Engine:
                 index = [entry_idx, exit_idx],
                 data = [entry_price, exit_price])
 
+            # set color
             match sentiment:
                 case 'long': color = 'blue'
                 case 'short': color = 'aqua'
