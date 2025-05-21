@@ -100,12 +100,20 @@ class Engine:
         cash_df = pd.DataFrame({'cash': self.cash_series})
         trades = len(self.trades)
         profit = self.cash - self.initial_cash
-        max_drawdown = -get_max_drawdown(cash_df['cash'])
+        max_drawdown = get_max_drawdown(cash_df['cash'])
         total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
         if self.initial_cash > self.cash:
             total_return = - total_return
         annualized_return = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
         volatility = cash_df['cash'].pct_change().std() * np.sqrt(trading_days) * 100
+
+        winners = [trade.profit for trade in self.trades if trade.profit > 0]
+        losers = [trade.profit for trade in self.trades if 0 >= trade.profit]
+        win_rate = len(winners) / trades
+        average_win = sum(winners) / len(winners)
+        loss_rate = len(losers) / trades
+        average_loss = sum(losers) / len(losers)
+        expectancy = (win_rate * average_win) - (loss_rate * average_loss)
 
         stats['Strategy:'] = ''
         stats['trades'] = trades
@@ -117,8 +125,12 @@ class Engine:
         stats['drawdown/profit [%]'] = (max_drawdown / profit) * 100
         stats['annualized_volatility [%]'] = volatility # todo check
         stats['sharpe'] = (annualized_return - risk_free_rate) / volatility # todo check
-        stats['expectancy'] = 'todo'
         stats['trades/day'] = trades / days
+        stats['win_rate [%]'] = win_rate * 100
+        stats['average_win [$]'] = average_win
+        stats['loss_rate [%]'] = loss_rate * 100
+        stats['average_loss [$]'] = average_loss
+        stats['expectancy [$]'] = expectancy
 
         # reference simple "buy and hold"
         buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.first_bar_close)
