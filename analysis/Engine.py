@@ -48,7 +48,8 @@ class Engine:
             # track cash balance
             self.cash_series[idx] = self.cash
 
-        return self._analyze()
+        # analyze results
+        self._analyze()
 
     def _fill_order(self):
 
@@ -93,11 +94,11 @@ class Engine:
         trades_per_day = num_trades / days
         winners = [trade.profit for trade in self.trades if trade.profit > 0]
         losers = [trade.profit for trade in self.trades if 0 >= trade.profit]
-        win_rate = len(winners) / num_trades
+        win_rate = (len(winners) / num_trades) * 100
         average_win = sum(winners) / len(winners)
-        loss_rate = len(losers) / num_trades
+        loss_rate = (len(losers) / num_trades) * 100
         average_loss = sum(losers) / len(losers)
-        expectancy = (win_rate * average_win) - (loss_rate * average_loss)
+        expectancy = ((win_rate / 100) * average_win) - ((loss_rate / 100) * average_loss)
 
         # reference "buy and hold"
         entry_price_bh = self.data.iloc[0]['Close']
@@ -120,33 +121,31 @@ class Engine:
 
             Metric(None, None, None, 'Strategy:'),
             Metric('num_trades', num_trades, None, 'Number of Trades'),
+            Metric('profit_factor', profit_factor, None, 'Profit Factor', '.2f'),
+            Metric('trades_per_day', trades_per_day, None, 'Trades per Day', '.2f'),
             Metric('profit', profit, 'USD', 'Profit'),
             Metric('max_drawdown', max_drawdown, 'USD', 'Maximum Drawdown'),
-            Metric('total_return', total_return, '%', 'Total Return'),
-            Metric('annualized_return', annualized_return, '%', 'Annualized Return'),
-            Metric('profit_factor', profit_factor, None, 'Profit Factor'),
-            Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown Percentage'),
-            Metric('trades_per_day', trades_per_day, None, 'Trades per Day'),
-            Metric('win_rate', win_rate, '%', 'Win Rate'),
             Metric('average_win', average_win, 'USD', 'Average Win'),
-            Metric('loss_rate', loss_rate, '%', 'Loss Rate'),
             Metric('average_loss', average_loss, 'USD', 'Average Loss'),
             Metric('expectancy', expectancy, 'USD', 'Expectancy'),
+            Metric('total_return', total_return, '%', 'Total Return'),
+            Metric('annualized_return', annualized_return, '%', 'Annualized Return'),
+            Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown Percentage'),
+            Metric('win_rate', win_rate, '%', 'Win Rate'),
+            Metric('loss_rate', loss_rate, '%', 'Loss Rate'),
 
             Metric(None, None, None, 'Buy Hold:'),
             Metric('profit_buy_hold', profit_bh, 'USD', 'Profit'),
-            Metric('total_return_bh', total_return_bh, '%', 'Total Return'),
-            Metric('annualized_return_bh', annualized_return_bh, '%', 'Annualized Return'),
             Metric('max_drawdown_bh', max_drawdown_bh, 'USD', 'Maximum Drawdown'),
-            Metric('_drawdown_per_profit_bh', drawdown_per_profit_bh, '%', 'Drawdown Percentage')
+            Metric('_drawdown_per_profit_bh', drawdown_per_profit_bh, '%', 'Drawdown Percentage'),
+            Metric('total_return_bh', total_return_bh, '%', 'Total Return'),
+            Metric('annualized_return_bh', annualized_return_bh, '%', 'Annualized Return')
         ]
 
         # persist df for plots
         self.cash_df = cash_df
         self.buy_hold_df = buy_hold_df
         self.metrics = metrics
-
-        return metrics
 
     def plot_equity(self):
 
@@ -238,16 +237,29 @@ class Engine:
         for trade in self.trades:
             print(trade)
 
-def print_metrics(metrics):
-    for metric in metrics:
+    def print_metrics(self):
+        for metric in self.metrics:
 
-        # header
-        if metric.name is None:
-            print('\n' + metric.title)
-            continue
+            name = metric.name
+            title = metric.title
+            value = metric.value
+            formatter = metric.formatter
+            unit = metric.unit
 
-        if metric.unit is None:
-            print("\t{}: {}".format(metric.title, metric.value))
-            continue
+            # header
+            if name is None:
+                print('\n' + title)
+                continue
 
-        print("\t{}: {} [{}]".format(metric.title, metric.value, metric.unit))
+            if unit is None and formatter is None:
+                print("\t{}: {}".format(title, value))
+                continue
+
+            if formatter is None: rounded_value = format(value, '.0f')
+            else: rounded_value = format(value, formatter)
+
+            if unit is None:
+                print("\t{}: {}".format(title, rounded_value))
+                continue
+
+            print("\t{}: {} [{}]".format(title, rounded_value, unit))

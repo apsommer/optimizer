@@ -1,7 +1,7 @@
 import time
 
 from data import DataUtils as repo
-from Engine import Engine, print_metrics
+from Engine import *
 from strategy.HalfwayStrategy import HalfwayStrategy
 
 # config
@@ -22,14 +22,14 @@ engine.strategy = strategy
 engine.data = data
 
 # run
-results = engine.run()
+engine.run()
 
 ########################################################################
 end_time = time.time()
 print(f'Elapsed time: {round(end_time - start_time, 2)} seconds')
 
 # print results to console
-print_metrics(results)
+engine.print_metrics()
 # engine.print_trades()
 
 # plot results
