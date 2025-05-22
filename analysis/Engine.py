@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from tqdm import tqdm
 
 from model.Metric import Metric
@@ -11,28 +9,27 @@ import matplotlib.pyplot as plt
 
 class Engine:
 
-    def __init__(self):
-        self.data = None
-        self.strategy = None
+    def __init__(self, strategy):
+        self.data = strategy.data
+        self.strategy = strategy
         self.current_idx = -1
-        self.initial_cash = 0
-        self.cash = self.initial_cash
-        self.cash_series = {}
+        self.cash_series = { }
         self.trades = []
         self.metrics = []
 
-    def run(self):
-
-        # init
         margin_requirement = self.strategy.ticker.margin_requirement
         size = self.strategy.size
-        initial_cash = margin_requirement * self.data.Close[0] * size
+        initial_cash = margin_requirement * self.data.Close.iloc[0] * size
         self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
-        self.strategy.data = self.data
+
+    def run(self):
 
         # loop each bar
-        for idx in tqdm(self.data.index, colour='BLUE'):
+        for idx in tqdm(
+            iterable = self.data.index,
+            colour = 'BLUE',
+            bar_format = '{percentage:3.0f}%|{bar:50}{r_bar}'):
 
             # set index todo refactor to single index, remove replication
             self.current_idx = idx

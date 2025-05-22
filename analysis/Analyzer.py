@@ -15,9 +15,8 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
 # init
-engine = Engine()
-engine.strategy = LiveStrategy()
-engine.data = data
+strategy = LiveStrategy(data)
+engine = Engine(strategy)
 
 # run
 engine.run()

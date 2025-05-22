@@ -1,12 +1,13 @@
 import pandas as pd
-
 from strategy.BaselineStrategy import BaselineStrategy
 from model.Ticker import Ticker
 
 class LiveStrategy(BaselineStrategy):
 
-    def __init__(self):
+    def __init__(self, data):
         super().__init__()
+
+        self.data = data
 
         fastMinutes = 25
         disableEntryMinutes = 105
@@ -32,9 +33,9 @@ class LiveStrategy(BaselineStrategy):
         else: fastCrossover = (fastCrossoverPercent / 100.0) * takeProfit
 
         # format closing prices
-        open_df = pd.DataFrame({'open': self.data.Open})
+        open_df = pd.DataFrame({'open': data.Open})
         open_series = pd.Series(open_df['open'])
-        close_df = pd.DataFrame({'close': self.data.Close})
+        close_df = pd.DataFrame({'close': data.Close})
         close_series = pd.Series(close_df['close'])
 
         # calculate raw averages # todo set min_windows
@@ -42,7 +43,7 @@ class LiveStrategy(BaselineStrategy):
         self.rawSlow = open_series.ewm(span=slowMinutes, adjust=False).mean()
         self.fast = self.rawFast.ewm(span=5, adjust=False).mean()
         self.slow = self.rawSlow.ewm(span=200, adjust=False).mean()
-        
+
         self.fastSlope = []
         self.slowSlope = []
         self.slowPositiveBarIndex = []
@@ -93,19 +94,6 @@ class LiveStrategy(BaselineStrategy):
 
         self.bar_index += 1
         idx = self.current_idx
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         # entry long
         if self.is_flat and self.bar_index % 321 == 0:
