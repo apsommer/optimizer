@@ -2,7 +2,7 @@ import time
 
 from data import DataUtils as repo
 from Engine import *
-from strategy.HalfwayStrategy import HalfwayStrategy
+from strategy.LiveStrategy import HalfwayStrategy
 
 # config
 start_time = time.time()
