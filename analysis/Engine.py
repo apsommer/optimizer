@@ -17,16 +17,17 @@ class Engine:
         self.current_idx = -1
         self.initial_cash = 0
         self.cash = self.initial_cash
-        self.trades = [ ]
-        self.cash_series = { } # todo refactor to series
-        self.metrics = { }
+        self.cash_series = {}
+        self.trades = []
+        self.metrics = []
 
     def run(self):
 
         # init
         margin_requirement = self.strategy.ticker.margin_requirement
         size = self.strategy.size
-        self.initial_cash = 10e3 # margin_requirement * self.first_bar_close
+        initial_cash = margin_requirement * self.data.Close[0] * size
+        self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
         self.strategy.data = self.data
 
@@ -185,6 +186,8 @@ class Engine:
         plt.plot(pos_df, color = 'green', label='equity (pos)')
         plt.plot(neg_df, color = 'red', label='equity (neg)')
         plt.plot(self.buy_hold_df, color ='#3C3C3C', label='buy/hold')
+
+        plt.autoscale(axis='y')
 
         # show
         plt.legend(
