@@ -22,6 +22,8 @@ def get_profit_factor(trades):
 
 def init_figure(fig_id, data):
 
+    plt.rcParams['figure.figsize'] = [20, 12]
+
     color = 'white'
     font = {'family': 'Ubuntu', 'size': 14}
     matplotlib.rc('font', **font)
