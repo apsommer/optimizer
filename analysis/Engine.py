@@ -1,4 +1,8 @@
+from datetime import datetime
+
 from tqdm import tqdm
+
+from model.Metric import Metric
 from model.Trade import Trade
 from EngineUtils import *
 import pandas as pd
@@ -15,7 +19,7 @@ class Engine:
         self.cash = self.initial_cash
         self.trades = [ ]
         self.cash_series = { } # todo refactor to series
-        self.stats = { }
+        self.metrics = { }
 
     def run(self):
 
@@ -44,7 +48,7 @@ class Engine:
             # track cash balance
             self.cash_series[idx] = self.cash
 
-        return self._get_stats()
+        return self._analyze()
 
     def _fill_order(self):
 
@@ -66,23 +70,15 @@ class Engine:
 
         self.cash += profit
 
-    def _get_stats(self):
+    def _analyze(self):
 
-        stats = { }
-        # trading_days = 252
-        # risk_free_rate = 0
+        # config
+        start_date = self.data.index[0]
+        end_date = self.data.index[-1]
         days = (self.data.index[-1] - self.data.index[0]).days
-
-        # general
-        stats['Config:'] = ''
-        stats['start_date'] = str(self.data.index[0])
-        stats['end_date'] = str(self.data.index[-1])
-        stats['days'] = days
-        stats['ticker'] = self.strategy.ticker.symbol
-        stats['size'] = self.strategy.size
-        stats['initial_cash [$]'] = self.initial_cash
-
-        # todo check volatility and sharpe ratio
+        ticker = self.strategy.ticker.symbol
+        size = self.strategy.size
+        initial_cash = self.initial_cash
 
         # strategy
         cash_df = pd.DataFrame({'cash': self.cash_series})
@@ -92,7 +88,9 @@ class Engine:
         total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
         if self.initial_cash > self.cash: total_return = - total_return
         annualized_return = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
-        # volatility = cash_df['cash'].pct_change().std() * np.sqrt(trading_days) * 100
+        profit_factor = get_profit_factor(self.trades)
+        drawdown_per_profit = (max_drawdown / profit) * 100
+        trades_per_day = num_trades / days
         winners = [trade.profit for trade in self.trades if trade.profit > 0]
         losers = [trade.profit for trade in self.trades if 0 >= trade.profit]
         win_rate = len(winners) / num_trades
@@ -101,47 +99,54 @@ class Engine:
         average_loss = sum(losers) / len(losers)
         expectancy = (win_rate * average_win) - (loss_rate * average_loss)
 
-        stats['Strategy:'] = ''
-        stats['num_trades'] = num_trades
-        stats['profit_factor'] = get_profit_factor(self.trades)
-        stats['profit [$]'] = profit
-        stats['total_return [%]'] = total_return
-        stats['annualized_return [%]'] = annualized_return
-        stats['max_drawdown [$]'] = max_drawdown
-        stats['drawdown/profit [%]'] = (max_drawdown / profit) * 100
-        # stats['annualized_volatility [%]'] = volatility
-        # stats['sharpe'] = (annualized_return - risk_free_rate) / volatility
-        stats['trades/day'] = num_trades / days
-        stats['win_rate [%]'] = win_rate * 100
-        stats['average_win [$]'] = average_win
-        stats['loss_rate [%]'] = loss_rate * 100
-        stats['average_loss [$]'] = average_loss
-        stats['expectancy [$]'] = expectancy
-
-        # reference simple "buy and hold"
+        # reference "buy and hold"
         entry_price_bh = self.data.iloc[0]['Close']
         exit_price_bh = self.data.iloc[-1]['Close']
         buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - entry_price_bh)
-        profit_buy_hold = buy_hold_df.iloc[-1] - buy_hold_df.iloc[0]
-        total_return_buy_hold = (abs(profit_buy_hold) / buy_hold_df.iloc[0]) * 100
-        if entry_price_bh > exit_price_bh: total_return_buy_hold = - total_return_buy_hold
-        annualized_return_buy_hold = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
-        # volatility_buy_hold = buy_hold_df.pct_change().std() * np.sqrt(trading_days) * 100
+        profit_bh = buy_hold_df.iloc[-1] - buy_hold_df.iloc[0]
+        total_return_bh = (abs(profit_bh) / buy_hold_df.iloc[0]) * 100
+        if entry_price_bh > exit_price_bh: total_return_bh = - total_return_bh
+        annualized_return_bh = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
+        max_drawdown_bh = get_max_drawdown(buy_hold_df)
+        drawdown_per_profit_bh = (max_drawdown_bh / profit_bh) * 100
 
-        stats['Buy & Hold:'] = ''
-        stats['profit_bh [$]'] = profit_buy_hold
-        stats['total_return_bh [%]'] = total_return_buy_hold
-        stats['annualized_return_bh [%]'] = annualized_return_buy_hold
-        stats['max_drawdown_bh [%]'] = get_max_drawdown(buy_hold_df)
-        # stats['volatility_ann_bh [%]'] = volatility_buy_hold
-        # stats['sharpe_ratio_bh'] = (annualized_return_buy_hold - risk_free_rate) / volatility_buy_hold
+        metrics = [
+            Metric(None, None, None, 'Config:'),
+            Metric('start_date', start_date, None, 'Start Date'),
+            Metric('end_date', end_date, None, 'End Date'),
+            Metric('ticker', ticker, None, 'Ticker'),
+            Metric('size', size, None, 'Size'),
+            Metric('initial_cash', initial_cash, 'USD', 'Initial Cash'),
+
+            Metric(None, None, None, 'Strategy:'),
+            Metric('num_trades', num_trades, None, 'Number of Trades'),
+            Metric('profit', profit, 'USD', 'Profit'),
+            Metric('max_drawdown', max_drawdown, 'USD', 'Maximum Drawdown'),
+            Metric('total_return', total_return, '%', 'Total Return'),
+            Metric('annualized_return', annualized_return, '%', 'Annualized Return'),
+            Metric('profit_factor', profit_factor, None, 'Profit Factor'),
+            Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown Percentage'),
+            Metric('trades_per_day', trades_per_day, None, 'Trades per Day'),
+            Metric('win_rate', win_rate, '%', 'Win Rate'),
+            Metric('average_win', average_win, 'USD', 'Average Win'),
+            Metric('loss_rate', loss_rate, '%', 'Loss Rate'),
+            Metric('average_loss', average_loss, 'USD', 'Average Loss'),
+            Metric('expectancy', expectancy, 'USD', 'Expectancy'),
+
+            Metric(None, None, None, 'Buy Hold:'),
+            Metric('profit_buy_hold', profit_bh, 'USD', 'Profit'),
+            Metric('total_return_bh', total_return_bh, '%', 'Total Return'),
+            Metric('annualized_return_bh', annualized_return_bh, '%', 'Annualized Return'),
+            Metric('max_drawdown_bh', max_drawdown_bh, 'USD', 'Maximum Drawdown'),
+            Metric('_drawdown_per_profit_bh', drawdown_per_profit_bh, '%', 'Drawdown Percentage')
+        ]
 
         # persist df for plots
         self.cash_df = cash_df
         self.buy_hold_df = buy_hold_df
-        self.stats = stats
+        self.metrics = metrics
 
-        return stats
+        return metrics
 
     def plot_equity(self):
 
@@ -233,7 +238,16 @@ class Engine:
         for trade in self.trades:
             print(trade)
 
-def print_stats(stats):
-    for stat, value in stats.items():
-        if ":" in stat: print(stat) # header
-        else: print("\t{}: {}".format(stat, value)) # stat
+def print_metrics(metrics):
+    for metric in metrics:
+
+        # header
+        if metric.name is None:
+            print('\n' + metric.title)
+            continue
+
+        if metric.unit is None:
+            print("\t{}: {}".format(metric.title, metric.value))
+            continue
+
+        print("\t{}: {} [{}]".format(metric.title, metric.value, metric.unit))
