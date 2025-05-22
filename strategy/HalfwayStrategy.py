@@ -8,7 +8,7 @@ class HalfwayStrategy(BaselineStrategy):
         return Ticker(
             symbol = 'MNQ',
             tick_value = 0.50,
-            margin_requirement = 0.10) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
+            margin = 0.10) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
     def size(self):
