@@ -2,7 +2,7 @@ import time
 
 from data import DataUtils as repo
 from Engine import *
-from strategy.LiveStrategy import HalfwayStrategy
+from strategy.LiveStrategy import LiveStrategy
 
 # config
 start_time = time.time()
@@ -16,7 +16,7 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 
 # init
 engine = Engine()
-engine.strategy = HalfwayStrategy()
+engine.strategy = LiveStrategy()
 engine.data = data
 
 # run

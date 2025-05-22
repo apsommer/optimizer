@@ -1,20 +1,82 @@
+import pandas as pd
+
 from strategy.BaselineStrategy import BaselineStrategy
 from model.Ticker import Ticker
 
-class HalfwayStrategy(BaselineStrategy):
+class LiveStrategy(BaselineStrategy):
 
     def __init__(self):
         super().__init__()
 
-        self.is_strategy_enabled = False
-        self.strategy_start_index = -1
-        self.raw_fast = 0.0
-        self.raw_slow = 0.0
-        self.fast = 0.0
-        self.slow = 0.0
-        self.fast_slope = 0.0
-        self.slow_slope = 0.0
+        fastMinutes = 25
+        disableEntryMinutes = 105
+        fastMomentumMinutes = 135
+        fastCrossoverPercent = 0
+        takeProfitPercent = 0.35
+        fastAngleFactor = 15
+        slowMinutes = 2355
+        slowAngleFactor = 20
+        entryRestriction_minutes = 0
+        entryRestriction_percent = 0
 
+        coolOffMinutes = 5
+        positionEntryMinutes = 1
+
+        # convert units, decimal converts int to float
+        fastAngle = fastAngleFactor / 1000.0
+        slowAngle = slowAngleFactor / 1000.0
+        takeProfit = takeProfitPercent / 100.0
+
+        # calculate fast crossover
+        if takeProfit == 0: fastCrossover = fastCrossoverPercent / 100.0
+        else: fastCrossover = (fastCrossoverPercent / 100.0) * takeProfit
+
+        # format closing prices
+        open_df = pd.DataFrame({'open': self.data.Open})
+        open_series = pd.Series(open_df['open'])
+        close_df = pd.DataFrame({'close': self.data.Close})
+        close_series = pd.Series(close_df['close'])
+
+        # calculate raw averages # todo set min_windows
+        self.rawFast = open_series.ewm(span=fastMinutes, adjust=False).mean()
+        self.rawSlow = open_series.ewm(span=slowMinutes, adjust=False).mean()
+        self.fast = self.rawFast.ewm(span=5, adjust=False).mean()
+        self.slow = self.rawSlow.ewm(span=200, adjust=False).mean()
+        
+        self.fastSlope = []
+        self.slowSlope = []
+        self.slowPositiveBarIndex = []
+        self.slowNegativeBarIndex = []
+        self.isFastCrossoverLong = []
+        self.isFastCrossoverShort = []
+        self.isEntryDisabled = []
+        self.isEntryLongDisabled = []
+        self.isEntryShortDisabled = []
+        self.hasLongEntryDelayElapsed = []
+        self.hasShortEntryDelayElapsed = []
+        self.isEntryLongEnabled = []
+        self.isEntryShortEnabled = []
+        self.isEntryLong = []
+        self.isEntryShort = []
+        self.entryPrice = []
+        self.isEntryLongPyramid = []
+        self.isEntryShortPyramid = []
+        self.longFastCrossoverExit = []
+        self.shortFastCrossoverExit = []
+        self.isExitLongFastCrossoverEnabled = []
+        self.isExitShortFastCrossoverEnabled = []
+        self.isExitLongFastCrossover = []
+        self.isExitShortFastCrossover = []
+        self.isExitLongFastMomentum = []
+        self.isExitShortFastMomentum = []
+        self.longTakeProfit = []
+        self.shortTakeProfit = []
+        self.isExitLongTakeProfit = []
+        self.isExitShortTakeProfit = []
+        self.isExitLong = []
+        self.isExitShort = []
+        self.longExitBarIndex = []
+        self.shortExitBarIndex = []
 
     @property
     def ticker(self):
@@ -30,20 +92,20 @@ class HalfwayStrategy(BaselineStrategy):
     def on_bar(self):
 
         self.bar_index += 1
+        idx = self.current_idx
 
-        fast_minutes = 25
-        disable_entry_minutes = 105
-        fast_momentum_minutes = 135
-        fast_crossover_percent = 0
-        take_profit_percent = 0.35
-        fast_angle_factor = 15
-        slow_minutes = 2355
-        slow_angle_factor = 20
-        entry_restriction_minutes = 0
-        entry_restriction_percent = 0
 
-        cool_off_minutes = 5
-        position_entry_minutes = 1
+
+
+
+
+
+
+
+
+
+
+
 
         # entry long
         if self.is_flat and self.bar_index % 321 == 0:
