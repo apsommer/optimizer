@@ -1,19 +1,12 @@
 import time
 
-import matplotlib.pyplot as plt
 from data import DataUtils as repo
 from Engine import Engine, print_stats
 from strategy.HalfwayStrategy import HalfwayStrategy
-import logging
 
 # config
 start_time = time.time()
-plt.rcParams['figure.figsize'] = [20, 12]
-logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
 
-# config
-plt.rcParams['figure.figsize'] = [20, 12]
-logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
 
 # get ohlc prices
 csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"  # 3 months
@@ -40,5 +33,5 @@ print_stats(results)
 # engine.print_trades()
 
 # plot results
-engine.plot_strategy()
+engine.plot_equity()
 engine.plot_trades()
