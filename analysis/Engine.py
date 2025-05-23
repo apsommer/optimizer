@@ -16,7 +16,7 @@ class Engine:
         self.current_idx = -1
         self.cash_series = pd.Series(index=self.data.index)
         self.trades = []
-        self.metrics = []
+        self.metrics = pd.Series()
 
         # init equity account
         margin_requirement = self.strategy.ticker.margin_requirement
@@ -99,9 +99,9 @@ class Engine:
         average_loss = sum(losers) / len(losers)
         expectancy = ((win_rate / 100) * average_win) - ((loss_rate / 100) * average_loss)
 
-        self.metrics = [
+        metrics = [
 
-            Metric(None, None, None, 'Config:'),
+            Metric('config_header', None, None, 'Config:'),
             Metric('start_date', start_date, None, 'Start Date'),
             Metric('end_date', end_date, None, 'End Date'),
             Metric('days', days, None, 'Number of Days'),
@@ -109,7 +109,7 @@ class Engine:
             Metric('size', size, None, 'Size'),
             Metric('initial_cash', initial_cash, 'USD', 'Initial Cash'),
 
-            Metric(None, None, None, 'Strategy:'),
+            Metric('strategy_header', None, None, 'Strategy:'),
             Metric('num_trades', num_trades, None, 'Number of Trades'),
             Metric('profit_factor', profit_factor, None, 'Profit Factor', '.2f'),
             Metric('trades_per_day', trades_per_day, None, 'Trades per Day', '.2f'),
@@ -125,19 +125,25 @@ class Engine:
             Metric('loss_rate', loss_rate, '%', 'Loss Rate'),
         ]
 
-    def _get_buy_hold_df(self):
+        self._add_metrics(metrics)
 
-        buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.data.Open.iloc[0])
+    def _add_metrics(self, metrics):
+        for metric in metrics:
+            self.metrics[metric.name] = metric
+
+    def _get_buy_hold(self):
+
+        buy_hold = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.data.Open.iloc[0])
         days = (self.data.index[-1] - self.data.index[0]).days # todo refactor metrics from list to dict
 
         entry_price = self.data.iloc[0]['Close']
         exit_price = self.data.iloc[-1]['Close']
 
-        profit_bh = buy_hold_df.iloc[-1] - buy_hold_df.iloc[0]
-        total_return_bh = (abs(profit_bh) / buy_hold_df.iloc[0]) * 100
+        profit_bh = buy_hold.iloc[-1] - buy_hold.iloc[0]
+        total_return_bh = (abs(profit_bh) / buy_hold.iloc[0]) * 100
         if entry_price > exit_price: total_return_bh = - total_return_bh
-        annualized_return_bh = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
-        max_drawdown_bh = get_max_drawdown(buy_hold_df)
+        annualized_return_bh = ((buy_hold.iloc[-1] / buy_hold.iloc[0]) ** (1 / (days / 365)) - 1) * 100
+        max_drawdown_bh = get_max_drawdown(buy_hold)
         drawdown_per_profit_bh = (max_drawdown_bh / profit_bh) * 100
 
         metrics_bh = [
@@ -149,17 +155,14 @@ class Engine:
             Metric('annualized_return_bh', annualized_return_bh, '%', 'Annualized Return')
         ]
 
-        self.metrics.extend(metrics_bh)
-        return buy_hold_df
+        self._add_metrics(metrics_bh)
+        return buy_hold
 
     def plot_equity(self, isShowBuyHold=True):
 
         # init figure
-        fig_id = 1
-        cash_series = self.cash_df['cash']
-        init_figure(
-            fig_id=fig_id,
-            data=cash_series)
+        cash_series = self.cash_series
+        init_figure(1, cash_series)
 
         # split cash balance into profit and loss
         pos, neg = [], []
@@ -191,7 +194,7 @@ class Engine:
         plt.plot(neg_df, color = 'red', label='equity (neg)')
 
         if isShowBuyHold:
-            plt.plot(self._get_buy_hold_df(), color ='#3C3C3C', label='buy/hold')
+            plt.plot(self._get_buy_hold(), color ='#3C3C3C', label='buy/hold')
 
         plt.autoscale(axis='y')
 
@@ -205,11 +208,8 @@ class Engine:
     def plot_trades(self):
 
         # init figure
-        fig_id = 2
         close = self.data.Close
-        init_figure(
-            fig_id=fig_id,
-            data=close)
+        init_figure(2, close)
 
         # plot underlying
         plt.plot(close, color = '#3C3C3C')
@@ -229,10 +229,8 @@ class Engine:
                 index = [entry_idx, exit_idx],
                 data = [entry_price, exit_price])
 
-            # set color
-            match sentiment:
-                case 'long': color = 'blue'
-                case 'short': color = 'aqua'
+            color = 'blue' # long
+            if sentiment == 'short': color = 'aqua'
 
             plt.plot(trade_df, color)
             plt.plot(entry_idx, entry_price, color=color, marker='o', markersize=5)
@@ -247,6 +245,7 @@ class Engine:
             print(trade)
 
     def print_metrics(self):
+
         for metric in self.metrics:
 
             name = metric.name
@@ -256,7 +255,7 @@ class Engine:
             unit = metric.unit
 
             # header
-            if name is None:
+            if value is None:
                 print('\n' + title)
                 continue
 
