@@ -16,7 +16,8 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 
 # init
 strategy = LiveStrategy(data)
-engine = Engine(strategy)
+# engine = Engine(strategy)
+engine = load_engine()
 
 # run
 engine.run()
@@ -28,4 +29,5 @@ print(f'Elapsed time: {round(end_time - start_time, 2)} seconds')
 # plot results
 engine.plot_equity(isShowBuyHold=True)
 engine.print_metrics()
+# engine.save_engine()
 engine.plot_trades()

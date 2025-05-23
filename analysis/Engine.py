@@ -1,3 +1,5 @@
+import pickle
+
 from tqdm import tqdm
 
 from model.Metric import Metric
@@ -270,3 +272,11 @@ class Engine:
                 continue
 
             print("\t{}: {} [{}]".format(title, rounded_value, unit))
+
+    def save_engine(self):
+        filehandler = open('apples.obj', 'wb')
+        pickle.dump(self, filehandler)
+
+def load_engine():
+    filehandler = open('apples.obj', 'rb')
+    return pickle.load(filehandler)
