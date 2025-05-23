@@ -248,7 +248,6 @@ class Engine:
 
         for metric in self.metrics:
 
-            name = metric.name
             title = metric.title
             value = metric.value
             formatter = metric.formatter
@@ -263,8 +262,8 @@ class Engine:
                 print("\t{}: {}".format(title, value))
                 continue
 
-            if formatter is None: rounded_value = format(value, '.0f')
-            else: rounded_value = format(value, formatter)
+            rounded_value = format(value, '.0f')
+            if formatter is not None: rounded_value = format(value, formatter)
 
             if unit is None:
                 print("\t{}: {}".format(title, rounded_value))
