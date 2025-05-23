@@ -26,14 +26,10 @@ engine.run()
 end_time = time.time()
 print(f'Elapsed time: {round(end_time - start_time, 2)} seconds')
 
-# load
-# filename = "e1_verdad.bin"
-# engine = load_engine(filename)
-
 # plot results
-engine.plot_equity(isShowBuyHold=True)
 engine.print_metrics()
+engine.plot_equity()
 engine.plot_trades()
 
 # persist
-engine.save_engine(4, 'mientra')
+engine.save_engine(1, 'output')

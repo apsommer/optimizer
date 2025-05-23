@@ -1,10 +1,8 @@
-import datetime
 import os
-import pickle
-import time
+from operator import index
 
+from sympy.printing.pretty.pretty_symbology import line_width
 from tqdm import tqdm
-
 from model.Metric import Metric
 from model.Trade import Trade
 from EngineUtils import *
@@ -130,40 +128,10 @@ class Engine:
             Metric('loss_rate', loss_rate, '%', 'Loss Rate'),
         ]
 
-        self._add_metrics(metrics)
-
-    def _add_metrics(self, metrics):
         for metric in metrics:
             self.metrics[metric.name] = metric
 
-    def _get_buy_hold(self):
-
-        buy_hold = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.data.Open.iloc[0])
-        days = (self.data.index[-1] - self.data.index[0]).days # todo refactor metrics from list to dict
-
-        entry_price = self.data.iloc[0]['Close']
-        exit_price = self.data.iloc[-1]['Close']
-
-        profit_bh = buy_hold.iloc[-1] - buy_hold.iloc[0]
-        total_return_bh = (abs(profit_bh) / buy_hold.iloc[0]) * 100
-        if entry_price > exit_price: total_return_bh = - total_return_bh
-        annualized_return_bh = ((buy_hold.iloc[-1] / buy_hold.iloc[0]) ** (1 / (days / 365)) - 1) * 100
-        max_drawdown_bh = get_max_drawdown(buy_hold)
-        drawdown_per_profit_bh = (max_drawdown_bh / profit_bh) * 100
-
-        metrics_bh = [
-            Metric(None, None, None, 'Buy Hold:'),
-            Metric('profit_bh', profit_bh, 'USD', 'Profit'),
-            Metric('max_drawdown_bh', max_drawdown_bh, 'USD', 'Maximum Drawdown'),
-            Metric('drawdown_per_profit_bh', drawdown_per_profit_bh, '%', 'Drawdown Percentage'),
-            Metric('total_return_bh', total_return_bh, '%', 'Total Return'),
-            Metric('annualized_return_bh', annualized_return_bh, '%', 'Annualized Return')
-        ]
-
-        self._add_metrics(metrics_bh)
-        return buy_hold
-
-    def plot_equity(self, isShowBuyHold=True):
+    def plot_equity(self):
 
         # init figure
         cash_series = self.cash_series
@@ -194,19 +162,23 @@ class Engine:
         pos_df.index = cash_series.index
         neg_df.index = cash_series.index
 
-        # add series
-        plt.plot(pos_df, color = 'green', label='equity (pos)')
-        plt.plot(neg_df, color = 'red', label='equity (neg)')
+        # initial cash
+        initial_cash_df = pd.DataFrame(
+            data = { 'initial_cash': self.initial_cash },
+            index = cash_series.index)
+        plt.plot(initial_cash_df, color = 'black')
 
-        if isShowBuyHold:
-            plt.plot(self._get_buy_hold(), color ='#3C3C3C', label='buy/hold')
+        # buy and hold reference
+        buy_hold = (self.data.Close - self.data.Open.iloc[0]) * self.strategy.ticker.tick_value + self.initial_cash
+        plt.plot(buy_hold,  color = '#3C3C3C')
+
+        # add series
+        plt.plot(pos_df, color = 'green')
+        plt.plot(neg_df, color = 'red')
 
         plt.autoscale(axis='y')
 
         # show
-        plt.legend(
-            facecolor='#0D0B1A',
-            frameon=False)
         plt.tight_layout()
         plt.show(block=False)
 
@@ -279,13 +251,21 @@ class Engine:
     ''' serialize '''
     def save_engine(self, id, name):
 
+        package = {
+            'trades': self.trades,
+            'cash_series': self.cash_series,
+            'metrics': self.metrics,
+            'strategy_params': None # todo
+        }
+
         # make directory, if needed
         if not os.path.exists(name):
             os.mkdir(name)
 
+        # create new binary
         # formatted_time = time.strftime('%Y%m%d_%H%M%S')
         filename = 'e' + str(id) + '.bin'
         path_filename = name + '/' + filename
         filehandler = open(path_filename, 'wb')
 
-        pickle.dump(self, filehandler)
+        pickle.dump(package, filehandler)
