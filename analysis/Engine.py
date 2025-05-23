@@ -14,7 +14,7 @@ class Engine:
         self.data = strategy.data
         self.strategy = strategy
         self.current_idx = -1
-        self.cash_series = { }
+        self.cash_series = pd.Series(index=self.data.index)
         self.trades = []
         self.metrics = []
 
@@ -81,11 +81,10 @@ class Engine:
         size = self.strategy.size
         initial_cash = self.initial_cash
 
-        # strategy
-        cash_df = pd.DataFrame({'cash': self.cash_series})
+        # stats
         num_trades = len(self.trades)
         profit = self.cash - self.initial_cash
-        max_drawdown = get_max_drawdown(cash_df['cash'])
+        max_drawdown = get_max_drawdown(self.cash_series)
         total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
         if self.initial_cash > self.cash: total_return = - total_return
         annualized_return = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
@@ -100,22 +99,12 @@ class Engine:
         average_loss = sum(losers) / len(losers)
         expectancy = ((win_rate / 100) * average_win) - ((loss_rate / 100) * average_loss)
 
-        # reference "buy and hold"
-        entry_price_bh = self.data.iloc[0]['Close']
-        exit_price_bh = self.data.iloc[-1]['Close']
-        buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - entry_price_bh)
-        profit_bh = buy_hold_df.iloc[-1] - buy_hold_df.iloc[0]
-        total_return_bh = (abs(profit_bh) / buy_hold_df.iloc[0]) * 100
-        if entry_price_bh > exit_price_bh: total_return_bh = - total_return_bh
-        annualized_return_bh = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
-        max_drawdown_bh = get_max_drawdown(buy_hold_df)
-        drawdown_per_profit_bh = (max_drawdown_bh / profit_bh) * 100
+        self.metrics = [
 
-        metrics = [
-            
             Metric(None, None, None, 'Config:'),
             Metric('start_date', start_date, None, 'Start Date'),
             Metric('end_date', end_date, None, 'End Date'),
+            Metric('days', days, None, 'Number of Days'),
             Metric('ticker', ticker, None, 'Ticker'),
             Metric('size', size, None, 'Size'),
             Metric('initial_cash', initial_cash, 'USD', 'Initial Cash'),
@@ -134,28 +123,43 @@ class Engine:
             Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown Percentage'),
             Metric('win_rate', win_rate, '%', 'Win Rate'),
             Metric('loss_rate', loss_rate, '%', 'Loss Rate'),
+        ]
 
+    def _get_buy_hold_df(self):
+
+        buy_hold_df = self.initial_cash + self.strategy.ticker.tick_value * (self.data.Close - self.data.Open.iloc[0])
+        days = (self.data.index[-1] - self.data.index[0]).days # todo refactor metrics from list to dict
+
+        entry_price = self.data.iloc[0]['Close']
+        exit_price = self.data.iloc[-1]['Close']
+
+        profit_bh = buy_hold_df.iloc[-1] - buy_hold_df.iloc[0]
+        total_return_bh = (abs(profit_bh) / buy_hold_df.iloc[0]) * 100
+        if entry_price > exit_price: total_return_bh = - total_return_bh
+        annualized_return_bh = ((buy_hold_df.iloc[-1] / buy_hold_df.iloc[0]) ** (1 / (days / 365)) - 1) * 100
+        max_drawdown_bh = get_max_drawdown(buy_hold_df)
+        drawdown_per_profit_bh = (max_drawdown_bh / profit_bh) * 100
+
+        metrics_bh = [
             Metric(None, None, None, 'Buy Hold:'),
-            Metric('profit_buy_hold', profit_bh, 'USD', 'Profit'),
+            Metric('profit_bh', profit_bh, 'USD', 'Profit'),
             Metric('max_drawdown_bh', max_drawdown_bh, 'USD', 'Maximum Drawdown'),
-            Metric('_drawdown_per_profit_bh', drawdown_per_profit_bh, '%', 'Drawdown Percentage'),
+            Metric('drawdown_per_profit_bh', drawdown_per_profit_bh, '%', 'Drawdown Percentage'),
             Metric('total_return_bh', total_return_bh, '%', 'Total Return'),
             Metric('annualized_return_bh', annualized_return_bh, '%', 'Annualized Return')
         ]
 
-        # persist df for plots
-        self.cash_df = cash_df
-        self.buy_hold_df = buy_hold_df
-        self.metrics = metrics
+        self.metrics.extend(metrics_bh)
+        return buy_hold_df
 
-    def plot_equity(self):
+    def plot_equity(self, isShowBuyHold=True):
 
         # init figure
         fig_id = 1
         cash_series = self.cash_df['cash']
         init_figure(
             fig_id=fig_id,
-            data=self.buy_hold_df)
+            data=cash_series)
 
         # split cash balance into profit and loss
         pos, neg = [], []
@@ -185,7 +189,9 @@ class Engine:
         # add series
         plt.plot(pos_df, color = 'green', label='equity (pos)')
         plt.plot(neg_df, color = 'red', label='equity (neg)')
-        plt.plot(self.buy_hold_df, color ='#3C3C3C', label='buy/hold')
+
+        if isShowBuyHold:
+            plt.plot(self._get_buy_hold_df(), color ='#3C3C3C', label='buy/hold')
 
         plt.autoscale(axis='y')
 

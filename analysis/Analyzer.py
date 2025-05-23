@@ -26,6 +26,6 @@ end_time = time.time()
 print(f'Elapsed time: {round(end_time - start_time, 2)} seconds')
 
 # plot results
+engine.plot_equity(isShowBuyHold=True)
 engine.print_metrics()
-engine.plot_equity()
 engine.plot_trades()
