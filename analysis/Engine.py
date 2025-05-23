@@ -1,14 +1,9 @@
 import os
-from operator import index
-
-from sympy.printing.pretty.pretty_symbology import line_width
 from tqdm import tqdm
 from model.Metric import Metric
 from model.Trade import Trade
 from EngineUtils import *
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 
 class Engine:
 
@@ -138,7 +133,7 @@ class Engine:
     ''' serialize '''
     def save(self, id, name):
 
-        package = {
+        slim_engine = {
             'trades': self.trades,
             'cash_series': self.cash_series,
             'metrics': self.metrics,
@@ -155,4 +150,4 @@ class Engine:
         path_filename = name + '/' + filename
         filehandler = open(path_filename, 'wb')
 
-        pickle.dump(package, filehandler)
+        pickle.dump(slim_engine, filehandler)
