@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+import pandas as pd
 from analysis.Engine import Engine
 
 def get_max_drawdown(prices):
@@ -29,9 +30,10 @@ def load_engine(id, name, strategy):
 
     engine = Engine(strategy)
     engine.trades = slim_engine['trades']
-    engine.cash_series = slim_engine['cash_series']
+    engine.cash_series = pd.Series(
+        data = slim_engine['cash_series'],
+        index = strategy.data.index)
     engine.metrics = slim_engine['metrics']
     # todo engine strategy_params ...
-    print(engine.cash_series)
 
     return engine

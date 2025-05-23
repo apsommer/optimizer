@@ -25,6 +25,10 @@ class Engine:
 
     def run(self):
 
+        if self.metrics.size != 0:
+            print('Engine already has results, skipping run ...')
+            return
+
         # loop each bar
         for idx in tqdm(
             iterable = self.data.index,
@@ -135,7 +139,7 @@ class Engine:
 
         slim_engine = {
             'trades': self.trades,
-            'cash_series': self.cash_series,
+            'cash_series': self.cash_series.tolist(),
             'metrics': self.metrics,
             'strategy_params': None # todo
         }

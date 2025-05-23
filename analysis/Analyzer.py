@@ -18,11 +18,11 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # init
 strategy = LiveStrategy(data)
 # engine = Engine(strategy)
-engine = load_engine(42, 'output', strategy)
+engine = load_engine(0, 'output', strategy)
 
 # run
 # engine.run()
-# engine.save(42, 'output')
+# engine.save(0, 'output')
 
 ########################################################################
 end_time = time.time()
