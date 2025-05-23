@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 class Engine:
 
     def __init__(self, strategy):
+
         self.data = strategy.data
         self.strategy = strategy
         self.current_idx = -1
@@ -17,6 +18,7 @@ class Engine:
         self.trades = []
         self.metrics = []
 
+        # init equity account
         margin_requirement = self.strategy.ticker.margin_requirement
         size = self.strategy.size
         initial_cash = margin_requirement * self.data.Close.iloc[0] * size
@@ -52,22 +54,22 @@ class Engine:
     def _fill_order(self):
 
         order = self.strategy.orders[-1]
-        profit = 0
 
-        if order.sentiment == 'long' or order.sentiment == 'short':
-            trade = Trade(
-                side = order.sentiment, # long, short
+        # exit open trade
+        if order.sentiment == 'flat':
+
+            trade = self.trades[-1]
+            trade.exit_order = order
+            self.cash += trade.profit
+            return
+
+        # enter new trade
+        self.trades.append(
+            Trade(
+                side = order.sentiment,
                 size = order.size,
                 entry_order = order,
-                exit_order = None)
-            self.trades.append(trade)
-
-        elif order.sentiment == 'flat':
-            open_trade = self.trades[-1]
-            open_trade.exit_order = order
-            profit = open_trade.profit
-
-        self.cash += profit
+                exit_order = None))
 
     def _analyze(self):
 
@@ -110,6 +112,7 @@ class Engine:
         drawdown_per_profit_bh = (max_drawdown_bh / profit_bh) * 100
 
         metrics = [
+            
             Metric(None, None, None, 'Config:'),
             Metric('start_date', start_date, None, 'Start Date'),
             Metric('end_date', end_date, None, 'End Date'),
