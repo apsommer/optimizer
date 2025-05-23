@@ -1,4 +1,5 @@
 import datetime
+import os
 import pickle
 import time
 
@@ -278,8 +279,13 @@ class Engine:
     ''' serialize '''
     def save_engine(self, id, name):
 
-        # formatted_time = time.strftime('%Y%m%d_%H%M%S')
-        filename = 'e' + str(id) + '_' + name + '.bin'
+        # make directory, if needed
+        if not os.path.exists(name):
+            os.mkdir(name)
 
-        filehandler = open(filename, 'wb')
+        # formatted_time = time.strftime('%Y%m%d_%H%M%S')
+        filename = 'e' + str(id) + '.bin'
+        path_filename = name + '/' + filename
+        filehandler = open(path_filename, 'wb')
+
         pickle.dump(self, filehandler)
