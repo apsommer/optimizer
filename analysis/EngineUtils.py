@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -61,3 +63,8 @@ def init_figure(fig_id, data):
     plt.grid(color='#1D193B', linewidth=0.5)
 
     return fig
+
+''' deserialize '''
+def load_engine(filename):
+    filehandler = open(filename, 'rb')
+    return pickle.load(filehandler)

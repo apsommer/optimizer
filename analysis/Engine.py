@@ -1,4 +1,6 @@
+import datetime
 import pickle
+import time
 
 from tqdm import tqdm
 
@@ -16,8 +18,8 @@ class Engine:
         self.data = strategy.data
         self.strategy = strategy
         self.current_idx = -1
-        self.cash_series = pd.Series(index=self.data.index)
         self.trades = []
+        self.cash_series = pd.Series(index=self.data.index)
         self.metrics = pd.Series()
 
         # init equity account
@@ -273,10 +275,11 @@ class Engine:
 
             print("\t{}: {} [{}]".format(title, rounded_value, unit))
 
-    def save_engine(self):
-        filehandler = open('apples.obj', 'wb')
-        pickle.dump(self, filehandler)
+    ''' serialize '''
+    def save_engine(self, id, name):
 
-def load_engine():
-    filehandler = open('apples.obj', 'rb')
-    return pickle.load(filehandler)
+        # formatted_time = time.strftime('%Y%m%d_%H%M%S')
+        filename = 'e' + str(id) + '_' + name + '.bin'
+
+        filehandler = open(filename, 'wb')
+        pickle.dump(self, filehandler)
