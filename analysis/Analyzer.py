@@ -27,9 +27,9 @@ end_time = time.time()
 print(f'Elapsed time: {round(end_time - start_time, 2)} seconds')
 
 # plot results
-engine.print_metrics()
-engine.plot_equity()
-engine.plot_trades()
+print_metrics(engine)
+plot_equity(engine)
+plot_trades(engine)
 
 # persist
-engine.save_engine(1, 'output')
+engine.save(1, 'output')

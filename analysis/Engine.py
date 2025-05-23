@@ -46,15 +46,15 @@ class Engine:
             # fill order, if needed
             orders = self.strategy.orders
             if len(orders) > 0 and orders[-1].idx == self.current_idx:
-                self._fill_order()
+                self.fill_order()
 
             # track cash balance
             self.cash_series[idx] = self.cash
 
         # analyze results
-        self._analyze()
+        self.analyze()
 
-    def _fill_order(self):
+    def fill_order(self):
 
         order = self.strategy.orders[-1]
 
@@ -74,7 +74,7 @@ class Engine:
                 entry_order = order,
                 exit_order = None))
 
-    def _analyze(self):
+    def analyze(self):
 
         # config
         start_date = self.data.index[0]
@@ -131,125 +131,12 @@ class Engine:
         for metric in metrics:
             self.metrics[metric.name] = metric
 
-    def plot_equity(self):
-
-        # init figure
-        cash_series = self.cash_series
-        init_figure(1, cash_series)
-
-        # split cash balance into profit and loss
-        pos, neg = [], []
-        for balance in cash_series:
-
-            over = balance >= self.initial_cash
-            under = balance < self.initial_cash
-            cross_over = over and len(pos) > 0 and np.isnan(pos[-1])
-            cross_under = under and len(pos) > 0 and np.isnan(neg[-1])
-
-            if over:
-                pos.append(balance)
-                neg.append(np.nan)
-            elif under:
-                pos.append(np.nan)
-                neg.append(balance)
-
-            # keep balance line continuous
-            if cross_over: pos[-2] = neg[-2]
-            if cross_under: neg[-2] = pos[-2]
-
-        pos_df = pd.DataFrame({'pos': pos})
-        neg_df = pd.DataFrame({'neg': neg})
-        pos_df.index = cash_series.index
-        neg_df.index = cash_series.index
-
-        # initial cash
-        initial_cash_df = pd.DataFrame(
-            data = { 'initial_cash': self.initial_cash },
-            index = cash_series.index)
-        plt.plot(initial_cash_df, color = 'black')
-
-        # buy and hold reference
-        buy_hold = (self.data.Close - self.data.Open.iloc[0]) * self.strategy.ticker.tick_value + self.initial_cash
-        plt.plot(buy_hold,  color = '#3C3C3C')
-
-        # add series
-        plt.plot(pos_df, color = 'green')
-        plt.plot(neg_df, color = 'red')
-
-        plt.autoscale(axis='y')
-
-        # show
-        plt.tight_layout()
-        plt.show(block=False)
-
-    def plot_trades(self):
-
-        # init figure
-        close = self.data.Close
-        init_figure(2, close)
-
-        # plot underlying
-        plt.plot(close, color = '#3C3C3C')
-
-        for trade in self.trades:
-
-            # skip last open trade, if needed
-            if trade.exit_order is None: continue
-
-            sentiment = trade.entry_order.sentiment
-            entry_idx = trade.entry_order.idx
-            exit_idx = trade.exit_order.idx
-            entry_price = trade.entry_order.price
-            exit_price = trade.exit_order.price
-
-            trade_df = pd.DataFrame(
-                index = [entry_idx, exit_idx],
-                data = [entry_price, exit_price])
-
-            color = 'blue' # long
-            if sentiment == 'short': color = 'aqua'
-
-            plt.plot(trade_df, color)
-            plt.plot(entry_idx, entry_price, color=color, marker='o', markersize=5)
-            plt.plot(exit_idx, exit_price, color=color, marker='o', markersize=10)
-
-        # show
-        plt.tight_layout()
-        plt.show(block=True)
-
     def print_trades(self):
         for trade in self.trades:
             print(trade)
 
-    def print_metrics(self):
-
-        for metric in self.metrics:
-
-            title = metric.title
-            value = metric.value
-            formatter = metric.formatter
-            unit = metric.unit
-
-            # header
-            if value is None:
-                print('\n' + title)
-                continue
-
-            if unit is None and formatter is None:
-                print("\t{}: {}".format(title, value))
-                continue
-
-            rounded_value = format(value, '.0f')
-            if formatter is not None: rounded_value = format(value, formatter)
-
-            if unit is None:
-                print("\t{}: {}".format(title, rounded_value))
-                continue
-
-            print("\t{}: {} [{}]".format(title, rounded_value, unit))
-
     ''' serialize '''
-    def save_engine(self, id, name):
+    def save(self, id, name):
 
         package = {
             'trades': self.trades,
