@@ -26,7 +26,7 @@ class LiveStrategy(BaselineStrategy):
         slowMinutes = params.slowMinutes
         slowAngleFactor = params.slowAngleFactor
         coolOffMinutes = params.coolOffMinutes
-        positionEntryMinutes = params.positionEntryMinutes
+        self.positionEntryMinutes = params.positionEntryMinutes
 
         # convert units, decimal converts int to float
         self.fastAngle = fastAngleFactor / 1000.0
@@ -105,6 +105,7 @@ class LiveStrategy(BaselineStrategy):
         fastSlope = self.fastSlope[idx]
         fastAngle = self.fastAngle
 
+        # crossover fast
         isFastCrossoverLong = (
             fastSlope > fastAngle
             and (fast > open or fast > prev_close)
@@ -114,6 +115,7 @@ class LiveStrategy(BaselineStrategy):
             and (open > fast or prev_close > fast)
             and fast > low)
 
+        # disable entry
         disableEntryMinutes = self.disableEntryMinutes
         if disableEntryMinutes == 0:
             isEntryLongDisabled = False
@@ -122,6 +124,16 @@ class LiveStrategy(BaselineStrategy):
             recentFastSlope = self.fastSlope[bar_index - disableEntryMinutes : bar_index]
             isEntryLongDisabled = np.min(recentFastSlope) > 0
             isEntryShortDisabled = 0 > np.max(recentFastSlope)
+
+        # enable entry
+        positionEntryMinutes = self.positionEntryMinutes
+        if positionEntryMinutes == 0:
+            isEntryLongEnabled = True
+            isEntryShortEnabled = True
+        else:
+            recentOpen = self.data.Open[bar_index - positionEntryMinutes : bar_index]
+            isEntryLongEnabled = fast > np.max(recentOpen)
+            isEntryShortEnabled = np.min(recentOpen) > fast
 
         # entry long
         if self.is_flat and bar_index % 321 == 0:
