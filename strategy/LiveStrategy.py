@@ -177,18 +177,28 @@ class LiveStrategy(BaselineStrategy):
         if not is_long: longTakeProfit = np.nan
         elif isEntryLong: longTakeProfit = (1 + takeProfit) * fast
         self.longTakeProfit = longTakeProfit
+        isExitLongTakeProfit = high > longTakeProfit
 
         # exit short take profit:
         if not is_short: shortTakeProfit = np.nan
         elif isEntryShort: shortTakeProfit = (1 - takeProfit) * fast
         self.shortTakeProfit = shortTakeProfit
+        isExitShortTakeProfit = shortTakeProfit > low
 
         # exit long
-        isExitLong = is_long and bar_index % 987 == 0
+        isExitLong = (
+            isExitLongFastCrossover
+            or isExitLongFastMomentum
+            or isExitLongTakeProfit)
         if isExitLong:
+            self.longExitBarIndex = bar_index
             self.flat(self.ticker, self.size, 'flat')
 
         # exit short
-        isExitShort = is_short and bar_index % 3109 == 0
+        isExitShort = (
+            isExitShortFastCrossover
+            or isExitShortFastMomentum
+            or isExitShortTakeProfit)
         if isExitShort:
+            self.shortExitBarIndex = bar_index
             self.flat(self.ticker, self.size, 'flat')
