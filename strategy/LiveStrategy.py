@@ -1,6 +1,11 @@
+import numpy as np
 import pandas as pd
+from sympy.physics.quantum.gate import normalized
+
 from strategy.BaselineStrategy import BaselineStrategy
 from model.Ticker import Ticker
+from strategy.LiveUtils import get_slope
+
 
 class LiveStrategy(BaselineStrategy):
 
@@ -42,9 +47,9 @@ class LiveStrategy(BaselineStrategy):
         self.rawSlow = open_series.ewm(span=slowMinutes, adjust=False).mean()
         self.fast = self.rawFast.ewm(span=5, adjust=False).mean()
         self.slow = self.rawSlow.ewm(span=200, adjust=False).mean()
+        self.fastSlope = get_slope(self.fast)
+        self.slowSlope = get_slope(self.slow)
 
-        self.fastSlope = []
-        self.slowSlope = []
         self.slowPositiveBarIndex = []
         self.slowNegativeBarIndex = []
         self.isFastCrossoverLong = []
