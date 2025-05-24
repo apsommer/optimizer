@@ -139,10 +139,8 @@ class Engine:
 
         # todo reduce this to just metrics and strategy_params
         slim_engine = {
-            'trades': self.trades,
-            'cash_series': self.cash_series.tolist(),
             'metrics': self.metrics,
-            'strategy_params': None # todo
+            'params': self.strategy.params
         }
 
         # make directory, if needed

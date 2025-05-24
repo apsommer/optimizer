@@ -1,5 +1,8 @@
-databento~=0.53.0
-pandas~=2.2.3
-numpy~=2.2.5
-matplotlib~=3.10.1
-tqdm~=4.67.1
+databento==0.53.0
+pip==25.1.1
+PyQt6==6.9.0
+qbstyles==0.1.4
+seaborn==0.13.2
+sympy==1.14.0
+timer==0.3.0
+tqdm==4.67.1
