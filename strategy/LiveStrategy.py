@@ -26,7 +26,7 @@ class LiveStrategy(BaselineStrategy):
 
         # convert units, decimal converts int to float
         self.fastAngle = fastAngleFactor / 1000.0
-        slowAngle = slowAngleFactor / 1000.0
+        self.slowAngle = slowAngleFactor / 1000.0
         takeProfit = takeProfitPercent / 100.0
 
         # calculate fast crossover
@@ -95,6 +95,10 @@ class LiveStrategy(BaselineStrategy):
         fastSlope = self.fastSlope[idx]
         fastAngle = self.fastAngle
 
+        slow = self.slow[idx]
+        slowSlope = self.slowSlope[idx]
+        slowAngle = self.slowAngle
+
         # crossover fast
         isFastCrossoverLong = (
             fastSlope > fastAngle
@@ -133,16 +137,26 @@ class LiveStrategy(BaselineStrategy):
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
         # entry long
-        if self.is_flat and bar_index % 321 == 0:
-            self.buy(self.ticker, self.size, 'long')
+        if (self.is_flat
+            and isFastCrossoverLong
+            and not isEntryLongDisabled
+            and isEntryLongEnabled
+            and slowSlope > slowAngle
+            and hasLongEntryDelayElapsed):
+                self.buy(self.ticker, self.size, 'long')
+
+        # entry short
+        elif (self.is_flat
+            and isFastCrossoverShort
+            and not isEntryShortDisabled
+            and isEntryShortEnabled
+            and -slowAngle > slowSlope
+            and hasShortEntryDelayElapsed):
+                self.sell(self.ticker, self.size, 'short')
 
         # exit long
         elif self.is_long and bar_index % 987 == 0:
             self.flat(self.ticker, self.size, 'flat')
-
-        # entry short
-        elif self.is_flat and bar_index % 1113 == 0:
-            self.sell(self.ticker, self.size, 'short')
 
         # exit short
         elif self.is_short and bar_index % 3109 == 0:
