@@ -11,6 +11,8 @@ def get_max_drawdown(prices):
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
     return max_daily_drawdown.min() * initial_price
 
+def
+
 def get_profit_factor(trades):
 
     wins = [trade.profit for trade in trades if trade.profit > 0]

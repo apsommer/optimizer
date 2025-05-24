@@ -32,19 +32,18 @@ def init_figure(fig_id, data):
     plt.xlim(xmin, xmax)
 
     # y-axis
-    ymin = round(0.95 * min(data), -2)
-    ymax = round(1.05 * max(data), -2)
-    ystep = round((ymax - ymin) / ystep, -2)
-    y_ticks = np.arange(ymin, ymax, ystep)
-    plt.yticks(y_ticks)
-    plt.ylim(ymin, ymax)
+    # ymin = round(min(data), -2)
+    # ymax = round(max(data), -2)
+    # ystep = round((ymax - ymin) / ystep, -2)
+    # y_ticks = np.arange(ymin, ymax, ystep)
+    # plt.yticks(y_ticks)
+    # plt.ylim(ymin, ymax)
 
     plt.tick_params(tick1On=False)
     plt.tick_params(tick2On=False)
     plt.grid(color='#1D193B', linewidth=0.5)
 
     return fig
-
 
 def plot_equity(engine):
 
