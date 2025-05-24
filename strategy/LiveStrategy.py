@@ -18,7 +18,7 @@ class LiveStrategy(BaselineStrategy):
 
         # unpack params
         fastMinutes = params.fastMinutes
-        disableEntryMinutes = params.disableEntryMinutes
+        self.disableEntryMinutes = params.disableEntryMinutes
         fastMomentumMinutes = params.fastMomentumMinutes
         fastCrossoverPercent = params.fastCrossoverPercent
         takeProfitPercent = params.takeProfitPercent
@@ -113,6 +113,15 @@ class LiveStrategy(BaselineStrategy):
             -fastAngle > fastSlope
             and (open > fast or prev_close > fast)
             and fast > low)
+
+        disableEntryMinutes = self.disableEntryMinutes
+        if disableEntryMinutes == 0:
+            isEntryLongDisabled = False
+            isEntryShortDisabled = False
+        else:
+            recentFastSlope = self.fastSlope[bar_index - disableEntryMinutes : bar_index]
+            isEntryLongDisabled = np.min(recentFastSlope) > 0
+            isEntryShortDisabled = 0 > np.max(recentFastSlope)
 
         # entry long
         if self.is_flat and bar_index % 321 == 0:
