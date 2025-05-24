@@ -1,12 +1,8 @@
 import numpy as np
 import pandas as pd
-from sympy.codegen.ast import continue_
-from sympy.physics.quantum.gate import normalized
-
 from strategy.BaselineStrategy import BaselineStrategy
 from model.Ticker import Ticker
 from strategy.LiveUtils import get_slope
-
 
 class LiveStrategy(BaselineStrategy):
 
@@ -25,7 +21,7 @@ class LiveStrategy(BaselineStrategy):
         fastAngleFactor = params.fastAngleFactor
         slowMinutes = params.slowMinutes
         slowAngleFactor = params.slowAngleFactor
-        coolOffMinutes = params.coolOffMinutes
+        self.coolOffMinutes = params.coolOffMinutes
         self.positionEntryMinutes = params.positionEntryMinutes
 
         # convert units, decimal converts int to float
@@ -49,13 +45,9 @@ class LiveStrategy(BaselineStrategy):
         self.fastSlope = get_slope(self.fast)
         self.slowSlope = get_slope(self.slow)
 
-        self.isEntryDisabled = []
-        self.isEntryLongDisabled = []
-        self.isEntryShortDisabled = []
-        self.hasLongEntryDelayElapsed = []
-        self.hasShortEntryDelayElapsed = []
-        self.isEntryLongEnabled = []
-        self.isEntryShortEnabled = []
+        self.longExitBarIndex = -1
+        self.shortExitBarIndex = -1
+
         self.isEntryLong = []
         self.isEntryShort = []
         self.entryPrice = []
@@ -75,8 +67,6 @@ class LiveStrategy(BaselineStrategy):
         self.isExitShortTakeProfit = []
         self.isExitLong = []
         self.isExitShort = []
-        self.longExitBarIndex = []
-        self.shortExitBarIndex = []
 
     @property
     def ticker(self):
@@ -134,6 +124,13 @@ class LiveStrategy(BaselineStrategy):
             recentOpen = self.data.Open[bar_index - positionEntryMinutes : bar_index]
             isEntryLongEnabled = fast > np.max(recentOpen)
             isEntryShortEnabled = np.min(recentOpen) > fast
+
+        # short cooloff after trade exit
+        coolOffMinutes = self.coolOffMinutes
+        longExitBarIndex = self.longExitBarIndex
+        shortExitBarIndex = self.shortExitBarIndex
+        hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
+        hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
         # entry long
         if self.is_flat and bar_index % 321 == 0:
