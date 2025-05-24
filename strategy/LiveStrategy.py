@@ -15,7 +15,7 @@ class LiveStrategy(BaselineStrategy):
         # unpack params
         fastMinutes = params.fastMinutes
         self.disableEntryMinutes = params.disableEntryMinutes
-        fastMomentumMinutes = params.fastMomentumMinutes
+        self.fastMomentumMinutes = params.fastMomentumMinutes
         fastCrossoverPercent = params.fastCrossoverPercent
         takeProfitPercent = params.takeProfitPercent
         fastAngleFactor = params.fastAngleFactor
@@ -90,6 +90,12 @@ class LiveStrategy(BaselineStrategy):
         slowSlope = self.slowSlope[idx]
         slowAngle = self.slowAngle
 
+        coolOffMinutes = self.coolOffMinutes
+        longExitBarIndex = self.longExitBarIndex
+        shortExitBarIndex = self.shortExitBarIndex
+        fastCrossover = self.fastCrossover
+        fastMomentumMinutes = self.fastMomentumMinutes
+
         # crossover fast
         isFastCrossoverLong = (
             fastSlope > fastAngle
@@ -121,9 +127,6 @@ class LiveStrategy(BaselineStrategy):
             isEntryShortEnabled = np.min(recentOpen) > fast
 
         # short cooloff after trade exit
-        coolOffMinutes = self.coolOffMinutes
-        longExitBarIndex = self.longExitBarIndex
-        shortExitBarIndex = self.shortExitBarIndex
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
@@ -147,8 +150,6 @@ class LiveStrategy(BaselineStrategy):
         if isEntryShort:
             self.sell(self.ticker, self.size, 'short')
 
-        fastCrossover = self.fastCrossover
-
         # exit long fast crossover
         longFastCrossoverExit = self.longFastCrossoverExit
         if fastCrossover == 0 or not self.is_long: longFastCrossoverExit = np.nan
@@ -168,6 +169,11 @@ class LiveStrategy(BaselineStrategy):
         isExitShortFastCrossover = (
             shortFastCrossoverExit > low
             and high > fast)
+
+        # exit fast momentum, ouch
+        recentSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
+        isExitLongFastMomentum = self.is_long and -fastAngle > np.max(recentSlope)
+        isExitShortFastMomentum = self.is_short and np.min(recentSlope) > fastAngle
 
         # exit long
         isExitLong = self.is_long and bar_index % 987 == 0
