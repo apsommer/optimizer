@@ -2,6 +2,7 @@ import pickle
 import numpy as np
 import pandas as pd
 from analysis.Engine import Engine
+from model.Metric import Metric
 
 def get_max_drawdown(prices):
 
@@ -11,7 +12,28 @@ def get_max_drawdown(prices):
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
     return max_daily_drawdown.min() * initial_price
 
-def
+def get_expectancy_metrics(trades):
+
+    num_trades = len(trades)
+    winners = [trade.profit for trade in trades if trade.profit > 0]
+    losers = [trade.profit for trade in trades if 0 >= trade.profit]
+
+    if len(winners) == 0 or len(losers) == 0:
+        return []
+
+    win_rate = (len(winners) / num_trades) * 100
+    average_win = sum(winners) / len(winners)
+    loss_rate = (len(losers) / num_trades) * 100
+    average_loss = sum(losers) / len(losers)
+    expectancy = ((win_rate / 100) * average_win) - ((loss_rate / 100) * average_loss)
+
+    return [
+        Metric('win_rate', win_rate, '%', 'Win rate'),
+        Metric('loss_rate', loss_rate, '%', 'Loss rate'),
+        Metric('average_win', average_win, 'USD', 'Average win'),
+        Metric('average_loss', average_loss, 'USD', 'Average loss'),
+        Metric('expectancy', expectancy, 'USD', 'Expectancy'),
+    ]
 
 def get_profit_factor(trades):
 

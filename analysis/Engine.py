@@ -83,8 +83,17 @@ class Engine:
         size = self.strategy.size
         initial_cash = self.initial_cash
 
-        # stats
-        print(self.trades)
+        metrics = [
+            Metric('config_header', None, None, 'Config:'),
+            Metric('start_date', start_date, None, 'Start date'),
+            Metric('end_date', end_date, None, 'End date'),
+            Metric('days', days, None, 'Number of days'),
+            Metric('ticker', ticker, None, 'Ticker'),
+            Metric('size', size, None, 'Size'),
+            Metric('initial_cash', initial_cash, 'USD', 'Initial cash'),
+        ]
+
+        # perf
         num_trades = len(self.trades)
         profit = self.cash - self.initial_cash
         max_drawdown = get_max_drawdown(self.cash_series)
@@ -94,51 +103,24 @@ class Engine:
         profit_factor = get_profit_factor(self.trades)
         drawdown_per_profit = (max_drawdown / profit) * 100
         trades_per_day = num_trades / days
-        winners = [trade.profit for trade in self.trades if trade.profit > 0]
-        losers = [trade.profit for trade in self.trades if 0 >= trade.profit]
 
-        if len(winners) == 0:
-            win_rate = np.nan
-            average_win = np.nan
-        else:
-            win_rate = (len(winners) / num_trades) * 100
-            average_win = sum(winners) / len(winners)
-
-        if len(losers) == 0:
-            loss_rate = np.nan
-            average_loss = np.nan
-        else:
-            loss_rate = (len(losers) / num_trades) * 100
-            average_loss = sum(losers) / len(losers)
-
-        expectancy = ((win_rate / 100) * average_win) - ((loss_rate / 100) * average_loss)
-
-        metrics = [
-
-            Metric('config_header', None, None, 'Config:'),
-            Metric('start_date', start_date, None, 'Start date'),
-            Metric('end_date', end_date, None, 'End date'),
-            Metric('days', days, None, 'Number of days'),
-            Metric('ticker', ticker, None, 'Ticker'),
-            Metric('size', size, None, 'Size'),
-            Metric('initial_cash', initial_cash, 'USD', 'Initial cash'),
-
+        metrics.extend([
             Metric('strategy_header', None, None, 'Strategy:'),
+            Metric('profit', profit, 'USD', 'Profit'),
             Metric('num_trades', num_trades, None, 'Number of trades'),
             Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f'),
-            Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
-            Metric('profit', profit, 'USD', 'Profit'),
             Metric('max_drawdown', max_drawdown, 'USD', 'Maximum drawdown'),
-            Metric('average_win', average_win, 'USD', 'Average win'),
-            Metric('average_loss', average_loss, 'USD', 'Average loss'),
-            Metric('expectancy', expectancy, 'USD', 'Expectancy'),
+            Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
             Metric('total_return', total_return, '%', 'Total return'),
             Metric('annualized_return', annualized_return, '%', 'Annualized return'),
             Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage'),
-            Metric('win_rate', win_rate, '%', 'Win rate'),
-            Metric('loss_rate', loss_rate, '%', 'Loss rate'),
-        ]
+        ])
 
+        # expectancy
+        metrics.extend(
+            get_expectancy_metrics(self.trades))
+
+        # persist as dict
         for metric in metrics:
             self.metrics[metric.name] = metric
 
