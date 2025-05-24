@@ -30,8 +30,8 @@ class LiveStrategy(BaselineStrategy):
         takeProfit = takeProfitPercent / 100.0
 
         # calculate fast crossover
-        if takeProfit == 0: fastCrossover = fastCrossoverPercent / 100.0
-        else: fastCrossover = (fastCrossoverPercent / 100.0) * takeProfit
+        if takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0
+        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * takeProfit
 
         # format closing prices
         open_series = pd.Series(data.Open)
@@ -47,18 +47,9 @@ class LiveStrategy(BaselineStrategy):
 
         self.longExitBarIndex = -1
         self.shortExitBarIndex = -1
+        self.longFastCrossoverExit = np.nan
+        self.shortFastCrossoverExit = np.nan
 
-        self.isEntryLong = []
-        self.isEntryShort = []
-        self.entryPrice = []
-        self.isEntryLongPyramid = []
-        self.isEntryShortPyramid = []
-        self.longFastCrossoverExit = []
-        self.shortFastCrossoverExit = []
-        self.isExitLongFastCrossoverEnabled = []
-        self.isExitShortFastCrossoverEnabled = []
-        self.isExitLongFastCrossover = []
-        self.isExitShortFastCrossover = []
         self.isExitLongFastMomentum = []
         self.isExitShortFastMomentum = []
         self.longTakeProfit = []
@@ -137,27 +128,53 @@ class LiveStrategy(BaselineStrategy):
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
         # entry long
-        if (self.is_flat
+        isEntryLong = (self.is_flat
             and isFastCrossoverLong
             and not isEntryLongDisabled
             and isEntryLongEnabled
             and slowSlope > slowAngle
-            and hasLongEntryDelayElapsed):
-                self.buy(self.ticker, self.size, 'long')
+            and hasLongEntryDelayElapsed)
+        if isEntryLong:
+            self.buy(self.ticker, self.size, 'long')
 
         # entry short
-        elif (self.is_flat
+        isEntryShort = (self.is_flat
             and isFastCrossoverShort
             and not isEntryShortDisabled
             and isEntryShortEnabled
             and -slowAngle > slowSlope
-            and hasShortEntryDelayElapsed):
-                self.sell(self.ticker, self.size, 'short')
+            and hasShortEntryDelayElapsed)
+        if isEntryShort:
+            self.sell(self.ticker, self.size, 'short')
+
+        fastCrossover = self.fastCrossover
+
+        # exit long fast crossover
+        longFastCrossoverExit = self.longFastCrossoverExit
+        if fastCrossover == 0 or not self.is_long: longFastCrossoverExit = np.nan
+        elif isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
+        self.longFastCrossoverExit = longFastCrossoverExit
+
+        isExitLongFastCrossover = (
+            high > longFastCrossoverExit
+            and fast > low)
+
+        # exit short fast crossover
+        shortFastCrossoverExit = self.shortFastCrossoverExit
+        if fastCrossover == 0 or not self.is_short: shortFastCrossoverExit = np.nan
+        elif isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
+        self.shortFastCrossoverExit = shortFastCrossoverExit
+
+        isExitShortFastCrossover = (
+            shortFastCrossoverExit > low
+            and high > fast)
 
         # exit long
-        elif self.is_long and bar_index % 987 == 0:
+        isExitLong = self.is_long and bar_index % 987 == 0
+        if isExitLong:
             self.flat(self.ticker, self.size, 'flat')
 
         # exit short
-        elif self.is_short and bar_index % 3109 == 0:
+        isExitShort = self.is_short and bar_index % 3109 == 0
+        if isExitShort:
             self.flat(self.ticker, self.size, 'flat')
