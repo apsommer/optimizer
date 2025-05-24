@@ -82,6 +82,10 @@ class LiveStrategy(BaselineStrategy):
         close = self.data.Close[idx]
         prev_close = self.data.Close.iloc[bar_index-1]
 
+        is_flat = self.is_flat
+        is_long = self.is_long
+        is_short = self.is_short
+
         fast = self.fast[idx]
         fastSlope = self.fastSlope[idx]
         fastAngle = self.fastAngle
@@ -90,6 +94,8 @@ class LiveStrategy(BaselineStrategy):
         slowSlope = self.slowSlope[idx]
         slowAngle = self.slowAngle
 
+        disableEntryMinutes = self.disableEntryMinutes
+        positionEntryMinutes = self.positionEntryMinutes
         coolOffMinutes = self.coolOffMinutes
         longExitBarIndex = self.longExitBarIndex
         shortExitBarIndex = self.shortExitBarIndex
@@ -107,7 +113,6 @@ class LiveStrategy(BaselineStrategy):
             and fast > low)
 
         # disable entry
-        disableEntryMinutes = self.disableEntryMinutes
         if disableEntryMinutes == 0:
             isEntryLongDisabled = False
             isEntryShortDisabled = False
@@ -117,7 +122,6 @@ class LiveStrategy(BaselineStrategy):
             isEntryShortDisabled = 0 > np.max(recentFastSlope)
 
         # enable entry
-        positionEntryMinutes = self.positionEntryMinutes
         if positionEntryMinutes == 0:
             isEntryLongEnabled = True
             isEntryShortEnabled = True
@@ -131,7 +135,7 @@ class LiveStrategy(BaselineStrategy):
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
         # entry long
-        isEntryLong = (self.is_flat
+        isEntryLong = (is_flat
             and isFastCrossoverLong
             and not isEntryLongDisabled
             and isEntryLongEnabled
@@ -141,7 +145,8 @@ class LiveStrategy(BaselineStrategy):
             self.buy(self.ticker, self.size, 'long')
 
         # entry short
-        isEntryShort = (self.is_flat
+        isEntryShort = (
+            is_flat
             and isFastCrossoverShort
             and not isEntryShortDisabled
             and isEntryShortEnabled
@@ -152,7 +157,7 @@ class LiveStrategy(BaselineStrategy):
 
         # exit long fast crossover
         longFastCrossoverExit = self.longFastCrossoverExit
-        if fastCrossover == 0 or not self.is_long: longFastCrossoverExit = np.nan
+        if fastCrossover == 0 or not is_long: longFastCrossoverExit = np.nan
         elif isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
         self.longFastCrossoverExit = longFastCrossoverExit
 
@@ -162,7 +167,7 @@ class LiveStrategy(BaselineStrategy):
 
         # exit short fast crossover
         shortFastCrossoverExit = self.shortFastCrossoverExit
-        if fastCrossover == 0 or not self.is_short: shortFastCrossoverExit = np.nan
+        if fastCrossover == 0 or not is_short: shortFastCrossoverExit = np.nan
         elif isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
         self.shortFastCrossoverExit = shortFastCrossoverExit
 
@@ -172,15 +177,17 @@ class LiveStrategy(BaselineStrategy):
 
         # exit fast momentum, ouch
         recentSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
-        isExitLongFastMomentum = self.is_long and -fastAngle > np.max(recentSlope)
-        isExitShortFastMomentum = self.is_short and np.min(recentSlope) > fastAngle
+        isExitLongFastMomentum = is_long and -fastAngle > np.max(recentSlope)
+        isExitShortFastMomentum = is_short and np.min(recentSlope) > fastAngle
+
+
 
         # exit long
-        isExitLong = self.is_long and bar_index % 987 == 0
+        isExitLong = is_long and bar_index % 987 == 0
         if isExitLong:
             self.flat(self.ticker, self.size, 'flat')
 
         # exit short
-        isExitShort = self.is_short and bar_index % 3109 == 0
+        isExitShort = is_short and bar_index % 3109 == 0
         if isExitShort:
             self.flat(self.ticker, self.size, 'flat')
