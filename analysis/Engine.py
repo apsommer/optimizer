@@ -137,6 +137,7 @@ class Engine:
     ''' serialize '''
     def save(self, id, name):
 
+        # todo reduce this to just metrics and strategy_params
         slim_engine = {
             'trades': self.trades,
             'cash_series': self.cash_series.tolist(),

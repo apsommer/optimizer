@@ -3,7 +3,8 @@ import time
 from data import DataUtils as repo
 from Engine import *
 from PlotUtils import *
-from strategy.LiveStrategy import LiveStrategy
+from strategy.LiveStrategy import *
+from strategy.LiveParams import *
 
 # config
 start_time = time.time()
@@ -16,13 +17,22 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
 # init
-strategy = LiveStrategy(data)
-# engine = Engine(strategy)
-engine = load_engine(0, 'output', strategy)
+params = LiveParams(
+    fastMinutes = 25,
+    disableEntryMinutes = 105,
+    fastMomentumMinutes = 135,
+    fastCrossoverPercent = 0,
+    takeProfitPercent = 0.35,
+    fastAngleFactor = 15,
+    slowMinutes = 2355,
+    slowAngleFactor = 20)
+strategy = LiveStrategy(data, params)
+engine = Engine(strategy)
+# engine = load_engine(0, 'output', strategy)
 
 # run
-# engine.run()
-# engine.save(0, 'output')
+engine.run()
+engine.save(0, 'output')
 
 ########################################################################
 end_time = time.time()

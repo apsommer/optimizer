@@ -7,6 +7,7 @@ class BaselineStrategy():
         self.bar_index = -1
         self.data = None
         self.orders = []
+        self.params = None
 
     def buy(self, ticker, size, sentiment):
         self.orders.append(

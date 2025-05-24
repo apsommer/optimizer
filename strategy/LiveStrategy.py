@@ -4,24 +4,23 @@ from model.Ticker import Ticker
 
 class LiveStrategy(BaselineStrategy):
 
-    def __init__(self, data):
+    def __init__(self, data, params):
         super().__init__()
 
         self.data = data
+        self.params = params
 
-        fastMinutes = 25
-        disableEntryMinutes = 105
-        fastMomentumMinutes = 135
-        fastCrossoverPercent = 0
-        takeProfitPercent = 0.35
-        fastAngleFactor = 15
-        slowMinutes = 2355
-        slowAngleFactor = 20
-        entryRestriction_minutes = 0
-        entryRestriction_percent = 0
-
-        coolOffMinutes = 5
-        positionEntryMinutes = 1
+        # unpack params
+        fastMinutes = params.fastMinutes
+        disableEntryMinutes = params.disableEntryMinutes
+        fastMomentumMinutes = params.fastMomentumMinutes
+        fastCrossoverPercent = params.fastCrossoverPercent
+        takeProfitPercent = params.takeProfitPercent
+        fastAngleFactor = params.fastAngleFactor
+        slowMinutes = params.slowMinutes
+        slowAngleFactor = params.slowAngleFactor
+        coolOffMinutes = params.coolOffMinutes
+        positionEntryMinutes = params.positionEntryMinutes
 
         # convert units, decimal converts int to float
         fastAngle = fastAngleFactor / 1000.0
