@@ -14,32 +14,29 @@ class LiveStrategy(BaselineStrategy):
 
         # unpack params
         fastMinutes = params.fastMinutes
-        self.disableEntryMinutes = params.disableEntryMinutes
-        self.fastMomentumMinutes = params.fastMomentumMinutes
+        slowMinutes = params.slowMinutes
+        fastAngleFactor = params.fastAngleFactor
+        slowAngleFactor = params.slowAngleFactor
         fastCrossoverPercent = params.fastCrossoverPercent
         takeProfitPercent = params.takeProfitPercent
-        fastAngleFactor = params.fastAngleFactor
-        slowMinutes = params.slowMinutes
-        slowAngleFactor = params.slowAngleFactor
+
+        self.disableEntryMinutes = params.disableEntryMinutes
+        self.fastMomentumMinutes = params.fastMomentumMinutes
         self.coolOffMinutes = params.coolOffMinutes
         self.positionEntryMinutes = params.positionEntryMinutes
 
         # convert units, decimal converts int to float
         self.fastAngle = fastAngleFactor / 1000.0
         self.slowAngle = slowAngleFactor / 1000.0
-        takeProfit = takeProfitPercent / 100.0
+        self.takeProfit = takeProfitPercent / 100.0
 
         # calculate fast crossover
-        if takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0
-        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * takeProfit
-
-        # format closing prices
-        open_series = pd.Series(data.Open)
-        close_series = pd.Series(data.Close)
+        if self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0
+        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit
 
         # calculate raw averages # todo set min_windows
-        self.rawFast = open_series.ewm(span=fastMinutes, adjust=False).mean()
-        self.rawSlow = open_series.ewm(span=slowMinutes, adjust=False).mean()
+        self.rawFast = pd.Series(data.Open).ewm(span=fastMinutes, adjust=False).mean()
+        self.rawSlow = pd.Series(data.Open).ewm(span=slowMinutes, adjust=False).mean()
         self.fast = self.rawFast.ewm(span=5, adjust=False).mean()
         self.slow = self.rawSlow.ewm(span=200, adjust=False).mean()
         self.fastSlope = get_slope(self.fast)
@@ -49,15 +46,8 @@ class LiveStrategy(BaselineStrategy):
         self.shortExitBarIndex = -1
         self.longFastCrossoverExit = np.nan
         self.shortFastCrossoverExit = np.nan
-
-        self.isExitLongFastMomentum = []
-        self.isExitShortFastMomentum = []
-        self.longTakeProfit = []
-        self.shortTakeProfit = []
-        self.isExitLongTakeProfit = []
-        self.isExitShortTakeProfit = []
-        self.isExitLong = []
-        self.isExitShort = []
+        self.longTakeProfit = np.nan
+        self.shortTakeProfit = np.nan
 
     @property
     def ticker(self):
@@ -100,7 +90,12 @@ class LiveStrategy(BaselineStrategy):
         longExitBarIndex = self.longExitBarIndex
         shortExitBarIndex = self.shortExitBarIndex
         fastCrossover = self.fastCrossover
+        longFastCrossoverExit = self.longFastCrossoverExit
+        shortFastCrossoverExit = self.shortFastCrossoverExit
         fastMomentumMinutes = self.fastMomentumMinutes
+        takeProfit = self.takeProfit
+        longTakeProfit = self.longTakeProfit
+        shortTakeProfit = self.shortTakeProfit
 
         # crossover fast
         isFastCrossoverLong = (
@@ -156,7 +151,6 @@ class LiveStrategy(BaselineStrategy):
             self.sell(self.ticker, self.size, 'short')
 
         # exit long fast crossover
-        longFastCrossoverExit = self.longFastCrossoverExit
         if fastCrossover == 0 or not is_long: longFastCrossoverExit = np.nan
         elif isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
         self.longFastCrossoverExit = longFastCrossoverExit
@@ -166,7 +160,6 @@ class LiveStrategy(BaselineStrategy):
             and fast > low)
 
         # exit short fast crossover
-        shortFastCrossoverExit = self.shortFastCrossoverExit
         if fastCrossover == 0 or not is_short: shortFastCrossoverExit = np.nan
         elif isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
         self.shortFastCrossoverExit = shortFastCrossoverExit
@@ -180,7 +173,15 @@ class LiveStrategy(BaselineStrategy):
         isExitLongFastMomentum = is_long and -fastAngle > np.max(recentSlope)
         isExitShortFastMomentum = is_short and np.min(recentSlope) > fastAngle
 
+        # exit long take profit
+        if not is_long: longTakeProfit = np.nan
+        elif isEntryLong: longTakeProfit = (1 + takeProfit) * fast
+        self.longTakeProfit = longTakeProfit
 
+        # exit short take profit:
+        if not is_short: shortTakeProfit = np.nan
+        elif isEntryShort: shortTakeProfit = (1 - takeProfit) * fast
+        self.shortTakeProfit = shortTakeProfit
 
         # exit long
         isExitLong = is_long and bar_index % 987 == 0
