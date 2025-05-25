@@ -1,6 +1,5 @@
 import os
 from tqdm import tqdm
-from model.Metric import Metric
 from model.Trade import Trade
 from EngineUtils import *
 import pandas as pd

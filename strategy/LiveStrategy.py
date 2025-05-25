@@ -163,22 +163,18 @@ class LiveStrategy(BaselineStrategy):
             self.sell(ticker, size)
 
         # exit long fast crossover
-        if fastCrossover == 0 or not is_long: longFastCrossoverExit = np.nan
+        if fastCrossover == 0: longFastCrossoverExit = np.nan
         elif isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
+        elif not is_long: longFastCrossoverExit = np.nan
         self.longFastCrossoverExit = longFastCrossoverExit
-
-        isExitLongFastCrossover = (
-            high > longFastCrossoverExit
-            and fast > low)
+        isExitLongFastCrossover = high > longFastCrossoverExit and fast > low
 
         # exit short fast crossover
-        if fastCrossover == 0 or not is_short: shortFastCrossoverExit = np.nan
+        if fastCrossover == 0: shortFastCrossoverExit = np.nan
         elif isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
+        elif not is_short: shortFastCrossoverExit = np.nan
         self.shortFastCrossoverExit = shortFastCrossoverExit
-
-        isExitShortFastCrossover = (
-            shortFastCrossoverExit > low
-            and high > fast)
+        isExitShortFastCrossover = shortFastCrossoverExit > low and high > fast
 
         # exit fast momentum, ouch
         recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
@@ -199,8 +195,8 @@ class LiveStrategy(BaselineStrategy):
 
         # exit long
         isExitLong = (
-            # isExitLongFastCrossover
-            isExitLongFastMomentum
+            isExitLongFastCrossover
+            or isExitLongFastMomentum
             or isExitLongTakeProfit)
         if isExitLong:
             self.longExitBarIndex = bar_index
@@ -208,8 +204,8 @@ class LiveStrategy(BaselineStrategy):
 
         # exit short
         isExitShort = (
-            # isExitShortFastCrossover
-            isExitShortFastMomentum
+            isExitShortFastCrossover
+            or isExitShortFastMomentum
             or isExitShortTakeProfit)
         if isExitShort:
             self.shortExitBarIndex = bar_index
