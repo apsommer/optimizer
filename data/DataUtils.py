@@ -18,6 +18,9 @@ def getOhlc(
         print("\nUploaded OHLC from " + csv_filename)
         return ohlc
 
+    print("\nDownloaded OHLC from databento, costs $$$ ...")
+    csv_filename = "nq_1mon.csv"
+
     # request network data synchronous! costs $!
     client = db.Historical(keys.bento_api_key)
     ohlc = (client.timeseries.get_range(
@@ -29,8 +32,6 @@ def getOhlc(
         end = ending_date)
             .to_df())
 
-    print("\nDownloaded OHLC from databento, costs $$$ ...")
-
     # rename, drop
     ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
     ohlc.index.rename("timestamp", inplace = True)
@@ -40,7 +41,6 @@ def getOhlc(
     ohlc.index = ohlc.index.tz_localize(None)
     ohlc.index = pd.to_datetime(ohlc.index)
 
-    csv_filename = "nq_1mon.csv"
+    # save to disk
     ohlc.to_csv(csv_filename)
-
     return ohlc

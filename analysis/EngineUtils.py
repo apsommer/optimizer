@@ -40,6 +40,7 @@ def analyze_config(engine):
     start_date = engine.data.index[0]
     end_date = engine.data.index[-1]
     days = (engine.data.index[-1] - engine.data.index[0]).days
+    candles = len(engine.data.index)
     ticker = engine.strategy.ticker.symbol
     size = engine.strategy.size
     initial_cash = engine.initial_cash
@@ -48,6 +49,7 @@ def analyze_config(engine):
         Metric('config_header', None, None, 'Config:'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
+        Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Number of days'),
         Metric('ticker', ticker, None, 'Ticker'),
         Metric('size', size, None, 'Size'),

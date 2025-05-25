@@ -105,6 +105,9 @@ class LiveStrategy(BaselineStrategy):
 
         ################################################################################################################
 
+        ticker = self.ticker
+        size = self.size
+
         # crossover fast
         isFastCrossoverLong = (
             fastSlope > fastAngle
@@ -146,7 +149,7 @@ class LiveStrategy(BaselineStrategy):
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed)
         if isEntryLong:
-            self.buy(self.ticker, self.size )
+            self.buy(ticker, size)
 
         # entry short
         isEntryShort = (
@@ -157,7 +160,7 @@ class LiveStrategy(BaselineStrategy):
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed)
         if isEntryShort:
-            self.sell(self.ticker, self.size)
+            self.sell(ticker, size)
 
         # exit long fast crossover
         if fastCrossover == 0 or not is_long: longFastCrossoverExit = np.nan
@@ -201,7 +204,7 @@ class LiveStrategy(BaselineStrategy):
             or isExitLongTakeProfit)
         if isExitLong:
             self.longExitBarIndex = bar_index
-            self.flat(self.ticker, self.size)
+            self.flat(ticker, size)
 
         # exit short
         isExitShort = (
@@ -210,4 +213,4 @@ class LiveStrategy(BaselineStrategy):
             or isExitShortTakeProfit)
         if isExitShort:
             self.shortExitBarIndex = bar_index
-            self.flat(self.ticker, self.size)
+            self.flat(ticker, size)
