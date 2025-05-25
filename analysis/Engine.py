@@ -144,7 +144,7 @@ class Engine:
         average_win = sum(winners) / len(winners)
         loss_rate = (len(losers) / num_trades) * 100
         average_loss = sum(losers) / len(losers)
-        expectancy = ((win_rate / 100) * average_win) - ((loss_rate / 100) * average_loss)
+        expectancy = ((win_rate / 100) * average_win) + ((loss_rate / 100) * average_loss)
 
         return [
             Metric('win_rate', win_rate, '%', 'Win rate'),

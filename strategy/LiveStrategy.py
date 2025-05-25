@@ -59,8 +59,6 @@ class LiveStrategy(BaselineStrategy):
         self.shortFastCrossoverExit = np.nan
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
-        self.isExitLong = False
-        self.isExitShort = False
 
     def on_bar(self):
 
@@ -68,6 +66,14 @@ class LiveStrategy(BaselineStrategy):
         idx = self.current_idx
         self.bar_index += 1
         bar_index = self.bar_index
+
+        # params
+        fastAngle = self.fastAngle
+        slowAngle = self.slowAngle
+        disableEntryMinutes = self.disableEntryMinutes
+        positionEntryMinutes = self.positionEntryMinutes
+        coolOffMinutes = self.coolOffMinutes
+        takeProfit = self.takeProfit
 
         # data
         open = self.data.Open[idx]
@@ -84,26 +90,18 @@ class LiveStrategy(BaselineStrategy):
         # averages
         fast = self.fast[idx]
         fastSlope = self.fastSlope[idx]
-        fastAngle = self.fastAngle
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
-        slowAngle = self.slowAngle
 
         # strategy
-        disableEntryMinutes = self.disableEntryMinutes
-        positionEntryMinutes = self.positionEntryMinutes
-        coolOffMinutes = self.coolOffMinutes
         longExitBarIndex = self.longExitBarIndex
         shortExitBarIndex = self.shortExitBarIndex
         fastCrossover = self.fastCrossover
         longFastCrossoverExit = self.longFastCrossoverExit
         shortFastCrossoverExit = self.shortFastCrossoverExit
         fastMomentumMinutes = self.fastMomentumMinutes
-        takeProfit = self.takeProfit
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
-        isExitLong = self.isExitLong
-        isExitShort = self.isExitShort
 
         ################################################################################################################
 
@@ -180,9 +178,9 @@ class LiveStrategy(BaselineStrategy):
             and high > fast)
 
         # exit fast momentum, ouch
-        recentSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
-        isExitLongFastMomentum = is_long and -fastAngle > np.max(recentSlope)
-        isExitShortFastMomentum = is_short and np.min(recentSlope) > fastAngle
+        recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
+        isExitLongFastMomentum = is_long and -fastAngle > np.max(recentFastSlope)
+        isExitShortFastMomentum = is_short and np.min(recentFastSlope) > fastAngle
 
         # exit long take profit
         if not is_long: longTakeProfit = np.nan
