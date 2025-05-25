@@ -19,8 +19,12 @@ def get_profit_factor(trades):
     losses = [trade.profit for trade in trades if trade.profit < 0]
     total_wins = sum(wins)
     total_losses = -sum(losses)
-    if total_losses > total_wins: return np.nan
-    return total_wins / total_losses
+
+    if total_losses == 0: pf = np.inf
+    if total_wins == 0: pf = -np.inf
+    else: pf = total_wins / total_losses
+
+    return pf
 
 def get_config_metrics(engine):
 
