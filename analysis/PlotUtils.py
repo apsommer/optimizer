@@ -5,8 +5,10 @@ import pandas as pd
 
 def init_figure(fig_id, data):
 
+    # size
     plt.rcParams['figure.figsize'] = [20, 12]
 
+    # font color
     color = 'white'
     font = {'family': 'Ubuntu', 'size': 14}
     matplotlib.rc('font', **font)
@@ -18,6 +20,7 @@ def init_figure(fig_id, data):
     fig = plt.figure(fig_id)
     ax = plt.gca()
 
+    # background color
     fig.patch.set_facecolor('#0D0B1A')  # outside grid
     ax.patch.set_facecolor('#131026')  # inside grid
 
@@ -39,6 +42,7 @@ def init_figure(fig_id, data):
     # plt.yticks(y_ticks)
     # plt.ylim(ymin, ymax)
 
+    # grid
     plt.tick_params(tick1On=False)
     plt.tick_params(tick2On=False)
     plt.grid(color='#1D193B', linewidth=0.5)
@@ -76,6 +80,10 @@ def plot_equity(engine):
     pos_df.index = cash_series.index
     neg_df.index = cash_series.index
 
+    # add series
+    plt.plot(pos_df, color = 'green')
+    plt.plot(neg_df, color = 'red')
+
     # initial cash
     initial_cash_df = pd.DataFrame(
         data = { 'initial_cash': engine.initial_cash},
@@ -85,10 +93,6 @@ def plot_equity(engine):
     # buy and hold reference
     buy_hold = (engine.data.Close - engine.data.Open.iloc[0]) * engine.strategy.ticker.tick_value + engine.initial_cash
     plt.plot(buy_hold,  color = '#3C3C3C')
-
-    # add series
-    plt.plot(pos_df, color = 'green')
-    plt.plot(neg_df, color = 'red')
 
     plt.autoscale(axis='y')
 
