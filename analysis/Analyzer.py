@@ -10,9 +10,9 @@ from strategy.LiveParams import *
 start_time = time.time()
 
 # get ohlc prices
-csv_filename = 'data/nq_1mon.csv' # 1 month
+# csv_filename = 'data/nq_1mon.csv' # 1 month
 # csv_filename = "data/nq_3mon.csv"  # 3 months
-# csv_filename = "data/nq_6mon.csv"  # 6 months
+csv_filename = "data/nq_6mon.csv"  # 6 months
 # csv_filename = "data/nq_24mon.csv" # 2 years
 
 data = repo.getOhlc(csv_filename = csv_filename) # local

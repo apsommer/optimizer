@@ -5,28 +5,37 @@ from analysis.Engine import Engine
 from model.Metric import Metric
 
 
-def get_max_drawdown(prices):
+def analyze_max_drawdown(engine):
 
+    prices = engine.cash_series
+    profit = engine.cash - engine.initial_cash
     initial_price = prices.iloc[0]
     roll_max = prices.cummax() # series, rolling maximum
     daily_drawdown = prices / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
-    return max_daily_drawdown.min() * initial_price
+    max_drawdown = max_daily_drawdown.min() * initial_price
+    drawdown_per_profit = (max_drawdown / profit) * 100
 
-def get_profit_factor(trades):
+    return [
+        Metric('max_drawdown', max_drawdown, 'USD', 'Maximum drawdown'),
+        Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage')]
 
+def analyze_profit_factor(engine):
+
+    trades = engine.trades
     wins = [trade.profit for trade in trades if trade.profit > 0]
     losses = [trade.profit for trade in trades if trade.profit < 0]
     total_wins = sum(wins)
     total_losses = -sum(losses)
 
-    if total_losses == 0: pf = np.inf
-    if total_wins == 0: pf = -np.inf
-    else: pf = total_wins / total_losses
+    if total_losses == 0: profit_factor = np.inf
+    if total_wins == 0: profit_factor = -np.inf
+    else: profit_factor = total_wins / total_losses
 
-    return pf
+    return [
+        Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f') ]
 
-def get_config_metrics(engine):
+def analyze_config(engine):
 
     start_date = engine.data.index[0]
     end_date = engine.data.index[-1]
@@ -44,35 +53,27 @@ def get_config_metrics(engine):
         Metric('size', size, None, 'Size'),
         Metric('initial_cash', initial_cash, 'USD', 'Initial cash')]
 
-def get_perf_metrics(engine):
+def analyze_perf(engine):
 
     days = (engine.data.index[-1] - engine.data.index[0]).days
     num_trades = len(engine.trades)
     profit = engine.cash - engine.initial_cash
-    max_drawdown = get_max_drawdown(engine.cash_series)
-    profit_factor = get_profit_factor(engine.trades)
-
     total_return = (abs(engine.cash - engine.initial_cash) / engine.initial_cash) * 100
     if engine.initial_cash > engine.cash: total_return = -total_return
 
     if 0 > engine.cash: annualized_return = np.nan
     else: annualized_return = ((engine.cash / engine.initial_cash) ** (1 / (days / 365)) - 1) * 100
-
-    drawdown_per_profit = (max_drawdown / profit) * 100
     trades_per_day = num_trades / days
 
     return [
         Metric('strategy_header', None, None, 'Strategy:'),
         Metric('profit', profit, 'USD', 'Profit'),
         Metric('num_trades', num_trades, None, 'Number of trades'),
-        Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f'),
-        Metric('max_drawdown', max_drawdown, 'USD', 'Maximum drawdown'),
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('total_return', total_return, '%', 'Total return'),
-        Metric('annualized_return', annualized_return, '%', 'Annualized return'),
-        Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage')]
+        Metric('annualized_return', annualized_return, '%', 'Annualized return')]
 
-def get_expectancy_metrics(engine):
+def analyze_expectancy(engine):
 
     trades = engine.trades
     num_trades = len(trades)

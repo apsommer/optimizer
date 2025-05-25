@@ -76,9 +76,11 @@ class Engine:
     def analyze(self):
 
         metrics = (
-            get_config_metrics(self) +
-            get_perf_metrics(self) +
-            get_expectancy_metrics(self))
+            analyze_config(self) +
+            analyze_perf(self) +
+            analyze_profit_factor(self) +
+            analyze_max_drawdown(self) +
+            analyze_expectancy(self))
 
         # persist as dict
         for metric in metrics:
