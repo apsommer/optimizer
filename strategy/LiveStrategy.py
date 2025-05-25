@@ -6,6 +6,17 @@ from strategy.LiveUtils import get_slope
 
 class LiveStrategy(BaselineStrategy):
 
+    @property
+    def ticker(self):
+        return Ticker(
+            symbol = 'MNQ',
+            tick_value = 0.50,
+            margin = 0.10) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
+
+    @property
+    def size(self):
+        return 1
+
     def __init__(self, data, params):
         super().__init__()
 
@@ -25,7 +36,7 @@ class LiveStrategy(BaselineStrategy):
         self.coolOffMinutes = params.coolOffMinutes
         self.positionEntryMinutes = params.positionEntryMinutes
 
-        # convert units, decimal converts int to float
+        # convert units
         self.fastAngle = fastAngleFactor / 1000.0
         self.slowAngle = slowAngleFactor / 1000.0
         self.takeProfit = takeProfitPercent / 100.0
@@ -48,42 +59,37 @@ class LiveStrategy(BaselineStrategy):
         self.shortFastCrossoverExit = np.nan
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
-
-    @property
-    def ticker(self):
-        return Ticker(
-            symbol = 'MNQ',
-            tick_value = 0.50,
-            margin = 0.10) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
-
-    @property
-    def size(self):
-        return 1
+        self.isExitLong = False
+        self.isExitShort = False
 
     def on_bar(self):
 
+        # index
+        idx = self.current_idx
         self.bar_index += 1
         bar_index = self.bar_index
-        idx = self.current_idx
 
+        # data
         open = self.data.Open[idx]
         high = self.data.High[idx]
         low = self.data.Low[idx]
         close = self.data.Close[idx]
         prev_close = self.data.Close.iloc[bar_index-1]
 
+        # position
         is_flat = self.is_flat
         is_long = self.is_long
         is_short = self.is_short
 
+        # averages
         fast = self.fast[idx]
         fastSlope = self.fastSlope[idx]
         fastAngle = self.fastAngle
-
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
         slowAngle = self.slowAngle
 
+        # strategy
         disableEntryMinutes = self.disableEntryMinutes
         positionEntryMinutes = self.positionEntryMinutes
         coolOffMinutes = self.coolOffMinutes
@@ -96,6 +102,10 @@ class LiveStrategy(BaselineStrategy):
         takeProfit = self.takeProfit
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
+        isExitLong = self.isExitLong
+        isExitShort = self.isExitShort
+
+        ################################################################################################################
 
         # crossover fast
         isFastCrossoverLong = (
@@ -130,14 +140,15 @@ class LiveStrategy(BaselineStrategy):
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
         # entry long
-        isEntryLong = (is_flat
+        isEntryLong = (
+            is_flat
             and isFastCrossoverLong
             and not isEntryLongDisabled
             and isEntryLongEnabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed)
         if isEntryLong:
-            self.buy(self.ticker, self.size, 'long')
+            self.buy(self.ticker, self.size )
 
         # entry short
         isEntryShort = (
@@ -148,7 +159,7 @@ class LiveStrategy(BaselineStrategy):
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed)
         if isEntryShort:
-            self.sell(self.ticker, self.size, 'short')
+            self.sell(self.ticker, self.size)
 
         # exit long fast crossover
         if fastCrossover == 0 or not is_long: longFastCrossoverExit = np.nan
@@ -192,7 +203,7 @@ class LiveStrategy(BaselineStrategy):
             or isExitLongTakeProfit)
         if isExitLong:
             self.longExitBarIndex = bar_index
-            self.flat(self.ticker, self.size, 'flat')
+            self.flat(self.ticker, self.size)
 
         # exit short
         isExitShort = (
@@ -201,4 +212,4 @@ class LiveStrategy(BaselineStrategy):
             or isExitShortTakeProfit)
         if isExitShort:
             self.shortExitBarIndex = bar_index
-            self.flat(self.ticker, self.size, 'flat')
+            self.flat(self.ticker, self.size)
