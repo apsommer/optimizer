@@ -186,21 +186,21 @@ class LiveStrategy(BaselineStrategy):
         isExitShortFastMomentum = is_short and np.min(recentFastSlope) > fastAngle
 
         # exit long take profit
-        if not is_long: longTakeProfit = np.nan
-        elif isEntryLong: longTakeProfit = (1 + takeProfit) * fast
+        if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
+        elif not is_long: longTakeProfit = np.nan
         self.longTakeProfit = longTakeProfit
         isExitLongTakeProfit = high > longTakeProfit
 
         # exit short take profit:
-        if not is_short: shortTakeProfit = np.nan
-        elif isEntryShort: shortTakeProfit = (1 - takeProfit) * fast
+        if isEntryShort: shortTakeProfit = (1 - takeProfit) * fast
+        elif not is_short: shortTakeProfit = np.nan
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
         # exit long
         isExitLong = (
-            isExitLongFastCrossover
-            or isExitLongFastMomentum
+            # isExitLongFastCrossover
+            isExitLongFastMomentum
             or isExitLongTakeProfit)
         if isExitLong:
             self.longExitBarIndex = bar_index
@@ -208,8 +208,8 @@ class LiveStrategy(BaselineStrategy):
 
         # exit short
         isExitShort = (
-            isExitShortFastCrossover
-            or isExitShortFastMomentum
+            # isExitShortFastCrossover
+            isExitShortFastMomentum
             or isExitShortTakeProfit)
         if isExitShort:
             self.shortExitBarIndex = bar_index
