@@ -111,25 +111,30 @@ def plot_trades(engine):
 
     for trade in engine.trades:
 
-        # skip last open trade, if needed
-        if trade.exit_order is None: continue
-
         sentiment = trade.entry_order.sentiment
         entry_idx = trade.entry_order.idx
-        exit_idx = trade.exit_order.idx
         entry_price = trade.entry_order.price
-        exit_price = trade.exit_order.price
+
+        color = 'blue' # long
+        if sentiment == 'short': color = 'aqua'
+
+        # last trade open
+        if trade.is_open:
+            exit_idx = engine.data.index[-1]
+            exit_price = engine.data.Close[exit_idx]
+            lineColor = 'white'
+        else:
+            exit_idx = trade.exit_order.idx
+            exit_price = trade.exit_order.price
+            lineColor = color
 
         trade_df = pd.DataFrame(
             index = [entry_idx, exit_idx],
             data = [entry_price, exit_price])
 
-        color = 'blue' # long
-        if sentiment == 'short': color = 'aqua'
-
-        plt.plot(trade_df, color)
+        plt.plot(trade_df, lineColor)
         plt.plot(entry_idx, entry_price, color=color, marker='o', markersize=5)
-        plt.plot(exit_idx, exit_price, color=color, marker='o', markersize=10)
+        plt.plot(exit_idx, exit_price, color=lineColor, marker='o', markersize=10)
 
     # show
     plt.tight_layout()

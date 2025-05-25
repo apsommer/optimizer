@@ -6,6 +6,10 @@ class Trade:
         self.exit_order = exit_order
 
     @property
+    def is_open(self):
+        return self.exit_order is None
+
+    @property
     def profit(self):
 
         profit = 0

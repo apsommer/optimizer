@@ -153,10 +153,6 @@ class Engine:
             Metric('average_loss', average_loss, 'USD', 'Average loss'),
             Metric('expectancy', expectancy, 'USD', 'Expectancy')]
 
-    def print_trades(self):
-        for trade in self.trades:
-            print(trade)
-
     ''' serialize '''
     def save(self, id, name):
 
