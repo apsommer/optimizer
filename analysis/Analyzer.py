@@ -10,9 +10,10 @@ from strategy.LiveParams import *
 start_time = time.time()
 
 # get ohlc prices
-csv_filename = "data/nq_3months_2025-02-01_2025-05-01.csv"  # 3 months
-# csv_filename = "data/nq_6months_2024-09-15_2025-03-15.csv"  # 6 months
-# csv_filename = "data/nq_2years_2023-03-15_2025-03-15.csv" # 2 years
+# csv_filename = 'data/nq_1mon.csv' # 1 month
+# csv_filename = "data/nq_3mon.csv"  # 3 months
+# csv_filename = "data/nq_6mon.csv"  # 6 months
+csv_filename = "data/nq_24mon.csv" # 2 years
 
 data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
@@ -20,13 +21,13 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # init
 params = LiveParams(
     fastMinutes = 25,
-    disableEntryMinutes = 0,
-    fastMomentumMinutes = 125,
+    disableEntryMinutes = 105,
+    fastMomentumMinutes = 135,
     fastCrossoverPercent = 0,
-    takeProfitPercent = 0.45,
+    takeProfitPercent = 0.35,
     fastAngleFactor = 15,
     slowMinutes = 2355,
-    slowAngleFactor = 15)
+    slowAngleFactor = 20)
 strategy = LiveStrategy(data, params)
 engine = Engine(strategy)
 # engine = load_engine(0, 'output', strategy)
