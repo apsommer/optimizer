@@ -125,7 +125,7 @@ class LiveStrategy(BaselineStrategy):
             isEntryLongEnabled = fast > np.max(recentOpen)
             isEntryShortEnabled = np.min(recentOpen) > fast
 
-        # short cooloff after trade exit
+        # cooloff after trade exit
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 

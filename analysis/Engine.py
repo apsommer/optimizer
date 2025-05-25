@@ -75,7 +75,17 @@ class Engine:
 
     def analyze(self):
 
-        # config
+        metrics = (
+            self.get_config_metrics() +
+            self.get_perf_metrics() +
+            self.get_expectancy_metrics())
+
+        # persist as dict
+        for metric in metrics:
+            self.metrics[metric.name] = metric
+
+    def get_config_metrics(self):
+
         start_date = self.data.index[0]
         end_date = self.data.index[-1]
         days = (self.data.index[-1] - self.data.index[0]).days
@@ -83,28 +93,33 @@ class Engine:
         size = self.strategy.size
         initial_cash = self.initial_cash
 
-        metrics = [
+        return [
             Metric('config_header', None, None, 'Config:'),
             Metric('start_date', start_date, None, 'Start date'),
             Metric('end_date', end_date, None, 'End date'),
             Metric('days', days, None, 'Number of days'),
             Metric('ticker', ticker, None, 'Ticker'),
             Metric('size', size, None, 'Size'),
-            Metric('initial_cash', initial_cash, 'USD', 'Initial cash'),
-        ]
+            Metric('initial_cash', initial_cash, 'USD', 'Initial cash')]
 
-        # perf
+    def get_perf_metrics(self):
+
+        days = (self.data.index[-1] - self.data.index[0]).days
         num_trades = len(self.trades)
         profit = self.cash - self.initial_cash
         max_drawdown = get_max_drawdown(self.cash_series)
-        total_return = (abs(self.cash - self.initial_cash) / self.initial_cash ) * 100
-        if self.initial_cash > self.cash: total_return = - total_return
-        annualized_return = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
         profit_factor = get_profit_factor(self.trades)
+
+        total_return = (abs(self.cash - self.initial_cash) / self.initial_cash) * 100
+        if self.initial_cash > self.cash: total_return = -total_return
+
+        if 0 > self.cash: annualized_return = np.nan
+        else: annualized_return = ((self.cash / self.initial_cash) ** (1 / (days / 365)) - 1) * 100
+
         drawdown_per_profit = (max_drawdown / profit) * 100
         trades_per_day = num_trades / days
 
-        metrics.extend([
+        return [
             Metric('strategy_header', None, None, 'Strategy:'),
             Metric('profit', profit, 'USD', 'Profit'),
             Metric('num_trades', num_trades, None, 'Number of trades'),
@@ -113,16 +128,30 @@ class Engine:
             Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
             Metric('total_return', total_return, '%', 'Total return'),
             Metric('annualized_return', annualized_return, '%', 'Annualized return'),
-            Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage'),
-        ])
+            Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage')]
 
-        # expectancy
-        metrics.extend(
-            get_expectancy_metrics(self.trades))
+    def get_expectancy_metrics(self):
 
-        # persist as dict
-        for metric in metrics:
-            self.metrics[metric.name] = metric
+        trades = self.trades
+        num_trades = len(trades)
+        winners = [trade.profit for trade in trades if trade.profit > 0]
+        losers = [trade.profit for trade in trades if 0 >= trade.profit]
+
+        if len(winners) == 0 or len(losers) == 0:
+            return []
+
+        win_rate = (len(winners) / num_trades) * 100
+        average_win = sum(winners) / len(winners)
+        loss_rate = (len(losers) / num_trades) * 100
+        average_loss = sum(losers) / len(losers)
+        expectancy = ((win_rate / 100) * average_win) - ((loss_rate / 100) * average_loss)
+
+        return [
+            Metric('win_rate', win_rate, '%', 'Win rate'),
+            Metric('loss_rate', loss_rate, '%', 'Loss rate'),
+            Metric('average_win', average_win, 'USD', 'Average win'),
+            Metric('average_loss', average_loss, 'USD', 'Average loss'),
+            Metric('expectancy', expectancy, 'USD', 'Expectancy')]
 
     def print_trades(self):
         for trade in self.trades:
