@@ -25,14 +25,16 @@ def analyze_profit_factor(engine):
     trades = engine.trades
     wins = [trade.profit for trade in trades if trade.profit > 0]
     losses = [trade.profit for trade in trades if trade.profit < 0]
-    total_wins = sum(wins)
-    total_losses = -sum(losses)
+    gross_profit = sum(wins)
+    gross_loss = -sum(losses)
 
-    if total_losses == 0: profit_factor = np.inf
-    elif total_wins == 0: profit_factor = -np.inf
-    else: profit_factor = total_wins / total_losses
+    if gross_loss == 0: profit_factor = np.inf
+    elif gross_profit == 0: profit_factor = -np.inf
+    else: profit_factor = gross_profit / gross_loss
 
     return [
+        Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
+        Metric('gross_loss', gross_loss, '[USD]', 'Gross loss'),
         Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f') ]
 
 def analyze_config(engine):
