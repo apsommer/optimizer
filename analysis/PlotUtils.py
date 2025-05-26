@@ -7,11 +7,11 @@ import matplotlib.dates as mdates
 def init_figure(fig_id, data):
 
     # size
-    plt.rcParams['figure.figsize'] = [20, 12]
+    plt.rcParams['figure.figsize'] = [24, 12]
 
     # font color
     color = 'white'
-    font = {'family': 'Ubuntu', 'size': 14}
+    font = {'family': 'Ubuntu', 'size': 18}
     matplotlib.rc('font', **font)
     matplotlib.rcParams['text.color'] = color
     matplotlib.rcParams['axes.labelcolor'] = color
@@ -25,26 +25,10 @@ def init_figure(fig_id, data):
     fig.patch.set_facecolor('#0D0B1A')  # outside grid
     ax.patch.set_facecolor('#131026')  # inside grid
 
-    xstep = 20
-    ystep = 20
-
-    # x-axis
-    xmin = min(data.index)
-    xmax = max(data.index)
-    x_ticks = pd.date_range(xmin, xmax, xstep)
-    plt.xticks(x_ticks, rotation=90)
-    plt.xlim(xmin, xmax)
-
-    # y-axis
-    # ymin = round(min(data), -2)
-    # ymax = round(max(data), -2)
-    # ystep = round((ymax - ymin) / ystep, -2)
-    # y_ticks = np.arange(ymin, ymax, ystep)
-    # plt.yticks(y_ticks)
-    # plt.ylim(ymin, ymax)
-
+    # x-axis, strftime() does not support single digit days, months ... everything "zero-padded"
     ax.xaxis.set_major_formatter(
-        mdates.DateFormatter('%d-%m %H:%M'))
+        mdates.DateFormatter('%d/%b  %H:%M'))
+    plt.xticks(rotation=90)
 
     # grid
     plt.tick_params(tick1On=False)
