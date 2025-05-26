@@ -1,10 +1,12 @@
+from time import strftime
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
 
-def init_figure(fig_id, data):
+def init_figure(fig_id):
 
     # size
     plt.rcParams['figure.figsize'] = [24, 12]
@@ -39,12 +41,12 @@ def init_figure(fig_id, data):
 
 def plot_equity(engine):
 
-    # init figure
-    cash_series = engine.cash_series
-    init_figure(1, cash_series)
+    init_figure(1)
 
     # split cash balance into profit and loss
+    cash_series = engine.cash_series
     pos, neg = [], []
+
     for balance in cash_series:
 
         over = balance >= engine.initial_cash
@@ -68,6 +70,8 @@ def plot_equity(engine):
     pos_df.index = cash_series.index
     neg_df.index = cash_series.index
 
+    # pos_df.index = pos_df.index.strftime('%Y-%m-%d %H:%M:%S')
+
     # add series
     plt.plot(pos_df, color = 'green')
     plt.plot(neg_df, color = 'red')
@@ -90,11 +94,10 @@ def plot_equity(engine):
 
 def plot_trades(engine):
 
-    # init figure
-    close = engine.data.Close
-    init_figure(2, close)
+    init_figure(2)
 
     # plot underlying
+    close = engine.data.Close
     plt.plot(close, color = '#3C3C3C')
 
     for trade in engine.trades:

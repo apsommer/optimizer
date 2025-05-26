@@ -29,7 +29,7 @@ def analyze_profit_factor(engine):
     total_losses = -sum(losses)
 
     if total_losses == 0: profit_factor = np.inf
-    if total_wins == 0: profit_factor = -np.inf
+    elif total_wins == 0: profit_factor = -np.inf
     else: profit_factor = total_wins / total_losses
 
     return [

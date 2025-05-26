@@ -32,7 +32,7 @@ class Engine:
         for idx in tqdm(
             iterable = self.data.index,
             colour = 'BLUE',
-            bar_format = '{percentage:3.0f}%|{bar:50}{r_bar}'):
+            bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # set index todo refactor to single index, remove replication
             self.current_idx = idx
