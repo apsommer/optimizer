@@ -2,6 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import matplotlib.dates as mdates
 
 def init_figure(fig_id, data):
 
@@ -41,6 +42,9 @@ def init_figure(fig_id, data):
     # y_ticks = np.arange(ymin, ymax, ystep)
     # plt.yticks(y_ticks)
     # plt.ylim(ymin, ymax)
+
+    ax.xaxis.set_major_formatter(
+        mdates.DateFormatter('%d-%m %H:%M'))
 
     # grid
     plt.tick_params(tick1On=False)
