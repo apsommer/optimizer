@@ -4,6 +4,51 @@ import pandas as pd
 from analysis.Engine import Engine
 from model.Metric import Metric
 
+def analyze_profit_factor(engine):
+
+    trades = engine.trades
+    wins = [trade.profit for trade in trades if trade.profit > 0]
+    losses = [trade.profit for trade in trades if 0 > trade.profit]
+    gross_profit = sum(wins)
+    gross_loss = -sum(losses)
+
+    if gross_loss == 0: profit_factor = np.inf
+    elif gross_profit == 0: profit_factor = -np.inf
+    else: profit_factor = gross_profit / gross_loss
+
+    return [
+        Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
+        Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
+        Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f') ]
+
+def analyze_expectancy(engine):
+
+    trades = engine.trades
+    wins = [trade.profit for trade in trades if trade.profit > 0]
+    losses = [trade.profit for trade in trades if 0 > trade.profit]
+
+    num_trades = len(trades)
+    if num_trades == 0:
+        return []
+
+    num_wins = len(wins)
+    win_rate = (num_wins / num_trades) * 100
+    if num_wins == 0: average_win = 0
+    else: average_win = sum(wins) / num_wins
+
+    num_losses = len(losses)
+    loss_rate = (num_losses / num_trades) * 100
+    if num_losses == 0: average_loss = 0
+    else: average_loss = sum(losses) / len(losses)
+
+    expectancy = ((win_rate / 100) * average_win) + ((loss_rate / 100) * average_loss)
+
+    return [
+        Metric('win_rate', win_rate, '%', 'Win rate'),
+        Metric('loss_rate', loss_rate, '%', 'Loss rate'),
+        Metric('average_win', average_win, 'USD', 'Average win'),
+        Metric('average_loss', average_loss, 'USD', 'Average loss'),
+        Metric('expectancy', expectancy, 'USD', 'Expectancy')]
 
 def analyze_max_drawdown(engine):
 
@@ -19,23 +64,6 @@ def analyze_max_drawdown(engine):
     return [
         Metric('max_drawdown', max_drawdown, 'USD', 'Maximum drawdown'),
         Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage')]
-
-def analyze_profit_factor(engine):
-
-    trades = engine.trades
-    wins = [trade.profit for trade in trades if trade.profit > 0]
-    losses = [trade.profit for trade in trades if trade.profit < 0]
-    gross_profit = sum(wins)
-    gross_loss = -sum(losses)
-
-    if gross_loss == 0: profit_factor = np.inf
-    elif gross_profit == 0: profit_factor = -np.inf
-    else: profit_factor = gross_profit / gross_loss
-
-    return [
-        Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
-        Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
-        Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f') ]
 
 def analyze_config(engine):
 
@@ -76,30 +104,6 @@ def analyze_perf(engine):
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
-
-def analyze_expectancy(engine):
-
-    trades = engine.trades
-    num_trades = len(trades)
-    winners = [trade.profit for trade in trades if trade.profit > 0]
-    losers = [trade.profit for trade in trades if 0 >= trade.profit]
-
-    if len(winners) == 0 or len(losers) == 0:
-        return []
-
-    win_rate = (len(winners) / num_trades) * 100
-    average_win = sum(winners) / len(winners)
-    loss_rate = (len(losers) / num_trades) * 100
-    average_loss = sum(losers) / len(losers)
-    expectancy = ((win_rate / 100) * average_win) + ((loss_rate / 100) * average_loss)
-
-    return [
-        Metric('win_rate', win_rate, '%', 'Win rate'),
-        Metric('loss_rate', loss_rate, '%', 'Loss rate'),
-        Metric('average_win', average_win, 'USD', 'Average win'),
-        Metric('average_loss', average_loss, 'USD', 'Average loss'),
-        Metric('expectancy', expectancy, 'USD', 'Expectancy')]
-
 
 ''' deserialize '''
 def load_engine(id, name, strategy):
