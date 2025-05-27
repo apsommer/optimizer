@@ -6,12 +6,16 @@ from model.Metric import Metric
 
 def analyze_profit_factor(engine):
 
+    # extract wins and losses
     trades = engine.trades
     wins = [trade.profit for trade in trades if trade.profit > 0]
     losses = [trade.profit for trade in trades if 0 > trade.profit]
+
+    # gross p&l
     gross_profit = sum(wins)
     gross_loss = -sum(losses)
 
+    # profit factor
     if gross_loss == 0: profit_factor = np.inf
     elif gross_profit == 0: profit_factor = -np.inf
     else: profit_factor = gross_profit / gross_loss
@@ -23,19 +27,23 @@ def analyze_profit_factor(engine):
 
 def analyze_expectancy(engine):
 
+    # extract wins and losses
     trades = engine.trades
     wins = [trade.profit for trade in trades if trade.profit > 0]
     losses = [trade.profit for trade in trades if 0 > trade.profit]
 
+    # check trades exist
     num_trades = len(trades)
     if num_trades == 0:
         return []
 
+    # wins
     num_wins = len(wins)
     win_rate = (num_wins / num_trades) * 100
     if num_wins == 0: average_win = 0
     else: average_win = sum(wins) / num_wins
 
+    # losses
     num_losses = len(losses)
     loss_rate = (num_losses / num_trades) * 100
     if num_losses == 0: average_loss = 0
