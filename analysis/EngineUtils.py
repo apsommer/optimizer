@@ -34,7 +34,7 @@ def analyze_profit_factor(engine):
 
     return [
         Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
-        Metric('gross_loss', gross_loss, '[USD]', 'Gross loss'),
+        Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
         Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f') ]
 
 def analyze_config(engine):
