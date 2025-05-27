@@ -1,6 +1,7 @@
 import databento as db
 import pandas as pd
 import local.api_keys as keys
+import numpy as np
 
 def getOhlc(
     csv_filename = None,
@@ -14,6 +15,12 @@ def getOhlc(
 
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
+
+        # print(ohlc.head)
+        # for index in ohlc.index:
+        #     close = ohlc.loc[index].Close
+        #     if close > 19550 and 19555 > close:
+        #         print(index)
 
         print("\nUploaded OHLC from " + csv_filename)
         return ohlc

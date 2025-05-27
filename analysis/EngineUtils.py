@@ -126,12 +126,12 @@ def load_engine(id, name, strategy):
     filehandler = open(path_filename, 'rb')
     slim_engine = pickle.load(filehandler)
 
+    # todo engine strategy_params ... minimize size of .bin
     engine = Engine(strategy)
     engine.trades = slim_engine['trades']
     engine.cash_series = pd.Series(
         data = slim_engine['cash_series'],
         index = strategy.data.index)
     engine.metrics = slim_engine['metrics']
-    # todo engine strategy_params ...
 
     return engine

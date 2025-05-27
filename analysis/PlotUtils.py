@@ -1,5 +1,4 @@
 from time import strftime
-
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,6 +29,7 @@ def init_figure(fig_id):
     # x-axis, strftime() does not support single digit days, months ... everything "zero-padded"
     ax.xaxis.set_major_formatter(
         mdates.DateFormatter('%d/%b  %H:%M'))
+
     plt.xticks(rotation=90)
 
     # grid
@@ -69,8 +69,6 @@ def plot_equity(engine):
     neg_df = pd.DataFrame({'neg': neg})
     pos_df.index = cash_series.index
     neg_df.index = cash_series.index
-
-    # pos_df.index = pos_df.index.strftime('%Y-%m-%d %H:%M:%S')
 
     # add series
     plt.plot(pos_df, color = 'green')

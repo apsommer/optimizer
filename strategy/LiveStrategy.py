@@ -68,9 +68,9 @@ class LiveStrategy(BaselineStrategy):
         bar_index = self.bar_index
 
         # todo temp for development
-        last = len(self.data)
-        if last - 20000 > bar_index:
-            return
+        # last = len(self.data)
+        # if last - 20000 > bar_index:
+        #     return
 
         # params
         fastAngle = self.fastAngle
