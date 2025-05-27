@@ -37,6 +37,11 @@ def analyze_expectancy(engine):
     if num_trades == 0:
         return []
 
+    # last trade open
+    last_trade = trades[-1]
+    if last_trade.exit_order is None:
+        num_trades -= 1
+
     # wins
     num_wins = len(wins)
     win_rate = (num_wins / num_trades) * 100
