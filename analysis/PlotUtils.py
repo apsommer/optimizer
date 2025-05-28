@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
+import plotly.graph_objs as go
 
 def init_figure(fig_id):
 
