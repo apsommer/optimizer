@@ -6,7 +6,6 @@ from PlotUtils import *
 from strategy.LiveStrategy import *
 from strategy.LiveParams import *
 
-# config
 start_time = time.time()
 
 # get ohlc prices

@@ -5,6 +5,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
 import plotly.graph_objs as go
+import finplot as fplt
+from finplot import background
+
 
 def init_figure(fig_id):
 
@@ -93,39 +96,13 @@ def plot_equity(engine):
 
 def plot_trades(engine):
 
-    # init_figure(2)
+    data = engine.data
+    fplt.background = '#0D0B1A'
+    fplt.odd_plot_background = '#131026'
+    fplt.winx, fplt.winy, fplt.winw, fplt.winh = 0,0,3840,2160
 
-    open = engine.data.Open
-    high = engine.data.High
-    low = engine.data.Low
-    close = engine.data.Close
-
-    fig = go.Figure(
-        data = [
-            go.Candlestick(
-                x = engine.data.index,
-                open = open,
-                high = high,
-                low = low,
-                close = close,
-                increasing_line_color = 'gray',
-                decreasing_line_color = 'gray')])
-
-    # isolate the timestamps without data
-    resample = close.resample('1T').max()
-    merged_index = close.index.append(resample.index)
-    duplicates = ~merged_index.duplicated(keep=False) # True: data, False: None
-    timegap = merged_index[duplicates]
-    dvalue = 1 * 60 * 1000 # 1 min * 60 sec/min * 1000 ms/sec
-
-    fig.update_xaxes(
-        rangebreaks=[
-            dict(values = timegap, dvalue = dvalue)
-        ]
-    )
-
-    fig.update_layout(xaxis_rangeslider_visible=False)
-    fig.show()
+    fplt.candlestick_ochl(data)
+    fplt.show()
 
     # plot underlying
     # plt.plot(close, color = '#3C3C3C')
