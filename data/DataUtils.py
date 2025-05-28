@@ -16,12 +16,6 @@ def getOhlc(
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
 
-        # print(ohlc.head)
-        # for index in ohlc.index:
-        #     close = ohlc.loc[index].Close
-        #     if close > 19550 and 19555 > close:
-        #         print(index)
-
         print("\nUploaded OHLC from " + csv_filename)
         return ohlc
 
@@ -43,9 +37,6 @@ def getOhlc(
     ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
     ohlc.index.rename("timestamp", inplace = True)
     ohlc = ohlc[ohlc.columns.drop(['symbol', 'rtype', 'instrument_id', 'publisher_id', 'volume'])]
-
-    # normalize timestamps
-    ohlc.index = ohlc.index.tz_localize(None)
     ohlc.index = pd.to_datetime(ohlc.index)
 
     # save to disk
