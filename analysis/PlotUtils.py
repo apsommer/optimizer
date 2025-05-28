@@ -7,6 +7,7 @@ import matplotlib.dates as mdates
 import plotly.graph_objs as go
 import finplot as fplt
 from finplot import background
+from sympy.printing.pretty.pretty_symbology import line_width
 
 
 def init_figure(fig_id):
@@ -96,51 +97,52 @@ def plot_equity(engine):
 
 def plot_trades(engine):
 
-    data = engine.data
-    fplt.background = '#0D0B1A'
-    fplt.odd_plot_background = '#131026'
-    fplt.winx, fplt.winy, fplt.winw, fplt.winh = 0,0,3840,2160
-
-    fplt.candlestick_ochl(data)
-    fplt.show()
+    # maximize window
+    fplt.winx, fplt.winy, fplt.winw, fplt.winh = 0, 0, 3840, 2160
 
     # plot underlying
-    # plt.plot(close, color = '#3C3C3C')
+    data = engine.data
+    ax = fplt.create_plot()
+    fplt.candlestick_ochl(data, ax=ax)
 
-    # for trade in engine.trades:
-    #
-    #     sentiment = trade.entry_order.sentiment
-    #     entry_idx = trade.entry_order.idx
-    #     entry_price = trade.entry_order.price
-    #
-    #     # entry
-    #     entryColor = 'blue' # long
-    #     if sentiment == 'short': entryColor = 'aqua' # short
-    #
-    #     # last trade open
-    #     if trade.is_open:
-    #         exit_idx = engine.data.index[-1]
-    #         exit_price = engine.data.Close[exit_idx]
-    #         exitColor = 'white'
-    #
-    #     # closed trade
-    #     else:
-    #         if trade.profit > 0: exitColor = 'green' # profit
-    #         else: exitColor = 'red' # loss
-    #         exit_idx = trade.exit_order.idx
-    #         exit_price = trade.exit_order.price
-    #
-    #     trade_df = pd.DataFrame(
-    #         index = [entry_idx, exit_idx],
-    #         data = [entry_price, exit_price])
-    #
-    #     plt.plot(trade_df, entryColor)
-    #     plt.plot(entry_idx, entry_price, color=entryColor, marker='o', markersize=5)
-    #     plt.plot(exit_idx, exit_price, color=exitColor, marker='o', markersize=5)
-    #
-    # # show
-    # plt.tight_layout()
-    # plt.show(block=True)
+    trades_df = pd.DataFrame(
+        data = np.full(len(data), 20000),
+        columns = ['trades'],
+        index = data.index)
+
+    for trade in engine.trades:
+
+        sentiment = trade.entry_order.sentiment
+        entry_idx = trade.entry_order.idx
+        entry_price = trade.entry_order.price
+
+        # entry
+        entryColor = 'blue' # long
+        if sentiment == 'short': entryColor = 'aqua' # short
+
+        # last trade open
+        if trade.is_open:
+            exit_idx = engine.data.index[-1]
+            exit_price = engine.data.Close[exit_idx]
+            exitColor = 'white'
+
+        # closed trade
+        else:
+            if trade.profit > 0: exitColor = 'green' # profit
+            else: exitColor = 'red' # loss
+            exit_idx = trade.exit_order.idx
+            exit_price = trade.exit_order.price
+
+        trades_df.loc[entry_idx, 'trades'] = entry_price
+        trades_df.loc[exit_idx, 'trades'] = exit_price
+
+    fplt.plot(
+        trades_df['trades'],
+        color='orange',
+        width=10,
+        ax=ax)
+
+    fplt.show()
 
 def print_metrics(engine):
 
