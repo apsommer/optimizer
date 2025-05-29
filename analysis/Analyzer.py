@@ -22,7 +22,7 @@ params = LiveParams(
     fastMinutes = 25,
     disableEntryMinutes = 105,
     fastMomentumMinutes = 105,
-    fastCrossoverPercent = 50,
+    fastCrossoverPercent = 0,
     takeProfitPercent = 0.35,
     fastAngleFactor = 15,
     slowMinutes = 2355,
@@ -43,5 +43,6 @@ print(f'Elapsed time: {round(end_time - start_time, 2)} seconds')
 
 # plot results
 print_metrics(engine)
+print_trades(engine)
 # plot_equity(engine)
 plot_trades(engine)

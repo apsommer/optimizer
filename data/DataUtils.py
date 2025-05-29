@@ -1,6 +1,8 @@
 import time
+from zoneinfo import ZoneInfo
 
 import databento as db
+import zoneinfo
 import pandas as pd
 import local.api_keys as keys
 import numpy as np
@@ -17,6 +19,8 @@ def getOhlc(
 
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
+
+        ohlc.tz_convert(tz='Europe/Berlin')
 
         print("\nUploaded OHLC from " + csv_filename)
         return ohlc
@@ -38,7 +42,8 @@ def getOhlc(
     ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
     ohlc.index.rename("timestamp", inplace = True)
     ohlc = ohlc[ohlc.columns.drop(['symbol', 'rtype', 'instrument_id', 'publisher_id', 'volume'])]
-    ohlc.index = pd.to_datetime(ohlc.index)
+
+    # todo
 
     # save to disk
     csv_filename = "data/nq_1mon.csv"

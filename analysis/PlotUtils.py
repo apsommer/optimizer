@@ -189,6 +189,14 @@ def plot_trades(engine):
 
     fplt.show()
 
+def print_trades(engine):
+    trades = engine.trades
+    for i, trade in enumerate(trades):
+        print()
+        print(f'num: {i}')
+        print(f'entry_idx: {trade.entry_order.idx}, price: {trade.entry_order.price}')
+        print(f'exit_idx: {trade.exit_order.idx}, price: {trade.exit_order.price}')
+
 def print_metrics(engine):
 
     for metric in engine.metrics:
