@@ -12,6 +12,10 @@ class Trade:
         return self.exit_order is None
 
     @property
+    def is_closed(self):
+        return self.exit_order is not None
+
+    @property
     def profit(self):
 
         if self.entry_order is None or self.exit_order is None:
