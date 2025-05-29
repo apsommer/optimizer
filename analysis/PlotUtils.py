@@ -92,32 +92,39 @@ def plot_trades(engine):
     fplt.winw = 3840
     fplt.winh = 2160
 
+    # colors
     light_gray = '#505050'
     dark_gray = '#363636'
     white = '#ffffff'
     dark_black = '#141414'
 
     fplt.background = dark_black
-    # fplt.odd_plot_background = light_black
-
     fplt.candle_bull_color = light_gray
     fplt.candle_bull_body_color = light_gray
     fplt.candle_bear_color = dark_gray
     fplt.candle_bear_body_color = dark_gray
-
     fplt.poc_color = white
     fplt.band_color = white
     fplt.cross_hair_color = white
     fplt.draw_line_color = white
     fplt.draw_done_color = white
 
-    marksize = 2
-    linewidth = 7
+    # init finplot
+    ax = fplt.create_plot()
+
+    # axis
+    axis_pen = fplt._makepen(color='white')
+    ax.axes['right']['item'].setPen(axis_pen)
+    ax.axes['right']['item'].setTextPen(axis_pen)
+    ax.axes['bottom']['item'].setPen(axis_pen)
+    ax.axes['bottom']['item'].setTextPen(axis_pen)
 
     # candlestick ohlc
     data = engine.data
-    ax = fplt.create_plot()
     fplt.candlestick_ochl(data, ax=ax)
+
+    markersize = 2
+    linewidth = 7
 
     for trade in engine.trades:
 
@@ -168,7 +175,7 @@ def plot_trades(engine):
             trade_df['entry'],
             style='o',
             color=entry_color,
-            width=marksize,
+            width=markersize,
             ax=ax)
 
         # overlay exit
@@ -177,7 +184,7 @@ def plot_trades(engine):
             trade_df['exit'],
             style='o',
             color=exit_color,
-            width=marksize,
+            width=markersize,
             ax=ax)
 
         # overlay trade
@@ -205,7 +212,7 @@ def print_trades(engine):
     trades = engine.trades
     for i, trade in enumerate(trades):
         print()
-        print(f'num: {i}')
+        print(f'trade: {i}')
         print(f'entry_idx: {trade.entry_order.idx}, price: {trade.entry_order.price}')
         print(f'exit_idx: {trade.exit_order.idx}, price: {trade.exit_order.price}')
 
