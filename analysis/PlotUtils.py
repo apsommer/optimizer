@@ -98,21 +98,24 @@ def plot_trades(engine):
     fplt.winw = 3840
     fplt.winh = 2160
 
-    fplt.background = '#0D0B1A'
-    fplt.odd_plot_background = '#131026'
+    light_gray = '#505050'
+    dark_gray = '#363636'
+    white = '#ffffff'
+    dark_black = '#141414'
 
-    candleColor = '#9c9c9ce6'
-    fplt.candle_bull_color = candleColor
-    fplt.candle_bear_color = candleColor
-    fplt.candle_bull_body_color = candleColor
-    fplt.candle_bear_body_color = candleColor
+    fplt.background = dark_black
+    # fplt.odd_plot_background = light_black
 
-    temp = '#FFFFFF'
-    fplt.poc_color = temp
-    fplt.band_color = temp
-    fplt.cross_hair_color = temp
-    fplt.draw_line_color = temp
-    fplt.draw_done_color = temp
+    fplt.candle_bull_color = light_gray
+    fplt.candle_bull_body_color = light_gray
+    fplt.candle_bear_color = dark_gray
+    fplt.candle_bear_body_color = dark_gray
+
+    fplt.poc_color = white
+    fplt.band_color = white
+    fplt.cross_hair_color = white
+    fplt.draw_line_color = white
+    fplt.draw_done_color = white
 
     marksize = 2
     linewidth = 7
@@ -154,7 +157,7 @@ def plot_trades(engine):
             exit_idx = engine.data.index[-1]
             exit_price = engine.data.Close[exit_idx]
             exit_bar = len(engine.data.Close) - 1
-            exit_color = 9
+            exit_color = 'white'
 
         # linear interpolate between entry and exit
         timestamps = pd.date_range(entry_idx, exit_idx, freq='1min')
