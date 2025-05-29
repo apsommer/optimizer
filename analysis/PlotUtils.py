@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.dates as mdates
 import finplot as fplt
 
-def init_figure(fig_id):
+def plot_equity(engine):
 
     # size
     plt.rcParams['figure.figsize'] = [24, 12]
@@ -19,7 +19,7 @@ def init_figure(fig_id):
     matplotlib.rcParams['xtick.color'] = color
     matplotlib.rcParams['ytick.color'] = color
 
-    fig = plt.figure(fig_id)
+    fig = plt.figure()
     ax = plt.gca()
 
     # background color
@@ -36,12 +36,6 @@ def init_figure(fig_id):
     plt.tick_params(tick1On=False)
     plt.tick_params(tick2On=False)
     plt.grid(color='#1D193B', linewidth=0.5)
-
-    return fig
-
-def plot_equity(engine):
-
-    init_figure(1)
 
     # split cash balance into profit and loss
     cash_series = engine.cash_series

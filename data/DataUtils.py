@@ -1,3 +1,5 @@
+import time
+
 import databento as db
 import pandas as pd
 import local.api_keys as keys
@@ -7,8 +9,8 @@ def getOhlc(
     csv_filename = None,
     symbol = "NQ.v.0",
     schema = "ohlcv-1m",
-    starting_date = "2025-04-25",
-    ending_date = "2025-05-25"):
+    starting_date = "2025-04-29",
+    ending_date = time.strftime("%Y-%m-%d")):
 
     # return cached data in csv format
     if csv_filename is not None:
@@ -20,7 +22,6 @@ def getOhlc(
         return ohlc
 
     print("\nDownloaded OHLC from databento, costs $$$ ...")
-    csv_filename = "nq_1mon.csv"
 
     # request network data synchronous! costs $!
     client = db.Historical(keys.bento_api_key)
@@ -40,5 +41,6 @@ def getOhlc(
     ohlc.index = pd.to_datetime(ohlc.index)
 
     # save to disk
+    csv_filename = "data/nq_1mon.csv"
     ohlc.to_csv(csv_filename)
     return ohlc
