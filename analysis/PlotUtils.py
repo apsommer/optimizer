@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
 import finplot as fplt
+import pyqtgraph as pg
 
 def plot_equity(engine):
 
@@ -105,7 +106,7 @@ def plot_trades(engine):
     fplt.candle_bear_body_color = dark_gray
     fplt.poc_color = white
     fplt.band_color = white
-    fplt.cross_hair_color = white
+    fplt.cross_hair_color = 'grey'
     fplt.draw_line_color = white
     fplt.draw_done_color = white
 
@@ -113,11 +114,17 @@ def plot_trades(engine):
     ax = fplt.create_plot()
 
     # axis
-    axis_pen = fplt._makepen(color='white')
+    axis_pen = fplt._makepen(color='grey')
     ax.axes['right']['item'].setPen(axis_pen)
     ax.axes['right']['item'].setTextPen(axis_pen)
+    ax.axes['right']['item'].setTickPen(None)
     ax.axes['bottom']['item'].setPen(axis_pen)
     ax.axes['bottom']['item'].setTextPen(axis_pen)
+    ax.axes['bottom']['item'].setTickPen(None)
+
+    # crosshair
+    ax.crosshair.vline.setPen(axis_pen)
+    ax.crosshair.hline.setPen(axis_pen)
 
     # candlestick ohlc
     data = engine.data
