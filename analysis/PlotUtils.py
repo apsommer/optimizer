@@ -1,14 +1,9 @@
-from time import strftime
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
-import plotly.graph_objs as go
 import finplot as fplt
-from finplot import background
-from sympy.printing.pretty.pretty_symbology import line_width
-
 
 def init_figure(fig_id):
 
@@ -106,7 +101,7 @@ def plot_trades(engine):
     fplt.candlestick_ochl(data, ax=ax)
 
     trades_df = pd.DataFrame(
-        data = np.full(len(data), 20000),
+        data = np.full(len(data), np.nan),
         columns = ['trades'],
         index = data.index)
 
@@ -115,6 +110,7 @@ def plot_trades(engine):
         sentiment = trade.entry_order.sentiment
         entry_idx = trade.entry_order.idx
         entry_price = trade.entry_order.price
+        entry_bar = trade.entry_order.bar_index
 
         # entry
         entryColor = 'blue' # long
@@ -124,6 +120,7 @@ def plot_trades(engine):
         if trade.is_open:
             exit_idx = engine.data.index[-1]
             exit_price = engine.data.Close[exit_idx]
+            exit_bar = len(engine.data.Close) - 1
             exitColor = 'white'
 
         # closed trade
@@ -132,10 +129,18 @@ def plot_trades(engine):
             else: exitColor = 'red' # loss
             exit_idx = trade.exit_order.idx
             exit_price = trade.exit_order.price
+            exit_bar = trade.exit_order.bar_index
 
-        trades_df.loc[entry_idx, 'trades'] = entry_price
-        trades_df.loc[exit_idx, 'trades'] = exit_price
+        # linear interpolate between entry and exit
+        timestamps = pd.date_range(entry_idx, exit_idx, freq='1min')
+        slope = (exit_price - entry_price) / (exit_bar - entry_bar)
+        trade_bar = 0
+        for timestamp in timestamps:
+            if timestamp not in data.index: continue # prevent gaps in plot
+            trades_df.loc[timestamp, 'trades'] = slope * trade_bar + entry_price # y = mx + b
+            trade_bar += 1
 
+    # overlay trades
     fplt.plot(
         trades_df['trades'],
         color='orange',
