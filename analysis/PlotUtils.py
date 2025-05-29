@@ -4,8 +4,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
 import finplot as fplt
-from sympy.strategies.core import switch
-
 
 def init_figure(fig_id):
 
@@ -103,25 +101,33 @@ def plot_trades(engine):
     fplt.background = '#0D0B1A'
     fplt.odd_plot_background = '#131026'
 
-    candleColor = '#9c9c9c'
+    candleColor = '#9c9c9ce6'
     fplt.candle_bull_color = candleColor
     fplt.candle_bear_color = candleColor
     fplt.candle_bull_body_color = candleColor
     fplt.candle_bear_body_color = candleColor
 
+    temp = '#FFFFFF'
+    fplt.poc_color = temp
+    fplt.band_color = temp
+    fplt.cross_hair_color = temp
+    fplt.draw_line_color = temp
+    fplt.draw_done_color = temp
+
+    marksize = 2
+    linewidth = 7
+
     # candlestick ohlc
     data = engine.data
     ax = fplt.create_plot()
-    fplt.candlestick_ochl(
-        data,
-        ax = ax)
+    fplt.candlestick_ochl(data, ax=ax)
 
     for trade in engine.trades:
 
         # init container of nan
         trade_df = pd.DataFrame(
-            data=np.full([len(data), 2], np.nan),
-            columns=['trade', 'color'],
+            data=np.full([len(data), 3], np.nan),
+            columns=['entry', 'exit', 'trade'],
             index=data.index)
 
         # entry
@@ -129,20 +135,15 @@ def plot_trades(engine):
         entry_price = trade.entry_order.price
         entry_bar = trade.entry_order.bar_index
 
-        # sentiment
-        # 1 orange, 2 green, 3 red, 4 purple, 5 brown, 6 pink, 7 gray, 8 yellow, 9 aqua, 10 blue
-        sentiment = trade.entry_order.sentiment
-        match sentiment:
-            case "long": entryColor = 10
-            case "short": entryColor = 4
-            case _: entryColor = 1
+        if trade.is_long: entry_color = 'blue' # long
+        else: entry_color = 'aqua' # short
 
         # closed trade
         if trade.is_closed:
 
             profit = trade.profit
-            if profit > 0: exitColor = 'green'  # profit
-            else: exitColor = 'red'  # loss
+            if profit > 0: exit_color = 'green' # profit
+            else: exit_color = 'red' # loss
 
             exit_idx = trade.exit_order.idx
             exit_price = trade.exit_order.price
@@ -153,7 +154,7 @@ def plot_trades(engine):
             exit_idx = engine.data.index[-1]
             exit_price = engine.data.Close[exit_idx]
             exit_bar = len(engine.data.Close) - 1
-            exitColor = 'white'
+            exit_color = 9
 
         # linear interpolate between entry and exit
         timestamps = pd.date_range(entry_idx, exit_idx, freq='1min')
@@ -162,14 +163,31 @@ def plot_trades(engine):
         for timestamp in timestamps:
             if timestamp not in data.index: continue # prevent gaps in plot
             trade_df.loc[timestamp, 'trade'] = slope * trade_bar + entry_price # y = mx + b
-            trade_df.loc[timestamp, 'color'] = entryColor
             trade_bar += 1
+
+        # overlay entry
+        trade_df.loc[entry_idx, 'entry'] = entry_price
+        fplt.plot(
+            trade_df['entry'],
+            style='o',
+            color=entry_color,
+            width=marksize,
+            ax=ax)
+
+        # overlay exit
+        trade_df.loc[exit_idx, 'exit'] = exit_price
+        fplt.plot(
+            trade_df['exit'],
+            style='o',
+            color=exit_color,
+            width=marksize,
+            ax=ax)
 
         # overlay trade
         fplt.plot(
             trade_df['trade'],
-            color=entryColor,
-            width=10,
+            color=entry_color,
+            width=linewidth,
             ax=ax)
 
     fplt.show()

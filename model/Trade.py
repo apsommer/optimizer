@@ -16,6 +16,14 @@ class Trade:
         return self.exit_order is not None
 
     @property
+    def is_long(self):
+        return self.side == 'long'
+
+    @property
+    def is_short(self):
+        return self.side == 'short'
+
+    @property
     def profit(self):
 
         if self.entry_order is None or self.exit_order is None:
