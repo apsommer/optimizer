@@ -11,7 +11,7 @@ def getOhlc(
     csv_filename = None,
     symbol = "NQ.v.0",
     schema = "ohlcv-1m",
-    starting_date = "2025-04-29",
+    starting_date = "2025-05-05",
     ending_date = time.strftime("%Y-%m-%d")):
 
     # return cached data in csv format
@@ -20,7 +20,7 @@ def getOhlc(
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = pd.to_datetime(ohlc.index)
 
-        ohlc.tz_convert(tz='Europe/Berlin')
+        ohlc.index.tz_convert(tz='America/New_York')
 
         print("\nUploaded OHLC from " + csv_filename)
         return ohlc

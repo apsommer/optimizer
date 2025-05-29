@@ -187,6 +187,18 @@ def plot_trades(engine):
             width=linewidth,
             ax=ax)
 
+    # overlay averages
+    fplt.plot(
+        engine.strategy.fast,
+        color='green',
+        width=1,
+        ax=ax)
+    fplt.plot(
+        engine.strategy.slow,
+        color='blue',
+        width=2,
+        ax=ax)
+
     fplt.show()
 
 def print_trades(engine):

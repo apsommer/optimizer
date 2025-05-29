@@ -46,10 +46,12 @@ class LiveStrategy(BaselineStrategy):
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit
 
         # calculate raw averages # todo set min_windows
-        self.rawFast = pd.Series(data.Open).ewm(span=fastMinutes, adjust=False).mean()
-        self.rawSlow = pd.Series(data.Open).ewm(span=slowMinutes, adjust=False).mean()
-        self.fast = self.rawFast.ewm(span=5, adjust=False).mean()
-        self.slow = self.rawSlow.ewm(span=200, adjust=False).mean()
+        # alpha = 2 / ( length + 1)
+        self.rawFast = pd.Series(data.Open).ewm(span=fastMinutes, adjust=True, min_periods=fastMinutes).mean()
+        self.rawSlow = pd.Series(data.Open).ewm(span=slowMinutes, adjust=True, min_periods=slowMinutes).mean()
+        self.fast = self.rawFast.ewm(span=5, adjust=True, min_periods=5).mean()
+        self.slow = self.rawSlow.ewm(span=200, adjust=True, min_periods=200).mean()
+
         self.fastSlope = get_slope(self.fast)
         self.slowSlope = get_slope(self.slow)
 
@@ -66,11 +68,6 @@ class LiveStrategy(BaselineStrategy):
         idx = self.current_idx
         self.bar_index += 1
         bar_index = self.bar_index
-
-        # todo temp for development
-        # last = len(self.data)
-        # if last - 20000 > bar_index:
-        #     return
 
         # params
         fastAngle = self.fastAngle
