@@ -94,21 +94,19 @@ def plot_trades(engine):
     fplt.winh = 2160
 
     # colors
-    light_gray = '#505050'
-    dark_gray = '#363636'
-    white = '#ffffff'
+    light_gray = '#262626'
+    dark_gray = '#1a1a1a'
     dark_black = '#141414'
+    dark_blue = '#00165e'
+    dark_aqua = '#00585e'
+    gray = '#383838'
 
     fplt.background = dark_black
     fplt.candle_bull_color = light_gray
     fplt.candle_bull_body_color = light_gray
     fplt.candle_bear_color = dark_gray
     fplt.candle_bear_body_color = dark_gray
-    fplt.poc_color = white
-    fplt.band_color = white
-    fplt.cross_hair_color = 'grey'
-    fplt.draw_line_color = white
-    fplt.draw_done_color = white
+    fplt.cross_hair_color = gray
 
     # init finplot
     ax = fplt.create_plot()
@@ -146,8 +144,8 @@ def plot_trades(engine):
         entry_price = trade.entry_order.price
         entry_bar = trade.entry_order.bar_index
 
-        if trade.is_long: entry_color = 'blue' # long
-        else: entry_color = 'aqua' # short
+        if trade.is_long: entry_color = dark_blue # long
+        else: entry_color = dark_aqua # short
 
         # closed trade
         if trade.is_closed:
@@ -218,34 +216,36 @@ def plot_trades(engine):
 
     prev_idx = data.index[0]
     for idx in data.index:
+        
+        # slow
+        is_slow_long_enabled = slowSlope[idx] > slowAngle or slowSlope[prev_idx] > slowAngle
+        is_slow_short_enabled = -slowAngle > slowSlope[idx] or -slowAngle > slowSlope[prev_idx]
+        is_slow_disabled = -slowAngle < slowSlope[idx] < slowAngle or -slowAngle < slowSlope[prev_idx] < slowAngle
+
+        if is_slow_long_enabled : slow_df.loc[idx, 'long_enabled'] = slow[idx]
+        if is_slow_short_enabled: slow_df.loc[idx, 'short_enabled'] = slow[idx]
+        if is_slow_disabled: slow_df.loc[idx, 'disabled'] = slow[idx]
 
         # fast
-        is_long_enabled = fastSlope[idx] > fastAngle or fastSlope[prev_idx] > fastAngle
-        is_short_enabled = -fastAngle > fastSlope[idx] or -fastAngle > fastSlope[prev_idx]
-        is_disabled = -fastAngle < fastSlope[idx] < fastAngle or -fastAngle < fastSlope[prev_idx] < fastAngle
-        if is_long_enabled: fast_df.loc[idx, 'long_enabled'] = fast[idx]
-        if is_short_enabled: fast_df.loc[idx, 'short_enabled'] = fast[idx]
-        if is_disabled: fast_df.loc[idx, 'disabled'] = fast[idx]
+        is_fast_long_enabled = fastSlope[idx] > fastAngle or fastSlope[prev_idx] > fastAngle
+        is_fast_short_enabled = -fastAngle > fastSlope[idx] or -fastAngle > fastSlope[prev_idx]
+        is_fast_disabled = -fastAngle < fastSlope[idx] < fastAngle or -fastAngle < fastSlope[prev_idx] < fastAngle
 
-        # slow
-        is_long_enabled = slowSlope[idx] > slowAngle or slowSlope[prev_idx] > slowAngle
-        is_short_enabled = -slowAngle > slowSlope[idx] or -slowAngle > slowSlope[prev_idx]
-        is_disabled = -slowAngle < slowSlope[idx] < slowAngle or -slowAngle < slowSlope[prev_idx] < slowAngle
-        if is_long_enabled : slow_df.loc[idx, 'long_enabled'] = slow[idx]
-        if is_short_enabled: slow_df.loc[idx, 'short_enabled'] = slow[idx]
-        if is_disabled: slow_df.loc[idx, 'disabled'] = slow[idx]
+        if is_fast_long_enabled and is_slow_long_enabled: fast_df.loc[idx, 'long_enabled'] = fast[idx]
+        if is_fast_short_enabled and is_slow_short_enabled: fast_df.loc[idx, 'short_enabled'] = fast[idx]
+        if is_fast_disabled and is_slow_disabled: fast_df.loc[idx, 'disabled'] = fast[idx]
 
         prev_idx = idx
 
     # overlay fast
-    fplt.plot(fast_df['long_enabled'], color='blue', width=2, ax=ax)
-    fplt.plot(fast_df['short_enabled'], color='aqua', width=2, ax=ax)
-    fplt.plot(fast_df['disabled'], color='white', width=2, ax=ax)
+    fplt.plot(fast_df['long_enabled'], color=dark_blue, width=2, ax=ax)
+    fplt.plot(fast_df['short_enabled'], color=dark_aqua, width=2, ax=ax)
+    fplt.plot(fast_df['disabled'], color=gray, width=2, ax=ax)
 
     # overlay slow
-    fplt.plot(slow_df['long_enabled'], color='blue', width=2, ax=ax)
-    fplt.plot(slow_df['short_enabled'], color='aqua', width=2, ax=ax)
-    fplt.plot(slow_df['disabled'], color='white', width=2, ax=ax)
+    # fplt.plot(slow_df['long_enabled'], color=dark_blue, width=2, ax=ax)
+    # fplt.plot(slow_df['short_enabled'], color=dark_aqua, width=2, ax=ax)
+    # fplt.plot(slow_df['disabled'], color=gray, width=2, ax=ax)
 
     fplt.show()
 
