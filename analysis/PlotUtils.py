@@ -254,7 +254,7 @@ def print_trades(engine):
     trades = engine.trades
     for i, trade in enumerate(trades):
         print()
-        print(f'trade: {i}')
+        print(f'trade: {i+1}')
         print(f'entry_idx: {trade.entry_order.idx}, price: {trade.entry_order.price}')
         if trade.exit_order is None: print('open')
         else: print(f'exit_idx: {trade.exit_order.idx}, price: {trade.exit_order.price}')
