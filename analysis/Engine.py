@@ -34,7 +34,7 @@ class Engine:
             colour = 'BLUE',
             bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}'):
 
-            # set index todo refactor to single index, remove replication
+            # set index
             self.current_idx = idx
             self.strategy.current_idx = self.current_idx
 

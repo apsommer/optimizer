@@ -19,8 +19,6 @@ def getOhlc(
 
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = timestamp(ohlc, timezone)
-        print(ohlc.index[0])
-        print(ohlc.index[0].tzinfo)
 
         print(f'Uploaded OHLC from {csv_filename}')
         return ohlc
