@@ -216,17 +216,26 @@ def plot_trades(engine):
         index=data.index)
     slow_df = fast_df.copy()
 
+    prev_idx = data.index[0]
     for idx in data.index:
 
         # fast
-        if fastSlope[idx] > fastAngle: fast_df.loc[idx, 'long_enabled'] = fast[idx]
-        elif -fastAngle > fastSlope[idx]: fast_df.loc[idx, 'short_enabled'] = fast[idx]
-        else: fast_df.loc[idx, 'disabled'] = fast[idx]
+        is_long_enabled = fastSlope[idx] > fastAngle or fastSlope[prev_idx] > fastAngle
+        is_short_enabled = -fastAngle > fastSlope[idx] or -fastAngle > fastSlope[prev_idx]
+        is_disabled = -fastAngle < fastSlope[idx] < fastAngle or -fastAngle < fastSlope[prev_idx] < fastAngle
+        if is_long_enabled: fast_df.loc[idx, 'long_enabled'] = fast[idx]
+        if is_short_enabled: fast_df.loc[idx, 'short_enabled'] = fast[idx]
+        if is_disabled: fast_df.loc[idx, 'disabled'] = fast[idx]
 
         # slow
-        if slowSlope[idx] > slowAngle: slow_df.loc[idx, 'long_enabled'] = slow[idx]
-        elif -slowAngle > slowSlope[idx]: slow_df.loc[idx, 'short_enabled'] = slow[idx]
-        else: slow_df.loc[idx, 'disabled'] = slow[idx]
+        is_long_enabled = slowSlope[idx] > slowAngle or slowSlope[prev_idx] > slowAngle
+        is_short_enabled = -slowAngle > slowSlope[idx] or -slowAngle > slowSlope[prev_idx]
+        is_disabled = -slowAngle < slowSlope[idx] < slowAngle or -slowAngle < slowSlope[prev_idx] < slowAngle
+        if is_long_enabled : slow_df.loc[idx, 'long_enabled'] = slow[idx]
+        if is_short_enabled: slow_df.loc[idx, 'short_enabled'] = slow[idx]
+        if is_disabled: slow_df.loc[idx, 'disabled'] = slow[idx]
+
+        prev_idx = idx
 
     # overlay fast
     fplt.plot(fast_df['long_enabled'], color='blue', width=2, ax=ax)
