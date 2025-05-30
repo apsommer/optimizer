@@ -4,6 +4,7 @@ import pandas as pd
 import local.api_keys as keys
 import numpy as np
 
+
 def getOhlc(
     csv_filename = None,
     symbol = "NQ.v.0",
@@ -11,14 +12,15 @@ def getOhlc(
     starting_date = "2025-05-05",
     ending_date = time.strftime("%Y-%m-%d")):
 
+    timezone = 'America/Chicago'
+
     # return cached data in csv format
     if csv_filename is not None:
 
         ohlc = pd.read_csv(csv_filename, index_col=0)
-
-        # shift timezone
-        exchange_timezone = 'US/Eastern'
-        ohlc.index = pd.to_datetime(ohlc.index).tz_convert(exchange_timezone)
+        ohlc.index = timestamp(ohlc, timezone)
+        print(ohlc.index[0])
+        print(ohlc.index[0].tzinfo)
 
         print(f'Uploaded OHLC from {csv_filename}')
         return ohlc
@@ -36,14 +38,17 @@ def getOhlc(
         end = ending_date)
             .to_df())
 
-    # rename, drop
+    # rename, drop, timestamp
     ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
     ohlc.index.rename("timestamp", inplace = True)
     ohlc = ohlc[ohlc.columns.drop(['symbol', 'rtype', 'instrument_id', 'publisher_id', 'volume'])]
-
-    # todo
+    ohlc.index = timestamp(ohlc, timezone)
 
     # save to disk
     csv_filename = "data/nq_1mon.csv"
     ohlc.to_csv(csv_filename)
     return ohlc
+
+def timestamp(data, timezone):
+    utc = pd.to_datetime(data.index)
+    return utc.tz_convert(timezone)

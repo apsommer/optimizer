@@ -221,6 +221,7 @@ def print_trades(engine):
         print()
         print(f'trade: {i}')
         print(f'entry_idx: {trade.entry_order.idx}, price: {trade.entry_order.price}')
+        if trade.exit_order is None: continue
         print(f'exit_idx: {trade.exit_order.idx}, price: {trade.exit_order.price}')
 
 def print_metrics(engine):
