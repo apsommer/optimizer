@@ -201,28 +201,38 @@ def plot_trades(engine):
             width=linewidth,
             ax=ax)
 
-    # overlay averages
-    fplt.plot(
-        engine.strategy.fast,
-        color='green',
-        width=1,
-        ax=ax)
-    fplt.plot(
-        engine.strategy.slow,
-        color='blue',
-        width=2,
-        ax=ax)
+    # build enabled long, short, and disabled
+    fast = engine.strategy.fast
+    fastSlope = engine.strategy.fastSlope
+    fastAngle = engine.strategy.fastAngle
+
+    # init container of nan
+    fast_df = pd.DataFrame(
+        data=np.full([len(data), 3], np.nan),
+        columns=['long_enabled', 'short_enabled', 'disabled'],
+        index=data.index)
+
+    for idx in data.index:
+        if fastSlope[idx] > fastAngle: fast_df.loc[idx, 'long_enabled'] = fast[idx]
+        elif -fastAngle > fastSlope[idx]: fast_df.loc[idx, 'short_enabled'] = fast[idx]
+        else: fast_df.loc[idx, 'disabled'] = fast[idx]
+
+    # overlay fast
+    fplt.plot(fast_df['long_enabled'], color='blue', width=1, ax=ax)
+    fplt.plot(fast_df['short_enabled'], color='aqua', width=2, ax=ax)
+    fplt.plot(fast_df['disabled'], color='white', width=2, ax=ax)
 
     fplt.show()
 
 def print_trades(engine):
+
     trades = engine.trades
     for i, trade in enumerate(trades):
         print()
         print(f'trade: {i}')
         print(f'entry_idx: {trade.entry_order.idx}, price: {trade.entry_order.price}')
-        if trade.exit_order is None: continue
-        print(f'exit_idx: {trade.exit_order.idx}, price: {trade.exit_order.price}')
+        if trade.exit_order is None: print('open')
+        else: print(f'exit_idx: {trade.exit_order.idx}, price: {trade.exit_order.price}')
 
 def print_metrics(engine):
 
