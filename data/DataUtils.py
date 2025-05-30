@@ -1,8 +1,5 @@
 import time
-from zoneinfo import ZoneInfo
-
 import databento as db
-import zoneinfo
 import pandas as pd
 import local.api_keys as keys
 import numpy as np
