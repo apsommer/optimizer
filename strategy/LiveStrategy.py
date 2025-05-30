@@ -135,13 +135,13 @@ class LiveStrategy(BaselineStrategy):
             isEntryShortDisabled = 0 > np.max(recentFastSlope)
 
         # enable entry
-        if positionEntryMinutes == 0:
-            isEntryLongEnabled = True
-            isEntryShortEnabled = True
-        else:
-            recentOpen = self.data.Open[bar_index - positionEntryMinutes : bar_index]
-            isEntryLongEnabled = fast > np.max(recentOpen)
-            isEntryShortEnabled = np.min(recentOpen) > fast
+        # if positionEntryMinutes == 0:
+        #     isEntryLongEnabled = True
+        #     isEntryShortEnabled = True
+        # else:
+        #     recentOpen = self.data.Open[bar_index - positionEntryMinutes : bar_index]
+        #     isEntryLongEnabled = fast > np.max(recentOpen)
+        #     isEntryShortEnabled = np.min(recentOpen) > fast
 
         # cooloff after trade exit
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
@@ -152,7 +152,7 @@ class LiveStrategy(BaselineStrategy):
             is_flat
             and isFastCrossoverLong
             and not isEntryLongDisabled
-            and isEntryLongEnabled
+            # and isEntryLongEnabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed)
         if isEntryLong:
@@ -163,7 +163,7 @@ class LiveStrategy(BaselineStrategy):
             is_flat
             and isFastCrossoverShort
             and not isEntryShortDisabled
-            and isEntryShortEnabled
+            # and isEntryShortEnabled
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed)
         if isEntryShort:
