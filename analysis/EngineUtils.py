@@ -1,63 +1,137 @@
+import pickle
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib as matplotlib
+from analysis.Engine import Engine
+from model.Metric import Metric
 
-def get_max_drawdown(prices):
+def analyze_profit_factor(engine):
 
+    # extract wins and losses
+    trades = engine.trades
+    wins = [trade.profit for trade in trades if trade.profit > 0]
+    losses = [trade.profit for trade in trades if 0 > trade.profit]
+
+    # gross p&l
+    gross_profit = sum(wins)
+    gross_loss = -sum(losses)
+
+    # profit factor
+    if gross_loss == 0: profit_factor = np.inf
+    elif gross_profit == 0: profit_factor = -np.inf
+    else: profit_factor = gross_profit / gross_loss
+
+    return [
+        Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
+        Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
+        Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f') ]
+
+def analyze_expectancy(engine):
+
+    # extract wins and losses
+    trades = engine.trades
+    wins = [trade.profit for trade in trades if trade.profit > 0]
+    losses = [trade.profit for trade in trades if 0 > trade.profit]
+
+    # check trades exist
+    num_trades = len(trades)
+    if num_trades == 0:
+        return []
+
+    # last trade open
+    last_trade = trades[-1]
+    if last_trade.exit_order is None:
+        num_trades -= 1
+
+    # wins
+    num_wins = len(wins)
+    win_rate = (num_wins / num_trades) * 100
+    if num_wins == 0: average_win = 0
+    else: average_win = sum(wins) / num_wins
+
+    # losses
+    num_losses = len(losses)
+    loss_rate = (num_losses / num_trades) * 100
+    if num_losses == 0: average_loss = 0
+    else: average_loss = sum(losses) / len(losses)
+
+    expectancy = ((win_rate / 100) * average_win) + ((loss_rate / 100) * average_loss)
+
+    return [
+        Metric('win_rate', win_rate, '%', 'Win rate'),
+        Metric('loss_rate', loss_rate, '%', 'Loss rate'),
+        Metric('average_win', average_win, 'USD', 'Average win'),
+        Metric('average_loss', average_loss, 'USD', 'Average loss'),
+        Metric('expectancy', expectancy, 'USD', 'Expectancy')]
+
+def analyze_max_drawdown(engine):
+
+    prices = engine.cash_series
+    profit = engine.cash - engine.initial_cash
     initial_price = prices.iloc[0]
     roll_max = prices.cummax() # series, rolling maximum
     daily_drawdown = prices / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
-    return max_daily_drawdown.min() * initial_price
+    max_drawdown = max_daily_drawdown.min() * initial_price
+    drawdown_per_profit = (max_drawdown / profit) * 100
 
-def get_profit_factor(trades):
+    return [
+        Metric('max_drawdown', max_drawdown, 'USD', 'Maximum drawdown'),
+        Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage')]
 
-    wins = [trade.profit for trade in trades if trade.profit > 0]
-    losses = [trade.profit for trade in trades if trade.profit < 0]
-    total_wins = sum(wins)
-    total_losses = -sum(losses)
-    if total_losses > total_wins: return np.nan
-    return total_wins / total_losses
+def analyze_config(engine):
 
-def init_figure(fig_id, data):
+    start_date = engine.data.index[0]
+    end_date = engine.data.index[-1]
+    days = (engine.data.index[-1] - engine.data.index[0]).days
+    candles = len(engine.data.index)
+    ticker = engine.strategy.ticker.symbol
+    size = engine.strategy.size
+    initial_cash = engine.initial_cash
 
-    plt.rcParams['figure.figsize'] = [20, 12]
+    return [
+        Metric('config_header', None, None, 'Config:'),
+        Metric('start_date', start_date, None, 'Start date'),
+        Metric('end_date', end_date, None, 'End date'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Number of days'),
+        Metric('ticker', ticker, None, 'Ticker'),
+        Metric('size', size, None, 'Size'),
+        Metric('initial_cash', initial_cash, 'USD', 'Initial cash')]
 
-    color = 'white'
-    font = {'family': 'Ubuntu', 'size': 14}
-    matplotlib.rc('font', **font)
-    matplotlib.rcParams['text.color'] = color
-    matplotlib.rcParams['axes.labelcolor'] = color
-    matplotlib.rcParams['xtick.color'] = color
-    matplotlib.rcParams['ytick.color'] = color
+def analyze_perf(engine):
 
-    fig = plt.figure(fig_id)
-    ax = plt.gca()
+    days = (engine.data.index[-1] - engine.data.index[0]).days
+    num_trades = len(engine.trades)
+    profit = engine.cash - engine.initial_cash
+    total_return = (abs(engine.cash - engine.initial_cash) / engine.initial_cash) * 100
+    if engine.initial_cash > engine.cash: total_return = -total_return
 
-    fig.patch.set_facecolor('#0D0B1A')  # outside grid
-    ax.patch.set_facecolor('#131026')  # inside grid
+    if 0 > engine.cash: annualized_return = np.nan
+    else: annualized_return = ((engine.cash / engine.initial_cash) ** (1 / (days / 365)) - 1) * 100
+    trades_per_day = num_trades / days
 
-    xstep = 20
-    ystep = 20
+    return [
+        Metric('strategy_header', None, None, 'Strategy:'),
+        Metric('profit', profit, 'USD', 'Profit'),
+        Metric('num_trades', num_trades, None, 'Number of trades'),
+        Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
+        Metric('total_return', total_return, '%', 'Total return'),
+        Metric('annualized_return', annualized_return, '%', 'Annualized return')]
 
-    # x-axis
-    xmin = min(data.index)
-    xmax = max(data.index)
-    x_ticks = pd.date_range(xmin, xmax, xstep)
-    plt.xticks(x_ticks, rotation=90)
-    plt.xlim(xmin, xmax)
+''' deserialize '''
+def load_engine(id, name, strategy):
 
-    # y-axis
-    ymin = round(0.95 * min(data), -2)
-    ymax = round(1.05 * max(data), -2)
-    ystep = round((ymax - ymin) / ystep, -2)
-    y_ticks = np.arange(ymin, ymax, ystep)
-    plt.yticks(y_ticks)
-    plt.ylim(ymin, ymax)
+    filename = 'e' + str(id) + '.bin'
+    path_filename = name + '/' + filename
+    filehandler = open(path_filename, 'rb')
+    slim_engine = pickle.load(filehandler)
 
-    plt.tick_params(tick1On=False)
-    plt.tick_params(tick2On=False)
-    plt.grid(color='#1D193B', linewidth=0.5)
+    # todo engine strategy_params ... minimize size of .bin
+    engine = Engine(strategy)
+    engine.trades = slim_engine['trades']
+    engine.cash_series = pd.Series(
+        data = slim_engine['cash_series'],
+        index = strategy.data.index)
+    engine.metrics = slim_engine['metrics']
 
-    return fig
+    return engine
