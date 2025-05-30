@@ -18,14 +18,15 @@ def getOhlc(
     if csv_filename is not None:
 
         ohlc = pd.read_csv(csv_filename, index_col=0)
-        ohlc.index = pd.to_datetime(ohlc.index)
 
-        ohlc.index.tz_convert(tz='America/New_York')
+        # shift timezone
+        exchange_timezone = 'US/Eastern'
+        ohlc.index = pd.to_datetime(ohlc.index).tz_convert(exchange_timezone)
 
-        print("\nUploaded OHLC from " + csv_filename)
+        print(f'Uploaded OHLC from {csv_filename}')
         return ohlc
 
-    print("\nDownloaded OHLC from databento, costs $$$ ...")
+    print("Downloaded OHLC from databento, costs $$$ ...")
 
     # request network data synchronous! costs $!
     client = db.Historical(keys.bento_api_key)

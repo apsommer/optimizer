@@ -6,6 +6,7 @@ from PlotUtils import *
 from strategy.LiveStrategy import *
 from strategy.LiveParams import *
 
+os.system('clear')
 start_time = time.time()
 
 # get ohlc prices
@@ -20,9 +21,9 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # init
 params = LiveParams(
     fastMinutes = 25,
-    disableEntryMinutes = 105,
+    disableEntryMinutes = 120,
     fastMomentumMinutes = 105,
-    fastCrossoverPercent = 0,
+    fastCrossoverPercent = 70,
     takeProfitPercent = 0.5,
     fastAngleFactor = 15,
     slowMinutes = 2355,
