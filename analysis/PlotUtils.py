@@ -205,22 +205,38 @@ def plot_trades(engine):
     fast = engine.strategy.fast
     fastSlope = engine.strategy.fastSlope
     fastAngle = engine.strategy.fastAngle
+    slow = engine.strategy.slow
+    slowSlope = engine.strategy.slowSlope
+    slowAngle = engine.strategy.slowAngle
 
-    # init container of nan
+    # init containers of nan
     fast_df = pd.DataFrame(
         data=np.full([len(data), 3], np.nan),
         columns=['long_enabled', 'short_enabled', 'disabled'],
         index=data.index)
+    slow_df = fast_df.copy()
 
     for idx in data.index:
+
+        # fast
         if fastSlope[idx] > fastAngle: fast_df.loc[idx, 'long_enabled'] = fast[idx]
         elif -fastAngle > fastSlope[idx]: fast_df.loc[idx, 'short_enabled'] = fast[idx]
         else: fast_df.loc[idx, 'disabled'] = fast[idx]
 
+        # slow
+        if slowSlope[idx] > slowAngle: slow_df.loc[idx, 'long_enabled'] = slow[idx]
+        elif -slowAngle > slowSlope[idx]: slow_df.loc[idx, 'short_enabled'] = slow[idx]
+        else: slow_df.loc[idx, 'disabled'] = slow[idx]
+
     # overlay fast
-    fplt.plot(fast_df['long_enabled'], color='blue', width=1, ax=ax)
+    fplt.plot(fast_df['long_enabled'], color='blue', width=2, ax=ax)
     fplt.plot(fast_df['short_enabled'], color='aqua', width=2, ax=ax)
     fplt.plot(fast_df['disabled'], color='white', width=2, ax=ax)
+
+    # overlay slow
+    fplt.plot(slow_df['long_enabled'], color='blue', width=2, ax=ax)
+    fplt.plot(slow_df['short_enabled'], color='aqua', width=2, ax=ax)
+    fplt.plot(slow_df['disabled'], color='white', width=2, ax=ax)
 
     fplt.show()
 
