@@ -59,6 +59,8 @@ class LiveStrategy(BaselineStrategy):
         self.shortExitBarIndex = -1
         self.longFastCrossoverExit = np.nan
         self.shortFastCrossoverExit = np.nan
+        self.isExitLongCrossoverEnabled = False
+        self.isExitShortCrossoverEnabled = False
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
 
@@ -104,8 +106,6 @@ class LiveStrategy(BaselineStrategy):
         longExitBarIndex = self.longExitBarIndex
         shortExitBarIndex = self.shortExitBarIndex
         fastCrossover = self.fastCrossover
-        longFastCrossoverExit = self.longFastCrossoverExit
-        shortFastCrossoverExit = self.shortFastCrossoverExit
         fastMomentumMinutes = self.fastMomentumMinutes
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
@@ -115,11 +115,13 @@ class LiveStrategy(BaselineStrategy):
         ticker = self.ticker
         size = self.size
 
-        # crossover fast
+        # entry, long crossover fast
         isFastCrossoverLong = (
             fastSlope > fastAngle
             and (fast > open or fast > prev_close)
             and high > fast)
+
+        # entry, short crossover fast
         isFastCrossoverShort = (
             -fastAngle > fastSlope
             and (open > fast or prev_close > fast)
@@ -169,19 +171,31 @@ class LiveStrategy(BaselineStrategy):
         if isEntryShort:
             self.sell(ticker, size)
 
-        # exit long fast crossover
-        if fastCrossover == 0: longFastCrossoverExit = np.nan
-        elif isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
-        elif not is_long: longFastCrossoverExit = np.nan
+        # exit, long crossover fast
+        longFastCrossoverExit = np.nan
+        if isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
+        elif is_long: longFastCrossoverExit = self.longFastCrossoverExit
         self.longFastCrossoverExit = longFastCrossoverExit
-        isExitLongFastCrossover = high > longFastCrossoverExit and fast > low
 
-        # exit short fast crossover
-        if fastCrossover == 0: shortFastCrossoverExit = np.nan
-        elif isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
-        elif not is_short: shortFastCrossoverExit = np.nan
+        isExitLongCrossoverEnabled = is_long and (high > longFastCrossoverExit or self.isExitLongCrossoverEnabled)
+        self.isExitLongCrossoverEnabled = isExitLongCrossoverEnabled
+
+        isExitLongFastCrossover =(
+            isExitLongCrossoverEnabled
+            and fast > low)
+
+        # exit, short crossover fast
+        shortFastCrossoverExit = np.nan
+        if isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
+        elif is_short: shortFastCrossoverExit = self.shortFastCrossoverExit
         self.shortFastCrossoverExit = shortFastCrossoverExit
-        isExitShortFastCrossover = shortFastCrossoverExit > low and high > fast
+
+        isExitShortCrossoverEnabled = is_short and (shortFastCrossoverExit > low or self.isExitLongCrossoverEnabled)
+        self.isExitShortCrossoverEnabled = isExitShortCrossoverEnabled
+
+        isExitShortFastCrossover = (
+            isExitShortCrossoverEnabled
+            and high > fast)
 
         # exit fast momentum, ouch
         recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]

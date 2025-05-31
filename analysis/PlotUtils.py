@@ -216,7 +216,7 @@ def plot_trades(engine):
 
     prev_idx = data.index[0]
     for idx in data.index:
-        
+
         # slow
         is_slow_long_enabled = slowSlope[idx] > slowAngle or slowSlope[prev_idx] > slowAngle
         is_slow_short_enabled = -slowAngle > slowSlope[idx] or -slowAngle > slowSlope[prev_idx]
