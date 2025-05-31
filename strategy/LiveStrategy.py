@@ -136,15 +136,6 @@ class LiveStrategy(BaselineStrategy):
             isEntryLongDisabled = np.min(recentFastSlope) > 0
             isEntryShortDisabled = 0 > np.max(recentFastSlope)
 
-        # enable entry
-        # if positionEntryMinutes == 0:
-        #     isEntryLongEnabled = True
-        #     isEntryShortEnabled = True
-        # else:
-        #     recentOpen = self.data.Open[bar_index - positionEntryMinutes : bar_index]
-        #     isEntryLongEnabled = fast > np.max(recentOpen)
-        #     isEntryShortEnabled = np.min(recentOpen) > fast
-
         # cooloff after trade exit
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
@@ -154,7 +145,6 @@ class LiveStrategy(BaselineStrategy):
             is_flat
             and isFastCrossoverLong
             and not isEntryLongDisabled
-            # and isEntryLongEnabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed)
         if isEntryLong:
@@ -165,7 +155,6 @@ class LiveStrategy(BaselineStrategy):
             is_flat
             and isFastCrossoverShort
             and not isEntryShortDisabled
-            # and isEntryShortEnabled
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed)
         if isEntryShort:
@@ -197,18 +186,18 @@ class LiveStrategy(BaselineStrategy):
             isExitShortCrossoverEnabled
             and high > fast)
 
-        # exit fast momentum, ouch
+        # exit, fast momentum
         recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
         isExitLongFastMomentum = is_long and -fastAngle > np.max(recentFastSlope)
         isExitShortFastMomentum = is_short and np.min(recentFastSlope) > fastAngle
 
-        # exit long take profit
+        # exit, long take profit
         if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
         elif not is_long: longTakeProfit = np.nan
         self.longTakeProfit = longTakeProfit
         isExitLongTakeProfit = high > longTakeProfit
 
-        # exit short take profit:
+        # exit, short take profit:
         if isEntryShort: shortTakeProfit = (1 - takeProfit) * fast
         elif not is_short: shortTakeProfit = np.nan
         self.shortTakeProfit = shortTakeProfit

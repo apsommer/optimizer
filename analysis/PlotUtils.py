@@ -94,19 +94,20 @@ def plot_trades(engine):
     fplt.winh = 2160
 
     # colors
+    white = 'white'
     light_gray = '#262626'
     dark_gray = '#1a1a1a'
     dark_black = '#141414'
-    dark_blue = '#00165e'
-    dark_aqua = '#00585e'
-    gray = '#383838'
+    dark_blue = 'blue' # '#00165e'
+    dark_aqua = 'aqua' # '#00585e'
+    gray = 'grey' # '#383838'
 
     fplt.background = dark_black
     fplt.candle_bull_color = light_gray
     fplt.candle_bull_body_color = light_gray
     fplt.candle_bear_color = dark_gray
     fplt.candle_bear_body_color = dark_gray
-    fplt.cross_hair_color = gray
+    fplt.cross_hair_color = white
 
     # init finplot
     ax = fplt.create_plot()
@@ -126,7 +127,12 @@ def plot_trades(engine):
 
     # candlestick ohlc
     data = engine.data
-    fplt.candlestick_ochl(data, ax=ax)
+    fplt.candlestick_ochl(data, ax=ax, draw_body=False, draw_shadow=False)
+
+    # cloud
+    low = fplt.plot(data.Low, color=dark_black, width=0, ax=ax)
+    high = fplt.plot(data.High, color=dark_black, width=0, ax=ax)
+    fplt.fill_between(low, high, color = light_gray)
 
     markersize = 2
     linewidth = 7
@@ -231,11 +237,13 @@ def plot_trades(engine):
         is_fast_short_enabled = -fastAngle > fastSlope[idx] or -fastAngle > fastSlope[prev_idx]
         is_fast_disabled = -fastAngle < fastSlope[idx] < fastAngle or -fastAngle < fastSlope[prev_idx] < fastAngle
 
-        if is_fast_long_enabled and is_slow_long_enabled: fast_df.loc[idx, 'long_enabled'] = fast[idx]
-        if is_fast_short_enabled and is_slow_short_enabled: fast_df.loc[idx, 'short_enabled'] = fast[idx]
-        if is_fast_disabled and is_slow_disabled: fast_df.loc[idx, 'disabled'] = fast[idx]
+        if is_fast_long_enabled: fast_df.loc[idx, 'long_enabled'] = fast[idx]
+        if is_fast_short_enabled: fast_df.loc[idx, 'short_enabled'] = fast[idx]
+        if is_fast_disabled: fast_df.loc[idx, 'disabled'] = fast[idx]
 
         prev_idx = idx
+
+
 
     # overlay fast
     fplt.plot(fast_df['long_enabled'], color=dark_blue, width=2, ax=ax)
@@ -255,9 +263,9 @@ def print_trades(engine):
     for i, trade in enumerate(trades):
         print()
         print(f'trade: {i+1}')
-        print(f'entry_idx: {trade.entry_order.idx}, price: {trade.entry_order.price}')
         if trade.exit_order is None: print('open')
         else: print(f'exit_idx: {trade.exit_order.idx}, price: {trade.exit_order.price}')
+        print(f'entry_idx: {trade.entry_order.idx}, price: {trade.entry_order.price}')
 
 def print_metrics(engine):
 

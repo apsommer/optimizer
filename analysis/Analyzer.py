@@ -22,7 +22,7 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 params = LiveParams(
     fastMinutes = 25,
     disableEntryMinutes = 120,
-    fastMomentumMinutes = 105,
+    fastMomentumMinutes = 75,
     fastCrossoverPercent = 50,
     takeProfitPercent = 0.5,
     fastAngleFactor = 15,
