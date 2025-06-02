@@ -98,9 +98,9 @@ def plot_trades(engine):
     light_gray = '#262626'
     dark_gray = '#1a1a1a'
     dark_black = '#141414'
-    dark_blue = 'blue' # '#00165e'
-    dark_aqua = 'aqua' # '#00585e'
-    gray = 'grey' # '#383838'
+    dark_blue = '#00165e'
+    dark_aqua = '#00585e'
+    gray = '#383838'
 
     fplt.background = dark_black
     fplt.candle_bull_color = light_gray
@@ -246,8 +246,8 @@ def plot_trades(engine):
 
 
     # overlay fast
-    fplt.plot(fast_df['long_enabled'], color=dark_blue, width=2, ax=ax)
-    fplt.plot(fast_df['short_enabled'], color=dark_aqua, width=2, ax=ax)
+    fplt.plot(fast_df['long_enabled'], color=gray, width=2, ax=ax)
+    fplt.plot(fast_df['short_enabled'], color=gray, width=2, ax=ax)
     fplt.plot(fast_df['disabled'], color=gray, width=2, ax=ax)
 
     # overlay slow
