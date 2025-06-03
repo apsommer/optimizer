@@ -167,7 +167,9 @@ class LiveStrategy(BaselineStrategy):
         elif is_long: longFastCrossoverExit = self.longFastCrossoverExit
         self.longFastCrossoverExit = longFastCrossoverExit
 
-        isExitLongCrossoverEnabled = is_long and (high > longFastCrossoverExit or self.isExitLongCrossoverEnabled)
+        if not is_long: isExitLongCrossoverEnabled = False
+        elif self.isExitLongCrossoverEnabled: isExitLongCrossoverEnabled = True
+        else: isExitLongCrossoverEnabled = high > longFastCrossoverExit
         self.isExitLongCrossoverEnabled = isExitLongCrossoverEnabled
 
         isExitLongFastCrossover =(
@@ -180,7 +182,9 @@ class LiveStrategy(BaselineStrategy):
         elif is_short: shortFastCrossoverExit = self.shortFastCrossoverExit
         self.shortFastCrossoverExit = shortFastCrossoverExit
 
-        isExitShortCrossoverEnabled = is_short and (shortFastCrossoverExit > low or self.isExitLongCrossoverEnabled)
+        if not is_short: isExitShortCrossoverEnabled = False
+        elif self.isExitShortCrossoverEnabled: isExitShortCrossoverEnabled = True
+        else: isExitShortCrossoverEnabled = shortFastCrossoverExit > low
         self.isExitShortCrossoverEnabled = isExitShortCrossoverEnabled
 
         isExitShortFastCrossover = (

@@ -245,8 +245,6 @@ def plot_trades(engine):
 
         prev_idx = idx
 
-
-
     # overlay fast
     fplt.plot(fast_df['long_enabled'], color=gray, width=2, ax=ax)
     fplt.plot(fast_df['short_enabled'], color=gray, width=2, ax=ax)
