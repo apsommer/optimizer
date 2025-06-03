@@ -16,7 +16,7 @@ csv_filename = 'data/nq_1mon.csv' # 1 month
 # csv_filename = "data/nq_24mon.csv" # 2 years
 
 data = repo.getOhlc(csv_filename = csv_filename) # local
-# data = repo.getOhlc() # network
+#data = repo.getOhlc() # network
 
 # init
 params = LiveParams(

@@ -186,9 +186,6 @@ class LiveStrategy(BaselineStrategy):
             isExitShortCrossoverEnabled
             and high > fast)
 
-        if isExitShortFastCrossover:
-            print(idx)
-
         # exit, fast momentum
         recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
         isExitLongFastMomentum = is_long and -fastAngle > np.max(recentFastSlope)

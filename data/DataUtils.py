@@ -9,7 +9,7 @@ def getOhlc(
     csv_filename = None,
     symbol = "NQ.v.0",
     schema = "ohlcv-1m",
-    starting_date = "2025-05-05",
+    starting_date = "2025-05-03",
     ending_date = time.strftime("%Y-%m-%d")):
 
     timezone = 'America/Chicago'
