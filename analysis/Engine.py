@@ -67,6 +67,7 @@ class Engine:
         # enter new trade
         self.trades.append(
             Trade(
+                id = len(self.trades) + 1,
                 side = order.sentiment,
                 size = order.size,
                 entry_order = order,

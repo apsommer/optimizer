@@ -78,7 +78,7 @@ def plot_equity(engine):
     plt.plot(initial_cash_df, color = 'black')
 
     # buy and hold reference
-    buy_hold = (engine.data.Close - engine.data.Open.iloc[0]) * engine.strategy.ticker.tick_value + engine.initial_cash
+    buy_hold = (engine.data.Close - engine.data.Open.iloc[0]) * engine.strategy.ticker.point_value + engine.initial_cash
     plt.plot(buy_hold,  color = '#3C3C3C')
 
     plt.autoscale(axis='y')
@@ -260,9 +260,7 @@ def plot_trades(engine):
     fplt.show()
 
 def print_tv_trades(engine):
-    trades = engine.trades
-    for i, trade in enumerate(trades):
-        print(f'\ntrade: {i + 1}')
+    for trade in engine.trades:
         trade.print_tv()
 
 def print_metrics(engine):

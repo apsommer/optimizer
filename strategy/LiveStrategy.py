@@ -10,7 +10,8 @@ class LiveStrategy(BaselineStrategy):
     def ticker(self):
         return Ticker(
             symbol = 'MNQ',
-            tick_value = 0.50,
+            tick_size = 0.25,
+            point_value = 20,
             margin = 0.10) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
