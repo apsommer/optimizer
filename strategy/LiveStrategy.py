@@ -46,12 +46,11 @@ class LiveStrategy(BaselineStrategy):
         if self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit
 
-        # calculate raw averages # todo set min_windows
-        # alpha = 2 / ( length + 1)
-        self.rawFast = pd.Series(data.Open).ewm(span=fastMinutes, adjust=True, min_periods=fastMinutes).mean()
-        self.rawSlow = pd.Series(data.Open).ewm(span=slowMinutes, adjust=True, min_periods=slowMinutes).mean()
-        self.fast = self.rawFast.ewm(span=5, adjust=True, min_periods=5).mean()
-        self.slow = self.rawSlow.ewm(span=200, adjust=True, min_periods=200).mean()
+        # calculate raw averages
+        self.rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
+        self.rawSlow = pd.Series(data.Open).ewm(span=slowMinutes).mean()
+        self.fast = self.rawFast.ewm(span=5).mean()
+        self.slow = self.rawSlow.ewm(span=200).mean()
 
         self.fastSlope = get_slope(self.fast)
         self.slowSlope = get_slope(self.slow)
@@ -73,15 +72,14 @@ class LiveStrategy(BaselineStrategy):
         bar_index = self.bar_index
 
         # todo tradingview limitation ~20k bars
-        tv_start = pd.Timestamp('2025-05-13T12:30:00', tz='America/Chicago')
-        if tv_start > idx:
-            return
+        # tv_start = pd.Timestamp('2025-05-13T12:30:00', tz='America/Chicago')
+        # if tv_start > idx:
+        #     return
 
         # params
         fastAngle = self.fastAngle
         slowAngle = self.slowAngle
         disableEntryMinutes = self.disableEntryMinutes
-        positionEntryMinutes = self.positionEntryMinutes
         coolOffMinutes = self.coolOffMinutes
         takeProfit = self.takeProfit
 
@@ -111,10 +109,10 @@ class LiveStrategy(BaselineStrategy):
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
 
-        ################################################################################################################
-
         ticker = self.ticker
         size = self.size
+
+        ################################################################################################################
 
         # entry, long crossover fast
         isFastCrossoverLong = (

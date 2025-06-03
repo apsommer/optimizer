@@ -41,15 +41,13 @@ class Trade:
 
         return profit
 
-    def print_tv(self):
-
-        print(f'\ntrade: {self.id}')
-
-        if self.exit_order is None: line = 'open'
-        else: line = self.exit_order.format_tv() + '\t' + str(self.profit)
-        print(line)
-
-        print(self.entry_order.format_tv())
-
     def __repr__(self):
-        return f'\nid: {self.id}\nside: {self.side}\nsize: {self.size}\nentry_order: {self.entry_order}\nexit_order: {self.exit_order}'
+
+        title_line = '\n' + str(self.id)
+
+        if self.exit_order is None: exit_line = '\nopen'
+        else: exit_line = '\n' + str(self.exit_order) + '\t' + str(self.profit)
+
+        entry_line = '\n' + str(self.entry_order)
+
+        return title_line + exit_line + entry_line

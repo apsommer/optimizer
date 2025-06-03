@@ -8,9 +8,6 @@ class Order:
         self.price = price
 
     def __repr__(self):
-        return f'\n\tticker: {self.ticker}\n\tsentiment: {self.sentiment}\n\tsize: {self.size}\n\tidx: {self.idx}\n\tbar_index: {self.bar_index}\n\tprice: {self.price}'
-
-    def format_tv(self):
         return (
             self.sentiment + '\t' +
             self.idx.strftime('%b %d, %Y, %H:%M') + '\t' +

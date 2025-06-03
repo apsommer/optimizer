@@ -13,10 +13,10 @@ start_time = time.time()
 csv_filename = 'data/nq_1mon.csv' # 1 month
 # csv_filename = "data/nq_3mon.csv"  # 3 months
 # csv_filename = "data/nq_6mon.csv"  # 6 months
-# csv_filename = "data/nq_24mon.csv" # 2 years
+#csv_filename = "data/nq_24mon.csv" # 2 years
 
 data = repo.getOhlc(csv_filename = csv_filename) # local
-#data = repo.getOhlc() # network
+# data = repo.getOhlc() # network
 
 # init
 params = LiveParams(
@@ -44,6 +44,6 @@ print(f'Elapsed time: {round(end_time - start_time, 2)} seconds')
 
 # plot results
 print_metrics(engine)
-print_tv_trades(engine)
+print_trades(engine)
 # plot_equity(engine)
-plot_trades(engine)
+plot_strategy(engine)

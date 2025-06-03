@@ -8,7 +8,7 @@ def getOhlc(
     csv_filename = None,
     symbol = "NQ.v.0",
     schema = "ohlcv-1m",
-    starting_date = "2025-05-03",
+    starting_date = "2023-06-01",
     ending_date = time.strftime("%Y-%m-%d")):
 
     timezone = 'America/Chicago'
@@ -42,10 +42,10 @@ def getOhlc(
     ohlc.index = timestamp(ohlc, timezone)
 
     # save to disk
-    csv_filename = "data/nq_1mon.csv"
+    csv_filename = "data/nq_24mon.csv"
     ohlc.to_csv(csv_filename)
     return ohlc
 
 def timestamp(data, timezone):
-    utc = pd.to_datetime(data.index)
+    utc = pd.to_datetime(data.index, utc=True)
     return utc.tz_convert(timezone)

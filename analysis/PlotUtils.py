@@ -87,7 +87,7 @@ def plot_equity(engine):
     plt.tight_layout()
     plt.show(block=False)
 
-def plot_trades(engine):
+def plot_strategy(engine):
 
     # maximize window
     fplt.winx = 0
@@ -245,21 +245,21 @@ def plot_trades(engine):
 
         prev_idx = idx
 
-    # overlay fast
-    fplt.plot(fast_df['long_enabled'], color=gray, width=2, ax=ax)
-    fplt.plot(fast_df['short_enabled'], color=gray, width=2, ax=ax)
-    fplt.plot(fast_df['disabled'], color=gray, width=2, ax=ax)
-
     # overlay slow
     # fplt.plot(slow_df['long_enabled'], color=dark_blue, width=2, ax=ax)
     # fplt.plot(slow_df['short_enabled'], color=dark_aqua, width=2, ax=ax)
     # fplt.plot(slow_df['disabled'], color=gray, width=2, ax=ax)
 
+    # overlay fast
+    fplt.plot(fast_df['long_enabled'], color=gray, width=2, ax=ax)
+    fplt.plot(fast_df['short_enabled'], color=gray, width=2, ax=ax)
+    fplt.plot(fast_df['disabled'], color=gray, width=2, ax=ax)
+
     fplt.show()
 
-def print_tv_trades(engine):
+def print_trades(engine):
     for trade in engine.trades:
-        trade.print_tv()
+        print(trade)
 
 def print_metrics(engine):
 
