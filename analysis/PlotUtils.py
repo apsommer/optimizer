@@ -265,12 +265,6 @@ def print_tv_trades(engine):
         print(f'\ntrade: {i + 1}')
         trade.print_tv()
 
-def format_timestamp(idx):
-    return idx.strftime('%b %d, %Y, %H:%M')
-
-def format_price(price):
-    return '\t' + str(round(price))
-
 def print_metrics(engine):
 
     for metric in engine.metrics:
