@@ -4,7 +4,6 @@ import pandas as pd
 import local.api_keys as keys
 import numpy as np
 
-
 def getOhlc(
     csv_filename = None,
     symbol = "NQ.v.0",

@@ -1,3 +1,5 @@
+from time import strftime
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -257,15 +259,17 @@ def plot_trades(engine):
 
     fplt.show()
 
-def print_trades(engine):
-
+def print_tv_trades(engine):
     trades = engine.trades
     for i, trade in enumerate(trades):
-        print()
-        print(f'trade: {i+1}')
-        if trade.exit_order is None: print('open')
-        else: print(f'exit_idx: {trade.exit_order.idx}, price: {trade.exit_order.price}')
-        print(f'entry_idx: {trade.entry_order.idx}, price: {trade.entry_order.price}')
+        print(f'\ntrade: {i + 1}')
+        trade.print_tv()
+
+def format_timestamp(idx):
+    return idx.strftime('%b %d, %Y, %H:%M')
+
+def format_price(price):
+    return '\t' + str(round(price))
 
 def print_metrics(engine):
 

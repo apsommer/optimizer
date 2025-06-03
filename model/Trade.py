@@ -40,5 +40,10 @@ class Trade:
 
         return profit
 
+    def print_tv(self):
+        if self.exit_order is None: print('open')
+        else: self.exit_order.print_tv()
+        self.entry_order.print_tv()
+
     def __repr__(self):
         return f'\nside: {self.side}\nsize: {self.size}\nentry_order: {self.entry_order}\nexit_order: {self.exit_order}'
