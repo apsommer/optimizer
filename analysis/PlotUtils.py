@@ -10,37 +10,54 @@ import pyqtgraph as pg
 
 def plot_equity(engine):
 
-    # size
-    plt.rcParams['figure.figsize'] = [24, 12]
+    # maximize window
+    fplt.winx = 0
+    fplt.winy = 0
+    fplt.winw = 3840
+    fplt.winh = 2160
 
-    # font color
-    color = 'white'
-    font = {'family': 'Ubuntu', 'size': 18}
-    matplotlib.rc('font', **font)
-    matplotlib.rcParams['text.color'] = color
-    matplotlib.rcParams['axes.labelcolor'] = color
-    matplotlib.rcParams['xtick.color'] = color
-    matplotlib.rcParams['ytick.color'] = color
+    # colors
+    white = 'white'
+    light_gray = '#262626'
+    dark_gray = '#1a1a1a'
+    dark_black = '#141414'
+    dark_blue = '#00165e'
+    dark_aqua = '#00585e'
+    gray = '#383838'
 
-    fig = plt.figure()
-    ax = plt.gca()
+    fplt.background = dark_black
+    fplt.candle_bull_color = light_gray
+    fplt.candle_bull_body_color = light_gray
+    fplt.candle_bear_color = dark_gray
+    fplt.candle_bear_body_color = dark_gray
+    fplt.cross_hair_color = white
 
-    # background color
-    fig.patch.set_facecolor('#0D0B1A')  # outside grid
-    ax.patch.set_facecolor('#131026')  # inside grid
+    # init finplot
+    ax = fplt.create_plot(title='Equity')
 
-    # x-axis, strftime() does not support single digit days, months ... everything "zero-padded"
-    ax.xaxis.set_major_formatter(
-        mdates.DateFormatter('%d/%b  %H:%M'))
+    # axis
+    axis_pen = fplt._makepen(color='grey')
+    ax.axes['right']['item'].setPen(axis_pen)
+    ax.axes['right']['item'].setTextPen(axis_pen)
+    ax.axes['right']['item'].setTickPen(None)
+    ax.axes['bottom']['item'].setPen(axis_pen)
+    ax.axes['bottom']['item'].setTextPen(axis_pen)
+    ax.axes['bottom']['item'].setTickPen(None)
 
-    plt.xticks(rotation=90)
+    # crosshair
+    ax.crosshair.vline.setPen(axis_pen)
+    ax.crosshair.hline.setPen(axis_pen)
 
-    # grid
-    plt.tick_params(tick1On=False)
-    plt.tick_params(tick2On=False)
-    plt.grid(color='#1D193B', linewidth=0.5)
+    # buy and hold reference
+    size = engine.strategy.size
+    point_value = engine.strategy.ticker.point_value
+    delta_df = engine.data.Close - engine.data.Close.iloc[0]
+    initial_cash = engine.initial_cash
+    buy_hold = size * point_value * delta_df + initial_cash
 
-    # split cash balance into profit and loss
+    fplt.plot(buy_hold, color=white, ax=ax)
+
+    # split balance into positive and negative
     cash_series = engine.cash_series
     pos, neg = [], []
 
@@ -68,29 +85,19 @@ def plot_equity(engine):
     neg_df.index = cash_series.index
 
     # add series
-    plt.plot(pos_df, color = 'green')
-    plt.plot(neg_df, color = 'red')
+    fplt.plot(pos_df, color = 'green', ax=ax)
+    fplt.plot(neg_df, color = 'red', ax=ax)
 
     # initial cash
     initial_cash_df = pd.DataFrame(
         data = { 'initial_cash': engine.initial_cash},
         index = cash_series.index)
-    plt.plot(initial_cash_df, color = 'black')
-
-    # buy and hold reference
-    buy_hold = (engine.data.Close - engine.data.Open.iloc[0]) * engine.strategy.ticker.point_value + engine.initial_cash
-    plt.plot(buy_hold,  color = '#3C3C3C')
-
-    plt.autoscale(axis='y')
-
-    # show
-    plt.tight_layout()
-    plt.show(block=False)
+    fplt.plot(initial_cash_df, color = 'black', ax=ax)
 
 def plot_strategy(engine):
 
     # maximize window
-    fplt.winx = 0
+    fplt.winx = 3840
     fplt.winy = 0
     fplt.winw = 3840
     fplt.winh = 2160
@@ -112,7 +119,7 @@ def plot_strategy(engine):
     fplt.cross_hair_color = white
 
     # init finplot
-    ax = fplt.create_plot()
+    ax = fplt.create_plot(title='Strategy')
 
     # axis
     axis_pen = fplt._makepen(color='grey')
@@ -257,7 +264,13 @@ def plot_strategy(engine):
 
     fplt.show()
 
+
+
+
+
+
 def print_trades(engine):
+
     for trade in engine.trades:
         print(trade)
 
