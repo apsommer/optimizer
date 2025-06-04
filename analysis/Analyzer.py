@@ -21,15 +21,14 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # init
 params = LiveParams(
     fastMinutes = 25,
-    disableEntryMinutes = 120,
-    fastMomentumMinutes = 75,
-    fastCrossoverPercent = 50,
-    takeProfitPercent = 0.5,
+    disableEntryMinutes = 105,
+    fastMomentumMinutes = 135,
+    fastCrossoverPercent = 0,
+    takeProfitPercent = 0.35,
     fastAngleFactor = 15,
     slowMinutes = 2355,
     slowAngleFactor = 20,
-    coolOffMinutes = 5,
-    positionEntryMinutes = 1)
+    coolOffMinutes = 5)
 strategy = LiveStrategy(data, params)
 engine = Engine(strategy)
 # engine = load_engine(0, 'output', strategy)

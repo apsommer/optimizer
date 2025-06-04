@@ -43,8 +43,9 @@ class LiveStrategy(BaselineStrategy):
         self.takeProfit = takeProfitPercent / 100.0
 
         # calculate fast crossover
-        if self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0
-        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit
+        if fastCrossoverPercent == 0: self.fastCrossover = np.nan # off, tp only
+        elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # tp off, fc only
+        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
         # calculate raw averages
         self.rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
@@ -72,9 +73,9 @@ class LiveStrategy(BaselineStrategy):
         bar_index = self.bar_index
 
         # todo tradingview limitation ~20k bars
-        # tv_start = pd.Timestamp('2025-05-13T12:30:00', tz='America/Chicago')
-        # if tv_start > idx:
-        #     return
+        tv_start = pd.Timestamp('2025-05-13T12:30:00', tz='America/Chicago')
+        if tv_start > idx:
+            return
 
         # params
         fastAngle = self.fastAngle
