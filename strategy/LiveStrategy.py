@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from strategy.BaselineStrategy import BaselineStrategy
 from model.Ticker import Ticker
-from strategy.LiveUtils import get_slope
 
 class LiveStrategy(BaselineStrategy):
 
@@ -224,3 +223,15 @@ class LiveStrategy(BaselineStrategy):
         if isExitShort:
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size)
+
+def get_slope(series):
+
+    slope = pd.Series(index=series.index)
+    prev = series.iloc[0]
+
+    for idx, value in series.items():
+        if idx == series.index[0]: continue
+        slope[idx] = ((value - prev) / prev) * 100
+        prev = value
+
+    return np.rad2deg(np.atan(slope))
