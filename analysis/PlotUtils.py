@@ -55,7 +55,7 @@ def plot_equity(engine):
     initial_cash = engine.initial_cash
     buy_hold = size * point_value * delta_df + initial_cash
 
-    fplt.plot(buy_hold, color=white, ax=ax)
+    fplt.plot(buy_hold, color=light_gray, width=2, ax=ax)
 
     # split balance into positive and negative
     cash_series = engine.cash_series
@@ -264,14 +264,17 @@ def plot_strategy(engine):
 
     fplt.show()
 
-
-
-
-
-
 def print_trades(engine):
 
-    for trade in engine.trades:
+    trades = engine.trades
+
+    # header
+    print('\nTrades:')
+    print('\t\t\t\t\tclose\tprofit')
+    if len(trades) > 3:
+        print('\t...')
+
+    for trade in trades[-3:]:
         print(trade)
 
 def print_metrics(engine):
