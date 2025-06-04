@@ -34,7 +34,6 @@ class LiveStrategy(BaselineStrategy):
         self.disableEntryMinutes = params.disableEntryMinutes
         self.fastMomentumMinutes = params.fastMomentumMinutes
         self.coolOffMinutes = params.coolOffMinutes
-        self.positionEntryMinutes = params.positionEntryMinutes
 
         # convert units
         self.fastAngle = fastAngleFactor / 1000.0
