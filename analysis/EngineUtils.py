@@ -101,13 +101,18 @@ def analyze_config(engine):
 def analyze_perf(engine):
 
     days = (engine.data.index[-1] - engine.data.index[0]).days
-    num_trades = len(engine.trades)
+
+    if engine.trades[-1].is_open: num_trades = len(engine.trades) - 1
+    else: num_trades = len(engine.trades)
+
     profit = engine.cash - engine.initial_cash
+
     total_return = (abs(engine.cash - engine.initial_cash) / engine.initial_cash) * 100
     if engine.initial_cash > engine.cash: total_return = -total_return
 
     if 0 > engine.cash: annualized_return = np.nan
     else: annualized_return = ((engine.cash / engine.initial_cash) ** (1 / (days / 365)) - 1) * 100
+
     trades_per_day = num_trades / days
 
     return [
