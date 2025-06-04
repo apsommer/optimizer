@@ -266,15 +266,16 @@ def plot_strategy(engine):
 
 def print_trades(engine):
 
+    show_last = 3
     trades = engine.trades
 
     # header
     print('\nTrades:')
     print('\t\t\t\t\tclose\tprofit')
-    if len(trades) > 3:
+    if len(trades) > show_last:
         print('\t...')
 
-    for trade in trades[-3:]:
+    for trade in trades[-show_last:]:
         print(trade)
 
 def print_metrics(engine):

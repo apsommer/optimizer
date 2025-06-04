@@ -8,7 +8,11 @@ class Order:
         self.price = price
 
     def __repr__(self):
+
+        sentiment = self.sentiment
+        if sentiment == 'flat': sentiment = ''
+
         return (
-            self.sentiment + '\t' +
+            sentiment + '\t' +
             self.idx.strftime('%b %d, %Y, %H:%M') + '\t' +
             str(round(self.price)))
