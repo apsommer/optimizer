@@ -91,7 +91,7 @@ class Engine:
     ''' serialize '''
     def save(self, dir='output'):
 
-        slim_engine = {
+        slim = {
             'id': self.id,
             'params': self.strategy.params,
             'metrics': self.metrics
@@ -107,4 +107,4 @@ class Engine:
         path_filename = dir + '/' + filename
         filehandler = open(path_filename, 'wb')
 
-        pickle.dump(slim_engine, filehandler)
+        pickle.dump(slim, filehandler)

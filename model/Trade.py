@@ -33,17 +33,21 @@ class Trade:
         size = self.size
         point_value = self.entry_order.ticker.point_value
 
+        side = self.side
         entry_price = self.entry_order.price
         exit_price = self.exit_order.price
 
-        return size * point_value * abs(exit_price - entry_price)
+        if side == 'long': profit = size * point_value * (exit_price - entry_price)
+        else: profit = size * point_value * (entry_price - exit_price)
+
+        return profit
 
     def __repr__(self):
 
         if self.exit_order is None:
             exit_line = '\n\t' + str(self.id) + ' (open)'
         else:
-            exit_line = '\n\t' + str(self.id) + str(self.exit_order) + '\t' + str(round(self.profit))
+            exit_line = '\n\t' + str(self.id) + '\t' + str(self.exit_order) + '\t' + str(round(self.profit))
 
         entry_line = '\n\t' + str(self.entry_order)
 

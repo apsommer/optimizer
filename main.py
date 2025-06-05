@@ -2,8 +2,12 @@ import os
 import time
 
 from analysis.Analyzer import Analyzer
+from analysis.Engine import Engine
+from analysis.EngineUtils import load_engine
+from analysis.PlotUtils import *
 from data import DataUtils as repo
 from strategy.LiveParams import LiveParams
+from strategy.LiveStrategy import LiveStrategy
 
 os.system('clear')
 start_time = time.time()
@@ -32,15 +36,23 @@ analyzer =Analyzer(
     data = data,
     params = params)
 
-analyzer.run()
+# analyzer.run()
 analyzer.analyze()
+
+# rebuild engine of interest
+slim = load_engine(6)
+print(f'id: {slim['id']}')
+strategy = LiveStrategy(
+    data = data,
+    params = slim['params'])
+engine = Engine(0, strategy)
+engine.run()
+
+print_metrics(engine)
+print_trades(engine)
+
+plot_equity(engine)
+plot_strategy(engine)
 
 end_time = time.time()
 print(f'Elapsed time: {round(end_time - start_time)} seconds')
-
-# plot results
-# print_metrics(engine.metrics)
-# print_trades(engine)
-#
-# plot_equity(engine)
-# plot_strategy(engine)

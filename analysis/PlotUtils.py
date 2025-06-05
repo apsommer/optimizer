@@ -278,9 +278,9 @@ def print_trades(engine):
     for trade in trades[-show_last:]:
         print(trade)
 
-def print_metrics(metrics):
+def print_metrics(engine):
 
-    for metric in metrics:
+    for metric in engine.metrics:
 
         title = metric.title
         value = metric.value
