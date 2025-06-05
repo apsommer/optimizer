@@ -1,4 +1,6 @@
 import os
+from random import randint
+
 from tqdm import tqdm
 from model.Trade import Trade
 from EngineUtils import *
@@ -6,8 +8,9 @@ import pandas as pd
 
 class Engine:
 
-    def __init__(self, strategy):
+    def __init__(self, id, strategy):
 
+        self.id = id
         self.data = strategy.data
         self.strategy = strategy
         self.current_idx = -1
@@ -87,22 +90,24 @@ class Engine:
             self.metrics[metric.name] = metric
 
     ''' serialize '''
-    def save(self, id, name):
+    def save(self,
+        id=0,
+        dir_name='output'):
 
-        # todo reduce this to just metrics and strategy_params
         slim_engine = {
-            'metrics': self.metrics,
-            'params': self.strategy.params
+            'id': self.id,
+            'params': self.strategy.params,
+            'metrics': self.metrics
         }
 
         # make directory, if needed
-        if not os.path.exists(name):
-            os.mkdir(name)
+        if not os.path.exists(dir_name):
+            os.mkdir(dir_name)
 
         # create new binary
         # formatted_time = time.strftime('%Y%m%d_%H%M%S')
         filename = 'e' + str(id) + '.bin'
-        path_filename = name + '/' + filename
+        path_filename = dir_name + '/' + filename
         filehandler = open(path_filename, 'wb')
 
         pickle.dump(slim_engine, filehandler)

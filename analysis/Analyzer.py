@@ -34,23 +34,22 @@ params = LiveParams(
     coolOffMinutes = 5)
 
 id = 0
-for i, fastMomentumMinutes in enumerate(_fastMomentumMinutes):
-    for j, takeProfitPercent in enumerate(_takeProfitPercent):
-        for k, slowMinutes in enumerate(_slowMinutes):
+for fastMomentumMinutes in _fastMomentumMinutes:
+    for takeProfitPercent in _takeProfitPercent:
+        for slowMinutes in _slowMinutes:
 
             # update params
             params.fastMomentumMinutes = fastMomentumMinutes
             params.takeProfitPercent = takeProfitPercent
             params.slowMinutes = slowMinutes
 
-            # create strategy, engine
+            # create strategy and engine
             strategy = LiveStrategy(data, params)
-            engine = Engine(strategy)
+            engine = Engine(id=id, strategy=strategy)
 
             # run and save
-            print(id)
             engine.run()
-            engine.save(id, 'output')
+            engine.save()
             id += 1
 
 ########################################################################
