@@ -124,19 +124,9 @@ def analyze_perf(engine):
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
 
 ''' deserialize '''
-def load_engine(id, name, strategy):
+def load_engine(id, dir='output'):
 
     filename = 'e' + str(id) + '.bin'
-    path_filename = name + '/' + filename
+    path_filename = dir + '/' + filename
     filehandler = open(path_filename, 'rb')
-    slim_engine = pickle.load(filehandler)
-
-    # todo engine strategy_params ... minimize size of .bin
-    engine = Engine(strategy)
-    engine.trades = slim_engine['trades']
-    engine.cash_series = pd.Series(
-        data = slim_engine['cash_series'],
-        index = strategy.data.index)
-    engine.metrics = slim_engine['metrics']
-
-    return engine
+    return pickle.load(filehandler)

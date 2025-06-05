@@ -90,9 +90,7 @@ class Engine:
             self.metrics[metric.name] = metric
 
     ''' serialize '''
-    def save(self,
-        id=0,
-        dir_name='output'):
+    def save(self, dir='output'):
 
         slim_engine = {
             'id': self.id,
@@ -101,13 +99,13 @@ class Engine:
         }
 
         # make directory, if needed
-        if not os.path.exists(dir_name):
-            os.mkdir(dir_name)
+        if not os.path.exists(dir):
+            os.mkdir(dir)
 
         # create new binary
         # formatted_time = time.strftime('%Y%m%d_%H%M%S')
-        filename = 'e' + str(id) + '.bin'
-        path_filename = dir_name + '/' + filename
+        filename = 'e' + str(self.id) + '.bin'
+        path_filename = dir + '/' + filename
         filehandler = open(path_filename, 'wb')
 
         pickle.dump(slim_engine, filehandler)

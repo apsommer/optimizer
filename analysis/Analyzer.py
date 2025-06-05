@@ -38,6 +38,9 @@ for fastMomentumMinutes in _fastMomentumMinutes:
     for takeProfitPercent in _takeProfitPercent:
         for slowMinutes in _slowMinutes:
 
+            # todo temp
+            if id > 2: break
+
             # update params
             params.fastMomentumMinutes = fastMomentumMinutes
             params.takeProfitPercent = takeProfitPercent
@@ -52,12 +55,20 @@ for fastMomentumMinutes in _fastMomentumMinutes:
             engine.save()
             id += 1
 
+for id in np.arange(0, 3, 1):
+
+    slim_engine = load_engine(id=id)
+    print(f'Engine: {slim_engine['id']}')
+    print_metrics(slim_engine['metrics'])
+    print(f'Profit: {slim_engine['metrics']['profit'].value}')
+
+
 ########################################################################
 end_time = time.time()
 print(f'Elapsed time: {round(end_time - start_time)} seconds')
 
 # plot results
-print_metrics(engine)
+print_metrics(engine.metrics)
 print_trades(engine)
 
 plot_equity(engine)
