@@ -1,9 +1,7 @@
 import os
-from random import randint
-
 from tqdm import tqdm
+from analysis.EngineUtils import *
 from model.Trade import Trade
-from EngineUtils import *
 import pandas as pd
 
 class Engine:
@@ -85,6 +83,7 @@ class Engine:
             analyze_max_drawdown(self) +
             analyze_expectancy(self))
 
+        # todo simplify self.metrics = metrics?
         # persist as dict
         for metric in metrics:
             self.metrics[metric.name] = metric
