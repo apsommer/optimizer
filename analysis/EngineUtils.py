@@ -1,5 +1,5 @@
 import pickle
-import numpy as np
+import numpy as n
 from model.Metric import Metric
 
 def analyze_profit_factor(engine):

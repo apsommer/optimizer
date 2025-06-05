@@ -33,6 +33,7 @@ analyzer =Analyzer(
     params = params)
 
 analyzer.run()
+analyzer.analyze()
 
 end_time = time.time()
 print(f'Elapsed time: {round(end_time - start_time)} seconds')

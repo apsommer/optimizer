@@ -1,5 +1,8 @@
 import os
 
+import pandas as pd
+from fontTools.misc.psOperators import ps_integer
+
 from analysis.Engine import Engine
 from analysis.EngineUtils import load_engine
 from strategy.LiveStrategy import *
@@ -18,9 +21,9 @@ class Analyzer:
         params = self.params
 
         # todo move?
-        _fastMomentumMinutes = np.arange(55, 95, 5)  # np.arange(55, 140, 5)
-        _takeProfitPercent = np.arange(0.25, 0.55, 0.05)  # np.arange(0.25, 0.80, .05)
-        _slowMinutes = np.arange(1555, 1855, 100)  # np.arange(1555, 2655, 100)
+        _fastMomentumMinutes = np.arange(55, 140, 5)
+        _takeProfitPercent = np.arange(0.25, 0.80, .05)
+        _slowMinutes = np.arange(1555, 2655, 100)
 
         id = 0
         for fastMomentumMinutes in _fastMomentumMinutes:
@@ -28,7 +31,7 @@ class Analyzer:
                 for slowMinutes in _slowMinutes:
 
                     # todo temp
-                    if id > 2: break
+                    if id > 9: break
 
                     # update params
                     params.fastMomentumMinutes = fastMomentumMinutes
@@ -50,17 +53,55 @@ class Analyzer:
 
         #
         num_engines = len(os.listdir(dir))
-        ids = np.arange(0, num_engines-1, 1)
+        ids = np.arange(0, num_engines, 1)
+
+        columns = [
+            'profit',
+            'max_drawdown',
+            'profit_factor',
+            'drawdown_per_profit',
+            'expectancy',
+            'trades_per_day']
+
+        slims = pd.DataFrame(
+            index=ids,
+            columns=columns)
 
         for id in ids:
 
-            slim_engine = load_engine(id=id)
-            print(f'Engine: {slim_engine['id']}')
-            print(f'Profit: {slim_engine['metrics']['profit'].value}')
+            slim = load_engine(id=id)
 
-            # # maximum
-            # max_profit = np.max()
-            #
-            # metrics = [
-            #     Metric('win_rate', win_rate, '%', 'Win rate')]
+            slims.loc[id, 'profit'] = slim['metrics']['profit'].value
+            slims.loc[id, 'max_drawdown'] = slim['metrics']['max_drawdown'].value
+            slims.loc[id, 'profit_factor'] = slim['metrics']['profit_factor'].value
+            slims.loc[id, 'drawdown_per_profit'] = slim['metrics']['drawdown_per_profit'].value
+            slims.loc[id, 'expectancy'] = slim['metrics']['expectancy'].value
+            slims.loc[id, 'trades_per_day'] = slim['metrics']['trades_per_day'].value
 
+        print()
+
+        max_profit = np.max(slims.profit)
+        idx = slims[slims.profit == max_profit].index.values[0]
+        print(f'max_profit: {round(max_profit)}, e{idx}')
+
+        min_drawdown = np.min(slims.max_drawdown)
+        idx = slims[slims.max_drawdown == min_drawdown].index.values[0]
+        print(f'min_drawdown: {round(min_drawdown)}, e{idx}')
+
+        max_pf = np.max(slims.profit_factor)
+        idx = slims[slims.profit_factor == max_pf].index.values[0]
+        print(f'max_pf: {max_pf}, e{idx}')
+
+        min_dpp = np.min(slims.drawdown_per_profit)
+        idx = slims[slims.drawdown_per_profit == min_dpp].index.values[0]
+        print(f'min_dpp: {round(min_dpp)}, e{idx}')
+
+        max_expectancy = np.max(slims.expectancy)
+        idx = slims[slims.expectancy == max_expectancy].index.values[0]
+        print(f'max_expectancy: {round(max_expectancy, 2)}, e{idx}')
+
+        min_trades_per_day = np.min(slims.trades_per_day)
+        idx = slims[slims.trades_per_day == min_trades_per_day].index.values[0]
+        print(f'min_trades_per_days: {round(min_trades_per_day, 2)}, e{idx}')
+
+        print()
