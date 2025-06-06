@@ -17,16 +17,14 @@ csv_filename = 'data/nq_1mon.csv' # 1 month
 data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
-analyzer = Analyzer(data, 'mnq')
+analyzer = Analyzer(data, 'MNQ')
 analyzer.run()
 analyzer.print_metrics()
 
 # todo hunt for best engine
 
 # rebuild engine of interest
-engine = analyzer.rebuild(
-    id = 6,
-    data = data)
+engine = analyzer.rebuild(6)
 
 # print engine metrics
 engine.print_metrics()

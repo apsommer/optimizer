@@ -121,8 +121,9 @@ class Analyzer:
 
         print()
 
-    def rebuild(self, id, data):
+    def rebuild(self, id):
 
+        data = self.data
         slim = self.load_engine(id)
 
         strategy = LiveStrategy(
