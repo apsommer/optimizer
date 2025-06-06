@@ -2,30 +2,40 @@ import os
 
 from analysis.Engine import Engine
 from analysis.EngineUtils import load_engine
+from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, data, params):
+    def __init__(self, data):
 
         self.data = data
-        self.params = params
         self.metrics = None
+
+        self.params = LiveParams(
+            fastMinutes = 25,
+            disableEntryMinutes = 105,
+            fastMomentumMinutes = None,
+            fastCrossoverPercent = 0,
+            takeProfitPercent = None,
+            fastAngleFactor = 15,
+            slowMinutes = None,
+            slowAngleFactor = 20,
+            coolOffMinutes = 5)
+
+        self.fastMomentumMinutes = np.arange(55, 140, 5)
+        self.takeProfitPercent = np.arange(0.25, 0.80, .05)
+        self.slowMinutes = np.arange(1555, 2655, 100)
 
     def run(self):
 
         data = self.data
         params = self.params
 
-        # todo move?
-        _fastMomentumMinutes = np.arange(55, 140, 5)
-        _takeProfitPercent = np.arange(0.25, 0.80, .05)
-        _slowMinutes = np.arange(1555, 2655, 100)
-
         id = 0
-        for fastMomentumMinutes in _fastMomentumMinutes:
-            for takeProfitPercent in _takeProfitPercent:
-                for slowMinutes in _slowMinutes:
+        for fastMomentumMinutes in self.fastMomentumMinutes:
+            for takeProfitPercent in self.takeProfitPercent:
+                for slowMinutes in self.slowMinutes:
 
                     # todo temp
                     if id > 9: break
