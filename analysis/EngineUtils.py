@@ -1,5 +1,4 @@
 import pickle
-import numpy as n
 from model.Metric import Metric
 
 def analyze_profit_factor(engine):
@@ -122,9 +121,9 @@ def analyze_perf(engine):
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
 
 ''' deserialize '''
-def load_engine(id, dir='output'):
+def load_engine(id, path='output'):
 
     filename = 'e' + str(id) + '.bin'
-    path_filename = dir + '/' + filename
+    path_filename = path + '/' + filename
     filehandler = open(path_filename, 'rb')
     return pickle.load(filehandler)
