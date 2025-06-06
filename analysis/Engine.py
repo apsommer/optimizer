@@ -88,6 +88,47 @@ class Engine:
         for metric in metrics:
             self.metrics[metric.name] = metric
 
+    def print_trades(self):
+
+        show_last = 3
+        trades = self.trades
+
+        # header
+        print('\nTrades:')
+        print('\t\t\t\t\tclose\tprofit')
+        if len(trades) > show_last:
+            print('\t...')
+
+        for trade in trades[-show_last:]:
+            print(trade)
+
+    def print_metrics(self):
+
+        for metric in self.metrics:
+
+            title = metric.title
+            value = metric.value
+            formatter = metric.formatter
+            unit = metric.unit
+
+            # header
+            if value is None:
+                print('\n' + title)
+                continue
+
+            if unit is None and formatter is None:
+                print("\t{}: {}".format(title, value))
+                continue
+
+            rounded_value = format(value, '.0f')
+            if formatter is not None: rounded_value = format(value, formatter)
+
+            if unit is None:
+                print("\t{}: {}".format(title, rounded_value))
+                continue
+
+            print("\t{}: {} [{}]".format(title, rounded_value, unit))
+
     ''' serialize '''
     def save(self, path='output'):
 

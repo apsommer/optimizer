@@ -43,12 +43,11 @@ engine = analyzer.rebuild(
     id = 6,
     data = data)
 
-# todo
-# engine.print_metrics()
-# engine.print_trades()
-print_metrics(engine)
-print_trades(engine)
+# print engine metrics
+engine.print_metrics()
+engine.print_trades()
 
+# plot strategy and equity
 plot_equity(engine)
 plot_strategy(engine)
 
