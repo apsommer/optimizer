@@ -102,3 +102,16 @@ class Analyzer:
         print(f'min_trades_per_days: {round(min_trades_per_day, 2)}, e{idx}')
 
         print()
+
+    def rebuild(self, id, data):
+
+        slim = load_engine(id)
+
+        strategy = LiveStrategy(
+            data=data,
+            params=slim['params'])
+
+        engine = Engine(id, strategy)
+        engine.run()
+
+        return engine

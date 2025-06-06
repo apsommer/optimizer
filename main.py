@@ -32,21 +32,16 @@ params = LiveParams(
     slowAngleFactor = 20,
     coolOffMinutes = 5)
 
-analyzer =Analyzer(
+analyzer = Analyzer(
     data = data,
     params = params)
 
 # analyzer.run()
 analyzer.analyze()
 
-# rebuild engine of interest
-slim = load_engine(6)
-print(f'id: {slim['id']}')
-strategy = LiveStrategy(
-    data = data,
-    params = slim['params'])
-engine = Engine(0, strategy)
-engine.run()
+engine = analyzer.rebuild(
+    id = 6,
+    data = data)
 
 # todo
 # engine.print_metrics()
