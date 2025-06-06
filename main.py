@@ -48,6 +48,9 @@ strategy = LiveStrategy(
 engine = Engine(0, strategy)
 engine.run()
 
+# todo
+# engine.print_metrics()
+# engine.print_trades()
 print_metrics(engine)
 print_trades(engine)
 

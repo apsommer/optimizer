@@ -1,8 +1,5 @@
 import os
 
-import pandas as pd
-from fontTools.misc.psOperators import ps_integer
-
 from analysis.Engine import Engine
 from analysis.EngineUtils import load_engine
 from strategy.LiveStrategy import *
@@ -49,10 +46,10 @@ class Analyzer:
 
         self.analyze()
 
-    def analyze(self, dir='output'):
+    def analyze(self, path='output'):
 
-        #
-        num_engines = len(os.listdir(dir))
+        # get num of files in dir
+        num_engines = len(os.listdir(path))
         ids = np.arange(0, num_engines, 1)
 
         columns = [
