@@ -78,6 +78,7 @@ def analyze_max_drawdown(engine):
 
 def analyze_config(engine):
 
+    id = engine.id
     start_date = engine.data.index[0]
     end_date = engine.data.index[-1]
     days = (engine.data.index[-1] - engine.data.index[0]).days
@@ -88,6 +89,7 @@ def analyze_config(engine):
 
     return [
         Metric('config_header', None, None, 'Config:'),
+        Metric('id', id, None, 'id:'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
