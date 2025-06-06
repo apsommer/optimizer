@@ -1,15 +1,17 @@
 import os
+import pickle
 
 from analysis.Engine import Engine
-from analysis.EngineUtils import load_engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, data):
+    def __init__(self, data, path):
 
         self.data = data
+        self.path = path
+        self.slims = None
         self.metrics = None
 
         self.params = LiveParams(
@@ -51,15 +53,15 @@ class Analyzer:
 
                     # run and save
                     engine.run()
-                    engine.save()
+                    engine.save(self.path)
                     id += 1
 
         self.analyze()
 
-    def analyze(self, path='output'):
+    def analyze(self):
 
         # get num of files in dir
-        num_engines = len(os.listdir(path))
+        num_engines = len(os.listdir(self.path))
         ids = np.arange(0, num_engines, 1)
 
         columns = [
@@ -76,7 +78,7 @@ class Analyzer:
 
         for id in ids:
 
-            slim = load_engine(id=id)
+            slim = self.load_engine(id)
 
             slims.loc[id, 'profit'] = slim['metrics']['profit'].value
             slims.loc[id, 'max_drawdown'] = slim['metrics']['max_drawdown'].value
@@ -84,6 +86,12 @@ class Analyzer:
             slims.loc[id, 'drawdown_per_profit'] = slim['metrics']['drawdown_per_profit'].value
             slims.loc[id, 'expectancy'] = slim['metrics']['expectancy'].value
             slims.loc[id, 'trades_per_day'] = slim['metrics']['trades_per_day'].value
+
+        self.slims = slims
+
+    def print_metrics(self):
+
+        slims = self.slims
 
         print()
 
@@ -115,7 +123,7 @@ class Analyzer:
 
     def rebuild(self, id, data):
 
-        slim = load_engine(id)
+        slim = self.load_engine(id)
 
         strategy = LiveStrategy(
             data=data,
@@ -125,3 +133,11 @@ class Analyzer:
         engine.run()
 
         return engine
+
+    ''' deserialize '''
+    def load_engine(self, id):
+
+        filename = 'e' + str(id) + '.bin'
+        path_filename = self.path + '/' + filename
+        filehandler = open(path_filename, 'rb')
+        return pickle.load(filehandler)

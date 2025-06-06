@@ -120,11 +120,3 @@ def analyze_perf(engine):
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
-
-''' deserialize '''
-def load_engine(id, path='output'):
-
-    filename = 'e' + str(id) + '.bin'
-    path_filename = path + '/' + filename
-    filehandler = open(path_filename, 'rb')
-    return pickle.load(filehandler)
