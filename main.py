@@ -18,13 +18,13 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
 analyzer = Analyzer(data, 'MNQ')
-analyzer.run()
-analyzer.print_metrics()
+# analyzer.run()
+# analyzer.print_metrics()
 
 # todo hunt for best engine
 
 # rebuild engine of interest
-engine = analyzer.rebuild(6)
+engine = analyzer.rebuild(7)
 
 # print engine metrics
 engine.print_metrics()
