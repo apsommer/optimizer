@@ -1,6 +1,5 @@
 class LiveParams:
-    def __init__(
-            self,
+    def __init__(self,
             fastMinutes,
             disableEntryMinutes,
             fastMomentumMinutes,
@@ -9,8 +8,7 @@ class LiveParams:
             fastAngleFactor,
             slowMinutes,
             slowAngleFactor,
-            coolOffMinutes = 5,
-            positionEntryMinutes = 1):
+            coolOffMinutes):
 
         self.fastMinutes = fastMinutes
         self.disableEntryMinutes = disableEntryMinutes
@@ -21,4 +19,3 @@ class LiveParams:
         self.slowMinutes = slowMinutes
         self.slowAngleFactor = slowAngleFactor
         self.coolOffMinutes = coolOffMinutes
-        self.positionEntryMinutes = positionEntryMinutes

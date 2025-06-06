@@ -1,7 +1,5 @@
 import pickle
 import numpy as np
-import pandas as pd
-from analysis.Engine import Engine
 from model.Metric import Metric
 
 def analyze_profit_factor(engine):
@@ -80,6 +78,7 @@ def analyze_max_drawdown(engine):
 
 def analyze_config(engine):
 
+    id = engine.id
     start_date = engine.data.index[0]
     end_date = engine.data.index[-1]
     days = (engine.data.index[-1] - engine.data.index[0]).days
@@ -90,6 +89,7 @@ def analyze_config(engine):
 
     return [
         Metric('config_header', None, None, 'Config:'),
+        Metric('id', id, None, 'id'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
@@ -101,13 +101,18 @@ def analyze_config(engine):
 def analyze_perf(engine):
 
     days = (engine.data.index[-1] - engine.data.index[0]).days
-    num_trades = len(engine.trades)
+
+    if engine.trades[-1].is_open: num_trades = len(engine.trades) - 1
+    else: num_trades = len(engine.trades)
+
     profit = engine.cash - engine.initial_cash
+
     total_return = (abs(engine.cash - engine.initial_cash) / engine.initial_cash) * 100
     if engine.initial_cash > engine.cash: total_return = -total_return
 
     if 0 > engine.cash: annualized_return = np.nan
     else: annualized_return = ((engine.cash / engine.initial_cash) ** (1 / (days / 365)) - 1) * 100
+
     trades_per_day = num_trades / days
 
     return [
@@ -117,21 +122,3 @@ def analyze_perf(engine):
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
-
-''' deserialize '''
-def load_engine(id, name, strategy):
-
-    filename = 'e' + str(id) + '.bin'
-    path_filename = name + '/' + filename
-    filehandler = open(path_filename, 'rb')
-    slim_engine = pickle.load(filehandler)
-
-    # todo engine strategy_params ... minimize size of .bin
-    engine = Engine(strategy)
-    engine.trades = slim_engine['trades']
-    engine.cash_series = pd.Series(
-        data = slim_engine['cash_series'],
-        index = strategy.data.index)
-    engine.metrics = slim_engine['metrics']
-
-    return engine
