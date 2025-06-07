@@ -21,6 +21,7 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 analyzer = Analyzer(data, 'wfa/MNQ')
 analyzer.run()
 print_metrics(analyzer.metrics)
+print()
 
 # todo hunt for best engine
 

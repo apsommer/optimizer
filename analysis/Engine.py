@@ -80,11 +80,11 @@ class Engine:
     def analyze(self):
 
         self.metrics = (
-            analyze_config(self) +
-            analyze_perf(self) +
-            analyze_profit_factor(self) +
-            analyze_max_drawdown(self) +
-            analyze_expectancy(self))
+            get_engine_metrics(self) +
+            get_perf_metrics(self) +
+            get_profit_factor_metrics(self) +
+            get_max_drawdown_metrics(self) +
+            get_expectancy_metrics(self))
 
     def print_trades(self):
 
@@ -114,9 +114,8 @@ class Engine:
             os.makedirs(path)
 
         # create new binary
-        # formatted_time = time.strftime('%Y%m%d_%H%M%S')
         filename = str(self.id) + '.bin'
         path_filename = path + '/' + filename
-        filehandler = open(path_filename, 'wb')
 
+        filehandler = open(path_filename, 'wb')
         pickle.dump(result, filehandler)

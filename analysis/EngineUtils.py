@@ -1,7 +1,7 @@
 import numpy as np
 from model.Metric import Metric
 
-def analyze_profit_factor(engine):
+def get_profit_factor_metrics(engine):
 
     # extract wins and losses
     trades = engine.trades
@@ -22,7 +22,7 @@ def analyze_profit_factor(engine):
         Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
         Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f') ]
 
-def analyze_expectancy(engine):
+def get_expectancy_metrics(engine):
 
     # extract wins and losses
     trades = engine.trades
@@ -60,7 +60,7 @@ def analyze_expectancy(engine):
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy')]
 
-def analyze_max_drawdown(engine):
+def get_max_drawdown_metrics(engine):
 
     prices = engine.cash_series
     profit = engine.cash - engine.initial_cash
@@ -75,7 +75,7 @@ def analyze_max_drawdown(engine):
         Metric('max_drawdown', max_drawdown, 'USD', 'Maximum drawdown'),
         Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage')]
 
-def analyze_config(engine):
+def get_engine_metrics(engine):
 
     id = engine.id
     start_date = engine.data.index[0]
@@ -97,7 +97,7 @@ def analyze_config(engine):
         Metric('size', size, None, 'Size'),
         Metric('initial_cash', initial_cash, 'USD', 'Initial cash')]
 
-def analyze_perf(engine):
+def get_perf_metrics(engine):
 
     days = (engine.data.index[-1] - engine.data.index[0]).days
 
@@ -121,6 +121,43 @@ def analyze_perf(engine):
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
+
+def get_analyzer_metrics(analyzer):
+    return [ Metric('config_header', None, None, 'Analyzer:') ]
+
+def get_max_metric(analyzer, name):
+
+    results = analyzer.results
+
+    # isolate metric of interest
+    _metrics = []
+    for metrics in results:
+        for metric in metrics:
+            if metric.name == name:
+                _metrics.append(metric)
+
+    max_metric = sorted(_metrics, key=lambda metric: metric.value, reverse=True)[0]
+    num = _metrics.index(max_metric)
+    max_metric.title = '[' + str(num) + '] (Max) ' + max_metric.title
+
+    return [max_metric]
+
+def get_min_metric(analyzer, name):
+
+    results = analyzer.results
+
+    # isolate metric of interest
+    _metrics = []
+    for metrics in results:
+        for metric in metrics:
+            if metric.name == name:
+                _metrics.append(metric)
+
+    min_metric = sorted(_metrics, key=lambda metric: metric.value, reverse=False)[0]
+    num = _metrics.index(min_metric)
+    min_metric.title = '[' + str(num) + '] (Min) ' + min_metric.title
+
+    return [ min_metric ]
 
 def print_metrics(metrics):
 

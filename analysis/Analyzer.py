@@ -2,9 +2,8 @@ import os
 import pickle
 
 import pandas as pd
-from numpy.ma.core import max_filler
-
 from analysis.Engine import Engine
+from analysis.EngineUtils import *
 from model.Metric import Metric
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
@@ -76,14 +75,14 @@ class Analyzer:
             self.results.append(metrics)
 
         self.metrics = (
-            analyze_config(self) +
-            analyze_metric(self, 'profit', 'max') +
-            analyze_metric(self, 'expectancy', 'max') +
-            analyze_metric(self, 'win_rate', 'max') +
-            analyze_metric(self, 'average_win', 'max') +
-            analyze_metric(self, 'average_loss', 'min') +
-            analyze_metric(self, 'max_drawdown', 'min') +
-            analyze_metric(self, 'drawdown_per_profit', 'min'))
+            get_analyzer_metrics(self) +
+            get_max_metric(self, 'profit') +
+            get_max_metric(self, 'expectancy') +
+            get_max_metric(self, 'win_rate') +
+            get_max_metric(self, 'average_win') +
+            get_min_metric(self, 'average_loss') +
+            get_min_metric(self, 'max_drawdown') +
+            get_min_metric(self, 'drawdown_per_profit'))
 
     def rebuild_engine(self, id):
 
@@ -110,31 +109,3 @@ class Analyzer:
         except FileNotFoundError:
             print(f'\n{path_filename} not found')
             exit()
-
-def analyze_config(analyzer):
-    return [ Metric('config_header', None, None, 'Analyzer:') ]
-
-def analyze_metric(analyzer, name, minOrMax):
-
-    results = analyzer.results
-
-    # isolate metric of interest
-    _metrics = []
-    for metrics in results:
-        for metric in metrics:
-            if metric.name == name:
-                _metrics.append(metric)
-
-    # get max, or min
-    if minOrMax == 'max':
-
-        max = sorted(_metrics, key=lambda metric: metric.value, reverse=True)[0]
-        num = _metrics.index(max)
-        max.title = '[' + str(num) + '] (Max) ' + max.title
-        return [ max ]
-
-    elif minOrMax == 'min':
-        min = sorted(_metrics, key=lambda metric: metric.value, reverse=False)[0]
-        num = _metrics.index(min)
-        min.title = '[' + str(num) + '] (Min) ' + min.title
-        return [ min ]
