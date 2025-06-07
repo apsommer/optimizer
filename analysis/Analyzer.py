@@ -26,7 +26,7 @@ class Analyzer:
             coolOffMinutes = 5)
 
         self.fastMomentumMinutes = np.arange(55, 140, 5)
-        self.takeProfitPercent = np.arange(0.25, 0.80, .05)
+        self.takeProfitPercent = np.arange(.25, .80, .05)
         self.slowMinutes = np.arange(1555, 2655, 100)
 
     def run(self):

@@ -17,9 +17,9 @@ csv_filename = 'data/nq_1mon.csv' # 1 month
 data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
-analyzer = Analyzer(data, 'MNQ')
-# analyzer.run()
-# analyzer.print_metrics()
+analyzer = Analyzer(data, 'wfa/MNQ')
+analyzer.run()
+analyzer.print_metrics()
 
 # todo hunt for best engine
 

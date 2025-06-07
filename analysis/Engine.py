@@ -1,4 +1,6 @@
 import os
+import pickle
+
 from tqdm import tqdm
 from analysis.EngineUtils import *
 from model.Trade import Trade
@@ -140,7 +142,7 @@ class Engine:
 
         # make directory, if needed
         if not os.path.exists(path):
-            os.mkdir(path)
+            os.makedirs(path)
 
         # create new binary
         # formatted_time = time.strftime('%Y%m%d_%H%M%S')
