@@ -115,7 +115,7 @@ class Engine:
 
         # create new binary
         # formatted_time = time.strftime('%Y%m%d_%H%M%S')
-        filename = 'e' + str(self.id) + '.bin'
+        filename = str(self.id) + '.bin'
         path_filename = path + '/' + filename
         filehandler = open(path_filename, 'wb')
 

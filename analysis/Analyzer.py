@@ -16,7 +16,7 @@ class Analyzer:
         self.data = data
         self.path = path
 
-        self.engine_metrics = []
+        self.results = []
         self.metrics = []
 
         self.params = LiveParams(
@@ -45,7 +45,7 @@ class Analyzer:
                 for slowMinutes in self.slowMinutes:
 
                     # todo temp
-                    if id > 2: break
+                    if id > 4: break
 
                     # update params
                     params.fastMomentumMinutes = fastMomentumMinutes
@@ -71,56 +71,19 @@ class Analyzer:
 
         # collect engine metrics
         for id in ids:
-
             result = self.load_result(id)
             metrics = result['metrics']
-            self.engine_metrics.append(metrics)
+            self.results.append(metrics)
 
-        metrics = (
+        self.metrics = (
             analyze_config(self) +
-            analyze_max_profit(self) +
-            analyze_min_drawdown(self))
-
-        self.metrics = metrics
-
-        # results.loc[id, 'profit'] = result['metrics']['profit'].value
-        # results.loc[id, 'max_drawdown'] = result['metrics']['max_drawdown'].value
-        # results.loc[id, 'profit_factor'] = result['metrics']['profit_factor'].value
-        # results.loc[id, 'drawdown_per_profit'] = result['metrics']['drawdown_per_profit'].value
-        # results.loc[id, 'expectancy'] = result['metrics']['expectancy'].value
-        # results.loc[id, 'trades_per_day'] = result['metrics']['trades_per_day'].value
-
-    def print_metrics(self):
-
-        results = self.engine_metrics
-
-        print()
-
-        max_profit = np.max(results.profit)
-        idx = results[results.profit == max_profit].index.values[0]
-        print(f'max_profit: {round(max_profit)}, e{idx}')
-
-        min_drawdown = np.min(results.max_drawdown)
-        idx = results[results.max_drawdown == min_drawdown].index.values[0]
-        print(f'min_drawdown: {round(min_drawdown)}, e{idx}')
-
-        max_pf = np.max(results.profit_factor)
-        idx = results[results.profit_factor == max_pf].index.values[0]
-        print(f'max_pf: {max_pf}, e{idx}')
-
-        min_dpp = np.min(results.drawdown_per_profit)
-        idx = results[results.drawdown_per_profit == min_dpp].index.values[0]
-        print(f'min_dpp: {round(min_dpp)}, e{idx}')
-
-        max_expectancy = np.max(results.expectancy)
-        idx = results[results.expectancy == max_expectancy].index.values[0]
-        print(f'max_expectancy: {round(max_expectancy, 2)}, e{idx}')
-
-        min_trades_per_day = np.min(results.trades_per_day)
-        idx = results[results.trades_per_day == min_trades_per_day].index.values[0]
-        print(f'min_trades_per_days: {round(min_trades_per_day, 2)}, e{idx}')
-
-        print()
+            analyze_metric(self, 'profit', 'max') +
+            analyze_metric(self, 'expectancy', 'max') +
+            analyze_metric(self, 'win_rate', 'max') +
+            analyze_metric(self, 'average_win', 'max') +
+            analyze_metric(self, 'average_loss', 'min') +
+            analyze_metric(self, 'max_drawdown', 'min') +
+            analyze_metric(self, 'drawdown_per_profit', 'min'))
 
     def rebuild_engine(self, id):
 
@@ -137,7 +100,7 @@ class Analyzer:
     ''' deserialize '''
     def load_result(self, id):
 
-        filename = 'e' + str(id) + '.bin'
+        filename = str(id) + '.bin'
         path_filename = self.path + '/' + filename
 
         try:
@@ -151,33 +114,27 @@ class Analyzer:
 def analyze_config(analyzer):
     return [ Metric('config_header', None, None, 'Analyzer:') ]
 
+def analyze_metric(analyzer, name, minOrMax):
 
-def analyze_max_profit(analyzer):
+    results = analyzer.results
 
-    engine_metrics = analyzer.engine_metrics
-
-    profits = []
-    for metrics in engine_metrics:
+    # isolate metric of interest
+    _metrics = []
+    for metrics in results:
         for metric in metrics:
-            if metric.name == 'profit':
-                profits.append(metric.value)
+            if metric.name == name:
+                _metrics.append(metric)
 
-    max_profit = np.max(profits)
-    num = np.argmax(profits)
+    # get max, or min
+    if minOrMax == 'max':
 
-    return [ Metric('max_profit', max_profit, str(num), 'Max profit') ]
+        max = sorted(_metrics, key=lambda metric: metric.value, reverse=True)[0]
+        num = _metrics.index(max)
+        max.title = '[' + str(num) + '] (Max) ' + max.title
+        return [ max ]
 
-def analyze_min_drawdown(analyzer):
-
-    engine_metrics = analyzer.engine_metrics
-
-    max_drawdowns = []
-    for metrics in engine_metrics:
-        for metric in metrics:
-            if metric.name == 'max_drawdown':
-                max_drawdowns.append(metric.value)
-
-    min_drawdown = np.min(max_drawdowns)
-    num = np.argmin(max_drawdowns)
-
-    return [ Metric('min_drawdown', min_drawdown, str(num), 'Min drawdown') ]
+    elif minOrMax == 'min':
+        min = sorted(_metrics, key=lambda metric: metric.value, reverse=False)[0]
+        num = _metrics.index(min)
+        min.title = '[' + str(num) + '] (Min) ' + min.title
+        return [ min ]
