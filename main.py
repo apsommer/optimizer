@@ -2,6 +2,7 @@ import os
 import time
 
 from analysis.Analyzer import Analyzer
+from analysis.EngineUtils import print_metrics
 from analysis.PlotUtils import *
 from data import DataUtils as repo
 
@@ -18,8 +19,8 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
 analyzer = Analyzer(data, 'wfa/MNQ')
-# analyzer.run()
-# analyzer.print_metrics()
+analyzer.run()
+print_metrics(analyzer.metrics)
 
 # todo hunt for best engine
 
@@ -27,7 +28,7 @@ analyzer = Analyzer(data, 'wfa/MNQ')
 engine = analyzer.rebuild_engine(7)
 
 # print engine metrics
-engine.print_metrics()
+print_metrics(engine.metrics)
 engine.print_trades()
 
 # plot strategy and equity

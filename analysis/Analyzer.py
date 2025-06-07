@@ -1,7 +1,10 @@
 import os
 import pickle
 
+import pandas as pd
+
 from analysis.Engine import Engine
+from model.Metric import Metric
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
@@ -11,8 +14,9 @@ class Analyzer:
 
         self.data = data
         self.path = path
-        self.results = None
-        self.metrics = None
+
+        self.engine_metrics = []
+        self.metrics = []
 
         self.params = LiveParams(
             fastMinutes = 25,
@@ -40,7 +44,7 @@ class Analyzer:
                 for slowMinutes in self.slowMinutes:
 
                     # todo temp
-                    if id > 9: break
+                    if id > 2: break
 
                     # update params
                     params.fastMomentumMinutes = fastMomentumMinutes
@@ -64,35 +68,26 @@ class Analyzer:
         num_engines = len(os.listdir(self.path))
         ids = np.arange(0, num_engines, 1)
 
-        columns = [
-            'profit',
-            'max_drawdown',
-            'profit_factor',
-            'drawdown_per_profit',
-            'expectancy',
-            'trades_per_day']
-
-        results = pd.DataFrame(
-            index=ids,
-            columns=columns)
-
-        # build results
+        # collect engine results
         for id in ids:
 
-            frame = self.load_result(id)
+            result = self.load_result(id)
+            metrics = result['metrics']
+            self.engine_metrics.append(metrics)
 
-            results.loc[id, 'profit'] = frame['metrics']['profit'].value
-            results.loc[id, 'max_drawdown'] = frame['metrics']['max_drawdown'].value
-            results.loc[id, 'profit_factor'] = frame['metrics']['profit_factor'].value
-            results.loc[id, 'drawdown_per_profit'] = frame['metrics']['drawdown_per_profit'].value
-            results.loc[id, 'expectancy'] = frame['metrics']['expectancy'].value
-            results.loc[id, 'trades_per_day'] = frame['metrics']['trades_per_day'].value
+        metrics = get_max_profit(self.engine_metrics)
+        self.metrics = metrics
 
-        self.results = results
+        # results.loc[id, 'profit'] = result['metrics']['profit'].value
+        # results.loc[id, 'max_drawdown'] = result['metrics']['max_drawdown'].value
+        # results.loc[id, 'profit_factor'] = result['metrics']['profit_factor'].value
+        # results.loc[id, 'drawdown_per_profit'] = result['metrics']['drawdown_per_profit'].value
+        # results.loc[id, 'expectancy'] = result['metrics']['expectancy'].value
+        # results.loc[id, 'trades_per_day'] = result['metrics']['trades_per_day'].value
 
     def print_metrics(self):
 
-        results = self.results
+        results = self.engine_metrics
 
         print()
 
@@ -140,4 +135,22 @@ class Analyzer:
         filename = 'e' + str(id) + '.bin'
         path_filename = self.path + '/' + filename
         filehandler = open(path_filename, 'rb')
-        return pickle.load(filehandler)
+
+        try:
+            pickle.load(filehandler)
+        except FileNotFoundError:
+            print(f'{path_filename} not found')
+        return
+
+def get_max_profit(engine_metrics):
+
+    for metrics in engine_metrics:
+        for metric in metrics:
+            if metric.name == 'profit':
+                print(metric.value)
+
+    max_profit = 100
+    num = 1
+    # max_profit = np.max(engine_metrics['profit'].value)
+    # num = engine_metrics[engine_metrics.profit == max_profit].index.values[0]
+    return [Metric('max_profit', max_profit, str(num), 'Max profit')]

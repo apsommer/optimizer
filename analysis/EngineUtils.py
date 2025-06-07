@@ -121,3 +121,30 @@ def analyze_perf(engine):
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
+
+def print_metrics(metrics):
+
+    for metric in metrics:
+
+        title = metric.title
+        value = metric.value
+        formatter = metric.formatter
+        unit = metric.unit
+
+        # header
+        if value is None:
+            print('\n' + title)
+            continue
+
+        if unit is None and formatter is None:
+            print("\t{}: {}".format(title, value))
+            continue
+
+        rounded_value = format(value, '.0f')
+        if formatter is not None: rounded_value = format(value, formatter)
+
+        if unit is None:
+            print("\t{}: {}".format(title, rounded_value))
+            continue
+
+        print("\t{}: {} [{}]".format(title, rounded_value, unit))

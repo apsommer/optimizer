@@ -16,7 +16,7 @@ class Engine:
         self.current_idx = -1
         self.trades = []
         self.cash_series = pd.Series(index=self.data.index)
-        self.metrics = pd.Series()
+        self.metrics = []
 
         # init equity account
         margin_requirement = self.strategy.ticker.margin_requirement
@@ -27,7 +27,8 @@ class Engine:
 
     def run(self):
 
-        if self.metrics.size != 0:
+        # check if engine already ran
+        if self.metrics:
             print('Engine already has results, skipping run ...')
             return
 
@@ -85,10 +86,7 @@ class Engine:
             analyze_max_drawdown(self) +
             analyze_expectancy(self))
 
-        # todo simplify self.metrics = metrics?
-        # persist as dict
-        for metric in metrics:
-            self.metrics[metric.name] = metric
+        self.metrics = metrics
 
     def print_trades(self):
 
@@ -103,33 +101,6 @@ class Engine:
 
         for trade in trades[-show_last:]:
             print(trade)
-
-    def print_metrics(self):
-
-        for metric in self.metrics:
-
-            title = metric.title
-            value = metric.value
-            formatter = metric.formatter
-            unit = metric.unit
-
-            # header
-            if value is None:
-                print('\n' + title)
-                continue
-
-            if unit is None and formatter is None:
-                print("\t{}: {}".format(title, value))
-                continue
-
-            rounded_value = format(value, '.0f')
-            if formatter is not None: rounded_value = format(value, formatter)
-
-            if unit is None:
-                print("\t{}: {}".format(title, rounded_value))
-                continue
-
-            print("\t{}: {} [{}]".format(title, rounded_value, unit))
 
     ''' serialize '''
     def save(self, path='output'):
