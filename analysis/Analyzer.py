@@ -77,8 +77,9 @@ class Analyzer:
             self.engine_metrics.append(metrics)
 
         metrics = (
-                analyze_config(self) +
-                analyze_max_profit(self))
+            analyze_config(self) +
+            analyze_max_profit(self) +
+            analyze_min_drawdown(self))
 
         self.metrics = metrics
 
@@ -165,3 +166,18 @@ def analyze_max_profit(analyzer):
     num = np.argmax(profits)
 
     return [ Metric('max_profit', max_profit, str(num), 'Max profit') ]
+
+def analyze_min_drawdown(analyzer):
+
+    engine_metrics = analyzer.engine_metrics
+
+    max_drawdowns = []
+    for metrics in engine_metrics:
+        for metric in metrics:
+            if metric.name == 'max_drawdown':
+                max_drawdowns.append(metric.value)
+
+    min_drawdown = np.min(max_drawdowns)
+    num = np.argmin(max_drawdowns)
+
+    return [ Metric('min_drawdown', min_drawdown, str(num), 'Min drawdown') ]

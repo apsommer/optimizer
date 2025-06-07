@@ -87,7 +87,7 @@ def analyze_config(engine):
     initial_cash = engine.initial_cash
 
     return [
-        Metric('config_header', None, None, 'Config:'),
+        Metric('config_header', None, None, 'Engine:'),
         Metric('id', id, None, 'Id'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
