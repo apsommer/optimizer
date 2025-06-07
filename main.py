@@ -25,7 +25,7 @@ print_metrics(analyzer.metrics)
 # todo hunt for best engine
 
 # rebuild engine of interest
-engine = analyzer.rebuild_engine(7)
+engine = analyzer.rebuild_engine(0)
 
 # print engine metrics
 print_metrics(engine.metrics)

@@ -2,6 +2,7 @@ import os
 import pickle
 
 import pandas as pd
+from numpy.ma.core import max_filler
 
 from analysis.Engine import Engine
 from model.Metric import Metric
@@ -68,14 +69,17 @@ class Analyzer:
         num_engines = len(os.listdir(self.path))
         ids = np.arange(0, num_engines, 1)
 
-        # collect engine results
+        # collect engine metrics
         for id in ids:
 
             result = self.load_result(id)
             metrics = result['metrics']
             self.engine_metrics.append(metrics)
 
-        metrics = get_max_profit(self.engine_metrics)
+        metrics = (
+                analyze_config(self) +
+                analyze_max_profit(self))
+
         self.metrics = metrics
 
         # results.loc[id, 'profit'] = result['metrics']['profit'].value
@@ -134,23 +138,30 @@ class Analyzer:
 
         filename = 'e' + str(id) + '.bin'
         path_filename = self.path + '/' + filename
-        filehandler = open(path_filename, 'rb')
 
         try:
-            pickle.load(filehandler)
+            filehandler = open(path_filename, 'rb')
+            return pickle.load(filehandler)
+
         except FileNotFoundError:
-            print(f'{path_filename} not found')
-        return
+            print(f'\n{path_filename} not found')
+            exit()
 
-def get_max_profit(engine_metrics):
+def analyze_config(analyzer):
+    return [ Metric('config_header', None, None, 'Analyzer:') ]
 
+
+def analyze_max_profit(analyzer):
+
+    engine_metrics = analyzer.engine_metrics
+
+    profits = []
     for metrics in engine_metrics:
         for metric in metrics:
             if metric.name == 'profit':
-                print(metric.value)
+                profits.append(metric.value)
 
-    max_profit = 100
-    num = 1
-    # max_profit = np.max(engine_metrics['profit'].value)
-    # num = engine_metrics[engine_metrics.profit == max_profit].index.values[0]
-    return [Metric('max_profit', max_profit, str(num), 'Max profit')]
+    max_profit = np.max(profits)
+    num = np.argmax(profits)
+
+    return [ Metric('max_profit', max_profit, str(num), 'Max profit') ]

@@ -79,14 +79,12 @@ class Engine:
 
     def analyze(self):
 
-        metrics = (
+        self.metrics = (
             analyze_config(self) +
             analyze_perf(self) +
             analyze_profit_factor(self) +
             analyze_max_drawdown(self) +
             analyze_expectancy(self))
-
-        self.metrics = metrics
 
     def print_trades(self):
 
