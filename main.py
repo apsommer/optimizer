@@ -18,13 +18,13 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
 analyzer = Analyzer(data, 'wfa/MNQ')
-analyzer.run()
-analyzer.print_metrics()
+# analyzer.run()
+# analyzer.print_metrics()
 
 # todo hunt for best engine
 
 # rebuild engine of interest
-engine = analyzer.rebuild(7)
+engine = analyzer.rebuild_engine(7)
 
 # print engine metrics
 engine.print_metrics()
@@ -35,4 +35,4 @@ plot_equity(engine)
 plot_strategy(engine)
 
 end_time = time.time()
-print(f'Elapsed time: {round(end_time - start_time)} seconds')
+print(f'\nElapsed time: {round(end_time - start_time)} seconds')

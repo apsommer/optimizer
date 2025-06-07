@@ -14,5 +14,5 @@ class Order:
 
         return (
             sentiment + '\t' +
-            self.idx.strftime('%b %d, %Y, %H:%M') + '\t' +
+            self.idx.strftime('%b %d, %Y, %H:%M') + '\t\t' +
             str(round(self.price)))

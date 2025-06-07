@@ -11,7 +11,7 @@ class Analyzer:
 
         self.data = data
         self.path = path
-        self.slims = None
+        self.results = None
         self.metrics = None
 
         self.params = LiveParams(
@@ -72,71 +72,70 @@ class Analyzer:
             'expectancy',
             'trades_per_day']
 
-        slims = pd.DataFrame(
+        results = pd.DataFrame(
             index=ids,
             columns=columns)
 
+        # build results
         for id in ids:
 
-            slim = self.load_engine(id)
+            frame = self.load_result(id)
 
-            slims.loc[id, 'profit'] = slim['metrics']['profit'].value
-            slims.loc[id, 'max_drawdown'] = slim['metrics']['max_drawdown'].value
-            slims.loc[id, 'profit_factor'] = slim['metrics']['profit_factor'].value
-            slims.loc[id, 'drawdown_per_profit'] = slim['metrics']['drawdown_per_profit'].value
-            slims.loc[id, 'expectancy'] = slim['metrics']['expectancy'].value
-            slims.loc[id, 'trades_per_day'] = slim['metrics']['trades_per_day'].value
+            results.loc[id, 'profit'] = frame['metrics']['profit'].value
+            results.loc[id, 'max_drawdown'] = frame['metrics']['max_drawdown'].value
+            results.loc[id, 'profit_factor'] = frame['metrics']['profit_factor'].value
+            results.loc[id, 'drawdown_per_profit'] = frame['metrics']['drawdown_per_profit'].value
+            results.loc[id, 'expectancy'] = frame['metrics']['expectancy'].value
+            results.loc[id, 'trades_per_day'] = frame['metrics']['trades_per_day'].value
 
-        self.slims = slims
+        self.results = results
 
     def print_metrics(self):
 
-        slims = self.slims
+        results = self.results
 
         print()
 
-        max_profit = np.max(slims.profit)
-        idx = slims[slims.profit == max_profit].index.values[0]
+        max_profit = np.max(results.profit)
+        idx = results[results.profit == max_profit].index.values[0]
         print(f'max_profit: {round(max_profit)}, e{idx}')
 
-        min_drawdown = np.min(slims.max_drawdown)
-        idx = slims[slims.max_drawdown == min_drawdown].index.values[0]
+        min_drawdown = np.min(results.max_drawdown)
+        idx = results[results.max_drawdown == min_drawdown].index.values[0]
         print(f'min_drawdown: {round(min_drawdown)}, e{idx}')
 
-        max_pf = np.max(slims.profit_factor)
-        idx = slims[slims.profit_factor == max_pf].index.values[0]
+        max_pf = np.max(results.profit_factor)
+        idx = results[results.profit_factor == max_pf].index.values[0]
         print(f'max_pf: {max_pf}, e{idx}')
 
-        min_dpp = np.min(slims.drawdown_per_profit)
-        idx = slims[slims.drawdown_per_profit == min_dpp].index.values[0]
+        min_dpp = np.min(results.drawdown_per_profit)
+        idx = results[results.drawdown_per_profit == min_dpp].index.values[0]
         print(f'min_dpp: {round(min_dpp)}, e{idx}')
 
-        max_expectancy = np.max(slims.expectancy)
-        idx = slims[slims.expectancy == max_expectancy].index.values[0]
+        max_expectancy = np.max(results.expectancy)
+        idx = results[results.expectancy == max_expectancy].index.values[0]
         print(f'max_expectancy: {round(max_expectancy, 2)}, e{idx}')
 
-        min_trades_per_day = np.min(slims.trades_per_day)
-        idx = slims[slims.trades_per_day == min_trades_per_day].index.values[0]
+        min_trades_per_day = np.min(results.trades_per_day)
+        idx = results[results.trades_per_day == min_trades_per_day].index.values[0]
         print(f'min_trades_per_days: {round(min_trades_per_day, 2)}, e{idx}')
 
         print()
 
-    def rebuild(self, id):
+    def rebuild_engine(self, id):
 
         data = self.data
-        slim = self.load_engine(id)
+        result = self.load_result(id)
+        params = result['params']
 
-        strategy = LiveStrategy(
-            data=data,
-            params=slim['params'])
-
+        strategy = LiveStrategy(data, params)
         engine = Engine(id, strategy)
-        engine.run()
 
+        engine.run()
         return engine
 
     ''' deserialize '''
-    def load_engine(self, id):
+    def load_result(self, id):
 
         filename = 'e' + str(id) + '.bin'
         path_filename = self.path + '/' + filename

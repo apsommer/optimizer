@@ -97,7 +97,7 @@ class Engine:
 
         # header
         print('\nTrades:')
-        print('\t\t\t\t\tclose\tprofit')
+        print('\t\t\t\t\t\t\t\t\tclose\tprofit')
         if len(trades) > show_last:
             print('\t...')
 
@@ -134,7 +134,7 @@ class Engine:
     ''' serialize '''
     def save(self, path='output'):
 
-        slim = {
+        result = {
             'id': self.id,
             'params': self.strategy.params,
             'metrics': self.metrics
@@ -150,4 +150,4 @@ class Engine:
         path_filename = path + '/' + filename
         filehandler = open(path_filename, 'wb')
 
-        pickle.dump(slim, filehandler)
+        pickle.dump(result, filehandler)

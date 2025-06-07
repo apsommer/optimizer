@@ -88,7 +88,7 @@ def analyze_config(engine):
 
     return [
         Metric('config_header', None, None, 'Config:'),
-        Metric('id', id, None, 'id'),
+        Metric('id', id, None, 'Id'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
