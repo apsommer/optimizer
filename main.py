@@ -27,31 +27,30 @@ OS_start, OS_end = IS_len, IS_len + OS_len
 
 for run in np.arange(0, runs, 1):
 
-    path = 'wfa/NQ/IS' + str(percent) + str(runs) + '/run' + str(run) + '/'
+    # organize output
+    IS_path = 'wfa/NQ/' + str(percent) + '_' + str(runs) + '/' + str(run) + '/'
+    OS_path = 'wfa/NQ/' + str(percent) + '_' + str(runs) + '/'
 
-    # isolate training set
+    # isolate training and testing sets
     IS = data.iloc[IS_start:IS_end]
+    OS = data.iloc[OS_start:OS_end]
 
-    # run exhaustive sweep
-    analyzer = Analyzer(run, IS, path)
+    # run exhaustive sweep over IS
+    analyzer = Analyzer(run, IS, IS_path)
     analyzer.run()
     print_metrics(analyzer.metrics)
 
     # get result with highest profit
     max_profit = get_max_metric(analyzer, 'profit')
     max_profit_id = max_profit[0].id
+    print(f'\t*[{max_profit_id}]\n')
     params = analyzer.load_result(max_profit_id)['params']
 
-    # isolate testing set
-    OS = data.iloc[OS_start:OS_end]
-
-    # run strategy blind over OS
+    # run strategy blind over OS with best params
     strategy = LiveStrategy(OS, params)
     engine = Engine(run, strategy)
     engine.run()
-
-    path = 'wfa/NQ/OS' + str(percent) + str(runs) + '/'
-    engine.save(path)
+    engine.save(OS_path)
 
     # print engine metrics
     print_metrics(engine.metrics)
