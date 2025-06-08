@@ -137,8 +137,10 @@ def get_max_metric(analyzer, name):
                 _metrics.append(metric)
 
     max_metric = sorted(_metrics, key=lambda metric: metric.value, reverse=True)[0]
-    num = _metrics.index(max_metric)
-    max_metric.title = '[' + str(num) + '] (Max) ' + max_metric.title
+    id = _metrics.index(max_metric)
+
+    max_metric.title = '[' + str(id) + '] (Max) ' + max_metric.title
+    max_metric.id = id
 
     return [max_metric]
 
@@ -154,8 +156,10 @@ def get_min_metric(analyzer, name):
                 _metrics.append(metric)
 
     min_metric = sorted(_metrics, key=lambda metric: metric.value, reverse=False)[0]
-    num = _metrics.index(min_metric)
-    min_metric.title = '[' + str(num) + '] (Min) ' + min_metric.title
+    id = _metrics.index(min_metric)
+
+    min_metric.title = '[' + str(id) + '] (Min) ' + min_metric.title
+    min_metric.id = id
 
     return [ min_metric ]
 
@@ -185,3 +189,5 @@ def print_metrics(metrics):
             continue
 
         print("\t{}: {} [{}]".format(title, rounded_value, unit))
+
+    print()

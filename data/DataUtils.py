@@ -19,10 +19,10 @@ def getOhlc(
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = timestamp(ohlc, timezone)
 
-        print(f'Uploaded OHLC from {csv_filename}')
+        print(f'Uploaded OHLC from {csv_filename}\n')
         return ohlc
 
-    print("Downloaded OHLC from databento, costs $$$ ...")
+    print("Downloaded OHLC from databento, costs $$$ ...\n")
 
     # request network data synchronous! costs $!
     client = db.Historical(keys.bento_api_key)

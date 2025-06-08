@@ -92,7 +92,7 @@ class Engine:
         trades = self.trades
 
         # header
-        print('\nTrades:')
+        print('Trades:')
         print('\t\t\t\t\t\t\t\t\tclose\tprofit')
         if len(trades) > show_last:
             print('\t...')

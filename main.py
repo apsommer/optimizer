@@ -2,7 +2,7 @@ import os
 import time
 
 from analysis.Analyzer import Analyzer
-from analysis.EngineUtils import print_metrics
+from analysis.EngineUtils import print_metrics, get_max_metric
 from analysis.PlotUtils import *
 from data import DataUtils as repo
 
@@ -21,12 +21,10 @@ data = repo.getOhlc(csv_filename = csv_filename) # local
 analyzer = Analyzer(data, 'wfa/MNQ')
 analyzer.run()
 print_metrics(analyzer.metrics)
-print()
 
-# todo hunt for best engine
-
-# rebuild engine of interest
-engine = analyzer.rebuild_engine(4)
+# todo rebuild engine of interest
+id = get_max_metric(analyzer, 'profit')[0].id
+engine = analyzer.rebuild_engine(id)
 
 # print engine metrics
 print_metrics(engine.metrics)
