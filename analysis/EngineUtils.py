@@ -123,7 +123,12 @@ def get_perf_metrics(engine):
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
 
 def get_analyzer_metrics(analyzer):
-    return [ Metric('config_header', None, None, 'Analyzer:') ]
+
+    num_results = len(analyzer.results)
+
+    return [
+        Metric('config_header', None, None, 'Analyzer:'),
+        Metric('num_results', num_results, None, 'Number of results')]
 
 def get_max_metric(analyzer, name):
 

@@ -21,12 +21,11 @@ analyzer = Analyzer(data, 'wfa/NQ/IS80')
 analyzer.run()
 print_metrics(analyzer.metrics)
 
-# todo isolate training set
-
 # get run with highes profit
 id = get_max_metric(analyzer, 'profit')[0].id
 params = analyzer.load_result(id)['params']
 
+# todo isolate training set
 engine = analyzer.rebuild_engine(id)
 
 # print engine metrics
