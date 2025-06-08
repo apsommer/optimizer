@@ -2,9 +2,11 @@ import os
 import time
 
 from analysis.Analyzer import Analyzer
+from analysis.Engine import Engine
 from analysis.EngineUtils import print_metrics, get_max_metric
 from analysis.PlotUtils import *
 from data import DataUtils as repo
+from strategy.LiveStrategy import LiveStrategy
 
 os.system('clear')
 start_time = time.time()
@@ -24,15 +26,21 @@ sep = int(ratio * len(data))
 IS = data[:sep] # in-sample
 OS = data[sep:] # out-of-sample
 
-analyzer = Analyzer(IS, 'wfa/MNQ')
+# run IS exhaustive sweep
+analyzer = Analyzer(IS, 'wfa/NQ/IS80')
 analyzer.run()
 print_metrics(analyzer.metrics)
+# engine = analyzer.rebuild_engine(id)
 
-# todo rebuild engine of interest
+# get IS run with highes profit
 id = get_max_metric(analyzer, 'profit')[0].id
+params = analyzer.load_result(id)['params']
 
-
-engine = analyzer.rebuild_engine(id)
+# run OS single configuration with best IS params
+strategy = LiveStrategy(OS, params)
+engine = Engine(0, strategy)
+engine.run()
+engine.save('wfa/NQ/OS20')
 
 # print engine metrics
 print_metrics(engine.metrics)
