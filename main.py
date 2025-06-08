@@ -18,12 +18,20 @@ csv_filename = 'data/nq_1mon.csv' # 1 month
 data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
-analyzer = Analyzer(data, 'wfa/MNQ')
+# todo isolate training set
+ratio = 0.8
+sep = int(ratio * len(data))
+IS = data[:sep] # in-sample
+OS = data[sep:] # out-of-sample
+
+analyzer = Analyzer(IS, 'wfa/MNQ')
 analyzer.run()
 print_metrics(analyzer.metrics)
 
 # todo rebuild engine of interest
 id = get_max_metric(analyzer, 'profit')[0].id
+
+
 engine = analyzer.rebuild_engine(id)
 
 # print engine metrics
