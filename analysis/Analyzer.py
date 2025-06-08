@@ -44,7 +44,7 @@ class Analyzer:
                 for slowMinutes in self.slowMinutes:
 
                     # todo temp
-                    if id > 3: break
+                    if id > 2: break
 
                     # update params
                     params.fastMomentumMinutes = fastMomentumMinutes
@@ -87,13 +87,22 @@ class Analyzer:
     def rebuild_engine(self, id):
 
         data = self.data
+
         result = self.load_result(id)
         params = result['params']
 
         strategy = LiveStrategy(data, params)
+
+        # init but not run
         engine = Engine(id, strategy)
 
-        engine.run()
+        # unpack previously completed result
+        engine.id = result['id']
+        engine.params = params
+        engine.metrics = result['metrics']
+        engine.trades = result['trades']
+        engine.cash_series = result['cash_series']
+
         return engine
 
     ''' deserialize '''

@@ -106,7 +106,9 @@ class Engine:
         result = {
             'id': self.id,
             'params': self.strategy.params,
-            'metrics': self.metrics
+            'metrics': self.metrics,
+            'trades': self.trades,
+            'cash_series': self.cash_series # todo minimize with []?
         }
 
         # make directory, if needed
