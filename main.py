@@ -12,11 +12,7 @@ os.system('clear')
 start_time = time.time()
 
 # get ohlc prices
-csv_filename = 'data/nq_1mon.csv' # 1 month
-# csv_filename = "data/nq_3mon.csv"  # 3 months
-# csv_filename = "data/nq_6mon.csv"  # 6 months
-# csv_filename = "data/nq_24mon.csv" # 2 years
-
+csv_filename = 'data/nq_1mon.csv'
 data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
@@ -38,7 +34,7 @@ params = analyzer.load_result(id)['params']
 
 # run OS single configuration with best IS params
 strategy = LiveStrategy(OS, params)
-engine = Engine(0, strategy)
+engine = Engine(id, strategy)
 engine.run()
 engine.save('wfa/NQ/OS20')
 

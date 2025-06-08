@@ -44,7 +44,7 @@ class Analyzer:
                 for slowMinutes in self.slowMinutes:
 
                     # todo temp
-                    if id > 9: break
+                    if id > 3: break
 
                     # update params
                     params.fastMomentumMinutes = fastMomentumMinutes
