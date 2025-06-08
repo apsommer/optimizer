@@ -10,8 +10,9 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, data, path):
+    def __init__(self, id, data, path):
 
+        self.id = id
         self.data = data
         self.path = path
 
