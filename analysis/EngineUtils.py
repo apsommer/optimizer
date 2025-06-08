@@ -124,11 +124,19 @@ def get_perf_metrics(engine):
 
 def get_analyzer_metrics(analyzer):
 
+    start_date = analyzer.data.index[0]
+    end_date = analyzer.data.index[-1]
     num_results = len(analyzer.results)
+    days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
+    candles = len(analyzer.data.index)
 
     return [
         Metric('config_header', None, None, 'Analyzer:'),
-        Metric('num_results', num_results, None, 'Number of results')]
+        Metric('num_results', num_results, None, 'Number of results'),
+        Metric('start_date', start_date, None, 'Start date'),
+        Metric('end_date', end_date, None, 'End date'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Number of days')]
 
 def get_max_metric(analyzer, name):
 

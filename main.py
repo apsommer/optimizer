@@ -16,17 +16,27 @@ csv_filename = 'data/nq_1mon.csv'
 data = repo.getOhlc(csv_filename = csv_filename) # local
 # data = repo.getOhlc() # network
 
+# isolate training set
+sep = int(0.8 * len(data))
+IS = data[:sep] # in-sample
+OS = data[sep:] # out-sample
+
 # run exhaustive sweep
-analyzer = Analyzer(data, 'wfa/NQ/IS80')
+analyzer = Analyzer(IS, 'wfa/NQ/IS80')
 analyzer.run()
 print_metrics(analyzer.metrics)
 
-# get run with highes profit
-id = get_max_metric(analyzer, 'profit')[0].id
-params = analyzer.load_result(id)['params']
+# get result with highes profit
+max_profit = get_max_metric(analyzer, 'profit')
+id = max_profit[0].id
+# engine = analyzer.rebuild_engine(id)
 
-# todo isolate training set
-engine = analyzer.rebuild_engine(id)
+params = analyzer.load_result(id)['params']
+strategy = LiveStrategy(OS, params)
+engine = Engine(id, strategy)
+
+engine.run()
+engine.save('wfa/NQ/OS20')
 
 # print engine metrics
 print_metrics(engine.metrics)

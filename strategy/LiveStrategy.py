@@ -15,7 +15,7 @@ class LiveStrategy(BaselineStrategy):
 
     @property
     def size(self):
-        return 2
+        return 1
 
     def __init__(self, data, params):
         super().__init__()
