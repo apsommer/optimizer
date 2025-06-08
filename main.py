@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime, timedelta
 
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
@@ -8,30 +9,40 @@ from analysis.PlotUtils import *
 from data import DataUtils as repo
 from strategy.LiveStrategy import LiveStrategy
 
+# INPUT
+num_months = 1
+isNetwork = False
+percent = 20
+runs = 3
+
 os.system('clear')
 start_time = time.time()
 
 # get ohlc prices
-csv_filename = 'data/nq_1mon.csv'
-data = repo.getOhlc(csv_filename = csv_filename) # local
-# data = repo.getOhlc() # network
+data_name = 'NQ_' + str(num_months) + 'mon'
+csv_filename = 'data/' + data_name + '.csv'
+td = timedelta(days = num_months * 30.5)
+data = repo.getOhlc(
+    starting_date = (datetime.now() - td).strftime("%Y-%m-%d"),
+    ending_date = datetime.now().strftime("%Y-%m-%d"),
+    csv_filename = csv_filename,
+    isNetwork = isNetwork)
 
-percent = 20
-runs = 3
-
+# isolate training and testing sets
 IS_len = int(len(data) / ((percent / 100) * runs + 1))
 OS_len = int((percent / 100) * IS_len)
 
+# init first window
 IS_start, IS_end = 0, IS_len
 OS_start, OS_end = IS_len, IS_len + OS_len
 
 for run in np.arange(0, runs, 1):
 
     # organize output
-    IS_path = 'wfa/NQ/' + str(percent) + '_' + str(runs) + '/' + str(run) + '/'
-    OS_path = 'wfa/NQ/' + str(percent) + '_' + str(runs) + '/'
+    OS_path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
+    IS_path = OS_path + str(run) + '/'
 
-    # isolate training and testing sets
+    # mask training and testing sets
     IS = data.iloc[IS_start:IS_end]
     OS = data.iloc[OS_start:OS_end]
 

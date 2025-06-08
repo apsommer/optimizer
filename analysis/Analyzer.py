@@ -54,7 +54,7 @@ class Analyzer:
 
                     # create strategy and engine
                     strategy = LiveStrategy(data, params)
-                    engine = Engine(id=id, strategy=strategy)
+                    engine = Engine(id, strategy)
 
                     # run and save
                     engine.run()

@@ -4,17 +4,12 @@ import pandas as pd
 import local.api_keys as keys
 import numpy as np
 
-def getOhlc(
-    csv_filename = None,
-    symbol = "NQ.v.0",
-    schema = "ohlcv-1m",
-    starting_date = "2023-06-01",
-    ending_date = time.strftime("%Y-%m-%d")):
+def getOhlc(starting_date, ending_date, csv_filename, isNetwork):
 
     timezone = 'America/Chicago'
 
-    # return cached data in csv format
-    if csv_filename is not None:
+    # return local cache
+    if not isNetwork:
 
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = timestamp(ohlc, timezone)
@@ -22,15 +17,15 @@ def getOhlc(
         print(f'Uploaded OHLC from {csv_filename}\n')
         return ohlc
 
-    print("Downloaded OHLC from databento, costs $$$ ...\n")
+    print("Downloading OHLC from databento, costs $$$ ...\n")
 
     # request network data synchronous! costs $!
     client = db.Historical(keys.bento_api_key)
     ohlc = (client.timeseries.get_range(
         dataset = "GLBX.MDP3",
-        symbols = [symbol],
+        symbols = ["NQ.v.0"],
         stype_in = "continuous",
-        schema = schema,
+        schema = "ohlcv-1m",
         start = starting_date,
         end = ending_date)
             .to_df())
@@ -42,7 +37,6 @@ def getOhlc(
     ohlc.index = timestamp(ohlc, timezone)
 
     # save to disk
-    csv_filename = "data/nq_24mon.csv"
     ohlc.to_csv(csv_filename)
     return ohlc
 
