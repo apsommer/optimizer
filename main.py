@@ -1,7 +1,6 @@
 import os
 import time
 from datetime import datetime, timedelta
-
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
 from analysis.EngineUtils import print_metrics, get_max_metric
@@ -9,11 +8,17 @@ from analysis.PlotUtils import *
 from data import DataUtils as repo
 from strategy.LiveStrategy import LiveStrategy
 
-# INPUT
-num_months = 3
+# INPUT ###########################################################
+
+# data
+num_months = 6
 isNetwork = False
+
+# analyzer
 percent = 20
 runs = 3
+
+###################################################################
 
 os.system('clear')
 start_time = time.time()
@@ -21,7 +26,7 @@ start_time = time.time()
 # get ohlc prices
 data_name = 'NQ_' + str(num_months) + 'mon'
 csv_filename = 'data/' + data_name + '.csv'
-td = timedelta(days = num_months * 30.5)
+td = timedelta(days = num_months * 30.437)
 data = repo.getOhlc(
     starting_date = (datetime.now() - td).strftime("%Y-%m-%d"),
     ending_date = datetime.now().strftime("%Y-%m-%d"),
