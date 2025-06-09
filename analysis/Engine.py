@@ -2,7 +2,7 @@ import os
 import pickle
 
 from tqdm import tqdm
-from analysis.EngineUtils import *
+from utils.EngineUtils import *
 from model.Trade import Trade
 import pandas as pd
 

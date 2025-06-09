@@ -1,47 +1,46 @@
+import multiprocessing
 import os
 import time
 from datetime import datetime, timedelta
+from multiprocessing.queues import Queue
+
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
-from analysis.EngineUtils import print_metrics, get_max_metric
-from analysis.PlotUtils import *
-from data import DataUtils as repo
+from utils.EngineUtils import print_metrics, get_max_metric
+from utils import DataUtils as repo
 from strategy.LiveStrategy import LiveStrategy
 
 # INPUT ###########################################################
 
 # data
-num_months = 6
+num_months = 1
 isNetwork = False
 
 # analyzer
-percent = 20
-runs = 3
+percent = 25
+runs = 4
 
 ###################################################################
 
-os.system('clear')
-start_time = time.time()
+def walk_forward(run):
 
-# get ohlc prices
-data_name = 'NQ_' + str(num_months) + 'mon'
-csv_filename = 'data/' + data_name + '.csv'
-td = timedelta(days = num_months * 30.437)
-data = repo.getOhlc(
-    starting_date = (datetime.now() - td).strftime("%Y-%m-%d"),
-    ending_date = datetime.now().strftime("%Y-%m-%d"),
-    csv_filename = csv_filename,
-    isNetwork = isNetwork)
+    # get ohlc prices
+    data_name = 'NQ_' + str(num_months) + 'mon'
+    csv_filename = 'data/' + data_name + '.csv'
+    td = timedelta(days = num_months * 30.437)
+    data = repo.getOhlc(
+        starting_date = (datetime.now() - td).strftime("%Y-%m-%d"),
+        ending_date = datetime.now().strftime("%Y-%m-%d"),
+        csv_filename = csv_filename,
+        isNetwork = isNetwork)
 
-# isolate training and testing sets
-IS_len = int(len(data) / ((percent / 100) * runs + 1))
-OS_len = int((percent / 100) * IS_len)
+    # isolate training and testing sets
+    IS_len = int(len(data) / ((percent / 100) * runs + 1))
+    OS_len = int((percent / 100) * IS_len)
 
-# init first window
-IS_start, IS_end = 0, IS_len
-OS_start, OS_end = IS_len, IS_len + OS_len
-
-for run in np.arange(0, runs, 1):
+    # init first window
+    IS_start, IS_end = 0, IS_len
+    OS_start, OS_end = IS_len, IS_len + OS_len
 
     # organize output
     OS_path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
@@ -77,11 +76,33 @@ for run in np.arange(0, runs, 1):
     OS_start += OS_len
     OS_end += OS_len
 
-# print_metrics(engine.metrics)
-# engine.print_trades()
-# engine = analyzer.rebuild_engine(id)
-# plot_equity(engine)
-# plot_strategy(engine)
+    # print_metrics(engine.metrics)
+    # engine.print_trades()
+    # engine = analyzer.rebuild_engine(id)
+    # plot_equity(engine)
+    # plot_strategy(engine)
+
+os.system('clear')
+start_time = time.time()
+
+# todo multiprocess use all cores!
+cores = multiprocessing.cpu_count()
+print(f'cores: {cores}')
+
+processes = []
+for run in range(runs):
+
+    process = multiprocessing.Process(
+        target=walk_forward,
+        args=(run,))
+    processes.append(process)
+    process.start()
+
+for process in processes:
+    process.join()
 
 end_time = time.time()
 print(f'\nElapsed time: {round(end_time - start_time)} seconds')
+
+
+
