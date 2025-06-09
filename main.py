@@ -10,7 +10,7 @@ from data import DataUtils as repo
 from strategy.LiveStrategy import LiveStrategy
 
 # INPUT
-num_months = 1
+num_months = 3
 isNetwork = False
 percent = 20
 runs = 3
