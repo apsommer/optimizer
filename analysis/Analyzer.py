@@ -117,3 +117,48 @@ class Analyzer:
         except FileNotFoundError:
             print(f'\n{path_filename} not found')
             exit()
+
+########################################################################################################################
+
+def walk_forward(run, percent, runs, data, OS_path):
+
+    # organize output
+    IS_path = OS_path + str(run) + '/'
+
+    # isolate training and testing sets
+    IS_len = int(len(data) / ((percent / 100) * runs + 1))
+    OS_len = int((percent / 100) * IS_len)
+
+    IS_start = run * OS_len
+    IS_end = IS_start + IS_len
+    OS_start = IS_end
+    OS_end = OS_start + OS_len
+
+    IS = data.iloc[IS_start:IS_end]
+    OS = data.iloc[OS_start:OS_end]
+
+    # run exhaustive sweep over IS
+    analyzer = Analyzer(run, IS, IS_path)
+    analyzer.run()
+    print_metrics(analyzer.metrics)
+
+    # get result with highest profit
+    max_profit = get_max_metric(analyzer, 'profit')
+    max_profit_id = max_profit[0].id
+    print(f'\t*[{max_profit_id}]\n')
+    params = analyzer.load_result(max_profit_id)['params']
+
+    # run strategy blind over OS with best params
+    strategy = LiveStrategy(OS, params)
+    engine = Engine(run, strategy)
+    engine.run()
+    engine.save(OS_path)
+
+    # print engine metrics
+    print_metrics(engine.metrics)
+
+    # print_metrics(engine.metrics)
+    # engine.print_trades()
+    # engine = analyzer.rebuild_engine(id)
+    # plot_equity(engine)
+    # plot_strategy(engine)
