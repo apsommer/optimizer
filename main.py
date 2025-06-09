@@ -49,32 +49,24 @@ data = repo.getOhlc(num_months, isNetwork)
 # for process in processes:
 #     process.join()
 
-first_result = load_result(0, path)
+# todo one more IS run is needed, without accompanying OS
+#  suggested params to engine proxy below
 
 # build composite equity curve
 equity = pd.Series()
-
-# loop each bar
-for run in tqdm(
-    # disable = True,
-    iterable = range(runs),
-    colour = 'BLUE',
-    bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}'):
-
-    result = load_result(run, path)
-    cash_series = result['cash_series']
-    equity = equity._append(cash_series)
+for run in range(runs):
+    equity = equity._append(
+        load_result(run, path)['cash_series'])
+    # todo rebuild trades
 
 # mask data using equity curve index
 masked_data = data.loc[equity.index, :]
-
-params = first_result['params'] # arbitrary
+params = load_result(0, path)['params'] # todo get params from last IS
 strategy = LiveStrategy(masked_data, params)
 engine = Engine(100, strategy)
 
 # no need to run!
 engine.cash_series = equity
-# todo engine trades
 plot_equity(engine)
 
 
