@@ -85,7 +85,7 @@ class Analyzer:
 
         # collect engine metrics
         for id in ids:
-            result = self.load_result(id)
+            result = load_result(id, self.path)
             metrics = result['metrics']
             self.results.append(metrics)
 
@@ -103,7 +103,7 @@ class Analyzer:
 
         data = self.data
 
-        result = self.load_result(id)
+        result = load_result(id, self.path)
         params = result['params']
 
         strategy = LiveStrategy(data, params)
@@ -120,21 +120,21 @@ class Analyzer:
 
         return engine
 
-    ''' deserialize '''
-    def load_result(self, id):
-
-        filename = str(id) + '.bin'
-        path_filename = self.path + '/' + filename
-
-        try:
-            filehandler = open(path_filename, 'rb')
-            return pickle.load(filehandler)
-
-        except FileNotFoundError:
-            print(f'\n{path_filename} not found')
-            exit()
-
 ########################################################################################################################
+
+''' deserialize '''
+def load_result(id, path):
+
+    filename = str(id) + '.bin'
+    path_filename = path + '/' + filename
+
+    try:
+        filehandler = open(path_filename, 'rb')
+        return pickle.load(filehandler)
+
+    except FileNotFoundError:
+        print(f'\n{path_filename} not found')
+        exit()
 
 ''' required top-level for multiprocessing '''
 def walk_forward(run, percent, runs, data, path):
@@ -163,7 +163,7 @@ def walk_forward(run, percent, runs, data, path):
     max_profit = get_max_metric(analyzer, 'profit')
     max_profit_id = max_profit[0].id
     print(f'\t*[{max_profit_id}]\n')
-    params = analyzer.load_result(max_profit_id)['params']
+    params = load_result(max_profit_id, analyzer.path)['params']
 
     # run strategy blind over OS with best params
     strategy = LiveStrategy(OS, params)

@@ -42,7 +42,7 @@ def plot_equity(engine):
     ax.crosshair.vline.setPen(axis_pen)
     ax.crosshair.hline.setPen(axis_pen)
 
-    # buy and hold reference
+    # # buy and hold reference
     size = engine.strategy.size
     point_value = engine.strategy.ticker.point_value
     delta_df = engine.data.Close - engine.data.Close.iloc[0]
@@ -87,6 +87,8 @@ def plot_equity(engine):
         data = { 'initial_cash': engine.initial_cash},
         index = cash_series.index)
     fplt.plot(initial_cash_df, color = 'black', ax=ax)
+
+    fplt.show()
 
 def plot_strategy(engine):
 
