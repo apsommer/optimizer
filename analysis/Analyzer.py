@@ -6,6 +6,12 @@ from utils.EngineUtils import *
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
+def thread_target(engine, path):
+
+    # run and save
+    engine.run()
+    engine.save(self.path)
+
 class Analyzer:
 
     def __init__(self, id, data, path):
@@ -29,8 +35,8 @@ class Analyzer:
             coolOffMinutes = 5)
 
         self.fastMomentumMinutes = np.arange(55, 140, 5)
-        self.takeProfitPercent = np.arange(.25, .80, .05)
-        self.slowMinutes = np.arange(1555, 2655, 100)
+        self.takeProfitPercent = np.arange(.25, .65, .05)
+        self.slowMinutes = np.arange(1555, 2655, 150)
 
     def run(self):
 
@@ -41,9 +47,6 @@ class Analyzer:
         for fastMomentumMinutes in self.fastMomentumMinutes:
             for takeProfitPercent in self.takeProfitPercent:
                 for slowMinutes in self.slowMinutes:
-
-                    # todo temp
-                    if id > 2: break
 
                     # update params
                     params.fastMomentumMinutes = fastMomentumMinutes
@@ -120,10 +123,10 @@ class Analyzer:
 
 ########################################################################################################################
 
-def walk_forward(run, percent, runs, data, OS_path):
+def walk_forward(run, percent, runs, data, path):
 
     # organize output
-    IS_path = OS_path + str(run) + '/'
+    IS_path = path + str(run) + '/'
 
     # isolate training and testing sets
     IS_len = int(len(data) / ((percent / 100) * runs + 1))
@@ -152,7 +155,7 @@ def walk_forward(run, percent, runs, data, OS_path):
     strategy = LiveStrategy(OS, params)
     engine = Engine(run, strategy)
     engine.run()
-    engine.save(OS_path)
+    engine.save(path)
 
     # print engine metrics
     print_metrics(engine.metrics)
