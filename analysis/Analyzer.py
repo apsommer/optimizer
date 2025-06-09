@@ -1,16 +1,12 @@
 import os
 import pickle
 
+from tqdm import tqdm
+
 from analysis.Engine import Engine
 from utils.EngineUtils import *
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
-
-def thread_target(engine, path):
-
-    # run and save
-    engine.run()
-    engine.save(self.path)
 
 class Analyzer:
 
@@ -34,9 +30,9 @@ class Analyzer:
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        self.fastMomentumMinutes = np.arange(55, 140, 5)
-        self.takeProfitPercent = np.arange(.25, .65, .05)
-        self.slowMinutes = np.arange(1555, 2655, 150)
+        self.fastMomentumMinutes = np.arange(60, 140, 20)
+        self.takeProfitPercent = np.arange(.25, .65, .2)
+        self.slowMinutes = np.arange(1555, 2655, 200)
 
     def run(self):
 
@@ -44,24 +40,41 @@ class Analyzer:
         params = self.params
 
         id = 0
-        for fastMomentumMinutes in self.fastMomentumMinutes:
-            for takeProfitPercent in self.takeProfitPercent:
-                for slowMinutes in self.slowMinutes:
+        total = (
+            len(self.fastMomentumMinutes) *
+            len(self.takeProfitPercent) *
+            len(self.slowMinutes))
 
-                    # update params
-                    params.fastMomentumMinutes = fastMomentumMinutes
-                    params.takeProfitPercent = takeProfitPercent
-                    params.slowMinutes = slowMinutes
+        with tqdm(
+            disable = True,
+            total = total,
+            colour = 'BLUE',
+            bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
-                    # create strategy and engine
-                    strategy = LiveStrategy(data, params)
-                    engine = Engine(id, strategy)
+            for fastMomentumMinutes in self.fastMomentumMinutes:
+                for takeProfitPercent in self.takeProfitPercent:
+                    for slowMinutes in self.slowMinutes:
 
-                    # run and save
-                    engine.run()
-                    engine.save(self.path)
-                    id += 1
+                        # if id > 5:
+                        #     break
 
+                        # update params
+                        params.fastMomentumMinutes = fastMomentumMinutes
+                        params.takeProfitPercent = takeProfitPercent
+                        params.slowMinutes = slowMinutes
+
+                        # create strategy and engine
+                        strategy = LiveStrategy(data, params)
+                        engine = Engine(id, strategy)
+
+                        # run and save
+                        engine.run()
+                        engine.save(self.path)
+                        id += 1
+
+                        pbar.update(id)
+
+        pbar.close()
         self.analyze()
 
     def analyze(self):
@@ -123,6 +136,7 @@ class Analyzer:
 
 ########################################################################################################################
 
+''' required top-level for multiprocessing '''
 def walk_forward(run, percent, runs, data, path):
 
     # organize output

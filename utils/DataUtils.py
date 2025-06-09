@@ -1,11 +1,19 @@
 import time
+from datetime import timedelta, datetime
+
 import databento as db
 import pandas as pd
 import local.api_keys as keys
 import numpy as np
 
-def getOhlc(starting_date, ending_date, csv_filename, isNetwork):
+def getOhlc(num_months, isNetwork):
 
+    data_name = 'NQ_' + str(num_months) + 'mon'
+    csv_filename = 'data/' + data_name + '.csv'
+    td = timedelta(days=num_months * 30.437)
+
+    starting_date = (datetime.now() - td).strftime("%Y-%m-%d")
+    ending_date = datetime.now().strftime("%Y-%m-%d")
     timezone = 'America/Chicago'
 
     # return local cache

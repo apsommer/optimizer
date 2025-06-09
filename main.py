@@ -1,44 +1,43 @@
 import multiprocessing
 import os
 import time
-from datetime import datetime, timedelta
+
+from tqdm import tqdm
+from multiprocessing import Pool
 from analysis.Analyzer import walk_forward
 from utils import DataUtils as repo
 
 # INPUT ###########################################################
 
 # data
-num_months = 1
+num_months = 6
 isNetwork = False
 
 # analyzer
 percent = 20
-runs = 5
+runs = 15
 
 ###################################################################
 
 os.system('clear')
 start_time = time.time()
 
-# get ohlc prices
+# organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
-csv_filename = 'data/' + data_name + '.csv'
-td = timedelta(days=num_months * 30.437)
-data = repo.getOhlc(
-    starting_date=(datetime.now() - td).strftime("%Y-%m-%d"),
-    ending_date=datetime.now().strftime("%Y-%m-%d"),
-    csv_filename=csv_filename,
-    isNetwork=isNetwork)
-
-# organize output
 path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
 
-# multiprocess use all cores!
+# get ohlc prices
+data = repo.getOhlc(num_months, isNetwork)
+
+# multiprocess use all cores! todo refactor to Pool?
+cores = multiprocessing.cpu_count()
+cores -= 1 # save one for basic computer operations
 processes = []
 for run in range(runs):
+
     process = multiprocessing.Process(
-        target=walk_forward,
-        args=(run, percent, runs, data, path))
+        target = walk_forward,
+        args = (run, percent, runs, data, path))
     processes.append(process)
     process.start()
 
@@ -48,6 +47,7 @@ for process in processes:
 
 # todo stitch OS samples into composite engine
 
+###################################################################
 end_time = time.time()
 print(f'\nElapsed time: {round(end_time - start_time)} seconds')
 
