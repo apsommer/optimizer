@@ -42,51 +42,64 @@ def plot_equity(engine):
     ax.crosshair.vline.setPen(axis_pen)
     ax.crosshair.hline.setPen(axis_pen)
 
-    # # buy and hold reference
+    # plot initial cash line first
+    cash_series = engine.cash_series
+    initial_cash_df = pd.DataFrame(
+        data = { 'initial_cash': engine.initial_cash},
+        index = cash_series.index)
+    fplt.plot(
+        initial_cash_df,
+        color = 'black',
+        ax = ax)
+
+    # reference simple buy and hold
     size = engine.strategy.size
     point_value = engine.strategy.ticker.point_value
     delta_df = engine.data.Close - engine.data.Close.iloc[0]
     initial_cash = engine.initial_cash
     buy_hold = size * point_value * delta_df + initial_cash
 
-    fplt.plot(buy_hold, color=light_gray, width=2, ax=ax)
+    # plot buy and hold
+    fplt.plot(
+        buy_hold,
+        color=light_gray,
+        width=2,
+        ax=ax)
 
     # split balance into positive and negative
-    cash_series = engine.cash_series
     pos, neg = [], []
-
     for balance in cash_series:
 
         over = balance >= engine.initial_cash
         under = balance < engine.initial_cash
-        cross_over = over and len(pos) > 0 and np.isnan(pos[-1])
-        cross_under = under and len(pos) > 0 and np.isnan(neg[-1])
 
         if over:
             pos.append(balance)
             neg.append(np.nan)
+            if len(pos) > 1 and np.isnan(pos[-2]):
+                pos[-2] = neg[-2]
         elif under:
             pos.append(np.nan)
             neg.append(balance)
-
-        # keep balance line continuous
-        if cross_over: pos[-2] = neg[-2]
-        if cross_under: neg[-2] = pos[-2]
+            if len(neg) > 1 and np.isnan(neg[-2]):
+                neg[-2] = pos[-2]
 
     pos_df = pd.DataFrame({'pos': pos})
     neg_df = pd.DataFrame({'neg': neg})
     pos_df.index = cash_series.index
     neg_df.index = cash_series.index
 
-    # add series
-    fplt.plot(pos_df, color = 'green', ax=ax)
-    fplt.plot(neg_df, color = 'red', ax=ax)
+    # plot positive and negative
+    fplt.plot(
+        pos_df,
+        color = 'green',
+        ax=ax)
+    fplt.plot(
+        neg_df,
+        color = 'red',
+        ax=ax)
 
-    # initial cash
-    initial_cash_df = pd.DataFrame(
-        data = { 'initial_cash': engine.initial_cash},
-        index = cash_series.index)
-    fplt.plot(initial_cash_df, color = 'black', ax=ax)
+
 
     fplt.show()
 
@@ -209,6 +222,8 @@ def plot_strategy(engine):
             color=entry_color,
             width=linewidth,
             ax=ax)
+
+    # todo separate rest to plot_strategy() ...
 
     # build enabled long, short, and disabled
     fast = engine.strategy.fast

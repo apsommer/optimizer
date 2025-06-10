@@ -60,9 +60,9 @@ for run in range(runs):
     # todo rebuild trades
 
 # mask data using equity curve index
-masked_data = data.loc[equity.index, :]
+OS = data.loc[equity.index, :]
 params = load_result(0, path)['params'] # todo get params from last IS
-strategy = LiveStrategy(masked_data, params)
+strategy = LiveStrategy(OS, params)
 engine = Engine(100, strategy)
 
 # no need to run!
