@@ -104,6 +104,7 @@ def get_perf_metrics(engine):
     if engine.trades[-1].is_open: num_trades = len(engine.trades) - 1
     else: num_trades = len(engine.trades)
 
+    engine.cash = engine.cash_series.iloc[-1]
     profit = engine.cash - engine.initial_cash
 
     total_return = (abs(engine.cash - engine.initial_cash) / engine.initial_cash) * 100
@@ -117,7 +118,7 @@ def get_perf_metrics(engine):
     return [
         Metric('strategy_header', None, None, 'Strategy:'),
         Metric('profit', profit, 'USD', 'Profit'),
-        Metric('num_trades', num_trades, None, 'Number of trades'),
+        Metric('num_trades', num_trades, None, 'Trades'),
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]

@@ -94,7 +94,7 @@ class Engine:
 
         # header
         print('Trades:')
-        print('\t\t\t\t\t\t\t\t\tclose\tprofit')
+        print('\t\t\t\t\t\tclose\tprofit')
         if len(trades) > show_last:
             print('\t...')
 

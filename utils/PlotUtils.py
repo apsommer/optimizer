@@ -103,7 +103,7 @@ def plot_equity(engine):
 
     fplt.show()
 
-def plot_strategy(engine):
+def plot_trades(engine):
 
     # maximize window
     fplt.winx = 3840
@@ -145,7 +145,7 @@ def plot_strategy(engine):
 
     # candlestick ohlc
     data = engine.data
-    fplt.candlestick_ochl(data, ax=ax, draw_body=False, draw_shadow=False)
+    fplt.candlestick_ochl(data, ax=ax) #, draw_body=False, draw_shadow=False)
 
     # cloud
     low = fplt.plot(data.Low, color=dark_black, width=0, ax=ax)
@@ -157,7 +157,9 @@ def plot_strategy(engine):
 
     for trade in engine.trades:
 
-        # init container of nan
+        print(f'trade: {trade.id}')
+
+        # init container of nan todo must extract perf unacceptable
         trade_df = pd.DataFrame(
             data=np.full([len(data), 3], np.nan),
             columns=['entry', 'exit', 'trade'],
@@ -223,7 +225,61 @@ def plot_strategy(engine):
             width=linewidth,
             ax=ax)
 
-    # todo separate rest to plot_strategy() ...
+    fplt.show()
+
+def plot_strategy(engine):
+
+    # maximize window
+    fplt.winx = 3840
+    fplt.winy = 0
+    fplt.winw = 3840
+    fplt.winh = 2160
+
+    # colors
+    white = 'white'
+    light_gray = '#262626'
+    dark_gray = '#1a1a1a'
+    dark_black = '#141414'
+    dark_blue = '#00165e'
+    dark_aqua = '#00585e'
+    gray = '#383838'
+
+    fplt.background = dark_black
+    fplt.candle_bull_color = light_gray
+    fplt.candle_bull_body_color = light_gray
+    fplt.candle_bear_color = dark_gray
+    fplt.candle_bear_body_color = dark_gray
+    fplt.cross_hair_color = white
+
+    # init finplot
+    ax = fplt.create_plot(title='Strategy')
+
+    # axis
+    axis_pen = fplt._makepen(color='grey')
+    ax.axes['right']['item'].setPen(axis_pen)
+    ax.axes['right']['item'].setTextPen(axis_pen)
+    ax.axes['right']['item'].setTickPen(None)
+    ax.axes['bottom']['item'].setPen(axis_pen)
+    ax.axes['bottom']['item'].setTextPen(axis_pen)
+    ax.axes['bottom']['item'].setTickPen(None)
+
+    # crosshair
+    ax.crosshair.vline.setPen(axis_pen)
+    ax.crosshair.hline.setPen(axis_pen)
+
+
+
+    # candlestick ohlc
+    data = engine.data
+    fplt.candlestick_ochl(data, ax=ax, draw_body=False, draw_shadow=False)
+
+    # cloud
+    low = fplt.plot(data.Low, color=dark_black, width=0, ax=ax)
+    high = fplt.plot(data.High, color=dark_black, width=0, ax=ax)
+    fplt.fill_between(low, high, color = light_gray)
+
+    markersize = 2
+    linewidth = 7
 
     # build enabled long, short, and disabled
     fast = engine.strategy.fast
