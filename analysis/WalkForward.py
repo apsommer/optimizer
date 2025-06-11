@@ -100,7 +100,9 @@ class WalkForward():
             trades.extend(
                 load_result(run, path)['trades'])
 
-        # todo reindex trades to fix ids
+        # reindex trades
+        for i, trade in enumerate(trades):
+            trade.id = i
 
         # mask data to OS sample
         OS = data.loc[equity.index, :]

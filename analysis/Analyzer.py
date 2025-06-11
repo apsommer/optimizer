@@ -89,6 +89,11 @@ class Analyzer:
             metrics = result['metrics']
             self.results.append(metrics)
 
+        # todo fitness function cases
+        # persist best params
+        metric = get_analyzer_metric(self, 'profit', True)[0]
+        self.params = load_result(metric.id, self.path)['params']
+
         self.metrics = (
             get_analyzer_metrics(self) +
             get_analyzer_metric(self, 'profit', True) +
@@ -98,14 +103,8 @@ class Analyzer:
             get_analyzer_metric(self, 'average_loss', False) +
             get_analyzer_metric(self, 'average_loss', False) +
             get_analyzer_metric(self, 'max_drawdown', False) +
-            get_analyzer_metric(self, 'drawdown_per_profit', False))
-
-        # todo fitness function cases
-        max_profit = get_analyzer_metric(self, 'profit', True)[0]
-
-        # persist best params
-        self.params = load_result(max_profit.id, self.path)['params']
-        print(f'\t*[{max_profit.id}]: {self.params}\n')
+            get_analyzer_metric(self, 'drawdown_per_profit', False) +
+            get_params_metrics(self, metric.id))
 
     def rebuild_engine(self, id):
 

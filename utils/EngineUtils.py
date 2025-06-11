@@ -123,6 +123,11 @@ def get_perf_metrics(engine):
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
 
+def get_params_metrics(analyzer, id):
+    params_title = '*[' + str(id) + ']'
+    return [
+        Metric('params', str(analyzer.params), None, params_title)]
+
 def get_analyzer_metrics(analyzer):
 
     start_date = analyzer.data.index[0]

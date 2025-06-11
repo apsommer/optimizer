@@ -63,9 +63,9 @@ pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'Elapsed time: {pretty}\n')
 
 # print results
-engine.print_trades()
+
 print_metrics(engine.metrics)
-print(engine.strategy.params)
+engine.print_trades()
 
 # plot results
 plot_equity(engine)
