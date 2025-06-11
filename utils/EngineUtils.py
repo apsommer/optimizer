@@ -139,7 +139,7 @@ def get_analyzer_metrics(analyzer):
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days')]
 
-def get_max_metric(analyzer, name):
+def get_analyzer_metric(analyzer, name, isMax):
 
     results = analyzer.results
 
@@ -153,7 +153,7 @@ def get_max_metric(analyzer, name):
     metric = sorted(
         _metrics,
         key = lambda it: it.value,
-        reverse = True)[0]
+        reverse = isMax)[0]
 
     name = metric.name
     value = metric.value
@@ -164,32 +164,6 @@ def get_max_metric(analyzer, name):
 
     return [
         Metric(name, value, unit, title, formatter, id) ]
-
-def get_min_metric(analyzer, name):
-
-    results = analyzer.results
-
-    # isolate metric of interest
-    _metrics = []
-    for metrics in results:
-        for metric in metrics:
-            if metric.name == name:
-                _metrics.append(metric)
-
-    metric = sorted(
-        _metrics,
-        key = lambda it: it.value,
-        reverse = False)[0]
-
-    name = metric.name
-    value = metric.value
-    unit = metric.unit
-    title = '[' + str(metric.id) + '] (Min) ' + metric.title
-    formatter = metric.formatter
-    id = metric.id
-
-    return [
-        Metric(name, value, title, unit, formatter, id) ]
 
 def print_metrics(metrics):
 

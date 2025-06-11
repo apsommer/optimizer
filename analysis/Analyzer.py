@@ -91,16 +91,17 @@ class Analyzer:
 
         self.metrics = (
             get_analyzer_metrics(self) +
-            get_max_metric(self, 'profit') +
-            get_max_metric(self, 'expectancy') +
-            get_max_metric(self, 'win_rate') +
-            get_max_metric(self, 'average_win') +
-            get_min_metric(self, 'average_loss') +
-            get_min_metric(self, 'max_drawdown') +
-            get_min_metric(self, 'drawdown_per_profit'))
+            get_analyzer_metric(self, 'profit', True) +
+            get_analyzer_metric(self, 'expectancy', True) +
+            get_analyzer_metric(self, 'win_rate', True) +
+            get_analyzer_metric(self, 'average_win', True) +
+            get_analyzer_metric(self, 'average_loss', False) +
+            get_analyzer_metric(self, 'average_loss', False) +
+            get_analyzer_metric(self, 'max_drawdown', False) +
+            get_analyzer_metric(self, 'drawdown_per_profit', False))
 
         # todo fitness function cases
-        max_profit = get_max_metric(self, 'profit')[0]
+        max_profit = get_analyzer_metric(self, 'profit', True)[0]
 
         # persist best params
         self.params = load_result(max_profit.id, self.path)['params']

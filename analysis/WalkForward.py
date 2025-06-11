@@ -6,9 +6,8 @@ import pandas as pd
 from analysis.Analyzer import Analyzer, load_result
 from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
-from utils.EngineUtils import print_metrics, get_max_metric
+from utils.EngineUtils import print_metrics
 
-''' required top-level for multiprocessing '''
 class WalkForward():
 
     def __init__(self, num_months, percent, runs, data):
