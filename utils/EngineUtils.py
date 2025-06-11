@@ -1,4 +1,8 @@
+from datetime import timedelta
+
 import numpy as np
+import pandas as pd
+
 from model.Metric import Metric
 
 def get_profit_factor_metrics(engine):
@@ -137,7 +141,7 @@ def get_analyzer_metrics(analyzer):
     candles = len(analyzer.data.index)
 
     return [
-        Metric('config_header', None, None, 'Analyzer:'),
+        Metric('header', None, None, 'Analyzer:'),
         Metric('id', analyzer.id, None, 'Id'),
         Metric('num_engines', num_engines, None, 'Engines'),
         Metric('start_date', start_date, None, 'Start date'),
@@ -170,6 +174,23 @@ def get_analyzer_metric(analyzer, name, isMax):
 
     return [
         Metric(name, value, unit, title, formatter, id) ]
+
+def get_walk_forward_metrics(walk_forward):
+
+    OS_len = walk_forward.OS_len # candles
+
+    start = walk_forward.data.index[-1]
+    end = start + timedelta(minutes = OS_len)
+    days = (end - start).days
+
+    return [
+        Metric('header', None, None, 'Walk forward:'),
+        Metric('runs', walk_forward.runs, None, 'Runs'),
+        Metric('start_date', start, None, 'Start date'),
+        Metric('end_date', end, None, 'End date'),
+        Metric('candles', OS_len, None, 'Candles'),
+        Metric('days', days, None, 'Days')]
+
 
 def print_metrics(metrics):
 

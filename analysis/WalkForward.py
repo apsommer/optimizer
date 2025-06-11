@@ -6,7 +6,8 @@ import pandas as pd
 from analysis.Analyzer import Analyzer, load_result
 from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
-from utils.EngineUtils import print_metrics
+from utils.EngineUtils import print_metrics, get_walk_forward_metrics, get_params_metrics
+
 
 class WalkForward():
 
@@ -15,6 +16,7 @@ class WalkForward():
         self.percent = percent
         self.runs = runs
         self.data = data
+        self.params = None
 
         # organize outputs
         data_name = 'NQ_' + str(num_months) + 'mon'
@@ -25,8 +27,7 @@ class WalkForward():
         self.OS_len = int((percent / 100) * self.IS_len)
 
         # remove any residual analyses
-        try: shutil.rmtree(self.path)
-        except FileNotFoundError: pass
+        shutil.rmtree(self.path, ignore_errors=True)
 
     def walk_forward(self, run):
 
@@ -109,6 +110,7 @@ class WalkForward():
         # get params from last IS
         IS_path = self.path + str(runs)
         params = load_result('analyzer', IS_path)['params']
+        self.params = params
 
         # create engine, but don't run!
         strategy = LiveStrategy(OS, params)
@@ -120,4 +122,12 @@ class WalkForward():
         engine.analyze()
         engine.save(self.path)
 
+        self.analyze()
+
         return engine
+
+    def analyze(self):
+
+        self.metrics = (
+            get_walk_forward_metrics(self) +
+            get_params_metrics(self, self.runs))

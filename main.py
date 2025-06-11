@@ -16,7 +16,7 @@ from utils.PlotUtils import *
 # INPUT ###########################################################
 
 # data
-num_months = 6
+num_months = 3
 isNetwork = False
 
 # analyzer

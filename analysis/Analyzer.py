@@ -54,7 +54,7 @@ class Analyzer:
                 for takeProfitPercent in self.takeProfitPercent:
                     for slowMinutes in self.slowMinutes:
 
-                        if id > 5:
+                        if id > 3:
                             break
 
                         # update params
