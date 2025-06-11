@@ -99,12 +99,12 @@ class Analyzer:
             get_min_metric(self, 'max_drawdown') +
             get_min_metric(self, 'drawdown_per_profit'))
 
-        # get result with highest profit
         # todo fitness function cases
-        max_profit = get_max_metric(self, 'profit')
-        max_profit_id = max_profit[0].id
-        self.params = load_result(max_profit_id, self.path)['params']
-        print(f'\t*[{max_profit_id}]: {self.params}\n')
+        max_profit = get_max_metric(self, 'profit')[0]
+
+        # persist best params
+        self.params = load_result(max_profit.id, self.path)['params']
+        print(f'\t*[{max_profit.id}]: {self.params}\n')
 
     def rebuild_engine(self, id):
 

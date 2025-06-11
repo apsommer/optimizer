@@ -150,17 +150,20 @@ def get_max_metric(analyzer, name):
             if metric.name == name:
                 _metrics.append(metric)
 
-    max_metric = sorted(_metrics,
-        key=lambda it: it.value,
-        reverse=True)[0]
+    metric = sorted(
+        _metrics,
+        key = lambda it: it.value,
+        reverse = True)[0]
 
-    return [ Metric(
-        name = max_metric.name,
-        value = max_metric.value,
-        title = '[' + str(id) + '] (Max) ' + max_metric.title,
-        unit = max_metric.unit,
-        formatter = max_metric.formatter,
-        id = max_metric.id) ]
+    name = metric.name
+    value = metric.value
+    unit = metric.unit
+    title = '[' + str(metric.id) + '] (Max) ' + metric.title
+    formatter = metric.formatter
+    id = metric.id
+
+    return [
+        Metric(name, value, unit, title, formatter, id) ]
 
 def get_min_metric(analyzer, name):
 
@@ -173,13 +176,20 @@ def get_min_metric(analyzer, name):
             if metric.name == name:
                 _metrics.append(metric)
 
-    min_metric = sorted(_metrics, key=lambda metric: metric.value, reverse=False)[0]
-    id = _metrics.index(min_metric)
+    metric = sorted(
+        _metrics,
+        key = lambda it: it.value,
+        reverse = False)[0]
 
-    min_metric.title = '[' + str(id) + '] (Min) ' + min_metric.title
-    min_metric.id = id
+    name = metric.name
+    value = metric.value
+    unit = metric.unit
+    title = '[' + str(metric.id) + '] (Min) ' + metric.title
+    formatter = metric.formatter
+    id = metric.id
 
-    return [ min_metric ]
+    return [
+        Metric(name, value, title, unit, formatter, id) ]
 
 def print_metrics(metrics):
 

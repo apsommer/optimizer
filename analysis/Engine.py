@@ -87,6 +87,10 @@ class Engine:
             get_max_drawdown_metrics(self) +
             get_expectancy_metrics(self))
 
+        # tag all metrics with engine id
+        for metric in self.metrics:
+            metric.id = self.id
+
     def print_trades(self):
 
         show_last = 3
