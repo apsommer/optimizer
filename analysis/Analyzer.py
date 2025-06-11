@@ -99,6 +99,13 @@ class Analyzer:
             get_min_metric(self, 'max_drawdown') +
             get_min_metric(self, 'drawdown_per_profit'))
 
+        # get result with highest profit
+        # todo fitness function cases
+        max_profit = get_max_metric(self, 'profit')
+        max_profit_id = max_profit[0].id
+        self.params = load_result(max_profit_id, self.path)['params']
+        print(f'\t*[{max_profit_id}]: {self.params}\n')
+
     def rebuild_engine(self, id):
 
         data = self.data
@@ -119,6 +126,28 @@ class Analyzer:
         engine.cash_series = result['cash_series']
 
         return engine
+
+    ''' serialize '''
+    def save(self):
+
+        path = self.path
+
+        result = {
+            'id': self.id,
+            'params': self.params,
+            'metrics': self.metrics
+        }
+
+        # make directory, if needed
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        # create new binary
+        filename = 'analyzer' + '.bin'
+        path_filename = path + '/' + filename
+
+        filehandler = open(path_filename, 'wb')
+        pickle.dump(result, filehandler)
 
 ########################################################################################################################
 

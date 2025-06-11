@@ -102,7 +102,7 @@ class Engine:
             print(trade)
 
     ''' serialize '''
-    def save(self, path='output'):
+    def save(self, path):
 
         result = {
             'id': self.id,

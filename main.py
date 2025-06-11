@@ -49,6 +49,7 @@ for run in range(runs+1):
     processes.append(process)
     process.start()
 
+os.system('clear')
 # start threads
 for process in processes:
     process.join()
@@ -56,19 +57,18 @@ for process in processes:
 # build composite of OS runs
 engine = wfa.build_composite()
 
+###################################################################
+elapsed = time.time() - start_time
+pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
+print(f'Elapsed time: {pretty}\n')
+
 # print results
 engine.print_trades()
 print_metrics(engine.metrics)
+print(engine.strategy.params)
 
 # plot results
 plot_equity(engine)
 # plot_trades(engine)
 # plot_strategy(engine)
-
-###################################################################
-elapsed = time.time() - start_time
-pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
-print(f'Elapsed time: {pretty}')
-
-
 
