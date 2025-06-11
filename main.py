@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 import time
+import warnings
 
 import pandas as pd
 from tqdm import tqdm
@@ -41,18 +42,14 @@ wfa = WalkForward(
     data = data)
 
 # multiprocessing use all cores, 16 available
-processes = []
-for run in range(runs+1):
-    process = Process(
-        target = wfa.walk_forward,
-        args = (run,))
-    processes.append(process)
-    process.start()
+cores = multiprocessing.cpu_count()
+cores -= 1 # leave one for basic computer tasks
+runs += 1  # one more for last OS
 
-# start threads
-os.system('clear')
-for process in processes:
-    process.join()
+pool = Pool(cores)
+pool.map(wfa.walk_forward, range(runs))
+pool.close()
+pool.join()
 
 # build composite of OS runs
 engine = wfa.build_composite()

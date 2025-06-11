@@ -8,7 +8,6 @@ from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
 from utils.EngineUtils import print_metrics, get_walk_forward_metrics, get_params_metrics
 
-
 class WalkForward():
 
     def __init__(self, num_months, percent, runs, data):
