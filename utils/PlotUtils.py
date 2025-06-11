@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import finplot as fplt
 
+# todo extract common plot init
+
 def plot_equity(engine):
 
     # maximize window

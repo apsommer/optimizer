@@ -46,7 +46,7 @@ class Analyzer:
             len(self.slowMinutes))
 
         with tqdm(
-            disable = True,
+            # disable = True,
             total = total,
             colour = 'BLUE',
             bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
@@ -55,8 +55,8 @@ class Analyzer:
                 for takeProfitPercent in self.takeProfitPercent:
                     for slowMinutes in self.slowMinutes:
 
-                        # if id > 5:
-                        #     break
+                        if id > 2:
+                            break
 
                         # update params
                         params.fastMomentumMinutes = fastMomentumMinutes
@@ -136,46 +136,3 @@ def load_result(id, path):
         print(f'\n{path_filename} not found')
         exit()
 
-''' required top-level for multiprocessing '''
-def walk_forward(run, percent, runs, data, path):
-
-    # organize output
-    IS_path = path + str(run) + '/'
-
-    # isolate training and testing sets
-    IS_len = int(len(data) / ((percent / 100) * runs + 1))
-    OS_len = int((percent / 100) * IS_len)
-
-    IS_start = run * OS_len
-    IS_end = IS_start + IS_len
-    OS_start = IS_end
-    OS_end = OS_start + OS_len
-
-    IS = data.iloc[IS_start:IS_end]
-    OS = data.iloc[OS_start:OS_end]
-
-    # run exhaustive sweep over IS
-    analyzer = Analyzer(run, IS, IS_path)
-    analyzer.run()
-    print_metrics(analyzer.metrics)
-
-    # get result with highest profit
-    max_profit = get_max_metric(analyzer, 'profit')
-    max_profit_id = max_profit[0].id
-    print(f'\t*[{max_profit_id}]\n')
-    params = load_result(max_profit_id, analyzer.path)['params']
-
-    # run strategy blind over OS with best params
-    strategy = LiveStrategy(OS, params)
-    engine = Engine(run, strategy)
-    engine.run()
-    engine.save(path)
-
-    # print engine metrics
-    print_metrics(engine.metrics)
-
-    # print_metrics(engine.metrics)
-    # engine.print_trades()
-    # engine = analyzer.rebuild_engine(id)
-    # plot_equity(engine)
-    # plot_strategy(engine)

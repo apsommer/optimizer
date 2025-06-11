@@ -34,7 +34,7 @@ class Engine:
 
         # loop each bar
         for idx in tqdm(
-            # disable = True,
+            disable = True,
             iterable = self.data.index,
             colour = 'BLUE',
             bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}'):
