@@ -4,8 +4,11 @@ from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
 from utils.EngineUtils import print_metrics, get_max_metric
 
+def walk_forward(run, num_months, percent, runs, data):
 
-def walk_forward(run, percent, runs, data, path):
+    # organize outputs
+    data_name = 'NQ_' + str(num_months) + 'mon'
+    path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
 
     ###### in-sample
     IS_path = path + str(run) + '/'
@@ -13,6 +16,17 @@ def walk_forward(run, percent, runs, data, path):
     # isolate training xet
     IS_len = int(len(data) / ((percent / 100) * runs + 1))
     OS_len = int((percent / 100) * IS_len)
+
+    params = sweep_IS(run, IS_path, IS_len, OS_len, data)
+
+    # last run skip OS
+    if run == runs: return
+
+    run_OS(run, path, IS_len, OS_len, data, params)
+
+def sweep_IS(run, IS_path, IS_len, OS_len, data, fitness=0):
+
+    # isolate training xet
     IS_start = run * OS_len
     IS_end = IS_start + IS_len
     IS = data.iloc[IS_start:IS_end]
@@ -25,13 +39,15 @@ def walk_forward(run, percent, runs, data, path):
     # get result with highest profit
     max_profit = get_max_metric(analyzer, 'profit')
     max_profit_id = max_profit[0].id
-    print(f'\t*[{max_profit_id}]\n')
     params = load_result(max_profit_id, analyzer.path)['params']
 
-    ###### out-of-sample
-    # last run skip OS!
-    if run == runs:
-        return
+    print(f'\t*[{max_profit_id}]\n')
+    return params
+
+def run_OS(run, path, IS_len, OS_len, data, params):
+
+    IS_start = run * OS_len
+    IS_end = IS_start + IS_len
 
     OS_start = IS_end
     OS_end = OS_start + OS_len
@@ -43,9 +59,5 @@ def walk_forward(run, percent, runs, data, path):
     engine.run()
     engine.save(path)
 
-
     # print_metrics(engine.metrics)
     # engine.print_trades()
-
-def sweep_IS(fitness=0):
-    pass

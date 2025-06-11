@@ -44,7 +44,7 @@ for run in range(runs+1):
 
     process = multiprocessing.Process(
         target = walk_forward,
-        args = (run, percent, runs, data, path))
+        args = (run, num_months, percent, runs, data))
     processes.append(process)
     process.start()
 
