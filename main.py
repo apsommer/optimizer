@@ -49,18 +49,21 @@ for run in range(runs+1):
     processes.append(process)
     process.start()
 
-os.system('clear')
 # start threads
+os.system('clear')
 for process in processes:
     process.join()
 
-# print last IS analyzer
-IS_path = wfa.path + str(runs)
-analyzer_metrics = load_result('analyzer', IS_path)['metrics']
-print_metrics(analyzer_metrics)
-
 # build composite of OS runs
 engine = wfa.build_composite()
+
+# get last IS analyzer
+IS_path = wfa.path + str(runs)
+analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+
+# print results
+print_metrics(wfa.metrics)
+print_metrics(analyzer_metrics)
 print_metrics(engine.metrics)
 engine.print_trades()
 

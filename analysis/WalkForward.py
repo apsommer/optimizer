@@ -95,10 +95,12 @@ class WalkForward():
         equity = pd.Series()
         trades = []
         for run in range(runs):
-            equity = equity._append(
-                load_result(run, path)['cash_series'])
-            trades.extend(
-                load_result(run, path)['trades'])
+
+            cash_series = load_result(run, path)['cash_series']
+            trades = load_result(run, path)['trades']
+
+            equity = equity._append(cash_series)
+            trades.extend(trades)
 
         # reindex trades
         for i, trade in enumerate(trades):
@@ -130,4 +132,4 @@ class WalkForward():
 
         self.metrics = (
             get_walk_forward_metrics(self) +
-            get_params_metrics(self, self.runs))
+            get_params_metrics(self))

@@ -127,8 +127,11 @@ def get_perf_metrics(engine):
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
 
-def get_params_metrics(analyzer, id):
-    params_title = '*[' + str(id) + ']'
+def get_params_metrics(analyzer, id=None):
+
+    if id is None: params_title = 'Params'
+    else: params_title = '*[' + str(id) + ']'
+
     return [
         Metric('params', str(analyzer.params), None, params_title)]
 
