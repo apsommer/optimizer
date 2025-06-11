@@ -54,17 +54,20 @@ os.system('clear')
 for process in processes:
     process.join()
 
+# print last IS analyzer
+IS_path = wfa.path + str(runs)
+analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+print_metrics(analyzer_metrics)
+
 # build composite of OS runs
 engine = wfa.build_composite()
-
-# print results
 print_metrics(engine.metrics)
 engine.print_trades()
 
 ###################################################################
 elapsed = time.time() - start_time
 pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
-print(f'\nElapsed time: {pretty}\n')
+print(f'\nElapsed time: {pretty}')
 
 # plot results
 plot_equity(engine)

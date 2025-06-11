@@ -56,8 +56,6 @@ class WalkForward():
         analyzer = Analyzer(run, IS, path)
         analyzer.run()
         analyzer.save()
-
-        # print results
         # print_metrics(analyzer.metrics)
 
         return analyzer.params

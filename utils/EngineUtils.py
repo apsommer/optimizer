@@ -138,6 +138,7 @@ def get_analyzer_metrics(analyzer):
 
     return [
         Metric('config_header', None, None, 'Analyzer:'),
+        Metric('id', analyzer.id, None, 'Id'),
         Metric('num_engines', num_engines, None, 'Engines'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
@@ -196,5 +197,3 @@ def print_metrics(metrics):
             continue
 
         print("\t{}: {} [{}]".format(title, rounded_value, unit))
-
-    print()

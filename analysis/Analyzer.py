@@ -46,7 +46,6 @@ class Analyzer:
             len(self.slowMinutes))
 
         with tqdm(
-            # disable = True,
             total = total,
             colour = 'BLUE',
             bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
