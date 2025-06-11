@@ -27,6 +27,7 @@ runs = 10
 ###################################################################
 
 os.system('clear')
+warnings.filterwarnings('ignore')
 start_time = time.time()
 
 # get ohlc prices
