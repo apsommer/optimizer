@@ -33,11 +33,10 @@ class WalkForward():
         # sweep in-sample
         params = self.sweep_IS(run)
 
-        # last run skip out-of-sample
-        if run == self.runs:
-            return
+        # skip last run out-of-sample
+        if run == self.runs: return
 
-        # run out-of-sample
+        # run out-of-sample single engine
         self.run_OS(run, params)
 
     def sweep_IS(self, run):
@@ -84,6 +83,7 @@ class WalkForward():
         # print_metrics(engine.metrics)
         # engine.print_trades()
 
+    ''' must call after all threads complete '''
     def build_composite(self):
 
         runs = self.runs

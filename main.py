@@ -42,26 +42,27 @@ wfa = WalkForward(
     runs = runs,
     data = data)
 
-# multiprocessing use all cores, 16 available
-cores = multiprocessing.cpu_count()
+# multiprocessing use all cores
+cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave one for basic computer tasks
-runs += 1  # one more for last OS
+_runs = range(runs + 1) # one more for last OS
 
+# automate pool of threads
 pool = Pool(cores)
-pool.map(wfa.walk_forward, range(runs))
+pool.map(wfa.walk_forward, _runs)
 pool.close()
-pool.join()
+pool.join() # start one thread on each core
 
 # build composite of OS runs
 engine = wfa.build_composite()
 
 # get last IS analyzer
-IS_path = wfa.path + str(runs)
-analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+# IS_path = wfa.path + str(runs)
+# analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+# print_metrics(analyzer_metrics)
 
 # print results
 print_metrics(wfa.metrics)
-print_metrics(analyzer_metrics)
 print_metrics(engine.metrics)
 engine.print_trades()
 

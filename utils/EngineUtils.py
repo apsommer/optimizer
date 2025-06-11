@@ -189,8 +189,8 @@ def get_walk_forward_metrics(walk_forward):
     return [
         Metric('header', None, None, 'Walk forward:'),
         Metric('runs', walk_forward.runs, None, 'Runs'),
-        Metric('start_date', start, None, 'Start date'),
-        Metric('end_date', end, None, 'End date'),
+        Metric('next_start_date', start, None, 'Next start date'),
+        Metric('next_end_date', end, None, 'Next end date'),
         Metric('candles', OS_len, None, 'Candles'),
         Metric('days', days, None, 'Days')]
 
