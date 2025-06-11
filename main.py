@@ -4,10 +4,10 @@ import time
 
 import pandas as pd
 from tqdm import tqdm
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 from analysis.Analyzer import load_result
 from analysis.Engine import Engine
-from analysis.walk_forward import walk_forward
+from analysis.WalkForward import WalkForward
 from strategy.LiveStrategy import LiveStrategy
 from utils import DataUtils as repo
 from utils.EngineUtils import print_metrics
@@ -28,23 +28,24 @@ runs = 3
 os.system('clear')
 start_time = time.time()
 
-# organize outputs
+# get ohlc prices
 data_name = 'NQ_' + str(num_months) + 'mon'
 path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
-
-# get ohlc prices
 data = repo.getOhlc(num_months, isNetwork)
 
-# multiprocess use all cores! todo refactor to Pool?
-cores = multiprocessing.cpu_count()
-cores -= 1 # save one for basic computer operations
+# init walk forward analysis
+wfa = WalkForward(
+    num_months = num_months,
+    percent = percent,
+    runs = runs,
+    data = data)
 
+# multiprocessing use all cores, 16 available
 processes = []
 for run in range(runs+1):
-
-    process = multiprocessing.Process(
-        target = walk_forward,
-        args = (run, num_months, percent, runs, data))
+    process = Process(
+        target = wfa.walk_forward,
+        args = (run,))
     processes.append(process)
     process.start()
 
@@ -52,30 +53,8 @@ for run in range(runs+1):
 for process in processes:
     process.join()
 
-# build composite engine
-equity = pd.Series()
-trades = []
-for run in range(runs):
-    equity = equity._append(
-        load_result(run, path)['cash_series'])
-    trades.extend(
-        load_result(run, path)['trades'])
-
-# mask data to OS sample
-OS = data.loc[equity.index, :]
-
-
-
-params = load_result(0, path)['params'] # todo get params from last IS
-
-# create engine, but don't run!
-strategy = LiveStrategy(OS, params)
-engine = Engine(100, strategy)
-
-# finish engine build
-engine.cash_series = equity
-engine.trades = trades
-engine.analyze()
+# build composite of OS runs
+engine = wfa.build_composite()
 
 # print results
 engine.print_trades()
