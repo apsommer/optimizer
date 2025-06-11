@@ -16,12 +16,12 @@ from utils.PlotUtils import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 6
 isNetwork = False
 
 # analyzer
 percent = 20
-runs = 3
+runs = 10
 
 ###################################################################
 

@@ -25,7 +25,8 @@ class WalkForward():
         self.OS_len = int((percent / 100) * self.IS_len)
 
         # remove any residual analyses
-        shutil.rmtree(self.path)
+        try: shutil.rmtree(self.path)
+        except FileNotFoundError: pass
 
     def walk_forward(self, run):
 
