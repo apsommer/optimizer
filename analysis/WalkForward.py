@@ -58,7 +58,7 @@ class WalkForward():
         analyzer.save()
 
         # print results
-        print_metrics(analyzer.metrics)
+        # print_metrics(analyzer.metrics)
 
         return analyzer.params
 

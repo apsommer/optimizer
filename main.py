@@ -57,18 +57,16 @@ for process in processes:
 # build composite of OS runs
 engine = wfa.build_composite()
 
+# print results
+print_metrics(engine.metrics)
+engine.print_trades()
+
 ###################################################################
 elapsed = time.time() - start_time
 pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
-print(f'Elapsed time: {pretty}\n')
-
-# print results
-
-print_metrics(engine.metrics)
-engine.print_trades()
+print(f'\nElapsed time: {pretty}\n')
 
 # plot results
 plot_equity(engine)
 # plot_trades(engine)
 # plot_strategy(engine)
-
