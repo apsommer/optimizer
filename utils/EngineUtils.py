@@ -180,18 +180,17 @@ def get_analyzer_metric(analyzer, name, isMax):
 
 def get_walk_forward_metrics(walk_forward):
 
-    OS_len = walk_forward.OS_len # candles
-
+    candles = walk_forward.OS_len
     start = walk_forward.data.index[-1]
-    end = start + timedelta(minutes = OS_len)
+    end = start + timedelta(minutes = candles)
     days = (end - start).days
 
     return [
         Metric('header', None, None, 'Walk forward:'),
         Metric('runs', walk_forward.runs, None, 'Runs'),
-        Metric('next_start_date', start, None, 'Next start date'),
-        Metric('next_end_date', end, None, 'Next end date'),
-        Metric('candles', OS_len, None, 'Candles'),
+        Metric('next_start', start, None, 'Next start'),
+        Metric('next_end', end, None, 'Next end'),
+        Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days')]
 
 

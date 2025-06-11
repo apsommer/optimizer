@@ -205,6 +205,8 @@ class LiveStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
+        # todo add exit on last bar of data
+
         # exit long
         isExitLong = (
             isExitLongFastCrossover
