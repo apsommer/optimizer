@@ -1,3 +1,6 @@
+from utils.MetricUtils import format_timestamp
+
+
 class Order:
     def __init__(self, ticker, size, sentiment, idx, bar_index, price):
         self.ticker = ticker
@@ -14,5 +17,5 @@ class Order:
 
         return (
             sentiment + '\t' +
-            self.idx.strftime('%b %d, %Y, %H:%M') + '\t\t' +
+            format_timestamp(self.idx) + '\t\t' +
             str(round(self.price)))

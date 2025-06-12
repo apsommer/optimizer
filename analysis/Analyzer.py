@@ -30,9 +30,9 @@ class Analyzer:
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        self.fastMomentumMinutes = np.arange(60, 140, 20)
-        self.takeProfitPercent = np.arange(.25, .65, .2)
-        self.slowMinutes = np.arange(1555, 2655, 200)
+        self.fastMomentumMinutes = np.arange(65, 126, 15)
+        self.takeProfitPercent = np.arange(.27, .68, .20)
+        self.slowMinutes = np.arange(1555, 2556, 250)
 
     def run(self):
 
@@ -54,8 +54,8 @@ class Analyzer:
                 for takeProfitPercent in self.takeProfitPercent:
                     for slowMinutes in self.slowMinutes:
 
-                        # if id > 3:
-                        #     break
+                        if id > 2:
+                            break
 
                         # update params
                         params.fastMomentumMinutes = fastMomentumMinutes

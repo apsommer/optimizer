@@ -196,6 +196,29 @@ def get_analyzer_metric(analyzer, name, isMax):
     return [
         Metric(name, value, unit, title, formatter, id) ]
 
+def get_walk_forward_header_metrics(walk_forward):
+
+    start_date = walk_forward.data.index[0]
+    end_date = walk_forward.data.index[-1]
+    candles = len(walk_forward.data.index)
+    days = (end_date - start_date).days
+    months = round(days / 30.437)
+    
+    # format timestamp
+    start_date = format_timestamp(start_date)
+    end_date = format_timestamp(end_date)
+
+    return [
+        Metric('header', None, None, 'Walk forward:'),
+        Metric('start_date', start_date, None, 'Start date'),
+        Metric('end_date', end_date, None, 'End date'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Days'),
+        Metric('months', months, None, 'Months'),
+        Metric('percent', walk_forward.percent, None, 'Percent'),
+        Metric('runs', walk_forward.runs, None, 'Runs'),
+    ]
+
 def get_walk_forward_metrics(walk_forward):
 
     candles = walk_forward.OS_len
@@ -203,17 +226,18 @@ def get_walk_forward_metrics(walk_forward):
     end = start + timedelta(minutes = candles)
     days = (end - start).days
 
-    return [
-        Metric('header', None, None, 'Walk forward:'),
+    # format timestamp
+    start = format_timestamp(start)
+    end = format_timestamp(end)
 
-        Metric('percent', walk_forward.percent, None, 'Percent'),
-        Metric('runs', walk_forward.runs, None, 'Runs'),
+    return [
         Metric('params', str(walk_forward.params), None, 'Next params'),
-        Metric('next_start', start, None, 'Next start'),
-        Metric('next_end', end, None, 'Next end'),
+        Metric('start', start, None, 'Start'),
+        Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),
+
         Metric('days', days, None, 'Days'),
     ]
 
-
-
+def format_timestamp(idx):
+    return idx.strftime('%b %d, %Y, %H:%M')

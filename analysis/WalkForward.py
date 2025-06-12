@@ -8,7 +8,6 @@ from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
 from utils.MetricUtils import *
 
-
 class WalkForward():
 
     def __init__(self, num_months, percent, runs, data):
@@ -25,6 +24,9 @@ class WalkForward():
         # isolate training and testing sets
         self.IS_len = int(len(data) / ((percent / 100) * runs + 1))
         self.OS_len = int((percent / 100) * self.IS_len)
+
+        # init metrics with header
+        self.metrics = get_walk_forward_header_metrics(self)
 
         # remove any residual analyses
         shutil.rmtree(self.path, ignore_errors=True)
@@ -130,4 +132,4 @@ class WalkForward():
 
     def analyze(self):
 
-        self.metrics = get_walk_forward_metrics(self)
+        self.metrics += get_walk_forward_metrics(self)

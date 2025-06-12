@@ -11,7 +11,7 @@ from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
 from strategy.LiveStrategy import LiveStrategy
 from utils import DataUtils as repo
-from utils.MetricUtils import print_metrics
+from utils.MetricUtils import print_metrics, get_walk_forward_metrics
 from utils.PlotUtils import *
 
 # INPUT ###########################################################
@@ -22,7 +22,7 @@ isNetwork = False
 
 # analyzer
 percent = 20
-runs = 10
+runs = 14
 
 ###################################################################
 
@@ -47,6 +47,10 @@ cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave one for basic computer tasks
 _runs = range(runs + 1) # one more for last OS
 
+# print header metrics
+print_metrics(wfa.metrics)
+print()
+
 # automate pool of threads
 pool = Pool(cores)
 pool.map(wfa.walk_forward, _runs)
@@ -62,7 +66,8 @@ engine = wfa.build_composite()
 # print_metrics(analyzer_metrics)
 
 # print results
-print_metrics(wfa.metrics)
+print()
+print_metrics(get_walk_forward_metrics(wfa))
 print_metrics(engine.metrics)
 engine.print_trades()
 
