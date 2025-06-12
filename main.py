@@ -1,38 +1,80 @@
+import multiprocessing
 import os
 import time
+import warnings
 
-from analysis.Analyzer import Analyzer
-from analysis.PlotUtils import *
-from data import DataUtils as repo
+import pandas as pd
+from tqdm import tqdm
+from multiprocessing import Pool, Process
+from analysis.Analyzer import load_result
+from analysis.Engine import Engine
+from analysis.WalkForward import WalkForward
+from strategy.LiveStrategy import LiveStrategy
+from utils import DataUtils as repo
+from utils.MetricUtils import print_metrics, get_walk_forward_metrics
+from utils.PlotUtils import *
+
+# INPUT ###########################################################
+
+# data
+num_months = 3
+isNetwork = False
+
+# analyzer
+percent = 20
+runs = 14
+
+###################################################################
 
 os.system('clear')
+warnings.filterwarnings('ignore')
 start_time = time.time()
 
 # get ohlc prices
-csv_filename = 'data/nq_1mon.csv' # 1 month
-# csv_filename = "data/nq_3mon.csv"  # 3 months
-# csv_filename = "data/nq_6mon.csv"  # 6 months
-# csv_filename = "data/nq_24mon.csv" # 2 years
+data_name = 'NQ_' + str(num_months) + 'mon'
+path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
+data = repo.getOhlc(num_months, isNetwork)
 
-data = repo.getOhlc(csv_filename = csv_filename) # local
-# data = repo.getOhlc() # network
+# init walk forward analysis
+wfa = WalkForward(
+    num_months = num_months,
+    percent = percent,
+    runs = runs,
+    data = data)
 
-analyzer = Analyzer(data, 'MNQ')
-# analyzer.run()
-# analyzer.print_metrics()
+# multiprocessing use all cores
+cores = multiprocessing.cpu_count() # 16 available
+cores -= 1 # leave one for basic computer tasks
+_runs = range(runs + 1) # one more for last OS
 
-# todo hunt for best engine
+# print header metrics
+print_metrics(wfa.metrics)
 
-# rebuild engine of interest
-engine = analyzer.rebuild(7)
+# automate pool of threads
+pool = Pool(cores)
+pool.map(wfa.walk_forward, _runs)
+pool.close()
+pool.join() # start one thread on each core
 
-# print engine metrics
-engine.print_metrics()
+# build composite of OS runs
+engine = wfa.build_composite()
+
+# get last IS analyzer
+# IS_path = wfa.path + str(runs)
+# analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+# print_metrics(analyzer_metrics)
+
+# print results
+print_metrics(get_walk_forward_metrics(wfa))
+print_metrics(engine.metrics)
 engine.print_trades()
 
-# plot strategy and equity
-plot_equity(engine)
-plot_strategy(engine)
+###################################################################
+elapsed = time.time() - start_time
+pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
+print(f'\nElapsed time: {pretty}')
 
-end_time = time.time()
-print(f'Elapsed time: {round(end_time - start_time)} seconds')
+# plot results
+plot_equity(engine)
+# plot_trades(engine)
+# plot_strategy(engine)

@@ -44,10 +44,8 @@ class Trade:
 
     def __repr__(self):
 
-        if self.exit_order is None:
-            exit_line = '\n\t' + str(self.id) + ' (open)'
-        else:
-            exit_line = '\n\t' + str(self.id) + '\t' + str(self.exit_order) + '\t' + str(round(self.profit))
+        if self.exit_order is None: exit_line = '\n\t' + str(self.id) + ' (open)'
+        else: exit_line = '\n\t' + str(self.id) + str(self.exit_order) + '\t' + str(round(self.profit))
 
         entry_line = '\n\t' + str(self.entry_order)
 

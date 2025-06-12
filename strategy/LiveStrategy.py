@@ -15,7 +15,7 @@ class LiveStrategy(BaselineStrategy):
 
     @property
     def size(self):
-        return 2
+        return 1
 
     def __init__(self, data, params):
         super().__init__()
@@ -71,9 +71,9 @@ class LiveStrategy(BaselineStrategy):
         bar_index = self.bar_index
 
         # todo tradingview limitation ~20k bars
-        tv_start = pd.Timestamp('2025-05-13T12:30:00', tz='America/Chicago')
-        if tv_start > idx:
-            return
+        # tv_start = pd.Timestamp('2025-05-13T12:30:00', tz='America/Chicago')
+        # if tv_start > idx:
+        #     return
 
         # params
         fastAngle = self.fastAngle
@@ -205,11 +205,19 @@ class LiveStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
+        # exit on last bar of data
+        # todo prevents any open trades in strategy
+        isExitLastBar = False
+        if idx == self.data.index[-1]:
+            if is_long or is_short:
+                isExitLastBar = True
+
         # exit long
         isExitLong = (
             isExitLongFastCrossover
             or isExitLongFastMomentum
-            or isExitLongTakeProfit)
+            or isExitLongTakeProfit
+            or isExitLastBar)
         if isExitLong:
             self.longExitBarIndex = bar_index
             self.flat(ticker, size)
@@ -218,7 +226,8 @@ class LiveStrategy(BaselineStrategy):
         isExitShort = (
             isExitShortFastCrossover
             or isExitShortFastMomentum
-            or isExitShortTakeProfit)
+            or isExitShortTakeProfit
+            or isExitLastBar)
         if isExitShort:
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size)

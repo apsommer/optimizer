@@ -1,6 +1,8 @@
 import os
+import pickle
+
 from tqdm import tqdm
-from analysis.EngineUtils import *
+from utils.MetricUtils import *
 from model.Trade import Trade
 import pandas as pd
 
@@ -14,7 +16,7 @@ class Engine:
         self.current_idx = -1
         self.trades = []
         self.cash_series = pd.Series(index=self.data.index)
-        self.metrics = pd.Series()
+        self.metrics = []
 
         # init equity account
         margin_requirement = self.strategy.ticker.margin_requirement
@@ -25,12 +27,14 @@ class Engine:
 
     def run(self):
 
-        if self.metrics.size != 0:
+        # check if engine already ran
+        if self.metrics:
             print('Engine already has results, skipping run ...')
             return
 
         # loop each bar
         for idx in tqdm(
+            disable = True,
             iterable = self.data.index,
             colour = 'BLUE',
             bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}'):
@@ -76,17 +80,13 @@ class Engine:
 
     def analyze(self):
 
-        metrics = (
-            analyze_config(self) +
-            analyze_perf(self) +
-            analyze_profit_factor(self) +
-            analyze_max_drawdown(self) +
-            analyze_expectancy(self))
+        self.metrics = (
+            get_engine_metrics(self) +
+            get_strategy_metrics(self))
 
-        # todo simplify self.metrics = metrics?
-        # persist as dict
-        for metric in metrics:
-            self.metrics[metric.name] = metric
+        # tag all metrics with engine id
+        for metric in self.metrics:
+            metric.id = self.id
 
     def print_trades(self):
 
@@ -95,57 +95,31 @@ class Engine:
 
         # header
         print('\nTrades:')
-        print('\t\t\t\t\tclose\tprofit')
+        print('\t\t\t\t\t\tclose\tprofit')
         if len(trades) > show_last:
             print('\t...')
 
         for trade in trades[-show_last:]:
             print(trade)
 
-    def print_metrics(self):
-
-        for metric in self.metrics:
-
-            title = metric.title
-            value = metric.value
-            formatter = metric.formatter
-            unit = metric.unit
-
-            # header
-            if value is None:
-                print('\n' + title)
-                continue
-
-            if unit is None and formatter is None:
-                print("\t{}: {}".format(title, value))
-                continue
-
-            rounded_value = format(value, '.0f')
-            if formatter is not None: rounded_value = format(value, formatter)
-
-            if unit is None:
-                print("\t{}: {}".format(title, rounded_value))
-                continue
-
-            print("\t{}: {} [{}]".format(title, rounded_value, unit))
-
     ''' serialize '''
-    def save(self, path='output'):
+    def save(self, path):
 
-        slim = {
+        result = {
             'id': self.id,
             'params': self.strategy.params,
-            'metrics': self.metrics
+            'metrics': self.metrics,
+            'trades': self.trades,
+            'cash_series': self.cash_series # todo minimize with []?
         }
 
         # make directory, if needed
         if not os.path.exists(path):
-            os.mkdir(path)
+            os.makedirs(path)
 
         # create new binary
-        # formatted_time = time.strftime('%Y%m%d_%H%M%S')
-        filename = 'e' + str(self.id) + '.bin'
+        filename = str(self.id) + '.bin'
         path_filename = path + '/' + filename
-        filehandler = open(path_filename, 'wb')
 
-        pickle.dump(slim, filehandler)
+        filehandler = open(path_filename, 'wb')
+        pickle.dump(result, filehandler)

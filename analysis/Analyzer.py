@@ -1,18 +1,23 @@
 import os
 import pickle
 
+from tqdm import tqdm
+
 from analysis.Engine import Engine
+from utils.MetricUtils import *
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, data, path):
+    def __init__(self, id, data, path):
 
+        self.id = id
         self.data = data
         self.path = path
-        self.slims = None
-        self.metrics = None
+
+        self.results = []
+        self.metrics = []
 
         self.params = LiveParams(
             fastMinutes = 25,
@@ -25,9 +30,9 @@ class Analyzer:
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        self.fastMomentumMinutes = np.arange(55, 140, 5)
-        self.takeProfitPercent = np.arange(0.25, 0.80, .05)
-        self.slowMinutes = np.arange(1555, 2655, 100)
+        self.fastMomentumMinutes = np.arange(65, 126, 15)
+        self.takeProfitPercent = np.arange(.27, .68, .20)
+        self.slowMinutes = np.arange(1555, 2556, 250)
 
     def run(self):
 
@@ -35,27 +40,40 @@ class Analyzer:
         params = self.params
 
         id = 0
-        for fastMomentumMinutes in self.fastMomentumMinutes:
-            for takeProfitPercent in self.takeProfitPercent:
-                for slowMinutes in self.slowMinutes:
+        total = (
+            len(self.fastMomentumMinutes) *
+            len(self.takeProfitPercent) *
+            len(self.slowMinutes))
 
-                    # todo temp
-                    if id > 9: break
+        with tqdm(
+            total = total,
+            colour = 'BLUE',
+            bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
-                    # update params
-                    params.fastMomentumMinutes = fastMomentumMinutes
-                    params.takeProfitPercent = takeProfitPercent
-                    params.slowMinutes = slowMinutes
+            for fastMomentumMinutes in self.fastMomentumMinutes:
+                for takeProfitPercent in self.takeProfitPercent:
+                    for slowMinutes in self.slowMinutes:
 
-                    # create strategy and engine
-                    strategy = LiveStrategy(data, params)
-                    engine = Engine(id=id, strategy=strategy)
+                        if id > 2:
+                            break
 
-                    # run and save
-                    engine.run()
-                    engine.save(self.path)
-                    id += 1
+                        # update params
+                        params.fastMomentumMinutes = fastMomentumMinutes
+                        params.takeProfitPercent = takeProfitPercent
+                        params.slowMinutes = slowMinutes
 
+                        # create strategy and engine
+                        strategy = LiveStrategy(data, params)
+                        engine = Engine(id, strategy)
+
+                        # run and save
+                        engine.run()
+                        engine.save(self.path)
+                        id += 1
+
+                        pbar.update(id)
+
+        pbar.close()
         self.analyze()
 
     def analyze(self):
@@ -64,81 +82,85 @@ class Analyzer:
         num_engines = len(os.listdir(self.path))
         ids = np.arange(0, num_engines, 1)
 
-        columns = [
-            'profit',
-            'max_drawdown',
-            'profit_factor',
-            'drawdown_per_profit',
-            'expectancy',
-            'trades_per_day']
-
-        slims = pd.DataFrame(
-            index=ids,
-            columns=columns)
-
+        # collect engine metrics
         for id in ids:
+            result = load_result(id, self.path)
+            metrics = result['metrics']
+            self.results.append(metrics)
 
-            slim = self.load_engine(id)
+        # todo fitness function cases
+        # persist best params
+        metric = get_analyzer_metric(self, 'profit', True)[0]
+        self.params = load_result(metric.id, self.path)['params']
 
-            slims.loc[id, 'profit'] = slim['metrics']['profit'].value
-            slims.loc[id, 'max_drawdown'] = slim['metrics']['max_drawdown'].value
-            slims.loc[id, 'profit_factor'] = slim['metrics']['profit_factor'].value
-            slims.loc[id, 'drawdown_per_profit'] = slim['metrics']['drawdown_per_profit'].value
-            slims.loc[id, 'expectancy'] = slim['metrics']['expectancy'].value
-            slims.loc[id, 'trades_per_day'] = slim['metrics']['trades_per_day'].value
+        self.metrics = (
+            get_analyzer_metrics(self, metric.id) +
+            get_analyzer_metric(self, 'profit', True) +
+            get_analyzer_metric(self, 'expectancy', True) +
+            get_analyzer_metric(self, 'win_rate', True) +
+            get_analyzer_metric(self, 'average_win', True) +
+            get_analyzer_metric(self, 'average_loss', False) +
+            get_analyzer_metric(self, 'average_loss', False) +
+            get_analyzer_metric(self, 'max_drawdown', False) +
+            get_analyzer_metric(self, 'drawdown_per_profit', False)
+        )
 
-        self.slims = slims
-
-    def print_metrics(self):
-
-        slims = self.slims
-
-        print()
-
-        max_profit = np.max(slims.profit)
-        idx = slims[slims.profit == max_profit].index.values[0]
-        print(f'max_profit: {round(max_profit)}, e{idx}')
-
-        min_drawdown = np.min(slims.max_drawdown)
-        idx = slims[slims.max_drawdown == min_drawdown].index.values[0]
-        print(f'min_drawdown: {round(min_drawdown)}, e{idx}')
-
-        max_pf = np.max(slims.profit_factor)
-        idx = slims[slims.profit_factor == max_pf].index.values[0]
-        print(f'max_pf: {max_pf}, e{idx}')
-
-        min_dpp = np.min(slims.drawdown_per_profit)
-        idx = slims[slims.drawdown_per_profit == min_dpp].index.values[0]
-        print(f'min_dpp: {round(min_dpp)}, e{idx}')
-
-        max_expectancy = np.max(slims.expectancy)
-        idx = slims[slims.expectancy == max_expectancy].index.values[0]
-        print(f'max_expectancy: {round(max_expectancy, 2)}, e{idx}')
-
-        min_trades_per_day = np.min(slims.trades_per_day)
-        idx = slims[slims.trades_per_day == min_trades_per_day].index.values[0]
-        print(f'min_trades_per_days: {round(min_trades_per_day, 2)}, e{idx}')
-
-        print()
-
-    def rebuild(self, id):
+    def rebuild_engine(self, id):
 
         data = self.data
-        slim = self.load_engine(id)
 
-        strategy = LiveStrategy(
-            data=data,
-            params=slim['params'])
+        result = load_result(id, self.path)
+        params = result['params']
 
+        strategy = LiveStrategy(data, params)
+
+        # init but not run
         engine = Engine(id, strategy)
-        engine.run()
+
+        # unpack previously completed result
+        engine.id = result['id']
+        engine.params = params
+        engine.metrics = result['metrics']
+        engine.trades = result['trades']
+        engine.cash_series = result['cash_series']
 
         return engine
 
-    ''' deserialize '''
-    def load_engine(self, id):
+    ''' serialize '''
+    def save(self):
 
-        filename = 'e' + str(id) + '.bin'
-        path_filename = self.path + '/' + filename
+        path = self.path
+
+        result = {
+            'id': self.id,
+            'params': self.params,
+            'metrics': self.metrics
+        }
+
+        # make directory, if needed
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        # create new binary
+        filename = 'analyzer' + '.bin'
+        path_filename = path + '/' + filename
+
+        filehandler = open(path_filename, 'wb')
+        pickle.dump(result, filehandler)
+
+########################################################################################################################
+
+''' deserialize '''
+def load_result(id, path):
+
+    filename = str(id) + '.bin'
+    path_filename = path + '/' + filename
+
+    try:
         filehandler = open(path_filename, 'rb')
         return pickle.load(filehandler)
+
+    except FileNotFoundError:
+        print(f'\n{path_filename} not found')
+        exit()
+

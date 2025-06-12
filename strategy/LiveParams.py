@@ -1,4 +1,5 @@
 class LiveParams:
+
     def __init__(self,
             fastMinutes,
             disableEntryMinutes,
@@ -19,3 +20,9 @@ class LiveParams:
         self.slowMinutes = slowMinutes
         self.slowAngleFactor = slowAngleFactor
         self.coolOffMinutes = coolOffMinutes
+
+    def __repr__(self):
+        return (
+            f'{self.fastMinutes}, {self.disableEntryMinutes}, {self.fastMomentumMinutes}, '
+            f'{self.fastCrossoverPercent}, {self.takeProfitPercent}, {self.fastAngleFactor}, '
+            f'{self.slowMinutes}, {self.slowAngleFactor}, {self.coolOffMinutes}')
