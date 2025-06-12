@@ -54,8 +54,8 @@ class Analyzer:
                 for takeProfitPercent in self.takeProfitPercent:
                     for slowMinutes in self.slowMinutes:
 
-                        if id > 3:
-                            break
+                        # if id > 3:
+                        #     break
 
                         # update params
                         params.fastMomentumMinutes = fastMomentumMinutes

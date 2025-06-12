@@ -109,7 +109,7 @@ class WalkForward():
 
         # reindex trades
         for i, trade in enumerate(trades):
-            trade.id = i
+            trade.id = i + 1 # 1-based index
 
         # mask data to OS sample
         OS = data.loc[cash_series.index, :]

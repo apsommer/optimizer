@@ -90,7 +90,7 @@ class Engine:
 
     def print_trades(self):
 
-        show_last = 100
+        show_last = 3
         trades = self.trades
 
         # header
