@@ -5,6 +5,34 @@ import pandas as pd
 
 from model.Metric import Metric
 
+def print_metrics(metrics):
+
+    for metric in metrics:
+
+        title = metric.title
+        value = metric.value
+        formatter = metric.formatter
+        unit = metric.unit
+
+        # header
+        if value is None:
+            print('\n' + title)
+            continue
+
+        if unit is None and formatter is None:
+            print("\t{}: {}".format(title, value))
+            continue
+
+        rounded_value = format(value, '.0f')
+        if formatter is not None: rounded_value = format(value, formatter)
+
+        if unit is None:
+            print("\t{}: {}".format(title, rounded_value))
+            continue
+
+        print("\t{}: {} [{}]".format(title, rounded_value, unit))
+
+
 def get_strategy_metrics(engine):
 
     days = (engine.data.index[-1] - engine.data.index[0]).days
@@ -82,7 +110,6 @@ def get_strategy_metrics(engine):
         Metric('num_trades', num_trades, None, 'Trades'),
         Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f'),
         Metric('max_drawdown', max_drawdown, 'USD', 'Maximum drawdown'),
-
         Metric('profit', profit, 'USD', 'Profit'),
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
@@ -109,7 +136,8 @@ def get_engine_metrics(engine):
     initial_cash = engine.initial_cash
 
     return [
-        Metric('config_header', None, None, 'Engine:'),
+        Metric('header', None, None, 'Engine:'),
+
         Metric('id', id, None, 'Id'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
@@ -117,46 +145,31 @@ def get_engine_metrics(engine):
         Metric('days', days, None, 'Days'),
         Metric('ticker', ticker, None, 'Ticker'),
         Metric('size', size, None, 'Size'),
-        Metric('initial_cash', initial_cash, 'USD', 'Initial cash')]
+        Metric('initial_cash', initial_cash, 'USD', 'Initial cash'),
+    ]
 
-def get_analyzer_params_metrics(analyzer, id):
-
-    params_title = '*[' + str(id) + ']'
-
-    return [
-        Metric('params', str(analyzer.params), None, params_title) ]
-
-def get_walk_forward_params_metrics(walk_forward):
-
-    candles = walk_forward.OS_len
-    start = walk_forward.data.index[-1]
-    end = start + timedelta(minutes = candles)
-    days = (end - start).days
-
-    return [
-        Metric('params', str(walk_forward.params), None, 'Next params'),
-        Metric('next_start', start, None, 'Next start'),
-        Metric('next_end', end, None, 'Next end'),
-        Metric('candles', candles, None, 'Candles'),
-        Metric('days', days, None, 'Days')]
-
-def get_analyzer_metrics(analyzer):
+def get_analyzer_metrics(analyzer, id):
 
     start_date = analyzer.data.index[0]
     end_date = analyzer.data.index[-1]
     num_engines = len(analyzer.results)
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
     candles = len(analyzer.data.index)
+    params_title = '*[' + str(id) + ']'
 
     return [
         Metric('header', None, None, 'Analyzer:'),
+
         Metric('id', analyzer.id, None, 'Id'),
         Metric('num_engines', num_engines, None, 'Engines'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
-        Metric('days', days, None, 'Days')]
+        Metric('days', days, None, 'Days'),
+        Metric('params', str(analyzer.params), None, params_title),
+    ]
 
+''' metric generator for analyzer '''
 def get_analyzer_metric(analyzer, name, isMax):
 
     results = analyzer.results
@@ -185,35 +198,22 @@ def get_analyzer_metric(analyzer, name, isMax):
 
 def get_walk_forward_metrics(walk_forward):
 
+    candles = walk_forward.OS_len
+    start = walk_forward.data.index[-1]
+    end = start + timedelta(minutes = candles)
+    days = (end - start).days
+
     return [
         Metric('header', None, None, 'Walk forward:'),
+
         Metric('percent', walk_forward.percent, None, 'Percent'),
-        Metric('runs', walk_forward.runs, None, 'Runs') ]
+        Metric('runs', walk_forward.runs, None, 'Runs'),
+        Metric('params', str(walk_forward.params), None, 'Next params'),
+        Metric('next_start', start, None, 'Next start'),
+        Metric('next_end', end, None, 'Next end'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Days'),
+    ]
 
-def print_metrics(metrics):
 
-    for metric in metrics:
-
-        title = metric.title
-        value = metric.value
-        formatter = metric.formatter
-        unit = metric.unit
-
-        # header
-        if value is None:
-            print('\n' + title)
-            continue
-
-        if unit is None and formatter is None:
-            print("\t{}: {}".format(title, value))
-            continue
-
-        rounded_value = format(value, '.0f')
-        if formatter is not None: rounded_value = format(value, formatter)
-
-        if unit is None:
-            print("\t{}: {}".format(title, rounded_value))
-            continue
-
-        print("\t{}: {} [{}]".format(title, rounded_value, unit))
 

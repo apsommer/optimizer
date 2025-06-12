@@ -4,7 +4,7 @@ import pickle
 from tqdm import tqdm
 
 from analysis.Engine import Engine
-from utils.EngineUtils import *
+from utils.MetricUtils import *
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
@@ -94,7 +94,7 @@ class Analyzer:
         self.params = load_result(metric.id, self.path)['params']
 
         self.metrics = (
-            get_analyzer_metrics(self) +
+            get_analyzer_metrics(self, metric.id) +
             get_analyzer_metric(self, 'profit', True) +
             get_analyzer_metric(self, 'expectancy', True) +
             get_analyzer_metric(self, 'win_rate', True) +
@@ -102,8 +102,8 @@ class Analyzer:
             get_analyzer_metric(self, 'average_loss', False) +
             get_analyzer_metric(self, 'average_loss', False) +
             get_analyzer_metric(self, 'max_drawdown', False) +
-            get_analyzer_metric(self, 'drawdown_per_profit', False) +
-            get_analyzer_params_metrics(self, metric.id))
+            get_analyzer_metric(self, 'drawdown_per_profit', False)
+        )
 
     def rebuild_engine(self, id):
 

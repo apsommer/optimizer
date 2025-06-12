@@ -6,7 +6,7 @@ import pandas as pd
 from analysis.Analyzer import Analyzer, load_result
 from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
-from utils.EngineUtils import *
+from utils.MetricUtils import *
 
 
 class WalkForward():
@@ -130,6 +130,4 @@ class WalkForward():
 
     def analyze(self):
 
-        self.metrics = (
-            get_walk_forward_metrics(self) +
-            get_walk_forward_params_metrics(self))
+        self.metrics = get_walk_forward_metrics(self)

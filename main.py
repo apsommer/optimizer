@@ -11,7 +11,7 @@ from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
 from strategy.LiveStrategy import LiveStrategy
 from utils import DataUtils as repo
-from utils.EngineUtils import print_metrics
+from utils.MetricUtils import print_metrics
 from utils.PlotUtils import *
 
 # INPUT ###########################################################
