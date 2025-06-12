@@ -49,7 +49,6 @@ _runs = range(runs + 1) # one more for last OS
 
 # print header metrics
 print_metrics(wfa.metrics)
-print()
 
 # automate pool of threads
 pool = Pool(cores)
@@ -66,7 +65,6 @@ engine = wfa.build_composite()
 # print_metrics(analyzer_metrics)
 
 # print results
-print()
 print_metrics(get_walk_forward_metrics(wfa))
 print_metrics(engine.metrics)
 engine.print_trades()

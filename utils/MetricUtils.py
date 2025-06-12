@@ -135,6 +135,10 @@ def get_engine_metrics(engine):
     size = engine.strategy.size
     initial_cash = engine.initial_cash
 
+    # format timestamp
+    start_date = format_timestamp(start_date)
+    end_date = format_timestamp(end_date)
+
     return [
         Metric('header', None, None, 'Engine:'),
 
@@ -156,6 +160,10 @@ def get_analyzer_metrics(analyzer, id):
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
     candles = len(analyzer.data.index)
     params_title = '*[' + str(id) + ']'
+
+    # format timestamp
+    start_date = format_timestamp(start_date)
+    end_date = format_timestamp(end_date)
 
     return [
         Metric('header', None, None, 'Analyzer:'),
@@ -203,7 +211,7 @@ def get_walk_forward_header_metrics(walk_forward):
     candles = len(walk_forward.data.index)
     days = (end_date - start_date).days
     months = round(days / 30.437)
-    
+
     # format timestamp
     start_date = format_timestamp(start_date)
     end_date = format_timestamp(end_date)
@@ -217,6 +225,8 @@ def get_walk_forward_header_metrics(walk_forward):
         Metric('months', months, None, 'Months'),
         Metric('percent', walk_forward.percent, None, 'Percent'),
         Metric('runs', walk_forward.runs, None, 'Runs'),
+        # Metric('in_sample', walk_forward.IS_len, None, 'Training'),
+        # Metric('out_sample', walk_forward.OS_len, None, 'Test'),
     ]
 
 def get_walk_forward_metrics(walk_forward):
@@ -231,7 +241,7 @@ def get_walk_forward_metrics(walk_forward):
     end = format_timestamp(end)
 
     return [
-        Metric('params', str(walk_forward.params), None, 'Next params'),
+        Metric('params', str(walk_forward.params), None, 'Params'),
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),

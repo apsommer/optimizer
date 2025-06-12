@@ -118,7 +118,7 @@ class WalkForward():
 
         # create engine, but don't run!
         strategy = LiveStrategy(OS, params)
-        engine = Engine('composite', strategy)
+        engine = Engine('out-of-sample composite', strategy)
 
         # finish engine build
         engine.cash_series = cash_series

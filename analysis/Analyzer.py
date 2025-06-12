@@ -48,7 +48,7 @@ class Analyzer:
         with tqdm(
             total = total,
             colour = 'BLUE',
-            bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
             for fastMomentumMinutes in self.fastMomentumMinutes:
                 for takeProfitPercent in self.takeProfitPercent:
