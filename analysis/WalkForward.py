@@ -6,7 +6,8 @@ import pandas as pd
 from analysis.Analyzer import Analyzer, load_result
 from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
-from utils.EngineUtils import print_metrics, get_walk_forward_metrics, get_params_metrics
+from utils.EngineUtils import *
+
 
 class WalkForward():
 
@@ -90,35 +91,35 @@ class WalkForward():
         path = self.path
         data = self.data
 
+        # get params from last IS
+        IS_path = self.path + str(runs)
+        params = load_result('analyzer', IS_path)['params']
+        self.params = params
+
         # build composite engine
-        equity = pd.Series()
+        cash_series = pd.Series()
         trades = []
         for run in range(runs):
 
-            cash_series = load_result(run, path)['cash_series']
-            trades = load_result(run, path)['trades']
+            OS_cash_series = load_result(run, path)['cash_series']
+            OS_trades = load_result(run, path)['trades']
 
-            equity = equity._append(cash_series)
-            trades.extend(trades)
+            cash_series = cash_series._append(OS_cash_series)
+            trades.extend(OS_trades)
 
         # reindex trades
         for i, trade in enumerate(trades):
             trade.id = i
 
         # mask data to OS sample
-        OS = data.loc[equity.index, :]
-
-        # get params from last IS
-        IS_path = self.path + str(runs)
-        params = load_result('analyzer', IS_path)['params']
-        self.params = params
+        OS = data.loc[cash_series.index, :]
 
         # create engine, but don't run!
         strategy = LiveStrategy(OS, params)
         engine = Engine('composite', strategy)
 
         # finish engine build
-        engine.cash_series = equity
+        engine.cash_series = cash_series
         engine.trades = trades
         engine.analyze()
         engine.save(self.path)
@@ -131,4 +132,4 @@ class WalkForward():
 
         self.metrics = (
             get_walk_forward_metrics(self) +
-            get_params_metrics(self))
+            get_walk_forward_params_metrics(self))

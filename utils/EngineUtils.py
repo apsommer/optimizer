@@ -127,13 +127,27 @@ def get_perf_metrics(engine):
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return')]
 
-def get_params_metrics(analyzer, id=None):
 
-    if id is None: params_title = 'Params'
-    else: params_title = '*[' + str(id) + ']'
+def get_analyzer_params_metrics(analyzer, id):
+
+    params_title = '*[' + str(id) + ']'
 
     return [
-        Metric('params', str(analyzer.params), None, params_title)]
+        Metric('params', str(analyzer.params), None, params_title) ]
+
+def get_walk_forward_params_metrics(walk_forward):
+
+    candles = walk_forward.OS_len
+    start = walk_forward.data.index[-1]
+    end = start + timedelta(minutes = candles)
+    days = (end - start).days
+
+    return [
+        Metric('params', str(walk_forward.params), None, 'Next params'),
+        Metric('next_start', start, None, 'Next start'),
+        Metric('next_end', end, None, 'Next end'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Days')]
 
 def get_analyzer_metrics(analyzer):
 
@@ -180,19 +194,11 @@ def get_analyzer_metric(analyzer, name, isMax):
 
 def get_walk_forward_metrics(walk_forward):
 
-    candles = walk_forward.OS_len
-    start = walk_forward.data.index[-1]
-    end = start + timedelta(minutes = candles)
-    days = (end - start).days
-
     return [
         Metric('header', None, None, 'Walk forward:'),
-        Metric('runs', walk_forward.runs, None, 'Runs'),
-        Metric('next_start', start, None, 'Next start'),
-        Metric('next_end', end, None, 'Next end'),
-        Metric('candles', candles, None, 'Candles'),
-        Metric('days', days, None, 'Days')]
-
+        Metric('path', walk_forward.path, None, 'Path'),
+        Metric('percent', walk_forward.percent, None, 'Percent'),
+        Metric('runs', walk_forward.runs, None, 'Runs') ]
 
 def print_metrics(metrics):
 

@@ -103,7 +103,7 @@ class Analyzer:
             get_analyzer_metric(self, 'average_loss', False) +
             get_analyzer_metric(self, 'max_drawdown', False) +
             get_analyzer_metric(self, 'drawdown_per_profit', False) +
-            get_params_metrics(self, metric.id))
+            get_analyzer_params_metrics(self, metric.id))
 
     def rebuild_engine(self, id):
 
