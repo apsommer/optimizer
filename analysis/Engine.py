@@ -82,10 +82,7 @@ class Engine:
 
         self.metrics = (
             get_engine_metrics(self) +
-            get_perf_metrics(self) +
-            get_profit_factor_metrics(self) +
-            get_max_drawdown_metrics(self) +
-            get_expectancy_metrics(self))
+            get_strategy_metrics(self))
 
         # tag all metrics with engine id
         for metric in self.metrics:
