@@ -205,13 +205,19 @@ class LiveStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
-        # todo add exit on last bar of data
+        # exit on last bar of data
+        # todo prevents any open trades in strategy
+        isExitLastBar = False
+        if idx == self.data.index[-1]:
+            if is_long or is_short:
+                isExitLastBar = True
 
         # exit long
         isExitLong = (
             isExitLongFastCrossover
             or isExitLongFastMomentum
-            or isExitLongTakeProfit)
+            or isExitLongTakeProfit
+            or isExitLastBar)
         if isExitLong:
             self.longExitBarIndex = bar_index
             self.flat(ticker, size)
@@ -220,7 +226,8 @@ class LiveStrategy(BaselineStrategy):
         isExitShort = (
             isExitShortFastCrossover
             or isExitShortFastMomentum
-            or isExitShortTakeProfit)
+            or isExitShortTakeProfit
+            or isExitLastBar)
         if isExitShort:
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size)
