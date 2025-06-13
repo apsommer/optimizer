@@ -18,6 +18,8 @@ def plot_equity(engine):
     light_gray = '#9e9e9e'
     dark_gray = '#1a1a1a'
     dark_black = '#141414'
+    green = '#42f578'
+    red = '#f55a42'
 
     fplt.background = dark_black
     fplt.candle_bull_color = light_gray
@@ -49,7 +51,7 @@ def plot_equity(engine):
         index = cash_series.index)
     fplt.plot(
         initial_cash_df,
-        color = 'black',
+        color = light_gray,
         ax = ax)
 
     # reference simple buy and hold
@@ -62,9 +64,8 @@ def plot_equity(engine):
     # plot buy and hold
     fplt.plot(
         buy_hold,
-        color=light_gray,
-        width=2,
-        ax=ax)
+        color = light_gray,
+        ax = ax)
 
     # split balance into positive and negative
     pos, neg = [], []
@@ -90,14 +91,8 @@ def plot_equity(engine):
     neg_df.index = cash_series.index
 
     # plot positive and negative
-    fplt.plot(
-        pos_df,
-        color = 'green',
-        ax=ax)
-    fplt.plot(
-        neg_df,
-        color = 'red',
-        ax=ax)
+    fplt.plot(pos_df, color = green, ax = ax)
+    fplt.plot(neg_df, color = red, ax = ax)
 
     fplt.show()
 

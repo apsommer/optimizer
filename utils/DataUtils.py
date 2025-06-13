@@ -19,14 +19,14 @@ def getOhlc(num_months, isNetwork):
     # return local cache
     if not isNetwork:
 
-        print(f'Uploading OHLC from {csv_filename}')
+        print(f'Upload OHLC from {csv_filename}')
 
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = timestamp(ohlc, timezone)
 
         return ohlc
 
-    print("Downloading OHLC from databento, $$$ ...")
+    print("Download OHLC from databento $$$")
 
     # request network data synchronous! costs $!
     client = db.Historical(keys.bento_api_key)

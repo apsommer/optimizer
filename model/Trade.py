@@ -30,17 +30,13 @@ class Trade:
         if self.entry_order is None or self.exit_order is None:
             return np.nan
 
-        size = self.size
+        size = self.size # negative for shorts!
         point_value = self.entry_order.ticker.point_value
 
-        side = self.side
         entry_price = self.entry_order.price
         exit_price = self.exit_order.price
 
-        if side == 'long': profit = size * point_value * (exit_price - entry_price)
-        else: profit = size * point_value * (entry_price - exit_price)
-
-        return profit
+        return size * point_value * (exit_price - entry_price)
 
     def __repr__(self):
 
