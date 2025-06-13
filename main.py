@@ -75,6 +75,7 @@ print_metrics(engine.metrics)
 engine.print_trades()
 
 # plot results
+print('Plot:')
 plot_trades(engine)
 plot_equity(engine)
 # plot_strategy(engine)
