@@ -15,12 +15,9 @@ def plot_equity(engine):
 
     # colors
     white = 'white'
-    light_gray = '#262626'
+    light_gray = '#9e9e9e'
     dark_gray = '#1a1a1a'
     dark_black = '#141414'
-    dark_blue = '#00165e'
-    dark_aqua = '#00585e'
-    gray = '#383838'
 
     fplt.background = dark_black
     fplt.candle_bull_color = light_gray
@@ -117,6 +114,10 @@ def plot_trades(engine):
     light_gray = '#262626'
     gray = '#1a1a1a'
     black = '#141414'
+    blue = '#4287f5'
+    aqua = '#42f5f5'
+    green = '#42f578'
+    red = '#f55a42'
 
     fplt.background = black
     fplt.candle_bull_color = light_gray
@@ -143,18 +144,27 @@ def plot_trades(engine):
 
     # candlestick ohlc
     data = engine.data
-    fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax) #, draw_body=False, draw_shadow=False)
+    fplt.candlestick_ochl(
+        data[['Open', 'Close', 'High', 'Low']],
+        ax = ax) #, draw_body=False, draw_shadow=False)
 
     # cloud
     # low = fplt.plot(data.Low, color=black, width=0, ax=ax)
     # high = fplt.plot(data.High, color=black, width=0, ax=ax)
     # fplt.fill_between(low, high, color = light_gray)
 
-    markersize = 2
-    linewidth = 7
+    markersize = 1
+    linewidth = 1
 
-    # init container of nan
-    trade_line = pd.Series()
+    # init dataframe plot entites
+    columns = ['entry', 'exit', 'trade', 'entry_color', 'exit_color', 'trade_color']
+    entities = pd.DataFrame(
+        index = data.index,
+        columns = columns)
+    entities[['entry', 'exit', 'trade']] = (
+        entities[['entry', 'exit', 'trade']].astype(float))
+    entities[['entry_color', 'exit_color', 'trade_color']] = (
+        entities[['entry_color', 'exit_color', 'trade_color']].astype(str))
 
     for trade in tqdm(
         iterable = engine.trades,
@@ -166,26 +176,22 @@ def plot_trades(engine):
         entry_price = trade.entry_order.price
         entry_bar = trade.entry_order.bar_index
 
-        if trade.is_long: entry_color = 'blue' # long
-        else: entry_color = 'aqua' # short
+        entities.loc[entry_idx, 'entry'] = entry_price
+        if trade.is_long: entities.loc[entry_idx, 'entry_color'] = blue
+        else: entities.loc[entry_idx, 'entry_color'] = aqua
 
-        # closed trade
-        if trade.is_closed:
+        # exit
+        exit_idx = trade.exit_order.idx
+        exit_price = trade.exit_order.price
+        exit_bar = trade.exit_order.bar_index
+        profit = trade.profit
 
-            profit = trade.profit
-            if profit > 0: exit_color = 'green' # profit
-            else: exit_color = 'red' # loss
+        entities.loc[exit_idx, 'exit'] = exit_price
+        if profit > 0: entities.loc[exit_idx, 'exit_color'] = green
+        else: entities.loc[exit_idx, 'exit_color'] = red
 
-            exit_idx = trade.exit_order.idx
-            exit_price = trade.exit_order.price
-            exit_bar = trade.exit_order.bar_index
-
-        # last trade is open
-        else:
-            exit_idx = engine.data.index[-1]
-            exit_price = engine.data.Close[exit_idx]
-            exit_bar = len(engine.data.Close) - 1
-            exit_color = white
+        # if trade.is_short and profit > 0:
+        #     print(f'exit_idx: {exit_idx}, side: {trade.side}, profit: {profit}, exit_color: {exit_color}')
 
         # linear interpolate between entry and exit
         timestamps = pd.date_range(
@@ -193,6 +199,7 @@ def plot_trades(engine):
             end = exit_idx,
             freq = '1min')
 
+        # build trade line
         slope = (exit_price - entry_price) / (exit_bar - entry_bar)
         trade_bar = 0
         for timestamp in timestamps:
@@ -201,33 +208,35 @@ def plot_trades(engine):
             if timestamp not in data.index: continue
 
             # y = mx + b
-            trade_line[timestamp] = slope * trade_bar + entry_price
+            entities.loc[timestamp, 'trade'] = slope * trade_bar + entry_price
             trade_bar += 1
 
-        # overlay entry
-        fplt.plot(
-            x = entry_idx,
-            y = entry_price,
-            style = 'o',
-            color = entry_color,
-            width = markersize,
-            ax = ax)
+    for color in entities['entry_color']:
+        if color == blue: print('blue')
+        if color == aqua: print('aqua')
 
-        # overlay exit
-        fplt.plot(
-            x = exit_idx,
-            y = exit_price,
-            style = 'o',
-            color = exit_color,
-            width = markersize,
-            ax = ax)
+    # overlay entries
+    fplt.plot(
+        entities['entry'],
+        style = 'o',
+        color = entities['entry_color'].values,
+        width = markersize,
+        ax = ax)
 
-        # overlay trade
-        fplt.plot(
-            trade_line,
-            color = entry_color,
-            width = linewidth,
-            ax = ax)
+    # # overlay exits
+    # fplt.plot(
+    #     entities['exit'],
+    #     style = 'o',
+    #     color = entities['exit_color'].items,
+    #     width = markersize,
+    #     ax = ax)
+    #
+    # # overlay trades
+    # fplt.plot(
+    #     entities['trade'],
+    #     color = entities['trade_color'].items,
+    #     width = linewidth,
+    #     ax = ax)
 
     fplt.show()
 
