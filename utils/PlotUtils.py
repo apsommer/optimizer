@@ -16,7 +16,7 @@ def plot_equity(engine):
     # colors
     white = 'white'
     light_gray = '#9e9e9e'
-    dark_gray = '#1a1a1a'
+    dark_gray = '#525252'
     dark_black = '#141414'
     green = '#42f578'
     red = '#f55a42'
@@ -51,7 +51,7 @@ def plot_equity(engine):
         index = cash_series.index)
     fplt.plot(
         initial_cash_df,
-        color = light_gray,
+        color = dark_gray,
         ax = ax)
 
     # reference simple buy and hold
@@ -64,7 +64,7 @@ def plot_equity(engine):
     # plot buy and hold
     fplt.plot(
         buy_hold,
-        color = light_gray,
+        color = dark_gray,
         ax = ax)
 
     # split balance into positive and negative
@@ -122,7 +122,7 @@ def plot_trades(engine):
     fplt.cross_hair_color = white
 
     # init finplot
-    ax = fplt.create_plot(title='Strategy')
+    ax = fplt.create_plot(title = 'Trades')
 
     # axis
     axis_pen = fplt._makepen(color='grey')
@@ -215,7 +215,7 @@ def plot_trades(engine):
     fplt.plot(entities['long_trade'], color = blue, ax = ax)
     fplt.plot(entities['short_trade'], color = aqua, ax = ax)
 
-    fplt.show()
+    # fplt.show()
 
 def plot_strategy(engine):
 
