@@ -23,7 +23,7 @@ isNetwork = False
 
 # analyzer
 percent = 20
-runs = 5
+runs = 10
 
 # fitness
 fitness = Fitness.MAX_WIN_RATE

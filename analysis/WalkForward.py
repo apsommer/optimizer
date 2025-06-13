@@ -124,12 +124,18 @@ class WalkForward():
         self.params = params
 
         # build composite engine
-        cash_series = pd.Series()
-        trades = []
+        cash_series, trades, bal = pd.Series(), [], 0
         for run in range(runs):
 
+            # extract saved OS engine results
             OS_cash_series = load_result(run, path)['cash_series']
             OS_trades = load_result(run, path)['trades']
+            initial_cash = OS_cash_series.values[0]
+
+            if len(cash_series) > 0:
+
+                last_balance = cash_series.values[-1]
+                OS_cash_series += last_balance - initial_cash
 
             cash_series = cash_series._append(OS_cash_series)
             trades.extend(OS_trades)

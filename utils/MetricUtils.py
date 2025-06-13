@@ -35,6 +35,13 @@ def print_metrics(metrics):
 
 def get_strategy_metrics(engine):
 
+    trades = engine.trades
+
+    # check trades exist
+    num_trades = len(trades)
+    if num_trades == 0:
+        return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
+
     days = (engine.data.index[-1] - engine.data.index[0]).days
 
     if engine.trades[-1].is_open: num_trades = len(engine.trades) - 1
@@ -52,7 +59,6 @@ def get_strategy_metrics(engine):
     trades_per_day = num_trades / days
 
     # extract wins and losses
-    trades = engine.trades
     wins = [trade.profit for trade in trades if trade.profit > 0]
     losses = [trade.profit for trade in trades if 0 > trade.profit]
 
@@ -79,11 +85,6 @@ def get_strategy_metrics(engine):
     trades = engine.trades
     wins = [trade.profit for trade in trades if trade.profit > 0]
     losses = [trade.profit for trade in trades if 0 > trade.profit]
-
-    # check trades exist
-    num_trades = len(trades)
-    if num_trades == 0:
-        return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
 
     # last trade open
     last_trade = trades[-1]
