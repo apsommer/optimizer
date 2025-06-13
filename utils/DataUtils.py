@@ -19,10 +19,11 @@ def getOhlc(num_months, isNetwork):
     # return local cache
     if not isNetwork:
 
+        print(f'Uploading OHLC from {csv_filename}')
+
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = timestamp(ohlc, timezone)
 
-        print(f'Uploaded OHLC from {csv_filename}')
         return ohlc
 
     print("Downloading OHLC from databento, $$$ ...")

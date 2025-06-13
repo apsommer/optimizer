@@ -74,12 +74,12 @@ print_metrics(analyzer_metrics)
 print_metrics(engine.metrics)
 engine.print_trades()
 
+# plot results
+plot_trades(engine)
+plot_equity(engine)
+# plot_strategy(engine)
+
 ###################################################################
 elapsed = time.time() - start_time
 pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
-
-# plot results
-plot_equity(engine)
-# plot_trades(engine)
-# plot_strategy(engine)

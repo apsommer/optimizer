@@ -102,6 +102,8 @@ class Engine:
         for trade in trades[-show_last:]:
             print(trade)
 
+        print()
+
     ''' serialize '''
     def save(self, path):
 

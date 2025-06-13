@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
 import finplot as fplt
+from tqdm import tqdm
 
 # todo extract common plot init
 
 def plot_equity(engine):
 
-    # maximize window
+    # maximize window (left)
     fplt.winx = 0
     fplt.winy = 0
     fplt.winw = 3840
@@ -101,13 +102,11 @@ def plot_equity(engine):
         color = 'red',
         ax=ax)
 
-
-
     fplt.show()
 
 def plot_trades(engine):
 
-    # maximize window
+    # maximize window (right)
     fplt.winx = 3840
     fplt.winy = 0
     fplt.winw = 3840
@@ -116,17 +115,14 @@ def plot_trades(engine):
     # colors
     white = 'white'
     light_gray = '#262626'
-    dark_gray = '#1a1a1a'
-    dark_black = '#141414'
-    dark_blue = '#00165e'
-    dark_aqua = '#00585e'
-    gray = '#383838'
+    gray = '#1a1a1a'
+    black = '#141414'
 
-    fplt.background = dark_black
+    fplt.background = black
     fplt.candle_bull_color = light_gray
     fplt.candle_bull_body_color = light_gray
-    fplt.candle_bear_color = dark_gray
-    fplt.candle_bear_body_color = dark_gray
+    fplt.candle_bear_color = gray
+    fplt.candle_bear_body_color = gray
     fplt.cross_hair_color = white
 
     # init finplot
@@ -147,33 +143,31 @@ def plot_trades(engine):
 
     # candlestick ohlc
     data = engine.data
-    fplt.candlestick_ochl(data, ax=ax) #, draw_body=False, draw_shadow=False)
+    fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax) #, draw_body=False, draw_shadow=False)
 
     # cloud
-    low = fplt.plot(data.Low, color=dark_black, width=0, ax=ax)
-    high = fplt.plot(data.High, color=dark_black, width=0, ax=ax)
-    fplt.fill_between(low, high, color = light_gray)
+    # low = fplt.plot(data.Low, color=black, width=0, ax=ax)
+    # high = fplt.plot(data.High, color=black, width=0, ax=ax)
+    # fplt.fill_between(low, high, color = light_gray)
 
     markersize = 2
     linewidth = 7
 
-    for trade in engine.trades:
+    # init container of nan
+    trade_line = pd.Series()
 
-        print(f'trade: {trade.id}')
-
-        # init container of nan todo must extract perf unacceptable
-        trade_df = pd.DataFrame(
-            data=np.full([len(data), 3], np.nan),
-            columns=['entry', 'exit', 'trade'],
-            index=data.index)
+    for trade in tqdm(
+        iterable = engine.trades,
+        colour = 'GREEN',
+        bar_format = '       {percentage:3.0f}%|{bar:100}{r_bar}'):
 
         # entry
         entry_idx = trade.entry_order.idx
         entry_price = trade.entry_order.price
         entry_bar = trade.entry_order.bar_index
 
-        if trade.is_long: entry_color = dark_blue # long
-        else: entry_color = dark_aqua # short
+        if trade.is_long: entry_color = 'blue' # long
+        else: entry_color = 'aqua' # short
 
         # closed trade
         if trade.is_closed:
@@ -191,41 +185,49 @@ def plot_trades(engine):
             exit_idx = engine.data.index[-1]
             exit_price = engine.data.Close[exit_idx]
             exit_bar = len(engine.data.Close) - 1
-            exit_color = 'white'
+            exit_color = white
 
         # linear interpolate between entry and exit
-        timestamps = pd.date_range(entry_idx, exit_idx, freq='1min')
+        timestamps = pd.date_range(
+            start = entry_idx,
+            end = exit_idx,
+            freq = '1min')
+
         slope = (exit_price - entry_price) / (exit_bar - entry_bar)
         trade_bar = 0
         for timestamp in timestamps:
-            if timestamp not in data.index: continue # prevent gaps in plot
-            trade_df.loc[timestamp, 'trade'] = slope * trade_bar + entry_price # y = mx + b
+
+            # prevent gaps in plot
+            if timestamp not in data.index: continue
+
+            # y = mx + b
+            trade_line[timestamp] = slope * trade_bar + entry_price
             trade_bar += 1
 
         # overlay entry
-        trade_df.loc[entry_idx, 'entry'] = entry_price
         fplt.plot(
-            trade_df['entry'],
-            style='o',
-            color=entry_color,
-            width=markersize,
-            ax=ax)
+            x = entry_idx,
+            y = entry_price,
+            style = 'o',
+            color = entry_color,
+            width = markersize,
+            ax = ax)
 
         # overlay exit
-        trade_df.loc[exit_idx, 'exit'] = exit_price
         fplt.plot(
-            trade_df['exit'],
-            style='o',
-            color=exit_color,
-            width=markersize,
-            ax=ax)
+            x = exit_idx,
+            y = exit_price,
+            style = 'o',
+            color = exit_color,
+            width = markersize,
+            ax = ax)
 
         # overlay trade
         fplt.plot(
-            trade_df['trade'],
-            color=entry_color,
-            width=linewidth,
-            ax=ax)
+            trade_line,
+            color = entry_color,
+            width = linewidth,
+            ax = ax)
 
     fplt.show()
 
@@ -269,11 +271,9 @@ def plot_strategy(engine):
     ax.crosshair.vline.setPen(axis_pen)
     ax.crosshair.hline.setPen(axis_pen)
 
-
-
     # candlestick ohlc
     data = engine.data
-    fplt.candlestick_ochl(data, ax=ax, draw_body=False, draw_shadow=False)
+    fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax, draw_body=False, draw_shadow=False)
 
     # cloud
     low = fplt.plot(data.Low, color=dark_black, width=0, ax=ax)
