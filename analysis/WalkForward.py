@@ -142,7 +142,7 @@ class WalkForward():
         OS = data.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        strategy = LiveStrategy(OS, params)
+        strategy = LiveStrategy(OS, self.avgs, params)
         engine = Engine('Out-of-sample composite', strategy)
 
         # finish engine build
@@ -152,11 +152,9 @@ class WalkForward():
         engine.save(self.path)
 
         self.analyze()
-
         return engine
 
     def analyze(self):
-
         self.metrics += get_walk_forward_metrics(self)
 
 def get_slope(series):

@@ -18,7 +18,7 @@ from utils.PlotUtils import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 6
 isNetwork = False
 
 # analyzer
@@ -26,7 +26,7 @@ percent = 20
 runs = 8
 
 # fitness
-fitness = Fitness.MAX_EXPECTANCY
+fitness = Fitness.MAX_WIN_RATE
 
 ###################################################################
 
