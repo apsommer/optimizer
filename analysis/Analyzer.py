@@ -1,19 +1,23 @@
 import os
 import pickle
 
+import pandas as pd
 from tqdm import tqdm
 
 from analysis.Engine import Engine
+from model.Fitness import Fitness
 from utils.MetricUtils import *
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, path):
+    def __init__(self, id, fitness, data, avgs, path):
 
         self.id = id
+        self.fitness = fitness
         self.data = data
+        self.avgs = avgs
         self.path = path
 
         self.results = []
@@ -26,13 +30,12 @@ class Analyzer:
             fastCrossoverPercent = 0,
             takeProfitPercent = None,
             fastAngleFactor = 15,
-            slowMinutes = None,
+            slowMinutes = 2555,
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        self.fastMomentumMinutes = np.arange(65, 126, 15)
-        self.takeProfitPercent = np.arange(.27, .68, .20)
-        self.slowMinutes = np.arange(1555, 2556, 250)
+        self.fastMomentumMinutes = np.arange(55, 131, 5)
+        self.takeProfitPercent = np.arange(.25, .70, .05)
 
     def run(self):
 
@@ -40,10 +43,7 @@ class Analyzer:
         params = self.params
 
         id = 0
-        total = (
-            len(self.fastMomentumMinutes) *
-            len(self.takeProfitPercent) *
-            len(self.slowMinutes))
+        total = len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
 
         with tqdm(
             total = total,
@@ -52,26 +52,24 @@ class Analyzer:
 
             for fastMomentumMinutes in self.fastMomentumMinutes:
                 for takeProfitPercent in self.takeProfitPercent:
-                    for slowMinutes in self.slowMinutes:
 
-                        if id > 2:
-                            break
+                    if id > 2:
+                        break
 
-                        # update params
-                        params.fastMomentumMinutes = fastMomentumMinutes
-                        params.takeProfitPercent = takeProfitPercent
-                        params.slowMinutes = slowMinutes
+                    # update params
+                    params.fastMomentumMinutes = fastMomentumMinutes
+                    params.takeProfitPercent = takeProfitPercent
 
-                        # create strategy and engine
-                        strategy = LiveStrategy(data, params)
-                        engine = Engine(id, strategy)
+                    # create strategy and engine
+                    strategy = LiveStrategy(data, self.avgs, params)
+                    engine = Engine(id, strategy)
 
-                        # run and save
-                        engine.run()
-                        engine.save(self.path)
-                        id += 1
+                    # run and save
+                    engine.run()
+                    engine.save(self.path)
+                    id += 1
 
-                        pbar.update(id)
+                    pbar.update(id)
 
         pbar.close()
         self.analyze()
@@ -88,20 +86,19 @@ class Analyzer:
             metrics = result['metrics']
             self.results.append(metrics)
 
-        # todo fitness function cases
         # persist best params
-        metric = get_analyzer_metric(self, 'profit', True)[0]
+        metric = get_analyzer_fitness_metric(self, self.fitness)[0]
         self.params = load_result(metric.id, self.path)['params']
 
         self.metrics = (
             get_analyzer_metrics(self, metric.id) +
-            get_analyzer_metric(self, 'profit', True) +
-            get_analyzer_metric(self, 'expectancy', True) +
-            get_analyzer_metric(self, 'win_rate', True) +
-            get_analyzer_metric(self, 'average_win', True) +
-            get_analyzer_metric(self, 'average_loss', False) +
-            get_analyzer_metric(self, 'max_drawdown', False) +
-            get_analyzer_metric(self, 'drawdown_per_profit', False)
+            get_analyzer_fitness_metric(self, Fitness.MAX_PROFIT) +
+            get_analyzer_fitness_metric(self, Fitness.MAX_EXPECTANCY) +
+            get_analyzer_fitness_metric(self, Fitness.MAX_WIN_RATE) +
+            get_analyzer_fitness_metric(self, Fitness.MAX_AVERAGE_WIN) +
+            get_analyzer_fitness_metric(self, Fitness.MIN_AVERAGE_LOSS) +
+            get_analyzer_fitness_metric(self, Fitness.MIN_DRAWDOWN) +
+            get_analyzer_fitness_metric(self, Fitness.MIN_DRAWDOWN_PER_PROFIT)
         )
 
     def rebuild_engine(self, id):
@@ -111,7 +108,7 @@ class Analyzer:
         result = load_result(id, self.path)
         params = result['params']
 
-        strategy = LiveStrategy(data, params)
+        strategy = LiveStrategy(data, self.avgs, params)
 
         # init but not run
         engine = Engine(id, strategy)

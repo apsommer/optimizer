@@ -10,16 +10,20 @@ from utils.MetricUtils import *
 
 class WalkForward():
 
-    def __init__(self, num_months, percent, runs, data):
+    def __init__(self, num_months, percent, runs, fitness, data):
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
+        self.fitness = fitness
         self.data = data
         self.params = None
 
         # organize outputs
         data_name = 'NQ_' + str(num_months) + 'mon'
         self.path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
+
+        # remove any residual analyses
+        shutil.rmtree(self.path, ignore_errors=True)
 
         # isolate training and testing sets
         self.IS_len = int(len(data) / ((percent / 100) * runs + 1))
@@ -28,8 +32,29 @@ class WalkForward():
         # init metrics with header
         self.metrics = get_walk_forward_header_metrics(self)
 
-        # remove any residual analyses
-        shutil.rmtree(self.path, ignore_errors=True)
+        # init exponential averages
+        self.calculate_avgs()
+
+    def calculate_avgs(self):
+
+        data = self.data
+        fastMinutes = 25
+        slowMinutes = 2555
+
+        # calculate raw averages
+        rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
+        rawSlow = pd.Series(data.Open).ewm(span=slowMinutes).mean()
+        fast = rawFast.ewm(span=5).mean()
+        slow = rawSlow.ewm(span=200).mean()
+        fastSlope = get_slope(fast)
+        slowSlope = get_slope(slow)
+
+        # persist
+        self.avgs = pd.DataFrame(index=data.index)
+        self.avgs['fast'] = fast
+        self.avgs['slow'] = slow
+        self.avgs['fastSlope'] = fastSlope
+        self.avgs['slowSlope'] = slowSlope
 
     def walk_forward(self, run):
 
@@ -56,7 +81,7 @@ class WalkForward():
         IS = data.iloc[IS_start : IS_end]
 
         # run exhaustive sweep over IS
-        analyzer = Analyzer(run, IS, path)
+        analyzer = Analyzer(run, self.fitness, IS, self.avgs, path)
         analyzer.run()
         analyzer.save()
         # print_metrics(analyzer.metrics)
@@ -77,7 +102,7 @@ class WalkForward():
         OS = data.iloc[OS_start:OS_end]
 
         # run strategy blind over OS with best params
-        strategy = LiveStrategy(OS, params)
+        strategy = LiveStrategy(OS, self.avgs, params)
         engine = Engine(run, strategy)
         engine.run()
         engine.save(self.path)
@@ -133,3 +158,15 @@ class WalkForward():
     def analyze(self):
 
         self.metrics += get_walk_forward_metrics(self)
+
+def get_slope(series):
+
+    slope = pd.Series(index=series.index)
+    prev = series.iloc[0]
+
+    for idx, value in series.items():
+        if idx == series.index[0]: continue
+        slope[idx] = ((value - prev) / prev) * 100
+        prev = value
+
+    return np.rad2deg(np.atan(slope))

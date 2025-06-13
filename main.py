@@ -9,6 +9,7 @@ from multiprocessing import Pool, Process
 from analysis.Analyzer import load_result
 from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
+from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
 from utils import DataUtils as repo
 from utils.MetricUtils import print_metrics, get_walk_forward_metrics
@@ -22,7 +23,10 @@ isNetwork = False
 
 # analyzer
 percent = 20
-runs = 14
+runs = 8
+
+# fitness
+fitness = Fitness.MAX_EXPECTANCY
 
 ###################################################################
 
@@ -39,6 +43,7 @@ data = repo.getOhlc(num_months, isNetwork)
 wfa = WalkForward(
     num_months = num_months,
     percent = percent,
+    fitness = fitness,
     runs = runs,
     data = data)
 
@@ -58,14 +63,14 @@ pool.join() # start one thread on each core
 
 # build composite of OS runs
 engine = wfa.build_composite()
+print_metrics(get_walk_forward_metrics(wfa))
 
 # get last IS analyzer
-# IS_path = wfa.path + str(runs)
-# analyzer_metrics = load_result('analyzer', IS_path)['metrics']
-# print_metrics(analyzer_metrics)
+IS_path = wfa.path + str(runs)
+analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+print_metrics(analyzer_metrics)
 
 # print results
-print_metrics(get_walk_forward_metrics(wfa))
 print_metrics(engine.metrics)
 engine.print_trades()
 

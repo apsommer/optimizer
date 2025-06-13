@@ -72,8 +72,8 @@ def get_strategy_metrics(engine):
     roll_max = prices.cummax() # series, rolling maximum
     daily_drawdown = prices / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
-    max_drawdown = max_daily_drawdown.min() * initial_price
-    drawdown_per_profit = (max_drawdown / profit) * 100
+    drawdown = max_daily_drawdown.min() * initial_price
+    drawdown_per_profit = (-drawdown / profit) * 100
 
     # extract wins and losses
     trades = engine.trades
@@ -106,17 +106,16 @@ def get_strategy_metrics(engine):
 
     return [
         Metric('strategy_header', None, None, 'Strategy:'),
-
         Metric('num_trades', num_trades, None, 'Trades'),
         Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f'),
-        Metric('max_drawdown', max_drawdown, 'USD', 'Maximum drawdown'),
+        Metric('drawdown', drawdown, 'USD', 'Drawdown'),
         Metric('profit', profit, 'USD', 'Profit'),
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
         Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
         Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annualized_return', annualized_return, '%', 'Annualized return'),
-        Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown percentage'),
+        Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown per profit'),
         Metric('win_rate', win_rate, '%', 'Win rate'),
         Metric('loss_rate', loss_rate, '%', 'Loss rate'),
         Metric('average_win', average_win, 'USD', 'Average win'),
@@ -141,7 +140,6 @@ def get_engine_metrics(engine):
 
     return [
         Metric('header', None, None, 'Engine:'),
-
         Metric('id', id, None, 'Id'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
@@ -167,20 +165,21 @@ def get_analyzer_metrics(analyzer, id):
 
     return [
         Metric('header', None, None, 'Analyzer:'),
-
         Metric('id', analyzer.id, None, 'Id'),
         Metric('num_engines', num_engines, None, 'Engines'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
+        Metric('fitness', analyzer.fitness.pretty(), None, 'Fitness'),
         Metric('params', str(analyzer.params), None, params_title),
     ]
 
 ''' metric generator for analyzer '''
-def get_analyzer_metric(analyzer, name, isMax):
+def get_analyzer_fitness_metric(analyzer, fitness):
 
     results = analyzer.results
+    name = fitness.value
 
     # isolate metric of interest
     _metrics = []
@@ -188,6 +187,14 @@ def get_analyzer_metric(analyzer, name, isMax):
         for metric in metrics:
             if metric.name == name:
                 _metrics.append(metric)
+
+    # maximize or minimize
+    if 'MAX' in str(fitness.name):
+        isMax = True
+        tag = 'Max'
+    else:
+        isMax = False
+        tag = 'Min'
 
     metric = sorted(
         _metrics,
@@ -197,9 +204,9 @@ def get_analyzer_metric(analyzer, name, isMax):
     name = metric.name
     value = metric.value
     unit = metric.unit
-    title = '[' + str(metric.id) + '] (Max) ' + metric.title
     formatter = metric.formatter
     id = metric.id
+    title = '[' + str(metric.id) + '] (' + tag + ') ' + metric.title
 
     return [
         Metric(name, value, unit, title, formatter, id) ]
@@ -218,15 +225,14 @@ def get_walk_forward_header_metrics(walk_forward):
 
     return [
         Metric('header', None, None, 'Walk forward:'),
+        Metric('months', months, None, 'Months'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
-        Metric('months', months, None, 'Months'),
         Metric('percent', walk_forward.percent, None, 'Percent'),
         Metric('runs', walk_forward.runs, None, 'Runs'),
-        # Metric('in_sample', walk_forward.IS_len, None, 'Training'),
-        # Metric('out_sample', walk_forward.OS_len, None, 'Test'),
+        Metric('fitness', walk_forward.fitness.pretty(), None, 'Fitness'),
     ]
 
 def get_walk_forward_metrics(walk_forward):
