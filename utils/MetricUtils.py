@@ -83,7 +83,7 @@ def get_strategy_metrics(engine):
     # check trades exist
     num_trades = len(trades)
     if num_trades == 0:
-        return []
+        return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
 
     # last trade open
     last_trade = trades[-1]
@@ -104,6 +104,12 @@ def get_strategy_metrics(engine):
 
     expectancy = ((win_rate / 100) * average_win) + ((loss_rate / 100) * average_loss)
 
+    # percent long, short
+    longs = len([1 for trade in trades if trade.is_long])
+    shorts = len([1 for trade in trades if trade.is_short])
+    long_percent = round((longs / num_trades) * 100)
+    short_percent = round((shorts / num_trades) * 100)
+
     return [
         Metric('strategy_header', None, None, 'Strategy:'),
         Metric('num_trades', num_trades, None, 'Trades'),
@@ -121,6 +127,8 @@ def get_strategy_metrics(engine):
         Metric('average_win', average_win, 'USD', 'Average win'),
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
+        Metric('long_percent', long_percent, '%', 'Long'),
+        Metric('short_percent', short_percent, '%', 'Short')
     ]
 
 def get_engine_metrics(engine):
