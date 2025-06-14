@@ -187,7 +187,7 @@ def get_analyzer_fitness_metric(analyzer, fitness):
     metric = analyzer.get_fittest_metric(fitness)
 
     # tag title
-    title = metric.title + '*'
+    title = '*' + metric.title
 
     return [
         Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id),

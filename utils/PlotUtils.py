@@ -6,6 +6,7 @@ from tqdm import tqdm
 from analysis.Engine import load_result, Engine
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
+from utils.MetricUtils import print_metrics
 
 
 # todo extract common plot init
@@ -58,12 +59,23 @@ def plot_equity(wfa):
         params = result['params']
         cash_series = result['cash_series']
 
+        # create strategy, engine
         start = cash_series.index[0]
         end = cash_series.index[-1]
         comp = wfa.data[start:end]
 
         strategy = LiveStrategy(comp, wfa.avgs, params)
         engine = Engine(fitness.value, strategy)
+
+        # deserialize previous result
+        engine.id = result['id']
+        engine.params = params
+        engine.metrics = result['metrics']
+        engine.trades = result['trades']
+        engine.cash_series = cash_series
+
+        print_metrics(engine.metrics)
+        # engine.print_trades()
 
         # split balance into positive and negative
         pos, neg = [], []
