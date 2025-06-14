@@ -30,7 +30,7 @@ class WalkForward():
         self.OS_len = round((percent / 100) * self.IS_len)
 
         # init metrics with header
-        self.metrics = get_walk_forward_header_metrics(self)
+        self.metrics = get_walk_forward_init_metrics(self)
 
         # init exponential averages
         self.calculate_avgs()
@@ -177,7 +177,7 @@ class WalkForward():
         # self.analyze()
 
     def analyze(self):
-        self.metrics += get_walk_forward_metrics(self)
+        self.metrics += get_walk_forward_results_metrics(self)
 
 def get_slope(series):
 

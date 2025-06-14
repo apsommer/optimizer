@@ -12,13 +12,13 @@ from analysis.WalkForward import WalkForward
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
 from utils import DataUtils as repo
-from utils.MetricUtils import print_metrics, get_walk_forward_metrics
+from utils.MetricUtils import print_metrics, get_walk_forward_results_metrics
 from utils.PlotUtils import *
 
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 9
 isNetwork = False
 
 # analyzer
@@ -57,8 +57,8 @@ pool.close()
 pool.join() # start one thread on each core
 
 # build composite of OS runs
-wfa.build_composites()
-print_metrics(get_walk_forward_metrics(wfa))
+wfa.build_composites() # must be after threads finish above
+print_metrics(get_walk_forward_results_metrics(wfa))
 
 # todo debug get last IS analyzer
 IS_path = wfa.path + str(runs)
@@ -71,7 +71,6 @@ pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
 
 # plot results
-print('Plot:')
 # plot_trades(engine)
 plot_equity(wfa)
-# # plot_strategy(engine)
+# plot_strategy(engine)

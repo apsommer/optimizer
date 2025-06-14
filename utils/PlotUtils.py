@@ -74,8 +74,10 @@ def plot_equity(wfa):
         engine.trades = result['trades']
         engine.cash_series = cash_series
 
-        print_metrics(engine.metrics)
-        # engine.print_trades()
+        # todo temp
+        if fitness is Fitness.WIN_RATE:
+            print_metrics(engine.metrics)
+            # engine.print_trades()
 
         # plot cash series
         fplt.plot(cash_series, color = fitness.color, legend = fitness.pretty, ax = ax)

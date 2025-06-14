@@ -2,6 +2,7 @@ import os
 import pickle
 
 import pandas as pd
+from numpy import linspace
 from tqdm import tqdm
 
 from analysis.Engine import Engine, load_result
@@ -25,7 +26,7 @@ class Analyzer:
 
         self.params = LiveParams(
             fastMinutes = 25,
-            disableEntryMinutes = 105,
+            disableEntryMinutes = None,
             fastMomentumMinutes = None,
             fastCrossoverPercent = 0,
             takeProfitPercent = None,
@@ -34,8 +35,9 @@ class Analyzer:
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        self.fastMomentumMinutes = np.arange(55, 131, 5)
-        self.takeProfitPercent = np.arange(.25, .70, .05)
+        self.disableEntryMinutes = linspace(60, 180, num = 8, dtype = int)
+        self.fastMomentumMinutes = linspace(55, 130, num = 15, dtype = int)
+        self.takeProfitPercent = linspace(.25, .70, num = 10, dtype = float)
 
     def run(self):
 
@@ -43,33 +45,35 @@ class Analyzer:
         params = self.params
 
         id = 0
-        total = len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
+        total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
 
         with tqdm(
             total = total,
             colour = 'BLUE',
             bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
-            for fastMomentumMinutes in self.fastMomentumMinutes:
-                for takeProfitPercent in self.takeProfitPercent:
+            for disableEntryMinutes in self.disableEntryMinutes:
+                for fastMomentumMinutes in self.fastMomentumMinutes:
+                    for takeProfitPercent in self.takeProfitPercent:
 
-                    # if id > 1:
-                    #     break
+                        # if id > 3:
+                        #     break
 
-                    # update params
-                    params.fastMomentumMinutes = fastMomentumMinutes
-                    params.takeProfitPercent = takeProfitPercent
+                        # update params
+                        params.disableEntryMinutes = disableEntryMinutes
+                        params.fastMomentumMinutes = fastMomentumMinutes
+                        params.takeProfitPercent = takeProfitPercent
 
-                    # create strategy and engine
-                    strategy = LiveStrategy(data, self.avgs, params)
-                    engine = Engine(id, strategy)
+                        # create strategy and engine
+                        strategy = LiveStrategy(data, self.avgs, params)
+                        engine = Engine(id, strategy)
 
-                    # run and save
-                    engine.run()
-                    engine.save(self.path)
-                    id += 1
+                        # run and save
+                        engine.run()
+                        engine.save(self.path)
+                        id += 1
 
-                    pbar.update(id)
+                        pbar.update(id)
 
         pbar.close()
         self.analyze()

@@ -84,9 +84,7 @@ class Engine:
 
     def analyze(self):
 
-        self.metrics = (
-            get_engine_metrics(self) +
-            get_strategy_metrics(self))
+        self.metrics = get_engine_metrics(self)
 
         # tag all metrics with engine id
         for metric in self.metrics:

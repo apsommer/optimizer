@@ -32,20 +32,31 @@ def print_metrics(metrics):
 
         print("\t{}: {} [{}]".format(title, rounded_value, unit))
 
-def get_strategy_metrics(engine):
+def get_engine_metrics(engine):
 
     # check trades exist
     num_trades = len(engine.trades)
     if num_trades == 0:
         return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
 
+    id = engine.id
+    start_date = engine.data.index[0]
+    end_date = engine.data.index[-1]
+    days = (engine.data.index[-1] - engine.data.index[0]).days
+    candles = len(engine.data.index)
+    ticker = engine.strategy.ticker.symbol
+    size = engine.strategy.size
     initial_cash = engine.initial_cash
+
+    # format timestamp
+    start_date = format_timestamp(start_date)
+    end_date = format_timestamp(end_date)
+
     trades = engine.trades
     cash_series = engine.cash_series
 
     cash = engine.cash_series.iloc[-1]
     profit = cash - initial_cash
-    days = (engine.data.index[-1] - engine.data.index[0]).days
     trades_per_day = num_trades / days
 
     wins = [ trade.profit for trade in trades if trade.profit > 0 ]
@@ -62,7 +73,6 @@ def get_strategy_metrics(engine):
     if gross_loss == 0: profit_factor = np.inf
     elif gross_profit == 0: profit_factor = -np.inf
     else: profit_factor = gross_profit / gross_loss
-
 
     initial_price = cash_series.iloc[0]
     roll_max = cash_series.cummax() # series, rolling maximum
@@ -94,6 +104,19 @@ def get_strategy_metrics(engine):
     short_percent = round((shorts / num_trades) * 100)
 
     return [
+
+        # engine
+        Metric('header', None, None, 'Engine:'),
+        Metric('id', id, None, 'Id'),
+        Metric('start_date', start_date, None, 'Start date'),
+        Metric('end_date', end_date, None, 'End date'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Days'),
+        Metric('ticker', ticker, None, 'Ticker'),
+        Metric('size', size, None, 'Size'),
+        Metric('initial_cash', initial_cash, 'USD', 'Initial cash'),
+
+        # strategy
         Metric('strategy_header', None, None, 'Strategy:'),
         Metric('num_trades', num_trades, None, 'Trades'),
         Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f'),
@@ -112,33 +135,6 @@ def get_strategy_metrics(engine):
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
         Metric('long_percent', long_percent, '%', 'Long'),
         Metric('short_percent', short_percent, '%', 'Short')
-    ]
-
-def get_engine_metrics(engine):
-
-    id = engine.id
-    start_date = engine.data.index[0]
-    end_date = engine.data.index[-1]
-    days = (engine.data.index[-1] - engine.data.index[0]).days
-    candles = len(engine.data.index)
-    ticker = engine.strategy.ticker.symbol
-    size = engine.strategy.size
-    initial_cash = engine.initial_cash
-
-    # format timestamp
-    start_date = format_timestamp(start_date)
-    end_date = format_timestamp(end_date)
-
-    return [
-        Metric('header', None, None, 'Engine:'),
-        Metric('id', id, None, 'Id'),
-        Metric('start_date', start_date, None, 'Start date'),
-        Metric('end_date', end_date, None, 'End date'),
-        Metric('candles', candles, None, 'Candles'),
-        Metric('days', days, None, 'Days'),
-        Metric('ticker', ticker, None, 'Ticker'),
-        Metric('size', size, None, 'Size'),
-        Metric('initial_cash', initial_cash, 'USD', 'Initial cash'),
     ]
 
 def get_analyzer_metrics(analyzer):
@@ -163,7 +159,6 @@ def get_analyzer_metrics(analyzer):
         Metric('days', days, None, 'Days'),
     ]
 
-''' metric generator for analyzer '''
 def get_analyzer_fitness_metric(analyzer, fitness):
 
     # tag title
@@ -174,7 +169,7 @@ def get_analyzer_fitness_metric(analyzer, fitness):
         Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id),
     ]
 
-def get_walk_forward_header_metrics(walk_forward):
+def get_walk_forward_init_metrics(walk_forward):
 
     start_date = walk_forward.data.index[0]
     end_date = walk_forward.data.index[-1]
@@ -197,7 +192,7 @@ def get_walk_forward_header_metrics(walk_forward):
         Metric('runs', walk_forward.runs, None, 'Runs'),
     ]
 
-def get_walk_forward_metrics(walk_forward):
+def get_walk_forward_results_metrics(walk_forward):
 
     candles = walk_forward.OS_len
     start = walk_forward.data.index[-1]
