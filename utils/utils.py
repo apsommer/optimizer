@@ -1,3 +1,4 @@
+import pickle
 import time
 from datetime import timedelta, datetime
 
@@ -51,3 +52,17 @@ def getOhlc(num_months, isNetwork):
 def timestamp(data, timezone):
     utc = pd.to_datetime(data.index, utc=True)
     return utc.tz_convert(timezone)
+
+''' deserialize '''
+def load_result(id, path):
+
+    filename = str(id) + '.bin'
+    path_filename = path + '/' + filename
+
+    try:
+        filehandler = open(path_filename, 'rb')
+        return pickle.load(filehandler)
+
+    except FileNotFoundError:
+        print(f'\n{path_filename} not found')
+        exit()

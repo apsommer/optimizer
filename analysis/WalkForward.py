@@ -3,11 +3,12 @@ import shutil
 
 import pandas as pd
 
-from analysis.Analyzer import Analyzer, load_result
+from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
-from utils.MetricUtils import *
+from utils.utils import load_result
+from utils.metrics import *
 
 class WalkForward():
 

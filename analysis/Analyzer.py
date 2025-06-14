@@ -5,9 +5,10 @@ import pandas as pd
 from numpy import linspace
 from tqdm import tqdm
 
-from analysis.Engine import Engine, load_result
+from analysis.Engine import Engine
 from model.Fitness import Fitness
-from utils.MetricUtils import *
+from utils.utils import load_result
+from utils.metrics import *
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
@@ -57,8 +58,8 @@ class Analyzer:
                 for fastMomentumMinutes in self.fastMomentumMinutes:
                     for takeProfitPercent in self.takeProfitPercent:
 
-                        # if id > 3:
-                        #     break
+                        if id > 1:
+                            break
 
                         # update params
                         params.disableEntryMinutes = disableEntryMinutes

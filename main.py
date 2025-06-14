@@ -6,14 +6,15 @@ import warnings
 import pandas as pd
 from tqdm import tqdm
 from multiprocessing import Pool, Process
-from analysis.Analyzer import load_result
+
 from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
-from utils import DataUtils as repo
-from utils.MetricUtils import print_metrics, get_walk_forward_results_metrics
-from utils.PlotUtils import *
+from utils import utils as repo
+from utils.utils import load_result
+from utils.metrics import print_metrics, get_walk_forward_results_metrics
+from utils.plots import *
 
 # INPUT ###########################################################
 

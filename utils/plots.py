@@ -3,10 +3,11 @@ import pandas as pd
 import finplot as fplt
 from tqdm import tqdm
 
-from analysis.Engine import load_result, Engine
+from analysis.Engine import Engine
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
-from utils.MetricUtils import print_metrics
+from utils.metrics import print_metrics
+from utils.utils import load_result
 
 
 # todo extract common plot init
