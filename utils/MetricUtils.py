@@ -83,8 +83,8 @@ def get_strategy_metrics(engine):
 
     # extract wins and losses
     trades = engine.trades
-    wins = [trade.profit for trade in trades if trade.profit > 0]
-    losses = [trade.profit for trade in trades if 0 > trade.profit]
+    wins = [ trade.profit for trade in trades if trade.profit > 0 ]
+    losses = [ trade.profit for trade in trades if 0 > trade.profit ]
 
     # last trade open
     last_trade = trades[-1]
@@ -179,44 +179,19 @@ def get_analyzer_metrics(analyzer):
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
-        Metric('fitness', analyzer.fitness.pretty(), None, 'Fitness'),
     ]
 
 ''' metric generator for analyzer '''
 def get_analyzer_fitness_metric(analyzer, fitness):
 
-    results = analyzer.results
-    name = fitness.value
+    metric = analyzer.get_fittest_metric(fitness)
 
-    # isolate metric of interest
-    _metrics = []
-    for metrics in results:
-        for metric in metrics:
-            if metric.name == name:
-                _metrics.append(metric)
-
-    # maximize or minimize
-    if 'MAX' in str(fitness.name):
-        isMax = True
-        tag = 'Max'
-    else:
-        isMax = False
-        tag = 'Min'
-
-    metric = sorted(
-        _metrics,
-        key = lambda it: it.value,
-        reverse = isMax)[0]
-
-    name = metric.name
-    value = metric.value
-    unit = metric.unit
-    formatter = metric.formatter
-    id = metric.id
-    title = '[' + str(metric.id) + '] (' + tag + ') ' + metric.title
+    # tag title
+    title = metric.title + '*'
 
     return [
-        Metric(name, value, unit, title, formatter, id) ]
+        Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id),
+    ]
 
 def get_walk_forward_header_metrics(walk_forward):
 
@@ -239,7 +214,6 @@ def get_walk_forward_header_metrics(walk_forward):
         Metric('days', days, None, 'Days'),
         Metric('percent', walk_forward.percent, None, 'Percent'),
         Metric('runs', walk_forward.runs, None, 'Runs'),
-        Metric('fitness', walk_forward.fitness.pretty(), None, 'Fitness'),
     ]
 
 def get_walk_forward_metrics(walk_forward):
@@ -258,7 +232,6 @@ def get_walk_forward_metrics(walk_forward):
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),
-
         Metric('days', days, None, 'Days'),
     ]
 

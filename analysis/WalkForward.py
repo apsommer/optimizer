@@ -5,16 +5,16 @@ import pandas as pd
 
 from analysis.Analyzer import Analyzer, load_result
 from analysis.Engine import Engine
+from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
 from utils.MetricUtils import *
 
 class WalkForward():
 
-    def __init__(self, num_months, percent, runs, fitness, data):
+    def __init__(self, num_months, percent, runs, data):
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
-        self.fitness = fitness
         self.data = data
         self.params = None
 
@@ -59,13 +59,13 @@ class WalkForward():
     def walk_forward(self, run):
 
         # sweep in-sample
-        params = self.sweep_IS(run)
+        self.sweep_IS(run)
 
         # skip last run out-of-sample
         if run == self.runs: return
 
-        # run out-of-sample single engine
-        self.run_OS(run, params)
+        # run out-of-sample
+        self.run_OS(run)
 
     def sweep_IS(self, run):
 
@@ -80,14 +80,12 @@ class WalkForward():
         IS = data.iloc[IS_start : IS_end]
 
         # run exhaustive sweep over IS
-        analyzer = Analyzer(run, self.fitness, IS, self.avgs, path)
+        analyzer = Analyzer(run, IS, self.avgs, path)
         analyzer.run()
         analyzer.save()
         # print_metrics(analyzer.metrics)
 
-        return analyzer.params
-
-    def run_OS(self, run, params):
+    def run_OS(self, run):
 
         IS_len = self.IS_len
         OS_len = self.OS_len
@@ -99,12 +97,28 @@ class WalkForward():
         OS_start = IS_end
         OS_end = OS_start + OS_len
         OS = data.iloc[OS_start:OS_end]
+        
+        if run == self.runs:
+            print(f'IS_end: {IS_end}')
+            print(f'OS_end: {OS_end}')
 
-        # run strategy blind over OS with best params
-        strategy = LiveStrategy(OS, self.avgs, params)
-        engine = Engine(run, strategy)
-        engine.run()
-        engine.save(self.path)
+        # get fittest params from last IS analyzer
+        IS_path = self.path + str(run)
+        fittest = load_result('analyzer', IS_path)['fittest']
+
+        for fitness in Fitness:
+
+            # extract params of fittest engine
+            metric = fittest[fitness]
+            params = load_result(str(metric.id), IS_path)['params']
+
+            OS_path = self.path + fitness.value + '/'
+
+            # run strategy blind over OS with best params
+            strategy = LiveStrategy(OS, self.avgs, params)
+            engine = Engine(run, strategy)
+            engine.run()
+            engine.save(OS_path)
 
         # print results
         # print_metrics(engine.metrics)
@@ -117,7 +131,7 @@ class WalkForward():
         path = self.path
         data = self.data
 
-        # get params from last IS
+        # get params from last IS todo
         IS_path = self.path + str(runs)
         params = load_result('analyzer', IS_path)['params']
         self.params = params

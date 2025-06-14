@@ -18,15 +18,12 @@ from utils.PlotUtils import *
 # INPUT ###########################################################
 
 # data
-num_months = 9
+num_months = 3
 isNetwork = False
 
 # analyzer
 percent = 20
-runs = 14
-
-# fitness
-fitness = Fitness.MAX_WIN_RATE
+runs = 15
 
 ###################################################################
 
@@ -43,14 +40,13 @@ data = repo.getOhlc(num_months, isNetwork)
 wfa = WalkForward(
     num_months = num_months,
     percent = percent,
-    fitness = fitness,
     runs = runs,
     data = data)
 
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave one for basic computer tasks
-_runs = range(runs + 1) # one more for last OS
+_runs = range(runs)
 
 # print header metrics
 print_metrics(wfa.metrics)
@@ -61,24 +57,26 @@ pool.map(wfa.walk_forward, _runs)
 pool.close()
 pool.join() # start one thread on each core
 
-# build composite of OS runs
-engine = wfa.build_composite()
-print_metrics(get_walk_forward_metrics(wfa))
+print(f'end data: {data.index[-1]}')
 
-# get last IS analyzer
-IS_path = wfa.path + str(runs)
-analyzer_metrics = load_result('analyzer', IS_path)['metrics']
-print_metrics(analyzer_metrics)
-
-# print results
-print_metrics(engine.metrics)
-engine.print_trades()
-
-# plot results
-print('Plot:')
-plot_trades(engine)
-plot_equity(engine)
-# plot_strategy(engine)
+# # build composite of OS runs
+# engine = wfa.build_composite()
+# print_metrics(get_walk_forward_metrics(wfa))
+#
+# # get last IS analyzer
+# IS_path = wfa.path + str(runs)
+# analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+# print_metrics(analyzer_metrics)
+#
+# # print results
+# print_metrics(engine.metrics)
+# engine.print_trades()
+#
+# # plot results
+# print('Plot:')
+# plot_trades(engine)
+# plot_equity(engine)
+# # plot_strategy(engine)
 
 ###################################################################
 elapsed = time.time() - start_time

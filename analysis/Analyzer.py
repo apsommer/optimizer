@@ -12,16 +12,16 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, fitness, data, avgs, path):
+    def __init__(self, id, data, avgs, path):
 
         self.id = id
-        self.fitness = fitness
         self.data = data
         self.avgs = avgs
         self.path = path
 
         self.results = []
         self.metrics = []
+        self.fittest = { }
 
         self.params = LiveParams(
             fastMinutes = 25,
@@ -53,7 +53,7 @@ class Analyzer:
             for fastMomentumMinutes in self.fastMomentumMinutes:
                 for takeProfitPercent in self.takeProfitPercent:
 
-                    if id > 2:
+                    if id > 1:
                         break
 
                     # update params
@@ -89,14 +89,40 @@ class Analyzer:
         # persist all best params per fitness function
         self.metrics = (
             get_analyzer_metrics(self) +
-            get_analyzer_fitness_metric(self, Fitness.MAX_PROFIT) +
-            get_analyzer_fitness_metric(self, Fitness.MAX_EXPECTANCY) +
-            get_analyzer_fitness_metric(self, Fitness.MAX_WIN_RATE) +
-            get_analyzer_fitness_metric(self, Fitness.MAX_AVERAGE_WIN) +
-            get_analyzer_fitness_metric(self, Fitness.MIN_AVERAGE_LOSS) +
-            get_analyzer_fitness_metric(self, Fitness.MIN_DRAWDOWN) +
-            get_analyzer_fitness_metric(self, Fitness.MIN_DRAWDOWN_PER_PROFIT)
-        )
+            get_analyzer_fitness_metric(self, Fitness.PROFIT) +
+            get_analyzer_fitness_metric(self, Fitness.EXPECTANCY) +
+            get_analyzer_fitness_metric(self, Fitness.WIN_RATE) +
+            get_analyzer_fitness_metric(self, Fitness.AVERAGE_WIN) +
+            get_analyzer_fitness_metric(self, Fitness.AVERAGE_LOSS) +
+            get_analyzer_fitness_metric(self, Fitness.DRAWDOWN) +
+            get_analyzer_fitness_metric(self, Fitness.DRAWDOWN_PER_PROFIT))
+
+        for fitness in Fitness:
+            self.fittest[fitness] = self.get_fittest_metric(fitness)
+
+    def get_fittest_metric(self, fitness):
+
+        results = self.results
+        name = fitness.value
+
+        # isolate metric of interest
+        _metrics = []
+        for metrics in results:
+            for metric in metrics:
+                if metric.name == name:
+                    _metrics.append(metric)
+
+        # maximize or minimize
+        if fitness.is_max(): isMax = True
+        else: isMax = False
+
+        # sort metrics on fitness
+        metric = sorted(
+            _metrics,
+            key = lambda it: it.value,
+            reverse = isMax)[0]
+
+        return metric
 
     def rebuild_engine(self, id):
 
@@ -126,8 +152,8 @@ class Analyzer:
 
         result = {
             'id': self.id,
-            'params': self.params,
-            'metrics': self.metrics
+            'metrics': self.metrics,
+            'fittest': self.fittest
         }
 
         # make directory, if needed
