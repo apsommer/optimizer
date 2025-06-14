@@ -53,7 +53,7 @@ class Analyzer:
             for fastMomentumMinutes in self.fastMomentumMinutes:
                 for takeProfitPercent in self.takeProfitPercent:
 
-                    if id > 1:
+                    if id > 2:
                         break
 
                     # update params
@@ -86,14 +86,9 @@ class Analyzer:
             metrics = result['metrics']
             self.results.append(metrics)
 
-        # todo persist all fitness params
-        # todo rebuild all composite OS
-        # persist best params
-        metric = get_analyzer_fitness_metric(self, self.fitness)[0]
-        self.params = load_result(metric.id, self.path)['params']
-
+        # persist all best params per fitness function
         self.metrics = (
-            get_analyzer_metrics(self, metric.id) +
+            get_analyzer_metrics(self) +
             get_analyzer_fitness_metric(self, Fitness.MAX_PROFIT) +
             get_analyzer_fitness_metric(self, Fitness.MAX_EXPECTANCY) +
             get_analyzer_fitness_metric(self, Fitness.MAX_WIN_RATE) +

@@ -18,12 +18,12 @@ from utils.PlotUtils import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 9
 isNetwork = False
 
 # analyzer
 percent = 20
-runs = 10
+runs = 14
 
 # fitness
 fitness = Fitness.MAX_WIN_RATE

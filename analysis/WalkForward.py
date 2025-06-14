@@ -70,7 +70,6 @@ class WalkForward():
     def sweep_IS(self, run):
 
         path = self.path + str(run) + '/'
-
         IS_len = self.IS_len
         OS_len = self.OS_len
         data = self.data

@@ -22,3 +22,26 @@ class Fitness(Enum):
             case Fitness.MIN_DRAWDOWN_PER_PROFIT: title = 'Drawdown per profit'
 
         return title
+
+    def is_max(self):
+
+        max = [
+            'profit',
+            'expectancy',
+            'win_rate',
+            'average_win',
+        ]
+
+        if self.name not in max: return False
+        return True
+
+    def is_min(self):
+
+        min = [
+            'average_loss',
+            'drawdown',
+            'drawdown_per_profit',
+        ]
+
+        if self.name not in min: return False
+        return True

@@ -159,14 +159,13 @@ def get_engine_metrics(engine):
         Metric('initial_cash', initial_cash, 'USD', 'Initial cash'),
     ]
 
-def get_analyzer_metrics(analyzer, id):
+def get_analyzer_metrics(analyzer):
 
     start_date = analyzer.data.index[0]
     end_date = analyzer.data.index[-1]
     num_engines = len(analyzer.results)
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
     candles = len(analyzer.data.index)
-    params_title = '*[' + str(id) + ']'
 
     # format timestamp
     start_date = format_timestamp(start_date)
@@ -181,7 +180,6 @@ def get_analyzer_metrics(analyzer, id):
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
         Metric('fitness', analyzer.fitness.pretty(), None, 'Fitness'),
-        Metric('params', str(analyzer.params), None, params_title),
     ]
 
 ''' metric generator for analyzer '''
