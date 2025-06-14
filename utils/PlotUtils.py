@@ -77,32 +77,8 @@ def plot_equity(wfa):
         print_metrics(engine.metrics)
         # engine.print_trades()
 
-        # split balance into positive and negative
-        pos, neg = [], []
-        for balance in cash_series:
-
-            over = balance >= engine.initial_cash
-            under = balance < engine.initial_cash
-
-            if over:
-                pos.append(balance)
-                neg.append(np.nan)
-                if len(pos) > 1 and np.isnan(pos[-2]):
-                    pos[-2] = neg[-2]
-            elif under:
-                pos.append(np.nan)
-                neg.append(balance)
-                if len(neg) > 1 and np.isnan(neg[-2]):
-                    neg[-2] = pos[-2]
-
-        pos_df = pd.DataFrame({'pos': pos})
-        neg_df = pd.DataFrame({'neg': neg})
-        pos_df.index = cash_series.index
-        neg_df.index = cash_series.index
-
-        # plot positive and negative
-        fplt.plot(pos_df, color = green, ax = ax)
-        fplt.plot(neg_df, color = red, ax = ax)
+        # plot cash series
+        fplt.plot(cash_series, color = fitness.color, legend = fitness.pretty, ax = ax)
 
         # only calc once
         if fitness is Fitness.PROFIT:

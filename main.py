@@ -18,7 +18,7 @@ from utils.PlotUtils import *
 # INPUT ###########################################################
 
 # data
-num_months = 9
+num_months = 3
 isNetwork = False
 
 # analyzer
@@ -45,7 +45,7 @@ wfa = WalkForward(
 
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available
-cores -= 1 # leave 1 for basic computer tasks
+# cores -= 1 # leave 1 for basic computer tasks
 
 # print header metrics
 print_metrics(wfa.metrics)
@@ -65,17 +65,13 @@ IS_path = wfa.path + str(runs)
 analyzer_metrics = load_result('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)
 
-# print results
-# print_metrics(engine.metrics)
-# engine.print_trades()
+# print analysis time
+elapsed = time.time() - start_time
+pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
+print(f'\nElapsed time: {pretty}')
 
 # plot results
 print('Plot:')
 # plot_trades(engine)
 plot_equity(wfa)
 # # plot_strategy(engine)
-
-###################################################################
-elapsed = time.time() - start_time
-pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
-print(f'\nElapsed time: {pretty}')

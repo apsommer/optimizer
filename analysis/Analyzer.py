@@ -113,7 +113,7 @@ class Analyzer:
                     _metrics.append(metric)
 
         # maximize or minimize
-        if fitness.is_max(): isMax = True
+        if fitness.is_max: isMax = True
         else: isMax = False
 
         # sort metrics on fitness

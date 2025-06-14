@@ -32,64 +32,46 @@ def print_metrics(metrics):
 
         print("\t{}: {} [{}]".format(title, rounded_value, unit))
 
-
 def get_strategy_metrics(engine):
 
-    trades = engine.trades
-
     # check trades exist
-    num_trades = len(trades)
+    num_trades = len(engine.trades)
     if num_trades == 0:
         return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
 
+    initial_cash = engine.initial_cash
+    trades = engine.trades
+    cash_series = engine.cash_series
+
+    cash = engine.cash_series.iloc[-1]
+    profit = cash - initial_cash
     days = (engine.data.index[-1] - engine.data.index[0]).days
-
-    if engine.trades[-1].is_open: num_trades = len(engine.trades) - 1
-    else: num_trades = len(engine.trades)
-
-    engine.cash = engine.cash_series.iloc[-1]
-    profit = engine.cash - engine.initial_cash
-
-    total_return = (abs(engine.cash - engine.initial_cash) / engine.initial_cash) * 100
-    if engine.initial_cash > engine.cash: total_return = -total_return
-
-    if 0 > engine.cash: annualized_return = np.nan
-    else: annualized_return = ((engine.cash / engine.initial_cash) ** (1 / (days / 365)) - 1) * 100
-
     trades_per_day = num_trades / days
 
-    # extract wins and losses
-    wins = [trade.profit for trade in trades if trade.profit > 0]
-    losses = [trade.profit for trade in trades if 0 > trade.profit]
-
-    # gross p&l
+    wins = [ trade.profit for trade in trades if trade.profit > 0 ]
+    losses = [ trade.profit for trade in trades if 0 > trade.profit ]
     gross_profit = sum(wins)
     gross_loss = -sum(losses)
 
-    # profit factor
+    total_return = (profit / initial_cash) * 100
+
+    # catch bad math
+    if 0 > engine.cash: annualized_return = np.nan
+    else: annualized_return = ((cash / initial_cash) ** (1 / (days / 365)) - 1) * 100
+
     if gross_loss == 0: profit_factor = np.inf
     elif gross_profit == 0: profit_factor = -np.inf
     else: profit_factor = gross_profit / gross_loss
 
-    # max drawdown
-    prices = engine.cash_series
-    profit = engine.cash - engine.initial_cash
-    initial_price = prices.iloc[0]
-    roll_max = prices.cummax() # series, rolling maximum
-    daily_drawdown = prices / roll_max - 1.0
+
+    initial_price = cash_series.iloc[0]
+    roll_max = cash_series.cummax() # series, rolling maximum
+
+    daily_drawdown = cash_series / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
+
     drawdown = max_daily_drawdown.min() * initial_price
-    drawdown_per_profit = (-drawdown / profit) * 100
-
-    # extract wins and losses
-    trades = engine.trades
-    wins = [ trade.profit for trade in trades if trade.profit > 0 ]
-    losses = [ trade.profit for trade in trades if 0 > trade.profit ]
-
-    # last trade open
-    last_trade = trades[-1]
-    if last_trade.exit_order is None:
-        num_trades -= 1
+    drawdown_per_profit = (drawdown / profit) * 100
 
     # wins
     num_wins = len(wins)
@@ -184,10 +166,9 @@ def get_analyzer_metrics(analyzer):
 ''' metric generator for analyzer '''
 def get_analyzer_fitness_metric(analyzer, fitness):
 
-    metric = analyzer.get_fittest_metric(fitness)
-
     # tag title
-    title = '*' + metric.title
+    metric = analyzer.get_fittest_metric(fitness)
+    title = '* ' + metric.title
 
     return [
         Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id),
