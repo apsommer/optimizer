@@ -60,7 +60,7 @@ pool.join() # start one thread on each core
 wfa.build_composites() # must be after threads finish above
 print_metrics(get_walk_forward_results_metrics(wfa))
 
-# todo debug get last IS analyzer
+# print last IS analyzer
 IS_path = wfa.path + str(runs)
 analyzer_metrics = load_result('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)
@@ -71,6 +71,4 @@ pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
 
 # plot results
-# plot_trades(engine)
 plot_equity(wfa)
-# plot_strategy(engine)

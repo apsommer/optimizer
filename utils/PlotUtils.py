@@ -77,7 +77,8 @@ def plot_equity(wfa):
         # todo temp
         if fitness is Fitness.WIN_RATE:
             print_metrics(engine.metrics)
-            # engine.print_trades()
+            engine.print_trades()
+            plot_trades(engine)
 
         # plot cash series
         fplt.plot(cash_series, color = fitness.color, legend = fitness.pretty, ax = ax)
