@@ -2,6 +2,7 @@ import os
 import pickle
 
 from tqdm import tqdm
+
 from utils.MetricUtils import *
 from model.Trade import Trade
 import pandas as pd
@@ -9,6 +10,9 @@ import pandas as pd
 class Engine:
 
     def __init__(self, id, strategy):
+
+        # allow blank engine for rebuild
+        if strategy is None: return
 
         self.id = id
         self.data = strategy.data
@@ -125,3 +129,17 @@ class Engine:
 
         filehandler = open(path_filename, 'wb')
         pickle.dump(result, filehandler)
+
+''' deserialize '''
+def load_result(id, path):
+
+    filename = str(id) + '.bin'
+    path_filename = path + '/' + filename
+
+    try:
+        filehandler = open(path_filename, 'rb')
+        return pickle.load(filehandler)
+
+    except FileNotFoundError:
+        print(f'\n{path_filename} not found')
+        exit()

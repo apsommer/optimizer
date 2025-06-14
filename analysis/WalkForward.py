@@ -26,8 +26,8 @@ class WalkForward():
         shutil.rmtree(self.path, ignore_errors=True)
 
         # isolate training and testing sets
-        self.IS_len = int(len(data) / ((percent / 100) * runs + 1))
-        self.OS_len = int((percent / 100) * self.IS_len)
+        self.IS_len = round(len(data) / ((percent / 100) * runs + 1))
+        self.OS_len = round((percent / 100) * self.IS_len)
 
         # init metrics with header
         self.metrics = get_walk_forward_header_metrics(self)
@@ -86,9 +86,6 @@ class WalkForward():
         analyzer.save()
         # print_metrics(analyzer.metrics)
 
-        if run == self.runs:
-            print(f'last ... IS_end: {format_timestamp(IS.index[-1])}')
-
     def run_OS(self, run):
 
         IS_len = self.IS_len
@@ -97,15 +94,10 @@ class WalkForward():
 
         IS_start = run * OS_len
         IS_end = IS_start + IS_len
-        IS = data.iloc[IS_start: IS_end]
 
         OS_start = IS_end
         OS_end = OS_start + OS_len
         OS = data.iloc[OS_start:OS_end]
-
-        if run == self.runs - 1:
-            print(f'IS_end: {format_timestamp(IS.index[-1])}')
-            print(f'OS_end: {format_timestamp(OS.index[-1])}')
 
         # get fittest params from last IS analyzer
         IS_path = self.path + str(run)
@@ -130,53 +122,59 @@ class WalkForward():
         # engine.print_trades()
 
     ''' must call after all threads complete '''
-    def build_composite(self):
+    def build_composites(self):
 
-        runs = self.runs
-        path = self.path
         data = self.data
 
-        # get params from last IS todo
-        IS_path = self.path + str(runs)
-        params = load_result('analyzer', IS_path)['params']
-        self.params = params
+        # get params from last IS
+        IS_path = self.path + str(self.runs)
+        fittest = load_result('analyzer', IS_path)['fittest']
 
-        # build composite engine
-        cash_series, trades, bal = pd.Series(), [], 0
-        for run in range(runs):
+        # build composite for each fitness function
+        for fitness in Fitness:
 
-            # extract saved OS engine results
-            OS_cash_series = load_result(run, path)['cash_series']
-            OS_trades = load_result(run, path)['trades']
-            initial_cash = OS_cash_series.values[0]
+            # extract params of fittest engine
+            metric = fittest[fitness]
+            params = load_result(str(metric.id), IS_path)['params']
 
-            if len(cash_series) > 0:
+            # build composite engine
+            cash_series, trades, bal = pd.Series(), [], 0
+            for run in range(self.runs):
 
-                last_balance = cash_series.values[-1]
-                OS_cash_series += last_balance - initial_cash
+                OS_path = self.path + fitness.value + '/'
 
-            cash_series = cash_series._append(OS_cash_series)
-            trades.extend(OS_trades)
+                # extract saved OS engine results
+                OS_cash_series = load_result(run, OS_path)['cash_series']
+                OS_trades = load_result(run, OS_path)['trades']
+                initial_cash = OS_cash_series.values[0]
 
-        # reindex trades
-        for i, trade in enumerate(trades):
-            trade.id = i + 1 # 1-based index
+                if len(cash_series) > 0:
 
-        # mask data to OS sample
-        OS = data.loc[cash_series.index, :]
+                    last_balance = cash_series.values[-1]
+                    OS_cash_series += last_balance - initial_cash
 
-        # create engine, but don't run!
-        strategy = LiveStrategy(OS, self.avgs, params)
-        engine = Engine('Out-of-sample composite', strategy)
+                cash_series = cash_series._append(OS_cash_series)
+                trades.extend(OS_trades)
 
-        # finish engine build
-        engine.cash_series = cash_series
-        engine.trades = trades
-        engine.analyze()
-        engine.save(self.path)
+            # reindex trades
+            for i, trade in enumerate(trades):
+                trade.id = i + 1 # 1-based index
 
-        self.analyze()
-        return engine
+            # mask data to OS sample
+            OS = data.loc[cash_series.index, :]
+
+            # create engine, but don't run!
+            strategy = LiveStrategy(OS, self.avgs, params)
+            engine = Engine(fitness.value, strategy)
+
+            # finish engine build
+            engine.cash_series = cash_series
+            engine.trades = trades
+            engine.analyze()
+            engine.save(self.path)
+
+        # todo
+        # self.analyze()
 
     def analyze(self):
         self.metrics += get_walk_forward_metrics(self)

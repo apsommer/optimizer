@@ -7,7 +7,7 @@ import pandas as pd
 from tqdm import tqdm
 from multiprocessing import Pool, Process
 from analysis.Analyzer import load_result
-from analysis.Engine import Engine
+from analysis.Engine import Engine, rebuild
 from analysis.WalkForward import WalkForward
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
@@ -46,34 +46,35 @@ wfa = WalkForward(
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave 1 for basic computer tasks
-_runs = range(runs)
 
 # print header metrics
 print_metrics(wfa.metrics)
 
 # automate pool of threads
 pool = Pool(cores)
-pool.map(wfa.walk_forward, _runs)
+pool.map(wfa.walk_forward, range(runs))
 pool.close()
 pool.join() # start one thread on each core
 
-# # build composite of OS runs
-# engine = wfa.build_composite()
-# print_metrics(get_walk_forward_metrics(wfa))
-#
-# # get last IS analyzer
-# IS_path = wfa.path + str(runs)
-# analyzer_metrics = load_result('analyzer', IS_path)['metrics']
-# print_metrics(analyzer_metrics)
-#
-# # print results
-# print_metrics(engine.metrics)
-# engine.print_trades()
-#
-# # plot results
-# print('Plot:')
-# plot_trades(engine)
-# plot_equity(engine)
+# build composite of OS runs
+wfa.build_composites()
+print_metrics(get_walk_forward_metrics(wfa))
+
+# todo debug get last IS analyzer
+IS_path = wfa.path + str(runs)
+analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+print_metrics(analyzer_metrics)
+
+# print results
+# todo print all
+engine = rebuild('profit', wfa.path)
+print_metrics(engine.metrics)
+engine.print_trades()
+
+# plot results
+print('Plot:')
+plot_trades(engine)
+plot_equity(engine)
 # # plot_strategy(engine)
 
 ###################################################################

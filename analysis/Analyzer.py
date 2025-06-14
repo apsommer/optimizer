@@ -4,7 +4,7 @@ import pickle
 import pandas as pd
 from tqdm import tqdm
 
-from analysis.Engine import Engine
+from analysis.Engine import Engine, load_result
 from model.Fitness import Fitness
 from utils.MetricUtils import *
 from strategy.LiveParams import LiveParams
@@ -124,27 +124,6 @@ class Analyzer:
 
         return metric
 
-    def rebuild_engine(self, id):
-
-        data = self.data
-
-        result = load_result(id, self.path)
-        params = result['params']
-
-        strategy = LiveStrategy(data, self.avgs, params)
-
-        # init but not run
-        engine = Engine(id, strategy)
-
-        # unpack previously completed result
-        engine.id = result['id']
-        engine.params = params
-        engine.metrics = result['metrics']
-        engine.trades = result['trades']
-        engine.cash_series = result['cash_series']
-
-        return engine
-
     ''' serialize '''
     def save(self):
 
@@ -169,17 +148,5 @@ class Analyzer:
 
 ########################################################################################################################
 
-''' deserialize '''
-def load_result(id, path):
 
-    filename = str(id) + '.bin'
-    path_filename = path + '/' + filename
-
-    try:
-        filehandler = open(path_filename, 'rb')
-        return pickle.load(filehandler)
-
-    except FileNotFoundError:
-        print(f'\n{path_filename} not found')
-        exit()
 
