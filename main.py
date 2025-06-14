@@ -18,7 +18,7 @@ from utils.PlotUtils import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 9
 isNetwork = False
 
 # analyzer
@@ -52,7 +52,7 @@ print_metrics(wfa.metrics)
 
 # automate pool of threads
 pool = Pool(cores)
-pool.map(wfa.walk_forward, range(runs))
+pool.map(wfa.walk_forward, range(runs + 1))
 pool.close()
 pool.join() # start one thread on each core
 

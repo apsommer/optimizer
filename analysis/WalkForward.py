@@ -61,12 +61,12 @@ class WalkForward():
         # sweep in-sample
         self.sweep_IS(run)
 
+        # skip OS on last run
+        if run == self.runs:
+            return
+
         # run out-of-sample
         self.run_OS(run)
-
-        # last window, one more sweep in-sample
-        if run == self.runs - 1:
-            self.sweep_IS(self.runs)
 
     def sweep_IS(self, run):
 
