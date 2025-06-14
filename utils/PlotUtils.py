@@ -3,9 +3,14 @@ import pandas as pd
 import finplot as fplt
 from tqdm import tqdm
 
+from analysis.Engine import load_result, Engine
+from model.Fitness import Fitness
+from strategy.LiveStrategy import LiveStrategy
+
+
 # todo extract common plot init
 
-def plot_equity(engine):
+def plot_equity(wfa):
 
     # maximize window (left)
     fplt.winx = 0
@@ -44,55 +49,64 @@ def plot_equity(engine):
     ax.crosshair.vline.setPen(axis_pen)
     ax.crosshair.hline.setPen(axis_pen)
 
-    # plot initial cash line first
-    cash_series = engine.cash_series
-    initial_cash_df = pd.DataFrame(
-        data = { 'initial_cash': engine.initial_cash},
-        index = cash_series.index)
-    fplt.plot(
-        initial_cash_df,
-        color = dark_gray,
-        ax = ax)
+    ####################################################################################################################
 
-    # reference simple buy and hold
-    size = engine.strategy.size
-    point_value = engine.strategy.ticker.point_value
-    delta_df = engine.data.Close - engine.data.Close.iloc[0]
-    initial_cash = engine.initial_cash
-    buy_hold = size * point_value * delta_df + initial_cash
+    for fitness in Fitness:
 
-    # plot buy and hold
-    fplt.plot(
-        buy_hold,
-        color = dark_gray,
-        ax = ax)
+        # rebuild composite OS engine
+        result = load_result(fitness.value, wfa.path)
+        params = result['params']
+        cash_series = result['cash_series']
 
-    # split balance into positive and negative
-    pos, neg = [], []
-    for balance in cash_series:
+        start = cash_series.index[0]
+        end = cash_series.index[-1]
+        comp = wfa.data[start:end]
 
-        over = balance >= engine.initial_cash
-        under = balance < engine.initial_cash
+        strategy = LiveStrategy(comp, wfa.avgs, params)
+        engine = Engine(fitness.value, strategy)
 
-        if over:
-            pos.append(balance)
-            neg.append(np.nan)
-            if len(pos) > 1 and np.isnan(pos[-2]):
-                pos[-2] = neg[-2]
-        elif under:
-            pos.append(np.nan)
-            neg.append(balance)
-            if len(neg) > 1 and np.isnan(neg[-2]):
-                neg[-2] = pos[-2]
+        # split balance into positive and negative
+        pos, neg = [], []
+        for balance in cash_series:
 
-    pos_df = pd.DataFrame({'pos': pos})
-    neg_df = pd.DataFrame({'neg': neg})
-    pos_df.index = cash_series.index
-    neg_df.index = cash_series.index
+            over = balance >= engine.initial_cash
+            under = balance < engine.initial_cash
 
-    # plot positive and negative
-    fplt.plot(pos_df, color = green, ax = ax)
-    fplt.plot(neg_df, color = red, ax = ax)
+            if over:
+                pos.append(balance)
+                neg.append(np.nan)
+                if len(pos) > 1 and np.isnan(pos[-2]):
+                    pos[-2] = neg[-2]
+            elif under:
+                pos.append(np.nan)
+                neg.append(balance)
+                if len(neg) > 1 and np.isnan(neg[-2]):
+                    neg[-2] = pos[-2]
+
+        pos_df = pd.DataFrame({'pos': pos})
+        neg_df = pd.DataFrame({'neg': neg})
+        pos_df.index = cash_series.index
+        neg_df.index = cash_series.index
+
+        # plot positive and negative
+        fplt.plot(pos_df, color = green, ax = ax)
+        fplt.plot(neg_df, color = red, ax = ax)
+
+        # only calc once
+        if fitness is Fitness.PROFIT:
+
+            # plot initial cash
+            fplt.plot(engine.initial_cash, color=dark_gray, ax=ax)
+
+            # reference simple buy and hold
+            size = engine.strategy.size
+            point_value = engine.strategy.ticker.point_value
+            delta_df = engine.data.Close - engine.data.Close.iloc[0]
+            initial_cash = engine.initial_cash
+            buy_hold = size * point_value * delta_df + initial_cash
+
+            # plot buy and hold
+            fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
     fplt.show()
 

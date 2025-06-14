@@ -7,7 +7,7 @@ import pandas as pd
 from tqdm import tqdm
 from multiprocessing import Pool, Process
 from analysis.Analyzer import load_result
-from analysis.Engine import Engine, rebuild
+from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
@@ -66,15 +66,13 @@ analyzer_metrics = load_result('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)
 
 # print results
-# todo print all
-engine = rebuild('profit', wfa.path)
-print_metrics(engine.metrics)
-engine.print_trades()
+# print_metrics(engine.metrics)
+# engine.print_trades()
 
 # plot results
 print('Plot:')
-plot_trades(engine)
-plot_equity(engine)
+# plot_trades(engine)
+plot_equity(wfa)
 # # plot_strategy(engine)
 
 ###################################################################
