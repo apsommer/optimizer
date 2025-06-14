@@ -39,23 +39,23 @@ def get_engine_metrics(engine):
     if num_trades == 0:
         return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
 
+    trades = engine.trades
+    cash_series = engine.cash_series
     id = engine.id
-    start_date = engine.data.index[0]
-    end_date = engine.data.index[-1]
-    days = (engine.data.index[-1] - engine.data.index[0]).days
-    candles = len(engine.data.index)
-    ticker = engine.strategy.ticker.symbol
+    symbol = engine.strategy.ticker.symbol
     size = engine.strategy.size
     initial_cash = engine.initial_cash
+
+    start_date = cash_series.index[0]
+    end_date = cash_series.index[-1]
+    days = (end_date - start_date).days
+    candles = len(cash_series.index)
 
     # format timestamp
     start_date = format_timestamp(start_date)
     end_date = format_timestamp(end_date)
 
-    trades = engine.trades
-    cash_series = engine.cash_series
-
-    cash = engine.cash_series.iloc[-1]
+    cash = cash_series.iloc[-1]
     profit = cash - initial_cash
     trades_per_day = num_trades / days
 
@@ -67,7 +67,7 @@ def get_engine_metrics(engine):
     total_return = (profit / initial_cash) * 100
 
     # catch bad math
-    if 0 > engine.cash: annualized_return = np.nan
+    if 0 > cash: annualized_return = np.nan
     else: annualized_return = ((cash / initial_cash) ** (1 / (days / 365)) - 1) * 100
 
     if gross_loss == 0: profit_factor = np.inf
@@ -112,7 +112,7 @@ def get_engine_metrics(engine):
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
-        Metric('ticker', ticker, None, 'Ticker'),
+        Metric('symbol', symbol, None, 'Symbol'),
         Metric('size', size, None, 'Size'),
         Metric('initial_cash', initial_cash, 'USD', 'Initial cash'),
 

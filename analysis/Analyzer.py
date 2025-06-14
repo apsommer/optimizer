@@ -47,6 +47,7 @@ class Analyzer:
         id = 0
         total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
 
+        # print('\n' * self.id)
         with tqdm(
             total = total,
             colour = 'BLUE',
@@ -56,8 +57,8 @@ class Analyzer:
                 for fastMomentumMinutes in self.fastMomentumMinutes:
                     for takeProfitPercent in self.takeProfitPercent:
 
-                        # if id > 3:
-                        #     break
+                        if id > 3:
+                            break
 
                         # update params
                         params.disableEntryMinutes = disableEntryMinutes

@@ -12,6 +12,7 @@ def getOhlc(num_months, isNetwork):
     csv_filename = 'data/' + data_name + '.csv'
     td = timedelta(days=num_months * 30.437)
     starting_date = (datetime.now() - td).strftime("%Y-%m-%d")
+    ending_date ='2025-06-13' # datetime.now().strftime("%Y-%m-%d")
     timezone = 'America/Chicago'
 
     # return local cache
@@ -34,7 +35,7 @@ def getOhlc(num_months, isNetwork):
         stype_in = "continuous",
         schema = "ohlcv-1m",
         start = starting_date,
-        # end = ending_date
+        end = ending_date
     ).to_df())
 
     # rename, drop, timestamp
