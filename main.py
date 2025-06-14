@@ -45,7 +45,7 @@ wfa = WalkForward(
 
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available
-cores -= 1 # leave one for basic computer tasks
+cores -= 1 # leave 1 for basic computer tasks
 _runs = range(runs)
 
 # print header metrics
@@ -56,8 +56,6 @@ pool = Pool(cores)
 pool.map(wfa.walk_forward, _runs)
 pool.close()
 pool.join() # start one thread on each core
-
-print(f'end data: {data.index[-1]}')
 
 # # build composite of OS runs
 # engine = wfa.build_composite()

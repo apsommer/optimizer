@@ -61,11 +61,12 @@ class WalkForward():
         # sweep in-sample
         self.sweep_IS(run)
 
-        # skip last run out-of-sample
-        if run == self.runs: return
-
         # run out-of-sample
         self.run_OS(run)
+
+        # last window, one more sweep in-sample
+        if run == self.runs - 1:
+            self.sweep_IS(self.runs)
 
     def sweep_IS(self, run):
 
@@ -85,6 +86,9 @@ class WalkForward():
         analyzer.save()
         # print_metrics(analyzer.metrics)
 
+        if run == self.runs:
+            print(f'last ... IS_end: {format_timestamp(IS.index[-1])}')
+
     def run_OS(self, run):
 
         IS_len = self.IS_len
@@ -93,14 +97,15 @@ class WalkForward():
 
         IS_start = run * OS_len
         IS_end = IS_start + IS_len
+        IS = data.iloc[IS_start: IS_end]
 
         OS_start = IS_end
         OS_end = OS_start + OS_len
         OS = data.iloc[OS_start:OS_end]
-        
-        if run == self.runs:
-            print(f'IS_end: {IS_end}')
-            print(f'OS_end: {OS_end}')
+
+        if run == self.runs - 1:
+            print(f'IS_end: {format_timestamp(IS.index[-1])}')
+            print(f'OS_end: {format_timestamp(OS.index[-1])}')
 
         # get fittest params from last IS analyzer
         IS_path = self.path + str(run)
