@@ -53,6 +53,18 @@ def plot_equity(wfa):
 
     ####################################################################################################################
 
+    # todo temp
+    # isolate composite with highest profit
+    highest_profit = -np.inf
+    for fitness in Fitness:
+
+        result = load_result(fitness.value, wfa.path)
+        cash_series = result['cash_series']
+        cash = cash_series[-1]
+
+        if cash > highest_profit:
+            highest_profit = cash
+
     for fitness in Fitness:
 
         # rebuild composite OS engine
@@ -74,9 +86,10 @@ def plot_equity(wfa):
         engine.metrics = result['metrics']
         engine.trades = result['trades']
         engine.cash_series = cash_series
+        engine.cash = cash_series[-1]
 
         # todo temp
-        if fitness is Fitness.WIN_RATE:
+        if engine.cash == highest_profit:
             print_metrics(engine.metrics)
             engine.print_trades()
             plot_trades(engine)

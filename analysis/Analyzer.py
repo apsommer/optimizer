@@ -14,17 +14,19 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, avgs, path):
+    def __init__(self, id, data, avgs, opt, path):
 
         self.id = id
         self.data = data
         self.avgs = avgs
+        self.opt = opt
         self.path = path
 
         self.results = []
         self.metrics = []
         self.fittest = { }
 
+        # common
         self.params = LiveParams(
             fastMinutes = 25,
             disableEntryMinutes = None,
@@ -36,10 +38,10 @@ class Analyzer:
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        num = 5
-        self.disableEntryMinutes = linspace(60, 180, num = num, dtype = int)
-        self.fastMomentumMinutes = linspace(55, 130, num = num, dtype = int)
-        self.takeProfitPercent = linspace(.25, .70, num = num, dtype = float)
+        # extract opt
+        self.disableEntryMinutes = self.opt['disableEntryMinutes']
+        self.fastMomentumMinutes = self.opt['fastMomentumMinutes']
+        self.takeProfitPercent = self.opt['takeProfitPercent']
 
     def run(self):
 
@@ -50,11 +52,12 @@ class Analyzer:
         total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
 
         with tqdm(
-            # disable = self.id != 0,
-            # leave = False,
+            disable = self.id != 0,
+            # leave = self.id == 0,
+            # position = self.id,
             total = total,
             colour = '#4287f5',
-            bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            bar_format = '        {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
             for disableEntryMinutes in self.disableEntryMinutes:
                 for fastMomentumMinutes in self.fastMomentumMinutes:

@@ -13,11 +13,12 @@ from utils.metrics import *
 
 class WalkForward():
 
-    def __init__(self, num_months, percent, runs, data):
+    def __init__(self, num_months, percent, runs, data, opt):
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
         self.data = data
+        self.opt = opt
         self.params = None
 
         # organize outputs
@@ -83,7 +84,7 @@ class WalkForward():
         IS = data.iloc[IS_start : IS_end]
 
         # run exhaustive sweep over IS
-        analyzer = Analyzer(run, IS, self.avgs, path)
+        analyzer = Analyzer(run, IS, self.avgs, self.opt, path)
         analyzer.run()
         analyzer.save()
         # print_metrics(analyzer.metrics)

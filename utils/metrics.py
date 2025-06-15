@@ -183,6 +183,7 @@ def get_walk_forward_init_metrics(walk_forward):
 
     # pretty
     candles = '{:,}'.format(candles)
+    runs = str(walk_forward.runs) + ' + 1'
 
     return [
         Metric('header', None, None, 'Walk forward:'),
@@ -191,8 +192,8 @@ def get_walk_forward_init_metrics(walk_forward):
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
-        Metric('percent', walk_forward.percent, None, 'Percent'),
-        Metric('runs', walk_forward.runs, None, 'Runs'),
+        Metric('percent', walk_forward.percent, '%', 'Percent'),
+        Metric('runs', runs, None, 'Runs'),
     ]
 
 def get_walk_forward_results_metrics(walk_forward):
