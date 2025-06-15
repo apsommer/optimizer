@@ -159,13 +159,15 @@ def get_analyzer_metrics(analyzer):
         Metric('days', days, None, 'Days'),
     ]
 
-def get_walk_forward_init_metrics(walk_forward):
+def get_walk_forward_init_metrics(wfa):
 
-    start_date = walk_forward.data.index[0]
-    end_date = walk_forward.data.index[-1]
-    candles = len(walk_forward.data.index)
+    start_date = wfa.data.index[0]
+    end_date = wfa.data.index[-1]
+    candles = len(wfa.data.index)
     days = (end_date - start_date).days
     months = round(days / 30.437)
+    in_sample = round(wfa.IS_len / 1440)
+    out_of_sample = round(wfa.OS_len / 1440)
 
     # format timestamp
     start_date = format_timestamp(start_date)
@@ -173,7 +175,9 @@ def get_walk_forward_init_metrics(walk_forward):
 
     # pretty
     candles = '{:,}'.format(candles)
-    runs = str(walk_forward.runs) + ' + 1'
+    runs = str(wfa.runs + 1) + ' [' + str(wfa.runs) + '+1]'
+    in_sample = str(in_sample) + '/' + str(in_sample * (wfa.runs + 1))
+    out_of_sample = str(out_of_sample) + '/' + str(out_of_sample * wfa.runs)
 
     return [
         Metric('header', None, None, 'Walk forward:'),
@@ -182,8 +186,10 @@ def get_walk_forward_init_metrics(walk_forward):
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
-        Metric('percent', walk_forward.percent, '%', 'Percent'),
+        Metric('percent', wfa.percent, '%', 'Percent'),
         Metric('runs', runs, None, 'Runs'),
+        Metric('in_sample', in_sample, None, 'In-sample days'),
+        Metric('out_of_sample', out_of_sample, None, 'Out-of-sample days'),
     ]
 
 def get_walk_forward_results_metrics(walk_forward):
