@@ -36,7 +36,7 @@ class Analyzer:
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        num = 1
+        num = 5
         self.disableEntryMinutes = linspace(60, 180, num = num, dtype = int)
         self.fastMomentumMinutes = linspace(55, 130, num = num, dtype = int)
         self.takeProfitPercent = linspace(.25, .70, num = num, dtype = float)
@@ -54,7 +54,7 @@ class Analyzer:
             # leave = False,
             total = total,
             colour = '#4287f5',
-            bar_format = '       {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
             for disableEntryMinutes in self.disableEntryMinutes:
                 for fastMomentumMinutes in self.fastMomentumMinutes:
