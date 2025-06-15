@@ -36,7 +36,7 @@ class Analyzer:
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        num = 10
+        num = 1
         self.disableEntryMinutes = linspace(60, 180, num = num, dtype = int)
         self.fastMomentumMinutes = linspace(55, 130, num = num, dtype = int)
         self.takeProfitPercent = linspace(.25, .70, num = num, dtype = float)
@@ -50,16 +50,18 @@ class Analyzer:
         total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
 
         with tqdm(
+            # disable = self.id != 0,
+            # leave = False,
             total = total,
-            colour = 'BLUE',
-            bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            colour = '#4287f5',
+            bar_format = '       {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
             for disableEntryMinutes in self.disableEntryMinutes:
                 for fastMomentumMinutes in self.fastMomentumMinutes:
                     for takeProfitPercent in self.takeProfitPercent:
 
-                        if id > 10:
-                            break
+                        # if id > 100:
+                        #     break
 
                         # update params
                         params.disableEntryMinutes = disableEntryMinutes
@@ -75,7 +77,7 @@ class Analyzer:
                         engine.save(self.path)
                         id += 1
 
-                        pbar.update(id)
+                        pbar.update()
 
         pbar.close()
         self.analyze()
@@ -87,6 +89,10 @@ class Analyzer:
         ids = np.arange(0, num_engines, 1)
 
         # collect engine metrics
+        # for id in tqdm(
+        #     iterable = ids,
+        #     colour = '#42f5f5',
+        #     bar_format = '       {percentage:3.0f}%|{bar:100}{r_bar}'):
         for id in ids:
             result = load_result(id, self.path)
             metrics = result['metrics']

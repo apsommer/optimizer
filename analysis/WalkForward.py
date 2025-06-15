@@ -139,10 +139,7 @@ class WalkForward():
         # build composite engine
         cash_series, trades, bal = pd.Series(), [], 0
 
-        for run in tqdm(
-            iterable = range(self.runs),
-            colour = 'GREEN',
-            bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}'):
+        for run in range(self.runs):
 
             OS_path = self.path + fitness.value + '/'
 

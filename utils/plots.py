@@ -168,7 +168,7 @@ def plot_trades(engine):
 
     for trade in tqdm(
         iterable = engine.trades,
-        colour = 'PURPLE',
+        colour = green,
         bar_format = '       {percentage:3.0f}%|{bar:100}{r_bar}'):
 
         # entry

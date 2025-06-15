@@ -19,7 +19,7 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 6
+num_months = 3
 isNetwork = False
 
 # analyzer
@@ -53,13 +53,12 @@ _fits = [ fitness for fitness in Fitness ]
 # print header metrics
 print_metrics(wfa.metrics)
 
-#
-pool = Pool(cores)
+# run walk forward
+pool = Pool(cores) # one core for each run
 pool.map(wfa.walk_forward, _runs)
 pool.close()
-pool.join() # start one process per core
+pool.join()
 
-# must be after threads finish above
 # build composite OS for each fitness function
 bath = Pool(cores)
 bath.map(wfa.build_composite, _fits)
@@ -73,10 +72,10 @@ IS_path = wfa.path + str(runs)
 analyzer_metrics = load_result('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)
 
-# plot results
-plot_equity(wfa)
-
 # print analysis time
 elapsed = time.time() - start_time
 pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
+
+# plot results
+plot_equity(wfa)
