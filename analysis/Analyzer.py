@@ -77,7 +77,7 @@ class Analyzer:
 
                         # run and save
                         engine.run()
-                        engine.save(self.path)
+                        engine.save(self.path, False)
                         id += 1
 
                         pbar.update()
@@ -92,28 +92,19 @@ class Analyzer:
         ids = np.arange(0, num_engines, 1)
 
         # collect engine metrics
-        # for id in tqdm(
-        #     iterable = ids,
-        #     colour = '#42f5f5',
-        #     bar_format = '       {percentage:3.0f}%|{bar:100}{r_bar}'):
         for id in ids:
             result = load_result(id, self.path)
             metrics = result['metrics']
             self.results.append(metrics)
 
-        # persist all best params per fitness function
-        self.metrics = (
-            get_analyzer_metrics(self) +
-            get_analyzer_fitness_metric(self, Fitness.PROFIT) +
-            get_analyzer_fitness_metric(self, Fitness.EXPECTANCY) +
-            get_analyzer_fitness_metric(self, Fitness.WIN_RATE) +
-            get_analyzer_fitness_metric(self, Fitness.AVERAGE_WIN) +
-            get_analyzer_fitness_metric(self, Fitness.AVERAGE_LOSS) +
-            get_analyzer_fitness_metric(self, Fitness.DRAWDOWN) +
-            get_analyzer_fitness_metric(self, Fitness.DRAWDOWN_PER_PROFIT))
+        # init metrics
+        self.metrics = get_analyzer_metrics(self)
 
+        # persist fittest engines
         for fitness in Fitness:
-            self.fittest[fitness] = self.get_fittest_metric(fitness)
+            metric = self.get_fittest_metric(fitness)
+            self.metrics.append(metric)
+            self.fittest[fitness] = metric
 
     def get_fittest_metric(self, fitness):
 
@@ -127,17 +118,16 @@ class Analyzer:
                 if metric.name == name:
                     _metrics.append(metric)
 
-        # maximize or minimize
-        if fitness.is_max: isMax = True
-        else: isMax = False
-
         # sort metrics on fitness
         metric = sorted(
             _metrics,
             key = lambda it: it.value,
-            reverse = isMax)[0]
+            reverse = fitness.is_max)[0]
 
-        return metric
+        # tag title
+        title = '* ' + metric.title
+
+        return Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id)
 
     ''' serialize '''
     def save(self):

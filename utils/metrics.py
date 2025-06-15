@@ -159,16 +159,6 @@ def get_analyzer_metrics(analyzer):
         Metric('days', days, None, 'Days'),
     ]
 
-def get_analyzer_fitness_metric(analyzer, fitness):
-
-    # tag title
-    metric = analyzer.get_fittest_metric(fitness)
-    title = '* ' + metric.title
-
-    return [
-        Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id),
-    ]
-
 def get_walk_forward_init_metrics(walk_forward):
 
     start_date = walk_forward.data.index[0]

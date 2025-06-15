@@ -107,15 +107,27 @@ class Engine:
         print()
 
     ''' serialize '''
-    def save(self, path):
+    def save(self, path, isFull):
 
-        result = {
-            'id': self.id,
-            'params': self.strategy.params,
-            'metrics': self.metrics,
-            'trades': self.trades,
-            'cash_series': self.cash_series # todo minimize with []?
-        }
+        # out-of-sample
+        if isFull:
+            result = {
+                'id': self.id,
+                'params': self.strategy.params,
+                'metrics': self.metrics,
+                'trades': self.trades,
+                'cash_series': self.cash_series
+            }
+
+        # in-sample
+        else:
+            result = {
+                'id': self.id,
+                'params': self.strategy.params,
+                'metrics': self.metrics,
+                # 'trades': self.trades,
+                # 'cash_series': self.cash_series
+            }
 
         # make directory, if needed
         if not os.path.exists(path):
@@ -127,4 +139,3 @@ class Engine:
 
         filehandler = open(path_filename, 'wb')
         pickle.dump(result, filehandler)
-

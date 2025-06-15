@@ -118,7 +118,7 @@ class WalkForward():
             strategy = LiveStrategy(OS, self.avgs, params)
             engine = Engine(run, strategy)
             engine.run()
-            engine.save(OS_path)
+            engine.save(OS_path, True)
 
         # print results
         # print_metrics(engine.metrics)
@@ -172,7 +172,7 @@ class WalkForward():
         engine.cash_series = cash_series
         engine.trades = trades
         engine.analyze()
-        engine.save(self.path)
+        engine.save(self.path, True)
 
         self.analyze()
 
