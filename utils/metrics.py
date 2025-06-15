@@ -103,6 +103,9 @@ def get_engine_metrics(engine):
     long_percent = round((longs / num_trades) * 100)
     short_percent = round((shorts / num_trades) * 100)
 
+    # pretty
+    candles = '{:,}'.format(candles)
+
     return [
 
         # engine

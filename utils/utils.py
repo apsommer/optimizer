@@ -50,7 +50,7 @@ def getOhlc(num_months, isNetwork):
     return ohlc
 
 def timestamp(data, timezone):
-    utc = pd.to_datetime(data.index, utc=True)
+    utc = pd.to_datetime(data.index, utc = True)
     return utc.tz_convert(timezone)
 
 ''' deserialize '''

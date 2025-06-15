@@ -36,9 +36,10 @@ class Analyzer:
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        self.disableEntryMinutes = linspace(60, 180, num = 8, dtype = int)
-        self.fastMomentumMinutes = linspace(55, 130, num = 15, dtype = int)
-        self.takeProfitPercent = linspace(.25, .70, num = 10, dtype = float)
+        num = 10
+        self.disableEntryMinutes = linspace(60, 180, num = num, dtype = int)
+        self.fastMomentumMinutes = linspace(55, 130, num = num, dtype = int)
+        self.takeProfitPercent = linspace(.25, .70, num = num, dtype = float)
 
     def run(self):
 
@@ -48,7 +49,6 @@ class Analyzer:
         id = 0
         total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
 
-        # print('\n' * self.id)
         with tqdm(
             total = total,
             colour = 'BLUE',
@@ -58,7 +58,7 @@ class Analyzer:
                 for fastMomentumMinutes in self.fastMomentumMinutes:
                     for takeProfitPercent in self.takeProfitPercent:
 
-                        if id > 1:
+                        if id > 10:
                             break
 
                         # update params

@@ -2,6 +2,7 @@ import os
 import shutil
 
 import pandas as pd
+from tqdm import tqdm
 
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
@@ -123,7 +124,7 @@ class WalkForward():
         # engine.print_trades()
 
     ''' must call after all threads complete '''
-    def build_composites(self):
+    def build_composite(self, fitness):
 
         data = self.data
 
@@ -131,51 +132,51 @@ class WalkForward():
         IS_path = self.path + str(self.runs)
         fittest = load_result('analyzer', IS_path)['fittest']
 
-        # build composite for each fitness function
-        for fitness in Fitness:
+        # extract params of fittest engine
+        metric = fittest[fitness]
+        params = load_result(str(metric.id), IS_path)['params']
 
-            # extract params of fittest engine
-            metric = fittest[fitness]
-            params = load_result(str(metric.id), IS_path)['params']
+        # build composite engine
+        cash_series, trades, bal = pd.Series(), [], 0
 
-            # build composite engine
-            cash_series, trades, bal = pd.Series(), [], 0
-            for run in range(self.runs):
+        for run in tqdm(
+            iterable = range(self.runs),
+            colour = 'GREEN',
+            bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
-                OS_path = self.path + fitness.value + '/'
+            OS_path = self.path + fitness.value + '/'
 
-                # extract saved OS engine results
-                OS_cash_series = load_result(run, OS_path)['cash_series']
-                OS_trades = load_result(run, OS_path)['trades']
-                initial_cash = OS_cash_series.values[0]
+            # extract saved OS engine results
+            OS_cash_series = load_result(run, OS_path)['cash_series']
+            OS_trades = load_result(run, OS_path)['trades']
+            initial_cash = OS_cash_series.values[0]
 
-                if len(cash_series) > 0:
+            if len(cash_series) > 0:
 
-                    last_balance = cash_series.values[-1]
-                    OS_cash_series += last_balance - initial_cash
+                last_balance = cash_series.values[-1]
+                OS_cash_series += last_balance - initial_cash
 
-                cash_series = cash_series._append(OS_cash_series)
-                trades.extend(OS_trades)
+            cash_series = cash_series._append(OS_cash_series)
+            trades.extend(OS_trades)
 
-            # reindex trades
-            for i, trade in enumerate(trades):
-                trade.id = i + 1 # 1-based index
+        # reindex trades
+        for i, trade in enumerate(trades):
+            trade.id = i + 1 # 1-based index
 
-            # mask data to OS sample
-            OS = data.loc[cash_series.index, :]
+        # mask data to OS sample
+        OS = data.loc[cash_series.index, :]
 
-            # create engine, but don't run!
-            strategy = LiveStrategy(OS, self.avgs, params)
-            engine = Engine(fitness.value, strategy)
+        # create engine, but don't run!
+        strategy = LiveStrategy(OS, self.avgs, params)
+        engine = Engine(fitness.value, strategy)
 
-            # finish engine build
-            engine.cash_series = cash_series
-            engine.trades = trades
-            engine.analyze()
-            engine.save(self.path)
+        # finish engine build
+        engine.cash_series = cash_series
+        engine.trades = trades
+        engine.analyze()
+        engine.save(self.path)
 
-        # todo
-        # self.analyze()
+        self.analyze()
 
     def analyze(self):
         self.metrics += get_walk_forward_results_metrics(self)

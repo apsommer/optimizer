@@ -19,12 +19,12 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 9
+num_months = 6
 isNetwork = False
 
 # analyzer
 percent = 20
-runs = 15
+runs = 14
 
 ###################################################################
 
@@ -46,19 +46,26 @@ wfa = WalkForward(
 
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available
-# cores -= 1 # leave 1 for basic computer tasks
+cores -= 1 # leave 1 for basic computer tasks
+_runs = range(runs + 1) # add 1 for last OS
+_fits = [ fitness for fitness in Fitness ]
 
 # print header metrics
 print_metrics(wfa.metrics)
 
-# automate pool of threads
+#
 pool = Pool(cores)
-pool.map(wfa.walk_forward, range(runs + 1))
+pool.map(wfa.walk_forward, _runs)
 pool.close()
-pool.join() # start one thread on each core
+pool.join() # start one process per core
 
-# build composite of OS runs
-wfa.build_composites() # must be after threads finish above
+# must be after threads finish above
+# build composite OS for each fitness function
+bath = Pool(cores)
+bath.map(wfa.build_composite, _fits)
+bath.close()
+bath.join() # start one process per core
+
 print_metrics(get_walk_forward_results_metrics(wfa))
 
 # print last IS analyzer
@@ -66,10 +73,10 @@ IS_path = wfa.path + str(runs)
 analyzer_metrics = load_result('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)
 
+# plot results
+plot_equity(wfa)
+
 # print analysis time
 elapsed = time.time() - start_time
 pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
-
-# plot results
-plot_equity(wfa)
