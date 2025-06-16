@@ -33,13 +33,12 @@ class Fitness(Enum):
     @property
     def is_max(self):
 
-        if self.name in [
-            'profit',
-            'expectancy',
-            'win_rate',
-            'average_win',
-        ]: return True
-
+        if (
+            self is Fitness.PROFIT or
+            self is Fitness.EXPECTANCY or
+            self is Fitness.WIN_RATE or
+            self is Fitness.AVERAGE_WIN
+        ): return True
         return False
 
     @property

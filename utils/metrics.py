@@ -66,9 +66,8 @@ def get_engine_metrics(engine):
 
     total_return = (profit / initial_cash) * 100
 
-    # catch bad math
-    if 0 > cash: annualized_return = np.nan
-    else: annualized_return = ((cash / initial_cash) ** (1 / (days / 365)) - 1) * 100
+    annualized_return = ((abs(cash) / initial_cash) ** (1 / (days / 365)) - 1) * 100
+    if 0 > cash: annualized_return = -annualized_return
 
     if gross_loss == 0: profit_factor = np.inf
     elif gross_profit == 0: profit_factor = -np.inf

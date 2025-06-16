@@ -119,10 +119,12 @@ class Analyzer:
                     _metrics.append(metric)
 
         # sort metrics on fitness
-        metric = sorted(
+        ranked = sorted(
             _metrics,
             key = lambda it: it.value,
-            reverse = fitness.is_max)[0]
+            reverse = fitness.is_max)
+
+        metric = ranked[0]
 
         # tag title
         title = '* ' + metric.title

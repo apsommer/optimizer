@@ -29,11 +29,10 @@ percent = 20
 runs = 14 # + 1 added later for final IS
 
 # analyzer
-num = 2
 opt = {
-    'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
-    'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
-    'takeProfitPercent': linspace(.25, .70, num=num, dtype=float)
+    'disableEntryMinutes': linspace(60, 180, num=1, dtype=int),
+    'fastMomentumMinutes': linspace(55, 130, num=1, dtype=int),
+    'takeProfitPercent': linspace(.25, .70, num=2, dtype=float)
 }
 
 ###################################################################
@@ -66,15 +65,15 @@ print_metrics(wfa.metrics)
 
 # run walk forward
 pool = Pool(cores) # one core for each run
-pool.map(wfa.walk_forward, _runs)
+pool.imap_unordered(wfa.walk_forward, _runs)
 pool.close()
 pool.join()
 
-# build composite OS for each fitness function
-bath = Pool(cores)
-bath.map(wfa.build_composite, _fits)
-bath.close()
-bath.join() # start one process per core
+# build composite OS
+pool = Pool(cores) # one core for each fitness function
+pool.imap_unordered(wfa.build_composite, _fits)
+pool.close()
+pool.join() # start one process per core
 
 print_metrics(get_walk_forward_results_metrics(wfa))
 

@@ -19,7 +19,7 @@ class WalkForward():
         self.runs = runs
         self.data = data
         self.opt = opt
-        self.params = None
+        self.params = None # todo final recommended set
 
         # organize outputs
         data_name = 'NQ_' + str(num_months) + 'mon'
@@ -40,9 +40,10 @@ class WalkForward():
 
     def calculate_avgs(self):
 
-        data = self.data
         fastMinutes = 25
         slowMinutes = 2555
+
+        data = self.data
 
         # calculate raw averages
         rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
@@ -109,15 +110,23 @@ class WalkForward():
         for fitness in Fitness:
 
             # extract params of fittest engine
-            metric = fittest[fitness]
-            params = load_result(str(metric.id), IS_path)['params']
-
-            OS_path = self.path + fitness.value + '/'
+            fittest_metric = fittest[fitness]
+            params = load_result(str(fittest_metric.id), IS_path)['params']
 
             # run strategy blind over OS with best params
             strategy = LiveStrategy(OS, self.avgs, params)
             engine = Engine(run, strategy)
             engine.run()
+
+            # calculate efficiency relative to companion IS
+            IS_metrics = load_result(str(fittest_metric.id), IS_path)['metrics']
+            IS_annual = [ metric.value for metric in IS_metrics if metric.name == 'annualized_return' ][0]
+            OS_annual = [ metric.value for metric in engine.metrics if metric.name == 'annualized_return' ][0]
+            efficiency = ((OS_annual / IS_annual) * 100)
+            efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
+            engine.metrics.append(efficiency_metric)
+
+            OS_path = self.path + fitness.value + '/'
             engine.save(OS_path, True)
 
         # print results
@@ -138,7 +147,7 @@ class WalkForward():
         params = load_result(str(metric.id), IS_path)['params']
 
         # build composite engine
-        cash_series, trades, bal = pd.Series(), [], 0
+        cash_series, trades, tot_eff = pd.Series(), [], 0
 
         for run in range(self.runs):
 
@@ -147,7 +156,10 @@ class WalkForward():
             # extract saved OS engine results
             OS_cash_series = load_result(run, OS_path)['cash_series']
             OS_trades = load_result(run, OS_path)['trades']
+            OS_metrics = load_result(run, OS_path)['metrics']
+
             initial_cash = OS_cash_series.values[0]
+            eff = [metric.value for metric in OS_metrics if metric.name == 'efficiency'][0]
 
             if len(cash_series) > 0:
 
@@ -156,6 +168,7 @@ class WalkForward():
 
             cash_series = cash_series._append(OS_cash_series)
             trades.extend(OS_trades)
+            tot_eff += eff
 
         # reindex trades
         for i, trade in enumerate(trades):
@@ -172,6 +185,12 @@ class WalkForward():
         engine.cash_series = cash_series
         engine.trades = trades
         engine.analyze()
+
+        # todo calculate efficiency, add to metrics
+        efficiency = tot_eff / self.runs
+        efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
+        engine.metrics.append(efficiency_metric)
+
         engine.save(self.path, True)
 
         self.analyze()
