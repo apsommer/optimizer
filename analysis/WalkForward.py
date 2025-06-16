@@ -112,6 +112,7 @@ class WalkForward():
             # extract params of fittest engine
             fittest_metric = fittest[fitness]
             params = load_result(str(fittest_metric.id), IS_path)['params']
+            metrics = load_result(str(fittest_metric.id), IS_path)['metrics']
 
             # run strategy blind over OS with best params
             strategy = LiveStrategy(OS, self.avgs, params)
@@ -119,10 +120,15 @@ class WalkForward():
             engine.run()
 
             # calculate efficiency relative to companion IS
-            IS_metrics = load_result(str(fittest_metric.id), IS_path)['metrics']
-            IS_annual = [ metric.value for metric in IS_metrics if metric.name == 'annual_return' ][0]
-            OS_annual = [ metric.value for metric in engine.metrics if metric.name == 'annual_return' ][0]
-            efficiency = ((OS_annual / IS_annual) * 100)
+            for metric in metrics:
+                if metric.name == 'annual_return':
+                    IS_annual = metric.value
+
+            for metric in engine.metrics:
+                if metric.name == 'annual_return':
+                    OS_annual = metric.value
+
+            efficiency = (OS_annual / IS_annual) * 100
             efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
             engine.metrics.append(efficiency_metric)
 
@@ -147,7 +153,7 @@ class WalkForward():
         params = load_result(str(metric.id), IS_path)['params']
 
         # build composite engine
-        cash_series, trades, tot_eff = pd.Series(), [], 0
+        cash_series, trades, efficiency_sum = pd.Series(), [], 0
 
         for run in range(self.runs):
 
@@ -159,7 +165,11 @@ class WalkForward():
             OS_metrics = load_result(run, OS_path)['metrics']
 
             initial_cash = OS_cash_series.values[0]
-            eff = [metric.value for metric in OS_metrics if metric.name == 'efficiency'][0]
+
+            # todo engine efficiency error?
+            for metric in OS_metrics:
+                if metric.name == 'efficiency':
+                    efficiency_sum += metric.value
 
             if len(cash_series) > 0:
 
@@ -168,7 +178,6 @@ class WalkForward():
 
             cash_series = cash_series._append(OS_cash_series)
             trades.extend(OS_trades)
-            tot_eff += eff
 
         # reindex trades
         for i, trade in enumerate(trades):
@@ -184,10 +193,10 @@ class WalkForward():
         # finish engine build
         engine.cash_series = cash_series
         engine.trades = trades
-        engine.analyze()
+        engine.analyze() # generate metrics
 
         # todo calculate efficiency, add to metrics
-        efficiency = tot_eff / self.runs
+        efficiency = efficiency_sum / self.runs
         efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
         engine.metrics.append(efficiency_metric)
 

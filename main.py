@@ -21,12 +21,12 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 12
+num_months = 3
 isNetwork = False
 
 # walk forward
 percent = 20
-runs = 14 # + 1 added later for final IS
+runs = 14 # + 1 added later for final IS, 16 cores available
 
 # analyzer
 num = 1
@@ -65,16 +65,16 @@ _fits = [ fitness for fitness in Fitness ]
 print_metrics(wfa.metrics)
 
 # run walk forward
-pool = Pool(cores) # one core for each run
+pool = Pool(processes = cores) # one core for each run
 pool.map(wfa.walk_forward, _runs)
 pool.close()
 pool.join()
 
 # build composite OS
-pool = Pool(cores) # one core for each fitness function
+pool = Pool(processes = cores) # one core for each fitness function
 pool.map(wfa.build_composite, _fits)
 pool.close()
-pool.join() # start one process per core
+pool.join()
 
 print_metrics(get_walk_forward_results_metrics(wfa))
 

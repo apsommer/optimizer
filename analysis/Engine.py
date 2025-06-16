@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import pickle
 
@@ -38,7 +39,7 @@ class Engine:
 
         # loop each bar
         for idx in tqdm(
-            disable = True, # self.id != 0,
+            disable = 'ForkPoolWorker-1' != multiprocessing.current_process().name,
             # leave = False,
             position = 1,
             iterable = self.data.index,
