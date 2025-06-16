@@ -23,9 +23,9 @@ class Engine:
         self.metrics = []
 
         # init equity account
-        margin_requirement = self.strategy.ticker.margin_requirement
+        margin = self.strategy.ticker.margin
         size = self.strategy.size
-        initial_cash = margin_requirement * self.data.Close.iloc[0] * size
+        initial_cash = margin * self.data.Close.iloc[0] * size
         self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
 
@@ -38,7 +38,7 @@ class Engine:
 
         # loop each bar
         for idx in tqdm(
-            disable = self.id != 0,
+            disable = True, # self.id != 0,
             # leave = False,
             position = 1,
             iterable = self.data.index,

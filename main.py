@@ -21,7 +21,7 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 12
 isNetwork = False
 
 # walk forward
@@ -29,10 +29,11 @@ percent = 20
 runs = 14 # + 1 added later for final IS
 
 # analyzer
+num = 1
 opt = {
-    'disableEntryMinutes': linspace(60, 180, num=1, dtype=int),
-    'fastMomentumMinutes': linspace(55, 130, num=1, dtype=int),
-    'takeProfitPercent': linspace(.25, .70, num=2, dtype=float)
+    'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
+    'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
+    'takeProfitPercent': linspace(.25, .70, num=num, dtype=float)
 }
 
 ###################################################################
@@ -65,13 +66,13 @@ print_metrics(wfa.metrics)
 
 # run walk forward
 pool = Pool(cores) # one core for each run
-pool.imap_unordered(wfa.walk_forward, _runs)
+pool.map(wfa.walk_forward, _runs)
 pool.close()
 pool.join()
 
 # build composite OS
 pool = Pool(cores) # one core for each fitness function
-pool.imap_unordered(wfa.build_composite, _fits)
+pool.map(wfa.build_composite, _fits)
 pool.close()
 pool.join() # start one process per core
 

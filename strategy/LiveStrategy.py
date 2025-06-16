@@ -11,7 +11,7 @@ class LiveStrategy(BaselineStrategy):
             symbol = 'MNQ',
             tick_size = 0.25,
             point_value = 2, # MNQ=2, NQ=20
-            margin = 0.10) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
+            margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
     def size(self):

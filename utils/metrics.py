@@ -65,9 +65,9 @@ def get_engine_metrics(engine):
     gross_loss = -sum(losses)
 
     total_return = (profit / initial_cash) * 100
-
-    annualized_return = ((abs(cash) / initial_cash) ** (1 / (days / 365)) - 1) * 100
-    if 0 > cash: annualized_return = -annualized_return
+    print(str((1 / (days / 365)) - 1))
+    annual_return = ((abs(cash) / initial_cash) ** (1 / (days / 365)) - 1) * 100
+    if 0 > cash: annual_return = -annual_return
 
     if gross_loss == 0: profit_factor = np.inf
     elif gross_profit == 0: profit_factor = -np.inf
@@ -125,7 +125,7 @@ def get_engine_metrics(engine):
         Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
         Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
         Metric('total_return', total_return, '%', 'Total return'),
-        Metric('annualized_return', annualized_return, '%', 'Annualized return'),
+        Metric('annual_return', annual_return, '%', 'Annualized return'),
         Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown per profit'),
         Metric('win_rate', win_rate, '%', 'Win rate'),
         Metric('loss_rate', loss_rate, '%', 'Loss rate'),

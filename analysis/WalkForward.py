@@ -120,8 +120,8 @@ class WalkForward():
 
             # calculate efficiency relative to companion IS
             IS_metrics = load_result(str(fittest_metric.id), IS_path)['metrics']
-            IS_annual = [ metric.value for metric in IS_metrics if metric.name == 'annualized_return' ][0]
-            OS_annual = [ metric.value for metric in engine.metrics if metric.name == 'annualized_return' ][0]
+            IS_annual = [ metric.value for metric in IS_metrics if metric.name == 'annual_return' ][0]
+            OS_annual = [ metric.value for metric in engine.metrics if metric.name == 'annual_return' ][0]
             efficiency = ((OS_annual / IS_annual) * 100)
             efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
             engine.metrics.append(efficiency_metric)
