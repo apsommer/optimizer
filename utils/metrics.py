@@ -175,9 +175,9 @@ def get_walk_forward_init_metrics(wfa):
 
     # pretty
     candles = '{:,}'.format(candles)
-    runs = str(wfa.runs + 1) + ' [' + str(wfa.runs) + '+1]'
-    in_sample = str(in_sample) + '/' + str(in_sample * (wfa.runs + 1))
-    out_of_sample = str(out_of_sample) + '/' + str(out_of_sample * wfa.runs)
+    runs = str(wfa.runs + 1) + ' [' + str(wfa.runs) + ' + 1]'
+    in_sample = str(in_sample) + ' / ' + str(in_sample * (wfa.runs + 1))
+    out_of_sample = str(out_of_sample) + ' / ' + str(out_of_sample * wfa.runs)
 
     return [
         Metric('header', None, None, 'Walk forward:'),

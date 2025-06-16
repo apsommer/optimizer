@@ -6,29 +6,20 @@ from tqdm import tqdm
 from analysis.Engine import Engine
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
-from utils.metrics import print_metrics
-from utils.utils import load_result
+from utils.constants import *
+from utils.metrics import *
+from utils.utils import *
 
+def init_plot(id):
 
-# todo extract common plot init
-
-def plot_equity(wfa):
-
-    # maximize window (left)
-    fplt.winx = 0
+    # window position, maximized
+    fplt.winx = id * 3840
     fplt.winy = 0
     fplt.winw = 3840
     fplt.winh = 2160
 
-    # colors
-    white = 'white'
-    light_gray = '#9e9e9e'
-    dark_gray = '#525252'
-    dark_black = '#141414'
-    green = '#42f578'
-    red = '#f55a42'
-
-    fplt.background = dark_black
+    # background todo font size
+    fplt.background = light_black
     fplt.candle_bull_color = light_gray
     fplt.candle_bull_body_color = light_gray
     fplt.candle_bear_color = dark_gray
@@ -39,7 +30,7 @@ def plot_equity(wfa):
     ax = fplt.create_plot(title='Equity')
 
     # axis
-    axis_pen = fplt._makepen(color='grey')
+    axis_pen = fplt._makepen(color = gray)
     ax.axes['right']['item'].setPen(axis_pen)
     ax.axes['right']['item'].setTextPen(axis_pen)
     ax.axes['right']['item'].setTickPen(None)
@@ -51,10 +42,13 @@ def plot_equity(wfa):
     ax.crosshair.vline.setPen(axis_pen)
     ax.crosshair.hline.setPen(axis_pen)
 
-    ####################################################################################################################
+    return ax
 
-    # todo temp
-    # isolate composite with highest profit
+def plot_equity(wfa):
+
+    ax = init_plot(0)
+
+    # todo temp isolate composite with highest profit
     highest_profit = -np.inf
     for fitness in Fitness:
 
@@ -117,44 +111,7 @@ def plot_equity(wfa):
 
 def plot_trades(engine):
 
-    # maximize window (right)
-    fplt.winx = 3840
-    fplt.winy = 0
-    fplt.winw = 3840
-    fplt.winh = 2160
-
-    # colors
-    white = 'white'
-    light_gray = '#262626'
-    gray = '#1a1a1a'
-    black = '#141414'
-    blue = '#4287f5'
-    aqua = '#42f5f5'
-    green = '#42f578'
-    red = '#f55a42'
-
-    fplt.background = black
-    fplt.candle_bull_color = light_gray
-    fplt.candle_bull_body_color = light_gray
-    fplt.candle_bear_color = gray
-    fplt.candle_bear_body_color = gray
-    fplt.cross_hair_color = white
-
-    # init finplot
-    ax = fplt.create_plot(title = 'Trades')
-
-    # axis
-    axis_pen = fplt._makepen(color='grey')
-    ax.axes['right']['item'].setPen(axis_pen)
-    ax.axes['right']['item'].setTextPen(axis_pen)
-    ax.axes['right']['item'].setTickPen(None)
-    ax.axes['bottom']['item'].setPen(axis_pen)
-    ax.axes['bottom']['item'].setTextPen(axis_pen)
-    ax.axes['bottom']['item'].setTickPen(None)
-
-    # crosshair
-    ax.crosshair.vline.setPen(axis_pen)
-    ax.crosshair.hline.setPen(axis_pen)
+    ax = init_plot(1)
 
     # candlestick ohlc
     data = engine.data

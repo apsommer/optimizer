@@ -1,4 +1,9 @@
+import random
 from enum import Enum
+import seaborn as sns
+
+from utils.constants import *
+
 
 class Fitness(Enum):
     
@@ -40,24 +45,11 @@ class Fitness(Enum):
     @property
     def color(self):
 
-        # colors
-        white = 'white'
-        light_gray = '#262626'
-        gray = '#1a1a1a'
-        black = '#141414'
-        blue = '#4287f5'
-        aqua = '#42f5f5'
-        green = '#42f578'
-        red = '#f55a42'
-
-        color = ''
         match self:
-            case Fitness.PROFIT: color = blue
-            case Fitness.EXPECTANCY: color = green
-            case Fitness.WIN_RATE: color = aqua
-            case Fitness.AVERAGE_WIN: color = red
-            case Fitness.AVERAGE_LOSS: color = light_gray
-            case Fitness.DRAWDOWN: color = gray
-            case Fitness.DRAWDOWN_PER_PROFIT: color = white
-
-        return color
+            case Fitness.PROFIT: return blue
+            case Fitness.EXPECTANCY: return orange
+            case Fitness.WIN_RATE: return green
+            case Fitness.AVERAGE_WIN: return red
+            case Fitness.AVERAGE_LOSS: return purple
+            case Fitness.DRAWDOWN: return brown
+            case Fitness.DRAWDOWN_PER_PROFIT: return pink

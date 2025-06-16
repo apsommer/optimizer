@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+import random
 import time
 import warnings
 
@@ -20,7 +21,7 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 6
+num_months = 3
 isNetwork = False
 
 # walk forward
@@ -28,7 +29,7 @@ percent = 20
 runs = 14 # + 1 added later for final IS
 
 # analyzer
-num = 5
+num = 2
 opt = {
     'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),

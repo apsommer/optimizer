@@ -38,10 +38,12 @@ class Engine:
 
         # loop each bar
         for idx in tqdm(
-            disable = True,
+            disable = True, # self.id != 0,
+            # leave = False,
+            position = 1,
             iterable = self.data.index,
-            colour = 'BLUE',
-            bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}'):
+            colour = '#42f5f5',
+            bar_format = '        {percentage:3.0f}%|{bar:92}{r_bar}'):
 
             # set index
             self.current_idx = idx
