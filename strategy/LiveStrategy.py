@@ -11,13 +11,13 @@ class LiveStrategy(BaselineStrategy):
             symbol = 'MNQ',
             tick_size = 0.25,
             point_value = 2, # MNQ=2, NQ=20
-            margin = 0.10) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
+            margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
     def size(self):
         return 1
 
-    def __init__(self, data, params):
+    def __init__(self, data, avgs, params):
         super().__init__()
 
         self.data = data
@@ -45,15 +45,13 @@ class LiveStrategy(BaselineStrategy):
         elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # tp off, fc only
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
-        # calculate raw averages
-        self.rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
-        self.rawSlow = pd.Series(data.Open).ewm(span=slowMinutes).mean()
-        self.fast = self.rawFast.ewm(span=5).mean()
-        self.slow = self.rawSlow.ewm(span=200).mean()
+        # get raw averages
+        self.fast = avgs.loc[:, 'fast']
+        self.slow = avgs.loc[:, 'slow']
+        self.fastSlope = avgs.loc[:, 'fastSlope']
+        self.slowSlope = avgs.loc[:, 'slowSlope']
 
-        self.fastSlope = get_slope(self.fast)
-        self.slowSlope = get_slope(self.slow)
-
+        # strategy
         self.longExitBarIndex = -1
         self.shortExitBarIndex = -1
         self.longFastCrossoverExit = np.nan
@@ -231,15 +229,3 @@ class LiveStrategy(BaselineStrategy):
         if isExitShort:
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size)
-
-def get_slope(series):
-
-    slope = pd.Series(index=series.index)
-    prev = series.iloc[0]
-
-    for idx, value in series.items():
-        if idx == series.index[0]: continue
-        slope[idx] = ((value - prev) / prev) * 100
-        prev = value
-
-    return np.rad2deg(np.atan(slope))

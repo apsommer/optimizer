@@ -1,4 +1,4 @@
-from utils.MetricUtils import format_timestamp
+from utils.metrics import format_timestamp
 
 
 class Order:

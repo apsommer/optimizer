@@ -1,38 +1,47 @@
 import os
 import pickle
 
+import pandas as pd
+from numpy import linspace
 from tqdm import tqdm
 
 from analysis.Engine import Engine
-from utils.MetricUtils import *
+from model.Fitness import Fitness
+from utils.utils import load_result
+from utils.metrics import *
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, path):
+    def __init__(self, id, data, avgs, opt, path):
 
         self.id = id
         self.data = data
+        self.avgs = avgs
+        self.opt = opt
         self.path = path
 
         self.results = []
         self.metrics = []
+        self.fittest = { }
 
+        # common
         self.params = LiveParams(
             fastMinutes = 25,
-            disableEntryMinutes = 105,
+            disableEntryMinutes = None,
             fastMomentumMinutes = None,
             fastCrossoverPercent = 0,
             takeProfitPercent = None,
             fastAngleFactor = 15,
-            slowMinutes = None,
+            slowMinutes = 2555,
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
-        self.fastMomentumMinutes = np.arange(65, 126, 15)
-        self.takeProfitPercent = np.arange(.27, .68, .20)
-        self.slowMinutes = np.arange(1555, 2556, 250)
+        # extract opt
+        self.disableEntryMinutes = self.opt['disableEntryMinutes']
+        self.fastMomentumMinutes = self.opt['fastMomentumMinutes']
+        self.takeProfitPercent = self.opt['takeProfitPercent']
 
     def run(self):
 
@@ -40,38 +49,38 @@ class Analyzer:
         params = self.params
 
         id = 0
-        total = (
-            len(self.fastMomentumMinutes) *
-            len(self.takeProfitPercent) *
-            len(self.slowMinutes))
+        total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
 
         with tqdm(
+            disable = self.id != 0,
+            # leave = self.id == 0,
+            # position = self.id,
             total = total,
-            colour = 'BLUE',
-            bar_format = '      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            colour = '#4287f5',
+            bar_format = '        {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
-            for fastMomentumMinutes in self.fastMomentumMinutes:
-                for takeProfitPercent in self.takeProfitPercent:
-                    for slowMinutes in self.slowMinutes:
+            for disableEntryMinutes in self.disableEntryMinutes:
+                for fastMomentumMinutes in self.fastMomentumMinutes:
+                    for takeProfitPercent in self.takeProfitPercent:
 
-                        if id > 2:
-                            break
+                        # if id > 100:
+                        #     break
 
                         # update params
+                        params.disableEntryMinutes = disableEntryMinutes
                         params.fastMomentumMinutes = fastMomentumMinutes
                         params.takeProfitPercent = takeProfitPercent
-                        params.slowMinutes = slowMinutes
 
                         # create strategy and engine
-                        strategy = LiveStrategy(data, params)
+                        strategy = LiveStrategy(data, self.avgs, params)
                         engine = Engine(id, strategy)
 
                         # run and save
                         engine.run()
-                        engine.save(self.path)
+                        engine.save(self.path, False)
                         id += 1
 
-                        pbar.update(id)
+                        pbar.update()
 
         pbar.close()
         self.analyze()
@@ -88,43 +97,39 @@ class Analyzer:
             metrics = result['metrics']
             self.results.append(metrics)
 
-        # todo fitness function cases
-        # persist best params
-        metric = get_analyzer_metric(self, 'profit', True)[0]
-        self.params = load_result(metric.id, self.path)['params']
+        # init metrics
+        self.metrics = get_analyzer_metrics(self)
 
-        self.metrics = (
-            get_analyzer_metrics(self, metric.id) +
-            get_analyzer_metric(self, 'profit', True) +
-            get_analyzer_metric(self, 'expectancy', True) +
-            get_analyzer_metric(self, 'win_rate', True) +
-            get_analyzer_metric(self, 'average_win', True) +
-            get_analyzer_metric(self, 'average_loss', False) +
-            get_analyzer_metric(self, 'average_loss', False) +
-            get_analyzer_metric(self, 'max_drawdown', False) +
-            get_analyzer_metric(self, 'drawdown_per_profit', False)
-        )
+        # persist fittest engines
+        for fitness in Fitness:
+            metric = self.get_fittest_metric(fitness)
+            self.metrics.append(metric)
+            self.fittest[fitness] = metric
 
-    def rebuild_engine(self, id):
+    def get_fittest_metric(self, fitness):
 
-        data = self.data
+        results = self.results
+        name = fitness.value
 
-        result = load_result(id, self.path)
-        params = result['params']
+        # isolate metric of interest
+        _metrics = []
+        for metrics in results:
+            for metric in metrics:
+                if metric.name == name:
+                    _metrics.append(metric)
 
-        strategy = LiveStrategy(data, params)
+        # sort metrics on fitness
+        ranked = sorted(
+            _metrics,
+            key = lambda it: it.value,
+            reverse = fitness.is_max)
 
-        # init but not run
-        engine = Engine(id, strategy)
+        metric = ranked[0]
 
-        # unpack previously completed result
-        engine.id = result['id']
-        engine.params = params
-        engine.metrics = result['metrics']
-        engine.trades = result['trades']
-        engine.cash_series = result['cash_series']
+        # tag title
+        title = '* ' + metric.title
 
-        return engine
+        return Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id)
 
     ''' serialize '''
     def save(self):
@@ -133,8 +138,8 @@ class Analyzer:
 
         result = {
             'id': self.id,
-            'params': self.params,
-            'metrics': self.metrics
+            'metrics': self.metrics,
+            'fittest': self.fittest
         }
 
         # make directory, if needed
@@ -150,17 +155,5 @@ class Analyzer:
 
 ########################################################################################################################
 
-''' deserialize '''
-def load_result(id, path):
 
-    filename = str(id) + '.bin'
-    path_filename = path + '/' + filename
-
-    try:
-        filehandler = open(path_filename, 'rb')
-        return pickle.load(filehandler)
-
-    except FileNotFoundError:
-        print(f'\n{path_filename} not found')
-        exit()
 

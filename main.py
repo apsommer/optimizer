@@ -1,28 +1,40 @@
 import multiprocessing
 import os
+import random
 import time
 import warnings
 
 import pandas as pd
+from numpy import linspace
 from tqdm import tqdm
 from multiprocessing import Pool, Process
-from analysis.Analyzer import load_result
+
 from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
+from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
-from utils import DataUtils as repo
-from utils.MetricUtils import print_metrics, get_walk_forward_metrics
-from utils.PlotUtils import *
+from utils import utils as repo
+from utils.utils import load_result
+from utils.metrics import print_metrics, get_walk_forward_results_metrics
+from utils.plots import *
 
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 20
 isNetwork = False
 
-# analyzer
+# walk forward
 percent = 20
-runs = 14
+runs = 14 # + 1 added later for final IS, 16 cores available
+
+# analyzer
+num = 1
+opt = {
+    'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
+    'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
+    'takeProfitPercent': linspace(.25, .70, num=2, dtype=float)
+}
 
 ###################################################################
 
@@ -40,41 +52,41 @@ wfa = WalkForward(
     num_months = num_months,
     percent = percent,
     runs = runs,
-    data = data)
+    data = data,
+    opt = opt)
 
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available
-cores -= 1 # leave one for basic computer tasks
-_runs = range(runs + 1) # one more for last OS
+cores -= 1 # leave 1 for basic computer tasks
+_runs = range(runs + 1) # add 1 for last OS
+_fits = [ fitness for fitness in Fitness ]
 
 # print header metrics
 print_metrics(wfa.metrics)
 
-# automate pool of threads
-pool = Pool(cores)
+# run walk forward
+pool = Pool(processes = cores) # one core for each run
 pool.map(wfa.walk_forward, _runs)
 pool.close()
-pool.join() # start one thread on each core
+pool.join()
 
-# build composite of OS runs
-engine = wfa.build_composite()
+# build composite OS
+pool = Pool(processes = cores) # one core for each fitness function
+pool.map(wfa.build_composite, _fits)
+pool.close()
+pool.join()
 
-# get last IS analyzer
-# IS_path = wfa.path + str(runs)
-# analyzer_metrics = load_result('analyzer', IS_path)['metrics']
-# print_metrics(analyzer_metrics)
+print_metrics(get_walk_forward_results_metrics(wfa))
 
-# print results
-print_metrics(get_walk_forward_metrics(wfa))
-print_metrics(engine.metrics)
-engine.print_trades()
+# print last IS analyzer
+IS_path = wfa.path + str(runs)
+analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+print_metrics(analyzer_metrics)
 
-###################################################################
+# print analysis time
 elapsed = time.time() - start_time
 pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
 
 # plot results
-plot_equity(engine)
-# plot_trades(engine)
-# plot_strategy(engine)
+plot_equity(wfa)

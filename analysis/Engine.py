@@ -1,14 +1,19 @@
+import multiprocessing
 import os
 import pickle
 
 from tqdm import tqdm
-from utils.MetricUtils import *
+
+from utils.metrics import *
 from model.Trade import Trade
 import pandas as pd
 
 class Engine:
 
     def __init__(self, id, strategy):
+
+        # allow blank engine for rebuild
+        if strategy is None: return
 
         self.id = id
         self.data = strategy.data
@@ -19,9 +24,9 @@ class Engine:
         self.metrics = []
 
         # init equity account
-        margin_requirement = self.strategy.ticker.margin_requirement
+        margin = self.strategy.ticker.margin
         size = self.strategy.size
-        initial_cash = margin_requirement * self.data.Close.iloc[0] * size
+        initial_cash = margin * self.data.Close.iloc[0] * size
         self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
 
@@ -32,12 +37,17 @@ class Engine:
             print('Engine already has results, skipping run ...')
             return
 
+        # determine which process (core) is running
+        isFirstProcess = 'ForkPoolWorker-1' == multiprocessing.current_process().name
+
         # loop each bar
         for idx in tqdm(
-            disable = True,
+            disable = not isFirstProcess,
+            leave = False,
+            position = 1,
             iterable = self.data.index,
-            colour = 'BLUE',
-            bar_format = '{percentage:3.0f}%|{bar:100}{r_bar}'):
+            colour = '#42f5f5',
+            bar_format = '        {percentage:3.0f}%|{bar:92}{r_bar}'):
 
             # set index
             self.current_idx = idx
@@ -80,9 +90,7 @@ class Engine:
 
     def analyze(self):
 
-        self.metrics = (
-            get_engine_metrics(self) +
-            get_strategy_metrics(self))
+        self.metrics = get_engine_metrics(self)
 
         # tag all metrics with engine id
         for metric in self.metrics:
@@ -102,16 +110,30 @@ class Engine:
         for trade in trades[-show_last:]:
             print(trade)
 
-    ''' serialize '''
-    def save(self, path):
+        print()
 
-        result = {
-            'id': self.id,
-            'params': self.strategy.params,
-            'metrics': self.metrics,
-            'trades': self.trades,
-            'cash_series': self.cash_series # todo minimize with []?
-        }
+    ''' serialize '''
+    def save(self, path, isFull):
+
+        # out-of-sample
+        if isFull:
+            result = {
+                'id': self.id,
+                'params': self.strategy.params,
+                'metrics': self.metrics,
+                'trades': self.trades,
+                'cash_series': self.cash_series
+            }
+
+        # in-sample
+        else:
+            result = {
+                'id': self.id,
+                'params': self.strategy.params,
+                'metrics': self.metrics,
+                # 'trades': self.trades,
+                # 'cash_series': self.cash_series
+            }
 
         # make directory, if needed
         if not os.path.exists(path):
