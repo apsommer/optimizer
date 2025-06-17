@@ -22,7 +22,7 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 15
+num_months = 14
 isNetwork = False
 
 # walk forward
@@ -34,7 +34,7 @@ num = 3
 opt = {
     'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
-    'takeProfitPercent': linspace(.25, .70, num=2, dtype=float)
+    'takeProfitPercent': linspace(.25, .70, num=num, dtype=float)
 }
 
 ###################################################################
