@@ -37,14 +37,17 @@ class Engine:
             print('Engine already has results, skipping run ...')
             return
 
+        # determine which process (core) is running
+        isFirstProcess = 'ForkPoolWorker-1' == multiprocessing.current_process().name
+
         # loop each bar
         for idx in tqdm(
-            disable = 'ForkPoolWorker-1' != multiprocessing.current_process().name,
-            # leave = False,
+            disable = not isFirstProcess,
+            leave = False,
             position = 1,
             iterable = self.data.index,
             colour = '#42f5f5',
-            bar_format = '                {percentage:3.0f}%|{bar:84}{r_bar}'):
+            bar_format = '        {percentage:3.0f}%|{bar:92}{r_bar}'):
 
             # set index
             self.current_idx = idx
