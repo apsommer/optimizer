@@ -173,9 +173,9 @@ def get_walk_forward_init_metrics(wfa):
 
     # pretty
     candles = '{:,}'.format(candles)
-    runs = str(wfa.runs + 1) + ' [' + str(wfa.runs) + ' + 1]'
-    in_sample = str(in_sample) + ' / ' + str(in_sample * (wfa.runs + 1))
-    out_of_sample = str(out_of_sample) + ' / ' + str(out_of_sample * wfa.runs)
+    runs = str(wfa.runs + 1) + ' (' + str(wfa.runs) + ' + 1 last in-sample)'
+    in_sample = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
+    out_of_sample = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
 
     return [
         Metric('header', None, None, 'Walk forward:'),
@@ -190,10 +190,10 @@ def get_walk_forward_init_metrics(wfa):
         Metric('out_of_sample', out_of_sample, None, 'Out-of-sample days'),
     ]
 
-def get_walk_forward_results_metrics(walk_forward):
+def get_walk_forward_results_metrics(wfa):
 
-    candles = walk_forward.OS_len
-    start = walk_forward.data.index[-1]
+    candles = wfa.OS_len
+    start = wfa.data.index[-1]
     end = start + timedelta(minutes = candles)
     days = (end - start).days
 
@@ -202,7 +202,8 @@ def get_walk_forward_results_metrics(walk_forward):
     end = format_timestamp(end)
 
     return [
-        Metric('params', str(walk_forward.params), None, 'Params'),
+        Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
+        Metric('params', str(wfa.params), None, 'Params'),
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),

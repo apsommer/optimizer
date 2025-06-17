@@ -30,7 +30,7 @@ percent = 20
 runs = 14 # + 1 added later for final IS, 16 cores available
 
 # analyzer
-num = 1
+num = 3
 opt = {
     'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
@@ -98,6 +98,8 @@ pool.map(wfa.build_composite, _fits)
 pool.close()
 pool.join()
 
+# select best fitness
+wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
 
 # print last IS analyzer

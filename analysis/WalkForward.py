@@ -19,7 +19,8 @@ class WalkForward():
         self.runs = runs
         self.data = data
         self.opt = opt
-        self.params = None # todo final recommended set
+        self.params = None
+        self.best_fitness = None
 
         # organize outputs
         data_name = 'NQ_' + str(num_months) + 'mon'
@@ -214,9 +215,22 @@ class WalkForward():
 
         engine.save(self.path, True)
 
-        self.analyze()
-
+    ''' must call after all composites finished'''
     def analyze(self):
+
+        # isolate composite with highest profit
+        highest_profit = -np.inf
+        for fitness in Fitness:
+
+            result = load_result(fitness.value, self.path[:-1])  # todo fix path
+            cash_series = result['cash_series']
+            cash = cash_series[-1]
+
+            if cash > highest_profit:
+                highest_profit = cash
+                self.params = result['params']
+                self.best_fitness = fitness
+
         self.metrics += get_walk_forward_results_metrics(self)
 
 def get_slope(series):
