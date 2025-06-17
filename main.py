@@ -26,14 +26,14 @@ isNetwork = False
 
 # walk forward
 percent = 20
-runs = 20 # + 1 added later for final IS, 16 cores available
+runs = 14 # + 1 added later for final IS, 16 cores available
 
 # analyzer
-num = 2
+num = 1
 opt = {
     'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
-    'takeProfitPercent': linspace(.25, .70, num=num, dtype=float)
+    'takeProfitPercent': linspace(.25, .70, num=2, dtype=float)
 }
 
 ###################################################################

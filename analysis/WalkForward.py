@@ -132,10 +132,6 @@ class WalkForward():
             efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
             engine.metrics.append(efficiency_metric)
 
-            if efficiency > 1000:
-                print_metrics(engine.metrics)
-                exit()
-
             OS_path = self.path + fitness.value + '/'
             engine.save(OS_path, True)
 
