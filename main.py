@@ -22,7 +22,7 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 15
 isNetwork = False
 
 # walk forward
