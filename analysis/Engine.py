@@ -4,6 +4,7 @@ import pickle
 
 from tqdm import tqdm
 
+from model.Fitness import Fitness
 from utils.metrics import *
 from model.Trade import Trade
 import pandas as pd
@@ -32,13 +33,8 @@ class Engine:
 
     def run(self):
 
-        # check if engine already ran
-        if self.metrics:
-            print('Engine already has results, skipping run ...')
-            return
-
         # determine which process (core) is running
-        isFirstProcess = 'ForkPoolWorker-1' == multiprocessing.current_process().name
+        isFirstProcess = '0' == multiprocessing.current_process().name
 
         # loop each bar
         for idx in tqdm(
@@ -47,7 +43,8 @@ class Engine:
             position = 1,
             iterable = self.data.index,
             colour = '#42f5f5',
-            bar_format = '        {percentage:3.0f}%|{bar:92}{r_bar}'):
+            desc = 'apples',
+            bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # set index
             self.current_idx = idx

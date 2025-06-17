@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 import random
+import re
 import time
 import warnings
 
@@ -21,7 +22,7 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 20
+num_months = 3
 isNetwork = False
 
 # walk forward
@@ -58,20 +59,41 @@ wfa = WalkForward(
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave 1 for basic computer tasks
-_runs = range(runs + 1) # add 1 for last OS
 _fits = [ fitness for fitness in Fitness ]
 
 # print header metrics
 print_metrics(wfa.metrics)
 
-# run walk forward
-pool = Pool(processes = cores) # one core for each run
-pool.map(wfa.walk_forward, _runs)
+def set_name():
+
+    id = int(re.findall(
+        pattern = r'\d+',
+        string = multiprocessing.current_process().name)[0])
+
+    id = (id - 1) % cores
+
+    multiprocessing.current_process().name = str(id)
+
+# run in-sample sweep
+pool = Pool(
+    processes = cores,
+    initializer = set_name)
+pool.map(wfa.sweep_IS, range(runs + 1)) # add 1 for last IS (prediction)
+pool.close()
+pool.join()
+
+# run OS for each fitness
+pool = Pool(
+    processes = cores,
+    initializer = set_name)
+pool.map(wfa.run_OS, range(runs))
 pool.close()
 pool.join()
 
 # build composite OS
-pool = Pool(processes = cores) # one core for each fitness function
+pool = Pool(
+    processes = cores,
+    initializer = set_name)
 pool.map(wfa.build_composite, _fits)
 pool.close()
 pool.join()

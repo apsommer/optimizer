@@ -57,7 +57,7 @@ class Analyzer:
             # position = self.id,
             total = total,
             colour = '#4287f5',
-            bar_format = '        {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            bar_format = '        In-sample:      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
             for disableEntryMinutes in self.disableEntryMinutes:
                 for fastMomentumMinutes in self.fastMomentumMinutes:

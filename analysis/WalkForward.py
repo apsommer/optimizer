@@ -60,17 +60,17 @@ class WalkForward():
         self.avgs['fastSlope'] = fastSlope
         self.avgs['slowSlope'] = slowSlope
 
-    def walk_forward(self, run):
-
-        # sweep in-sample
-        self.sweep_IS(run)
-
-        # skip OS on last run
-        if run == self.runs:
-            return
-
-        # run out-of-sample
-        self.run_OS(run)
+    # def walk_forward(self, run):
+    #
+    #     # sweep in-sample
+    #     self.sweep_IS(run)
+    #
+    #     # skip OS on last run
+    #     if run == self.runs:
+    #         return
+    #
+    #     # run out-of-sample
+    #     self.run_OS(run)
 
     def sweep_IS(self, run):
 
@@ -107,7 +107,13 @@ class WalkForward():
         IS_path = self.path + str(run)
         fittest = load_result('analyzer', IS_path)['fittest']
 
-        for fitness in Fitness:
+        for fitness in tqdm(
+            iterable = Fitness,
+            disable = run != 0,
+            # leave = fitness == Fitness.DRAWDOWN_PER_PROFIT,
+            # position = self.id,
+            colour = '#4287f5',
+            bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # extract params of fittest engine
             fittest_metric = fittest[fitness]
@@ -155,7 +161,13 @@ class WalkForward():
         # build composite engine
         cash_series, trades, efficiency_sum = pd.Series(), [], 0
 
-        for run in range(self.runs):
+        for run in tqdm(
+            iterable = range(self.runs),
+            disable = fitness is not Fitness.DRAWDOWN_PER_PROFIT,
+            # leave = fitness == Fitness.DRAWDOWN_PER_PROFIT,
+            # position = self.id,
+            colour = '#4287f5',
+            bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             OS_path = self.path + fitness.value + '/'
 
