@@ -61,18 +61,6 @@ class WalkForward():
         self.avgs['fastSlope'] = fastSlope
         self.avgs['slowSlope'] = slowSlope
 
-    # def walk_forward(self, run):
-    #
-    #     # sweep in-sample
-    #     self.sweep_IS(run)
-    #
-    #     # skip OS on last run
-    #     if run == self.runs:
-    #         return
-    #
-    #     # run out-of-sample
-    #     self.run_OS(run)
-
     def sweep_IS(self, run):
 
         path = self.path + str(run) + '/'

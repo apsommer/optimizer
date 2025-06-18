@@ -22,15 +22,15 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 14
+num_months = 20
 isNetwork = False
 
 # walk forward
 percent = 20
-runs = 14 # + 1 added later for final IS, 16 cores available
+runs = 20 # + 1 added later for final IS, 16 cores available
 
 # analyzer
-num = 3
+num = 4
 opt = {
     'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
