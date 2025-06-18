@@ -51,9 +51,9 @@ def plot_equity(wfa):
     for fitness in Fitness:
 
         # rebuild composite OS engine
-        result = unpack(fitness.value, wfa.path[:-1])
-        params = result['params']
-        cash_series = result['cash_series']
+        engine = unpack(fitness.value, wfa.path)
+        params = engine['params']
+        cash_series = engine['cash_series']
 
         # create strategy, engine
         start = cash_series.index[0]
@@ -61,21 +61,21 @@ def plot_equity(wfa):
         comp = wfa.data[start:end]
 
         strategy = LiveStrategy(comp, wfa.avgs, params)
-        engine = Engine(fitness.value, strategy)
+        composite = Engine(fitness.value, strategy)
 
         # deserialize previous result
-        engine.id = result['id']
-        engine.params = params
-        engine.metrics = result['metrics']
-        engine.trades = result['trades']
-        engine.cash_series = cash_series
-        engine.cash = cash_series[-1]
+        composite.id = engine['id']
+        composite.params = params
+        composite.metrics = engine['metrics']
+        composite.trades = engine['trades']
+        composite.cash_series = cash_series
+        composite.cash = cash_series[-1]
 
         # plot selected fitness composite
         if fitness is wfa.best_fitness:
-            print_metrics(engine.metrics)
-            engine.print_trades()
-            plot_trades(engine)
+            print_metrics(composite.metrics)
+            composite.print_trades()
+            plot_trades(composite)
 
         # plot cash series
         fplt.plot(cash_series, color = fitness.color, legend = fitness.pretty, ax = ax)
@@ -84,13 +84,13 @@ def plot_equity(wfa):
         if fitness is Fitness.PROFIT:
 
             # plot initial cash
-            fplt.plot(engine.initial_cash, color=dark_gray, ax=ax)
+            fplt.plot(composite.initial_cash, color=dark_gray, ax=ax)
 
             # reference simple buy and hold
-            size = engine.strategy.size
-            point_value = engine.strategy.ticker.point_value
-            delta_df = engine.data.Close - engine.data.Close.iloc[0]
-            initial_cash = engine.initial_cash
+            size = composite.strategy.size
+            point_value = composite.strategy.ticker.point_value
+            delta_df = composite.data.Close - composite.data.Close.iloc[0]
+            initial_cash = composite.initial_cash
             buy_hold = size * point_value * delta_df + initial_cash
 
             # plot buy and hold

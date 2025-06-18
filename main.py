@@ -32,9 +32,9 @@ percent = 20
 runs = 14 # + 1 added later for final IS, 16 cores available
 
 # analyzer
-num = 2
+num = 1
 opt = {
-    'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
+    'disableEntryMinutes': linspace(60, 180, num=2, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
     'takeProfitPercent': linspace(.25, .70, num=num, dtype=float)
 }
@@ -81,7 +81,7 @@ print_metrics(wfa.metrics)
 pool = Pool(
     processes = cores,
     initializer = set_process_name)
-pool.map(wfa.sweep_IS, range(runs + 1)) # add 1 for last IS (prediction)
+pool.map(wfa.in_sample, range(runs + 1)) # add 1 for last IS (prediction)
 pool.close()
 pool.join()
 
@@ -89,7 +89,7 @@ pool.join()
 pool = Pool(
     processes = cores,
     initializer = set_process_name)
-pool.map(wfa.run_OS, range(runs))
+pool.map(wfa.out_of_sample, range(runs))
 pool.close()
 pool.join()
 
@@ -106,7 +106,7 @@ wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
 
 # print last in-sample analyzer
-IS_path = wfa.path + str(runs)
+IS_path = wfa.path + '/' + str(runs)
 analyzer_metrics = unpack('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)
 

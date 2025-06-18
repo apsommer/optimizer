@@ -89,11 +89,11 @@ class Engine:
 
     def analyze(self):
 
+        # create metrics
         self.metrics = get_engine_metrics(self)
 
         # tag all metrics with engine id
-        for metric in self.metrics:
-            metric.id = self.id
+        for metric in self.metrics: metric.id = self.id
 
     def print_trades(self):
 
@@ -114,17 +114,21 @@ class Engine:
     ''' serialize '''
     def save(self, path, isFull):
 
+        # out-of-sample
+        if isFull: bundle = {
+            'id': self.id,
+            'params': self.strategy.params,
+            'metrics': self.metrics,
+            'trades': self.trades,
+            'cash_series': self.cash_series
+        }
+
         # in-sample
-        bundle = {
+        else: bundle = {
             'id': self.id,
             'params': self.strategy.params,
             'metrics': self.metrics
         }
-
-        # out-of-sample
-        if isFull:
-            bundle['trades'] = self.trades,
-            bundle['cash_series'] = self.cash_series
 
         save(
             bundle = bundle,

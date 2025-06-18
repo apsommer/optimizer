@@ -4,6 +4,7 @@ import pickle
 import re
 import time
 from datetime import timedelta, datetime
+from inspect import trace
 
 import databento as db
 import pandas as pd
