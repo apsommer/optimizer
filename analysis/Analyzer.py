@@ -15,18 +15,18 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, opt, path):
+    def __init__(self, id, data, opt, wfa_path):
 
         self.id = id
         self.data = data
         self.opt = opt
-        self.path = path + str(id) + '/'
-        self.wfa_path = path
-
+        self.wfa_path = wfa_path
+        self.path = wfa_path + str(id) + '/'
         self.results = []
         self.metrics = []
         self.fittest = { }
 
+        # todo generator patterna?
         self.avgs = load_result('avgs', self.wfa_path)
 
         # common
@@ -49,18 +49,16 @@ class Analyzer:
     def run(self):
 
         params = self.params
-
         id = 0
         total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
 
         with tqdm(
-            disable = self.id != 0,
-            # leave = self.id == 0,
-            # position = self.id,
+            disable = self.id != 0, # show only 1 core
             total = total,
             colour = '#4287f5',
             bar_format = '        In-sample:      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
+            # sweep params from opt
             for disableEntryMinutes in self.disableEntryMinutes:
                 for fastMomentumMinutes in self.fastMomentumMinutes:
                     for takeProfitPercent in self.takeProfitPercent:

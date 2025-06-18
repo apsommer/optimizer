@@ -26,8 +26,8 @@ def getOhlc(num_months, isNetwork):
 
     print("Download OHLC from databento $$$")
 
-    # request network data synchronous! costs $!
-    client = db.Historical(keys.bento_api_key)
+    # request network data synchronous
+    client = db.Historical(keys.bento_api_key) # $$$
     ohlc = (client.timeseries.get_range(
         dataset = "GLBX.MDP3",
         symbols = ["NQ.v.0"],
@@ -60,7 +60,6 @@ def load_result(id, path):
     try:
         filehandler = open(path_filename, 'rb')
         return pickle.load(filehandler)
-
     except FileNotFoundError:
         print(f'\n{path_filename} not found')
         exit()
@@ -70,6 +69,7 @@ def set_process_name():
     cores = multiprocessing.cpu_count()  # 16 available
     cores -= 1  # leave 1 for basic computer tasks
 
+    # extract numerical digits from default process name, 1-based
     id = int(re.findall(
         pattern = r'\d+',
         string = multiprocessing.current_process().name)[0])
