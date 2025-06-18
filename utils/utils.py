@@ -1,4 +1,6 @@
+import multiprocessing
 import pickle
+import re
 import time
 from datetime import timedelta, datetime
 
@@ -18,12 +20,8 @@ def getOhlc(num_months, isNetwork):
 
     # return local cache
     if not isNetwork:
-
-        print(f'Upload OHLC from {csv_filename}')
-
         ohlc = pd.read_csv(csv_filename, index_col=0)
         ohlc.index = timestamp(ohlc, timezone)
-
         return ohlc
 
     print("Download OHLC from databento $$$")
@@ -67,4 +65,14 @@ def load_result(id, path):
         print(f'\n{path_filename} not found')
         exit()
 
+def set_process_name():
 
+    cores = multiprocessing.cpu_count()  # 16 available
+    cores -= 1  # leave 1 for basic computer tasks
+
+    id = int(re.findall(
+        pattern = r'\d+',
+        string = multiprocessing.current_process().name)[0])
+
+    id = (id - 1) % cores
+    multiprocessing.current_process().name = str(id)

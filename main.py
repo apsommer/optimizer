@@ -46,9 +46,11 @@ start_time = time.time()
 
 # get ohlc prices
 data_name = 'NQ_' + str(num_months) + 'mon'
+csv_filename = 'data/' + data_name + '.csv'
 data = utils.getOhlc(num_months, isNetwork)
+if not isNetwork: print(f'Upload OHLC from { csv_filename }')
 
-# init walk forward analysis
+# init walk forward
 wfa = WalkForward(
     num_months = num_months,
     percent = percent,
@@ -59,50 +61,40 @@ wfa = WalkForward(
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave 1 for basic computer tasks
-_fits = [ fitness for fitness in Fitness ]
+fitnesses = [fitness for fitness in Fitness]
 
 # print header metrics
 print_metrics(wfa.metrics)
 
-def set_name():
-
-    id = int(re.findall(
-        pattern = r'\d+',
-        string = multiprocessing.current_process().name)[0])
-
-    id = (id - 1) % cores
-
-    multiprocessing.current_process().name = str(id)
-
 # run in-sample sweep
 pool = Pool(
     processes = cores,
-    initializer = set_name)
+    initializer = set_process_name)
 pool.map(wfa.sweep_IS, range(runs + 1)) # add 1 for last IS (prediction)
 pool.close()
 pool.join()
 
-# run OS for each fitness
+# run out-of-sample for each fitness
 pool = Pool(
     processes = cores,
-    initializer = set_name)
+    initializer = set_process_name)
 pool.map(wfa.run_OS, range(runs))
 pool.close()
 pool.join()
 
-# build composite OS
+# build composite engines
 pool = Pool(
     processes = cores,
-    initializer = set_name)
-pool.map(wfa.build_composite, _fits)
+    initializer = set_process_name)
+pool.map(wfa.build_composite, fitnesses)
 pool.close()
 pool.join()
 
-# select best fitness
+# select composite of interest
 wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
 
-# print last IS analyzer
+# print last in-sample analyzer
 IS_path = wfa.path + str(runs)
 analyzer_metrics = load_result('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)

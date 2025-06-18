@@ -83,18 +83,12 @@ class WalkForward():
         IS_start = run * OS_len
         IS_end = IS_start + IS_len
 
-        # mask dataset
+        # mask dataset todo copy for each core?
         data = utils.getOhlc(self.num_months, False)
         IS = data.iloc[IS_start : IS_end]
 
         # run exhaustive sweep over IS
-        num = 2
-        opt = {
-            'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
-            'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
-            'takeProfitPercent': linspace(.25, .70, num=num, dtype=float)
-        }
-        analyzer = Analyzer(run, IS, opt, self.path)
+        analyzer = Analyzer(run, IS, self.opt, self.path)
         analyzer.run()
         analyzer.save()
         # print_metrics(analyzer.metrics)

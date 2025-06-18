@@ -173,7 +173,7 @@ def get_walk_forward_init_metrics(wfa):
 
     # pretty
     candles = '{:,}'.format(candles)
-    runs = str(wfa.runs + 1) + ' (' + str(wfa.runs) + ' + 1 last in-sample)'
+    runs = str(wfa.runs) + ' + 1 last in-sample'
     in_sample = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
     out_of_sample = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
 
