@@ -9,6 +9,8 @@ from utils.metrics import *
 from model.Trade import Trade
 import pandas as pd
 
+from utils.utils import *
+
 class Engine:
 
     def __init__(self, id, strategy):
@@ -112,33 +114,19 @@ class Engine:
     ''' serialize '''
     def save(self, path, isFull):
 
+        # in-sample
+        bundle = {
+            'id': self.id,
+            'params': self.strategy.params,
+            'metrics': self.metrics
+        }
+
         # out-of-sample
         if isFull:
-            result = {
-                'id': self.id,
-                'params': self.strategy.params,
-                'metrics': self.metrics,
-                'trades': self.trades,
-                'cash_series': self.cash_series
-            }
+            bundle['trades'] = self.trades,
+            bundle['cash_series'] = self.cash_series
 
-        # in-sample
-        else:
-            result = {
-                'id': self.id,
-                'params': self.strategy.params,
-                'metrics': self.metrics,
-                # 'trades': self.trades,
-                # 'cash_series': self.cash_series
-            }
-
-        # make directory, if needed
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        # create new binary
-        filename = str(self.id) + '.bin'
-        path_filename = path + '/' + filename
-
-        filehandler = open(path_filename, 'wb')
-        pickle.dump(result, filehandler)
+        save(
+            bundle = bundle,
+            filename = str(self.id),
+            path = path)

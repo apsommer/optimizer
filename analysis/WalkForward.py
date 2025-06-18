@@ -11,69 +11,60 @@ from analysis.Engine import Engine
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
-from utils.utils import unpack
+from utils.utils import unpack, save
 from utils.metrics import *
 
 class WalkForward():
 
-    def __init__(self, num_months, percent, runs, data, opt):
+    def __init__(self, num_months, percent, runs, data, opt, path):
+
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
         self.data = data
         self.opt = opt
-        self.params = None
+        self.path = path
+
+        self.best_params = None
         self.best_fitness = None
-
-        # organize outputs
-        data_name = 'NQ_' + str(num_months) + 'mon'
-        self.path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
-
-        # remove any residual analyses
-        shutil.rmtree(self.path, ignore_errors=True)
 
         # isolate training and testing sets
         self.IS_len = round(len(data) / ((percent / 100) * runs + 1))
         self.OS_len = round((percent / 100) * self.IS_len)
 
         # init metrics with header
-        self.metrics = get_walk_forward_init_metrics(self)
+        self.metrics = init_walk_forward_metrics(self)
 
-        # init exponential averages
-        self.create_avgs()
+        # # init exponential averages
+        # self.create_avgs()
 
-    def create_avgs(self):
-
-        fastMinutes = 25
-        slowMinutes = 2555
-
-        data = self.data
-
-        # calculate raw averages
-        rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
-        rawSlow = pd.Series(data.Open).ewm(span=slowMinutes).mean()
-        fast = rawFast.ewm(span=5).mean()
-        slow = rawSlow.ewm(span=200).mean()
-        fastSlope = get_slope(fast)
-        slowSlope = get_slope(slow)
-
-        # persist
-        self.avgs = pd.DataFrame(index=data.index)
-        self.avgs['fast'] = fast
-        self.avgs['slow'] = slow
-        self.avgs['fastSlope'] = fastSlope
-        self.avgs['slowSlope'] = slowSlope
-
-        # make directory, if needed todo remove?
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
-
-        # create new binary
-        filename = 'avgs.bin'
-        path_filename = self.path + '/' + filename
-
-        filehandler = open(path_filename, 'wb')
-        pickle.dump(self.avgs, filehandler)
+    # def create_avgs(self):
+    #
+    #     # todo temp
+    #     fastMinutes = 25
+    #     slowMinutes = 2555
+    #
+    #     data = self.data
+    #
+    #     # calculate raw averages
+    #     rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
+    #     rawSlow = pd.Series(data.Open).ewm(span=slowMinutes).mean()
+    #     fast = rawFast.ewm(span=5).mean()
+    #     slow = rawSlow.ewm(span=200).mean()
+    #     fastSlope = get_slope(fast)
+    #     slowSlope = get_slope(slow)
+    #
+    #     # persist
+    #     self.avgs = pd.DataFrame(index=data.index)
+    #     self.avgs['fast'] = fast
+    #     self.avgs['slow'] = slow
+    #     self.avgs['fastSlope'] = fastSlope
+    #     self.avgs['slowSlope'] = slowSlope
+    #
+    #     save(
+    #         bundle = self.avgs,
+    #         filename = 'avgs',
+    #         path = self.path)
 
     def sweep_IS(self, run):
 
@@ -230,19 +221,7 @@ class WalkForward():
 
             if cash > highest_profit:
                 highest_profit = cash
-                self.params = result['params']
+                self.best_params = result['params']
                 self.best_fitness = fitness
 
         self.metrics += get_walk_forward_results_metrics(self)
-
-def get_slope(series):
-
-    slope = pd.Series(index=series.index)
-    prev = series.iloc[0]
-
-    for idx, value in series.items():
-        if idx == series.index[0]: continue
-        slope[idx] = ((value - prev) / prev) * 100
-        prev = value
-
-    return np.rad2deg(np.atan(slope))

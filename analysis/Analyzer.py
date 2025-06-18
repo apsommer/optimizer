@@ -21,7 +21,7 @@ class Analyzer:
         self.data = data
         self.opt = opt
         self.wfa_path = wfa_path
-        self.path = wfa_path + str(id) + '/'
+        self.path = wfa_path  + '/' + str(id) + '/'
         self.engines = []
         self.metrics = []
         self.fittest = { }

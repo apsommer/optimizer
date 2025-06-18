@@ -65,6 +65,44 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
+def create_avgs(data, path):
+
+    # todo temp
+    fastMinutes = 25
+    slowMinutes = 2555
+
+    # calculate raw averages
+    rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
+    rawSlow = pd.Series(data.Open).ewm(span=slowMinutes).mean()
+    fast = rawFast.ewm(span=5).mean()
+    slow = rawSlow.ewm(span=200).mean()
+    fastSlope = get_slope(fast)
+    slowSlope = get_slope(slow)
+
+    # persist
+    avgs = pd.DataFrame(index=data.index)
+    avgs['fast'] = fast
+    avgs['slow'] = slow
+    avgs['fastSlope'] = fastSlope
+    avgs['slowSlope'] = slowSlope
+
+    save(
+        bundle = avgs,
+        filename = 'avgs',
+        path = path)
+
+def get_slope(series):
+
+    slope = pd.Series(index=series.index)
+    prev = series.iloc[0]
+
+    for idx, value in series.items():
+        if idx == series.index[0]: continue
+        slope[idx] = ((value - prev) / prev) * 100
+        prev = value
+
+    return np.rad2deg(np.atan(slope))
+
 ''' serialize '''
 def save(bundle, filename, path):
 

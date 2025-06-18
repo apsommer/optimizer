@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import random
 import re
+import shutil
 import time
 import warnings
 
@@ -23,7 +24,7 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 14
+num_months = 3
 isNetwork = False
 
 # walk forward
@@ -44,11 +45,20 @@ os.system('clear')
 warnings.filterwarnings('ignore')
 start_time = time.time()
 
-# get ohlc prices
+# organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
 csv_filename = 'data/' + data_name + '.csv'
+path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs)
+
+# remove any residual analyses
+shutil.rmtree(path, ignore_errors=True)
+
+# get ohlc prices
 data = utils.getOhlc(num_months, isNetwork)
 if not isNetwork: print(f'Upload OHLC from { csv_filename }')
+
+# create averages
+create_avgs(data, path)
 
 # init walk forward
 wfa = WalkForward(
@@ -56,7 +66,8 @@ wfa = WalkForward(
     percent = percent,
     runs = runs,
     data = data,
-    opt = opt)
+    opt = opt,
+    path = path)
 
 # multiprocessing use all cores
 cores = multiprocessing.cpu_count() # 16 available

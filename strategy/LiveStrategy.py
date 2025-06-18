@@ -24,8 +24,6 @@ class LiveStrategy(BaselineStrategy):
         self.params = params
 
         # unpack params
-        fastMinutes = params.fastMinutes
-        slowMinutes = params.slowMinutes
         fastAngleFactor = params.fastAngleFactor
         slowAngleFactor = params.slowAngleFactor
         fastCrossoverPercent = params.fastCrossoverPercent

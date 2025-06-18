@@ -157,7 +157,7 @@ def get_analyzer_metrics(analyzer):
         Metric('days', days, None, 'Days'),
     ]
 
-def get_walk_forward_init_metrics(wfa):
+def init_walk_forward_metrics(wfa):
 
     start_date = wfa.data.index[0]
     end_date = wfa.data.index[-1]
@@ -203,7 +203,7 @@ def get_walk_forward_results_metrics(wfa):
 
     return [
         Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
-        Metric('params', str(wfa.params), None, 'Params'),
+        Metric('params', str(wfa.best_params), None, 'Params'),
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),
