@@ -1,4 +1,5 @@
 import multiprocessing
+import os
 import pickle
 import re
 import time
@@ -51,19 +52,6 @@ def timestamp(data, timezone):
     utc = pd.to_datetime(data.index, utc = True)
     return utc.tz_convert(timezone)
 
-''' deserialize '''
-def load_result(id, path):
-
-    filename = str(id) + '.bin'
-    path_filename = path + '/' + filename
-
-    try:
-        filehandler = open(path_filename, 'rb')
-        return pickle.load(filehandler)
-    except FileNotFoundError:
-        print(f'\n{path_filename} not found')
-        exit()
-
 def set_process_name():
 
     cores = multiprocessing.cpu_count()  # 16 available
@@ -76,3 +64,29 @@ def set_process_name():
 
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
+
+''' serialize '''
+def save(bundle, filename, path):
+
+    # make directory, if needed
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    # create new binary
+    path_filename = path + '/' + filename + '.bin'
+
+    filehandler = open(path_filename, 'wb')
+    pickle.dump(bundle, filehandler)
+
+''' deserialize '''
+def unpack(id, path):
+
+    filename = str(id) + '.bin'
+    path_filename = path + '/' + filename
+
+    try:
+        filehandler = open(path_filename, 'rb')
+        return pickle.load(filehandler)
+    except FileNotFoundError:
+        print(f'\n{path_filename} not found')
+        exit()

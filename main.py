@@ -16,7 +16,7 @@ from analysis.WalkForward import WalkForward
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
-from utils.utils import load_result
+from utils.utils import unpack
 from utils.metrics import print_metrics, get_walk_forward_results_metrics
 from utils.plots import *
 
@@ -96,7 +96,7 @@ print_metrics(get_walk_forward_results_metrics(wfa))
 
 # print last in-sample analyzer
 IS_path = wfa.path + str(runs)
-analyzer_metrics = load_result('analyzer', IS_path)['metrics']
+analyzer_metrics = unpack('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)
 
 # print analysis time

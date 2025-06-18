@@ -51,7 +51,7 @@ def plot_equity(wfa):
     for fitness in Fitness:
 
         # rebuild composite OS engine
-        result = load_result(fitness.value, wfa.path[:-1])
+        result = unpack(fitness.value, wfa.path[:-1])
         params = result['params']
         cash_series = result['cash_series']
 

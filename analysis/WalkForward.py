@@ -11,7 +11,7 @@ from analysis.Engine import Engine
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
-from utils.utils import load_result
+from utils.utils import unpack
 from utils.metrics import *
 
 class WalkForward():
@@ -108,7 +108,7 @@ class WalkForward():
 
         # get fittest params from last IS analyzer
         IS_path = self.path + str(run)
-        fittest = load_result('analyzer', IS_path)['fittest']
+        fittest = unpack('analyzer', IS_path)['fittest']
 
         for fitness in tqdm(
             iterable = Fitness,
@@ -120,8 +120,8 @@ class WalkForward():
 
             # extract params of fittest engine
             fittest_metric = fittest[fitness]
-            params = load_result(str(fittest_metric.id), IS_path)['params']
-            metrics = load_result(str(fittest_metric.id), IS_path)['metrics']
+            params = unpack(str(fittest_metric.id), IS_path)['params']
+            metrics = unpack(str(fittest_metric.id), IS_path)['metrics']
 
             # run strategy blind over OS with best params
             strategy = LiveStrategy(OS, self.avgs, params)
@@ -155,11 +155,11 @@ class WalkForward():
 
         # get params from last IS
         IS_path = self.path + str(self.runs)
-        fittest = load_result('analyzer', IS_path)['fittest']
+        fittest = unpack('analyzer', IS_path)['fittest']
 
         # extract params of fittest engine
         metric = fittest[fitness]
-        params = load_result(str(metric.id), IS_path)['params']
+        params = unpack(str(metric.id), IS_path)['params']
 
         # build composite engine
         cash_series, trades, efficiency_sum = pd.Series(), [], 0
@@ -175,9 +175,9 @@ class WalkForward():
             OS_path = self.path + fitness.value + '/'
 
             # extract saved OS engine results
-            OS_cash_series = load_result(run, OS_path)['cash_series']
-            OS_trades = load_result(run, OS_path)['trades']
-            OS_metrics = load_result(run, OS_path)['metrics']
+            OS_cash_series = unpack(run, OS_path)['cash_series']
+            OS_trades = unpack(run, OS_path)['trades']
+            OS_metrics = unpack(run, OS_path)['metrics']
 
             initial_cash = OS_cash_series.values[0]
 
@@ -224,7 +224,7 @@ class WalkForward():
         highest_profit = -np.inf
         for fitness in Fitness:
 
-            result = load_result(fitness.value, self.path[:-1])  # todo fix path
+            result = unpack(fitness.value, self.path[:-1])  # todo fix path
             cash_series = result['cash_series']
             cash = cash_series[-1]
 

@@ -139,7 +139,7 @@ def get_analyzer_metrics(analyzer):
 
     start_date = analyzer.data.index[0]
     end_date = analyzer.data.index[-1]
-    num_engines = len(analyzer.results)
+    num_engines = len(analyzer.engines)
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
     candles = len(analyzer.data.index)
 

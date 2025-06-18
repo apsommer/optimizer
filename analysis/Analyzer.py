@@ -22,12 +22,12 @@ class Analyzer:
         self.opt = opt
         self.wfa_path = wfa_path
         self.path = wfa_path + str(id) + '/'
-        self.results = []
+        self.engines = []
         self.metrics = []
         self.fittest = { }
 
-        # todo generator patterna?
-        self.avgs = load_result('avgs', self.wfa_path)
+        # todo generator pattern?
+        self.avgs = unpack('avgs', self.wfa_path)
 
         # common
         self.params = LiveParams(
@@ -93,9 +93,8 @@ class Analyzer:
 
         # collect engine metrics
         for id in ids:
-            result = load_result(id, self.path)
-            metrics = result['metrics']
-            self.results.append(metrics)
+            self.engines.append(
+                unpack(id, self.path)['metrics'])
 
         # init metrics
         self.metrics = get_analyzer_metrics(self)
@@ -108,52 +107,37 @@ class Analyzer:
 
     def get_fittest_metric(self, fitness):
 
-        results = self.results
-        name = fitness.value
+        engines = self.engines
+        fitness_name = fitness.value
 
         # isolate metric of interest
         _metrics = []
-        for metrics in results:
+        for metrics in engines:
             for metric in metrics:
-                if metric.name == name:
+                if metric.name == fitness_name:
                     _metrics.append(metric)
 
-        # sort metrics on fitness
-        ranked = sorted(
+        # sort based on fitness max/min
+        isReversed = fitness.is_max
+        metric = sorted(
             _metrics,
             key = lambda it: it.value,
-            reverse = fitness.is_max)
-
-        metric = ranked[0]
+            reverse = isReversed)[0]
 
         # tag title
-        title = '* ' + metric.title
+        metric.title = '* ' + metric.title
+        return metric
 
-        return Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id)
-
-    ''' serialize ''' # todo extract common save()
     def save(self):
 
-        path = self.path
-
-        result = {
+        bundle = {
             'id': self.id,
             'metrics': self.metrics,
             'fittest': self.fittest
         }
 
-        # make directory, if needed
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        # create new binary
-        filename = 'analyzer' + '.bin'
-        path_filename = path + '/' + filename
-
-        filehandler = open(path_filename, 'wb')
-        pickle.dump(result, filehandler)
-
-########################################################################################################################
-
-
-
+        save(
+            bundle = bundle,
+            filename = 'analyzer',
+            path = self.path
+        )
