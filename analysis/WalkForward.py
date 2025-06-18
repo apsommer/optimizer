@@ -1,4 +1,5 @@
 import os
+import pickle
 import shutil
 
 import pandas as pd
@@ -37,9 +38,9 @@ class WalkForward():
         self.metrics = get_walk_forward_init_metrics(self)
 
         # init exponential averages
-        self.calculate_avgs()
+        self.create_avgs()
 
-    def calculate_avgs(self):
+    def create_avgs(self):
 
         fastMinutes = 25
         slowMinutes = 2555
@@ -60,6 +61,21 @@ class WalkForward():
         self.avgs['slow'] = slow
         self.avgs['fastSlope'] = fastSlope
         self.avgs['slowSlope'] = slowSlope
+
+        path = self.path + 'avgs'
+
+        # make directory, if needed
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        for name in self.avgs.columns:
+
+            # create new binary
+            filename = name + '.bin'
+            path_filename = path + '/' + filename
+
+            filehandler = open(path_filename, 'wb')
+            pickle.dump(self.avgs[name], filehandler)
 
     def sweep_IS(self, run):
 

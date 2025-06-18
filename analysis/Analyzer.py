@@ -131,7 +131,7 @@ class Analyzer:
 
         return Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id)
 
-    ''' serialize '''
+    ''' serialize ''' # todo extract common save()
     def save(self):
 
         path = self.path
