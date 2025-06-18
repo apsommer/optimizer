@@ -14,13 +14,15 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, avgs, opt, path):
+    def __init__(self, id, data, opt, path):
 
         self.id = id
         self.data = data
-        self.avgs = avgs
         self.opt = opt
-        self.path = path
+        self.path = path + str(id) + '/'
+        self.wfa_path = path
+
+        self.avgs = load_result('avgs', self.wfa_path)
 
         self.results = []
         self.metrics = []

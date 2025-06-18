@@ -62,24 +62,19 @@ class WalkForward():
         self.avgs['fastSlope'] = fastSlope
         self.avgs['slowSlope'] = slowSlope
 
-        path = self.path + 'avgs'
+        # make directory, if needed todo remove?
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
 
-        # make directory, if needed
-        if not os.path.exists(path):
-            os.makedirs(path)
+        # create new binary
+        filename = 'avgs.bin'
+        path_filename = self.path + '/' + filename
 
-        for name in self.avgs.columns:
-
-            # create new binary
-            filename = name + '.bin'
-            path_filename = path + '/' + filename
-
-            filehandler = open(path_filename, 'wb')
-            pickle.dump(self.avgs[name], filehandler)
+        filehandler = open(path_filename, 'wb')
+        pickle.dump(self.avgs, filehandler)
 
     def sweep_IS(self, run):
 
-        path = self.path + str(run) + '/'
         IS_len = self.IS_len
         OS_len = self.OS_len
         data = self.data
@@ -90,7 +85,7 @@ class WalkForward():
         IS = data.iloc[IS_start : IS_end]
 
         # run exhaustive sweep over IS
-        analyzer = Analyzer(run, IS, self.avgs, self.opt, path)
+        analyzer = Analyzer(run, IS, self.opt, self.path)
         analyzer.run()
         analyzer.save()
         # print_metrics(analyzer.metrics)
