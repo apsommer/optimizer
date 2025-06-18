@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from strategy.BaselineStrategy import BaselineStrategy
+from strategy.BaseStrategy import BaselineStrategy
 from model.Ticker import Ticker
 
 class LiveStrategy(BaselineStrategy):

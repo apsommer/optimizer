@@ -3,12 +3,14 @@ import pickle
 import shutil
 
 import pandas as pd
+from numpy import linspace
 from tqdm import tqdm
 
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
+from utils import utils
 from utils.utils import load_result
 from utils.metrics import *
 
@@ -75,17 +77,24 @@ class WalkForward():
 
     def sweep_IS(self, run):
 
+        # isolate training xet
         IS_len = self.IS_len
         OS_len = self.OS_len
-        data = self.data
-
-        # isolate training xet
         IS_start = run * OS_len
         IS_end = IS_start + IS_len
+
+        # mask dataset
+        data = utils.getOhlc(self.num_months, False)
         IS = data.iloc[IS_start : IS_end]
 
         # run exhaustive sweep over IS
-        analyzer = Analyzer(run, IS, self.opt, self.path)
+        num = 2
+        opt = {
+            'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
+            'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
+            'takeProfitPercent': linspace(.25, .70, num=num, dtype=float)
+        }
+        analyzer = Analyzer(run, IS, opt, self.path)
         analyzer.run()
         analyzer.save()
         # print_metrics(analyzer.metrics)

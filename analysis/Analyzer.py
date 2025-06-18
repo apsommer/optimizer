@@ -7,7 +7,8 @@ from tqdm import tqdm
 
 from analysis.Engine import Engine
 from model.Fitness import Fitness
-from utils.utils import load_result
+from utils import utils
+from utils.utils import *
 from utils.metrics import *
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
@@ -22,11 +23,11 @@ class Analyzer:
         self.path = path + str(id) + '/'
         self.wfa_path = path
 
-        self.avgs = load_result('avgs', self.wfa_path)
-
         self.results = []
         self.metrics = []
         self.fittest = { }
+
+        self.avgs = load_result('avgs', self.wfa_path)
 
         # common
         self.params = LiveParams(
@@ -47,7 +48,6 @@ class Analyzer:
 
     def run(self):
 
-        data = self.data
         params = self.params
 
         id = 0
@@ -74,7 +74,7 @@ class Analyzer:
                         params.takeProfitPercent = takeProfitPercent
 
                         # create strategy and engine
-                        strategy = LiveStrategy(data, self.avgs, params)
+                        strategy = LiveStrategy(self.data, self.avgs, params)
                         engine = Engine(id, strategy)
 
                         # run and save

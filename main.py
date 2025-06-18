@@ -12,9 +12,10 @@ from multiprocessing import Pool, Process
 
 from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
+
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
-from utils import utils as repo
+from utils import utils
 from utils.utils import load_result
 from utils.metrics import print_metrics, get_walk_forward_results_metrics
 from utils.plots import *
@@ -22,15 +23,15 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 20
+num_months = 14
 isNetwork = False
 
 # walk forward
 percent = 20
-runs = 20 # + 1 added later for final IS, 16 cores available
+runs = 14 # + 1 added later for final IS, 16 cores available
 
 # analyzer
-num = 3
+num = 2
 opt = {
     'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
@@ -45,8 +46,7 @@ start_time = time.time()
 
 # get ohlc prices
 data_name = 'NQ_' + str(num_months) + 'mon'
-path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
-data = repo.getOhlc(num_months, isNetwork)
+data = utils.getOhlc(num_months, isNetwork)
 
 # init walk forward analysis
 wfa = WalkForward(
