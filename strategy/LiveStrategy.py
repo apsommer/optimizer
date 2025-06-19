@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from strategy.BaseStrategy import BaselineStrategy
 from model.Ticker import Ticker
+from utils.utils import *
+
 
 class LiveStrategy(BaselineStrategy):
 
@@ -61,6 +63,10 @@ class LiveStrategy(BaselineStrategy):
 
     def on_bar(self):
 
+        # todo temp
+        apples = next(get_data(self.data))
+        print(apples)
+
         # index
         idx = self.current_idx
         self.bar_index += 1
@@ -83,7 +89,7 @@ class LiveStrategy(BaselineStrategy):
         high = self.data.High[idx]
         low = self.data.Low[idx]
         close = self.data.Close[idx]
-        prev_close = self.data.Close.iloc[bar_index-1]
+        # prev_close = self.data.Close.iloc[bar_index-1] todo misalignment with tradingview!
 
         # position
         is_flat = self.is_flat
@@ -112,13 +118,13 @@ class LiveStrategy(BaselineStrategy):
         # entry, long crossover fast
         isFastCrossoverLong = (
             fastSlope > fastAngle
-            and (fast > open or fast > prev_close)
+            and (fast > open) # or fast > prev_close) # todo misalignment with tradingview!
             and high > fast)
 
         # entry, short crossover fast
         isFastCrossoverShort = (
             -fastAngle > fastSlope
-            and (open > fast or prev_close > fast)
+            and (open > fast) # or prev_close > fast) # todo misalignment with tradingview!
             and fast > low)
 
         # disable entry

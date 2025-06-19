@@ -34,7 +34,7 @@ runs = 14 # + 1 added later for final IS, 16 cores available
 # analyzer
 num = 1
 opt = {
-    'disableEntryMinutes': linspace(60, 180, num=2, dtype=int),
+    'disableEntryMinutes': linspace(60, 180, num=num, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
     'takeProfitPercent': linspace(.25, .70, num=num, dtype=float)
 }

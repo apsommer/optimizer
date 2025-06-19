@@ -104,6 +104,14 @@ def get_slope(series):
 
     return np.rad2deg(np.atan(slope))
 
+''' ohlc generator '''
+def get_data(data):
+    for idx in data.index:
+        row = data.loc[idx, :]
+        yield row
+
+########################################################################################################################
+
 ''' serialize '''
 def save(bundle, filename, path):
 

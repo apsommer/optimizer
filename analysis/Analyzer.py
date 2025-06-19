@@ -63,9 +63,6 @@ class Analyzer:
                 for fastMomentumMinutes in self.fastMomentumMinutes:
                     for takeProfitPercent in self.takeProfitPercent:
 
-                        # if id > 100:
-                        #     break
-
                         # update params
                         params.disableEntryMinutes = disableEntryMinutes
                         params.fastMomentumMinutes = fastMomentumMinutes
