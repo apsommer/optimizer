@@ -58,7 +58,7 @@ data = utils.getOhlc(num_months, isNetwork)
 if not isNetwork: print(f'Upload OHLC from { csv_filename }')
 
 # create averages
-create_avgs(data, path)
+create_indicators(data, path)
 
 # init walk forward
 wfa = WalkForward(

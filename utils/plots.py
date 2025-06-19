@@ -60,7 +60,7 @@ def plot_equity(wfa):
         end = cash_series.index[-1]
         comp = wfa.data[start:end]
 
-        strategy = LiveStrategy(comp, wfa.avgs, params)
+        strategy = LiveStrategy(comp, wfa.indicators, params)
         composite = Engine(fitness.value, strategy)
 
         # deserialize previous result

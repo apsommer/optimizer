@@ -66,9 +66,8 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
-def create_avgs(data, path):
+def create_indicators(data, path):
 
-    # todo temp
     fastMinutes = 25
     slowMinutes = 2555
 
@@ -81,15 +80,15 @@ def create_avgs(data, path):
     slowSlope = get_slope(slow)
 
     # persist
-    avgs = pd.DataFrame(index=data.index)
-    avgs['fast'] = fast
-    avgs['slow'] = slow
-    avgs['fastSlope'] = fastSlope
-    avgs['slowSlope'] = slowSlope
+    indicators = pd.DataFrame(index=data.index)
+    indicators['fast'] = fast
+    indicators['slow'] = slow
+    indicators['fastSlope'] = fastSlope
+    indicators['slowSlope'] = slowSlope
 
     save(
-        bundle = avgs,
-        filename = 'avgs',
+        bundle = indicators,
+        filename = 'indicators',
         path = path)
 
 def get_slope(series):

@@ -17,7 +17,7 @@ class LiveStrategy(BaselineStrategy):
     def size(self):
         return 1
 
-    def __init__(self, data, avgs, params):
+    def __init__(self, data, indicators, params):
         super().__init__()
 
         self.data = data
@@ -44,10 +44,10 @@ class LiveStrategy(BaselineStrategy):
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
         # get raw averages
-        self.fast = avgs.loc[:, 'fast']
-        self.slow = avgs.loc[:, 'slow']
-        self.fastSlope = avgs.loc[:, 'fastSlope']
-        self.slowSlope = avgs.loc[:, 'slowSlope']
+        self.fast = indicators.loc[:, 'fast']
+        self.slow = indicators.loc[:, 'slow']
+        self.fastSlope = indicators.loc[:, 'fastSlope']
+        self.slowSlope = indicators.loc[:, 'slowSlope']
 
         # strategy
         self.longExitBarIndex = -1
@@ -65,11 +65,6 @@ class LiveStrategy(BaselineStrategy):
         idx = self.current_idx
         self.bar_index += 1
         bar_index = self.bar_index
-
-        # todo tradingview limitation ~20k bars
-        # tv_start = pd.Timestamp('2025-05-13T12:30:00', tz='America/Chicago')
-        # if tv_start > idx:
-        #     return
 
         # params
         fastAngle = self.fastAngle

@@ -27,7 +27,7 @@ class Analyzer:
         self.fittest = { }
 
         # todo generator pattern?
-        self.avgs = unpack('avgs', self.wfa_path)
+        self.indicators = unpack('indicators', self.wfa_path)
 
         # common
         self.params = LiveParams(
@@ -72,7 +72,7 @@ class Analyzer:
                         params.takeProfitPercent = takeProfitPercent
 
                         # create strategy and engine
-                        strategy = LiveStrategy(self.data, self.avgs, params)
+                        strategy = LiveStrategy(self.data, self.indicators, params)
                         engine = Engine(id, strategy)
 
                         # run and save

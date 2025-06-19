@@ -36,7 +36,7 @@ class WalkForward():
         self.metrics = init_walk_forward_metrics(self)
 
         # todo generator pattern
-        self.avgs = unpack('avgs', path)
+        self.indicators = unpack('indicators', path)
 
     def in_sample(self, run):
 
@@ -85,7 +85,7 @@ class WalkForward():
             params = unpack(str(fittest_metric.id), IS_path)['params']
 
             # run strategy blind with best params
-            strategy = LiveStrategy(OS, self.avgs, params)
+            strategy = LiveStrategy(OS, self.indicators, params)
             engine = Engine(
                 id = run,
                 strategy = strategy)
@@ -159,7 +159,7 @@ class WalkForward():
         OS = data.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        strategy = LiveStrategy(OS, self.avgs, params)
+        strategy = LiveStrategy(OS, self.indicators, params)
         engine = Engine(fitness.value, strategy)
 
         # finish engine build
