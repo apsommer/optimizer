@@ -69,8 +69,8 @@ class Analyzer:
                         params.takeProfitPercent = takeProfitPercent
 
                         # create strategy and engine
-                        strategy = LiveStrategy(self.data, self.avgs, params)
-                        engine = Engine(id, strategy)
+                        strategy = LiveStrategy(get_data(self.data), self.avgs, params, self.data.index[-1])
+                        engine = Engine(id, strategy, get_data(self.data))
 
                         # run and save
                         engine.run()

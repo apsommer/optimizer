@@ -13,23 +13,24 @@ from utils.utils import *
 
 class Engine:
 
-    def __init__(self, id, strategy):
+    def __init__(self, id, strategy, data_gen):
 
         # allow blank engine for rebuild
         if strategy is None: return
 
         self.id = id
-        self.data = strategy.data
+        # self.data = strategy.data
+        self.data_gen = data_gen
         self.strategy = strategy
         self.current_idx = -1
         self.trades = []
-        self.cash_series = pd.Series(index=self.data.index)
+        self.cash_series = pd.Series() # index=self.data.index)
         self.metrics = []
 
         # init equity account
         margin = self.strategy.ticker.margin
         size = self.strategy.size
-        initial_cash = margin * self.data.Close.iloc[0] * size
+        initial_cash = 10000 # margin * self.data.Close.iloc[0] * size
         self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
 
@@ -39,31 +40,38 @@ class Engine:
         isFirstProcess = '0' == multiprocessing.current_process().name
 
         # loop each bar
-        for idx in tqdm(
+        with tqdm(
             disable = not isFirstProcess,
             leave = False,
+            total = 88066, # todo
             position = 1,
-            iterable = self.data.index,
             colour = '#42f5f5',
-            desc = 'apples',
-            bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):
+            bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
-            # set index
-            self.current_idx = idx
-            self.strategy.current_idx = self.current_idx
+            idx = next(self.data_gen)['idx']
 
-            # execute strat
-            self.strategy.on_bar()
+            while idx:
 
-            # fill order, if needed
-            orders = self.strategy.orders
-            if len(orders) > 0 and orders[-1].idx == self.current_idx:
-                self.fill_order()
+                # set index
+                self.current_idx = idx
+                self.strategy.current_idx = self.current_idx
 
-            # track cash balance
-            self.cash_series[idx] = self.cash
+                # execute strat
+                self.strategy.on_bar()
+
+                # fill order, if needed
+                orders = self.strategy.orders
+                if len(orders) > 0 and orders[-1].idx == self.current_idx:
+                    self.fill_order()
+
+                # track cash balance
+                self.cash_series[idx] = self.cash
+
+                pbar.update()
+                idx = next(self.data_gen)['idx']
 
         # analyze results
+        pbar.close()
         self.analyze()
 
     def fill_order(self):

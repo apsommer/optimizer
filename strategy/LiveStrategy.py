@@ -4,7 +4,6 @@ from strategy.BaseStrategy import BaselineStrategy
 from model.Ticker import Ticker
 from utils.utils import *
 
-
 class LiveStrategy(BaselineStrategy):
 
     @property
@@ -19,11 +18,12 @@ class LiveStrategy(BaselineStrategy):
     def size(self):
         return 1
 
-    def __init__(self, data, avgs, params):
+    def __init__(self, data_gen, avgs, params, last_idx):
         super().__init__()
 
-        self.data = data
+        self.data_gen = data_gen
         self.params = params
+        self.last_idx = last_idx
 
         # unpack params
         fastAngleFactor = params.fastAngleFactor
@@ -63,9 +63,6 @@ class LiveStrategy(BaselineStrategy):
 
     def on_bar(self):
 
-        # todo stub generator
-        apples = next(get_data(self.data))
-
         # index
         idx = self.current_idx
         self.bar_index += 1
@@ -83,11 +80,18 @@ class LiveStrategy(BaselineStrategy):
         coolOffMinutes = self.coolOffMinutes
         takeProfit = self.takeProfit
 
+        # todo stub generator
+        candle = next(self.data_gen)
+        open = candle['Open']
+        high = candle['High']
+        low = candle['Low']
+        close = candle['Close']
+
         # data
-        open = self.data.Open[idx]
-        high = self.data.High[idx]
-        low = self.data.Low[idx]
-        close = self.data.Close[idx]
+        # open = self.data.Open[idx]
+        # high = self.data.High[idx]
+        # low = self.data.Low[idx]
+        # close = self.data.Close[idx]
         # prev_close = self.data.Close.iloc[bar_index-1] todo misalignment with tradingview!
 
         # position
@@ -147,7 +151,7 @@ class LiveStrategy(BaselineStrategy):
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed)
         if isEntryLong:
-            self.buy(ticker, size)
+            self.buy(ticker, size, close)
 
         # entry short
         isEntryShort = (
@@ -157,7 +161,7 @@ class LiveStrategy(BaselineStrategy):
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed)
         if isEntryShort:
-            self.sell(ticker, size)
+            self.sell(ticker, size, close)
 
         # exit, long crossover fast
         longFastCrossoverExit = np.nan
@@ -209,7 +213,7 @@ class LiveStrategy(BaselineStrategy):
         # exit on last bar of data
         # todo prevents any open trades in strategy
         isExitLastBar = False
-        if idx == self.data.index[-1]:
+        if idx == self.last_idx:
             if is_long or is_short:
                 isExitLastBar = True
 
@@ -221,7 +225,7 @@ class LiveStrategy(BaselineStrategy):
             or isExitLastBar)
         if isExitLong:
             self.longExitBarIndex = bar_index
-            self.flat(ticker, size)
+            self.flat(ticker, size, close)
 
         # exit short
         isExitShort = (
@@ -231,4 +235,4 @@ class LiveStrategy(BaselineStrategy):
             or isExitLastBar)
         if isExitShort:
             self.shortExitBarIndex = bar_index
-            self.flat(ticker, size)
+            self.flat(ticker, size, close)

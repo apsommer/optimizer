@@ -104,10 +104,11 @@ def get_slope(series):
 
     return np.rad2deg(np.atan(slope))
 
-''' ohlc generator '''
+''' ohlc candle generator '''
 def get_data(data):
     for idx in data.index:
         row = data.loc[idx, :]
+        row['idx'] = idx
         yield row
 
 ########################################################################################################################

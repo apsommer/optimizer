@@ -5,11 +5,10 @@ class BaselineStrategy():
     def __init__(self):
         self.current_idx = None
         self.bar_index = -1
-        self.data = None
         self.orders = []
         self.params = None
 
-    def buy(self, ticker, size, sentiment='long'):
+    def buy(self, ticker, size, price, sentiment='long'):
         self.orders.append(
             Order(
                 ticker = ticker,
@@ -17,9 +16,9 @@ class BaselineStrategy():
                 size = size,
                 idx = self.current_idx,
                 bar_index = self.bar_index,
-                price = self.close))
+                price = price))
 
-    def sell(self, ticker, size, sentiment='short'):
+    def sell(self, ticker, size, price, sentiment='short'):
         self.orders.append(
             Order(
                 ticker = ticker,
@@ -27,13 +26,13 @@ class BaselineStrategy():
                 size = -size,
                 idx = self.current_idx,
                 bar_index = self.bar_index,
-                price = self.close))
+                price = price))
 
-    def flat(self, ticker, size, sentiment='flat'):
+    def flat(self, ticker, size, price, sentiment='flat'):
         if self.is_long:
-            self.sell(ticker, size, sentiment)
+            self.sell(ticker, size, price, sentiment)
         if self.is_short:
-            self.buy(ticker, size, sentiment)
+            self.buy(ticker, size, price, sentiment)
 
     @property
     def position_size(self):
@@ -50,14 +49,6 @@ class BaselineStrategy():
     @property
     def is_short(self):
         return 0 > self.position_size
-
-    @property
-    def open(self):
-        return self.data.loc[self.current_idx]['Open']
-
-    @property
-    def close(self):
-        return self.data.loc[self.current_idx]['Close']
 
     """ Override by implementers """
     def on_bar(self):

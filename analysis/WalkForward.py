@@ -11,7 +11,7 @@ from analysis.Engine import Engine
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
-from utils.utils import unpack, save
+from utils.utils import *
 from utils.metrics import *
 
 class WalkForward():
@@ -85,10 +85,11 @@ class WalkForward():
             params = unpack(str(fittest_metric.id), IS_path)['params']
 
             # run strategy blind with best params
-            strategy = LiveStrategy(OS, self.avgs, params)
+            strategy = LiveStrategy(get_data(OS), self.avgs, params, OS.index[-1])
             engine = Engine(
                 id = run,
-                strategy = strategy)
+                strategy = strategy,
+                data_gen = get_data(OS))
             engine.run()
 
             # todo calculate efficiency relative to companion IS
@@ -159,8 +160,8 @@ class WalkForward():
         OS = data.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        strategy = LiveStrategy(OS, self.avgs, params)
-        engine = Engine(fitness.value, strategy)
+        strategy = LiveStrategy(get_data(OS), self.avgs, params, OS.index[-1])
+        engine = Engine(fitness.value, strategy, get_data(OS))
 
         # finish engine build
         engine.cash_series = cash_series
