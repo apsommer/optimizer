@@ -63,9 +63,8 @@ class LiveStrategy(BaselineStrategy):
 
     def on_bar(self):
 
-        # todo temp
+        # todo stub generator
         apples = next(get_data(self.data))
-        print(apples)
 
         # index
         idx = self.current_idx
