@@ -35,9 +35,6 @@ class WalkForward():
         # init metrics with header
         self.metrics = init_walk_forward_metrics(self)
 
-        # todo generator pattern
-        self.indicators = unpack('indicators', path)
-
     def in_sample(self, run):
 
         # isolate training xet
@@ -73,6 +70,9 @@ class WalkForward():
         IS_path = self.path + '/' + str(run)
         fittest = unpack('analyzer', IS_path)['fittest']
 
+        # unique indicators per core process
+        indicators = unpack('indicators', self.path)
+
         # create and save engine for each fitness
         for fitness in tqdm(
             iterable = Fitness,
@@ -85,24 +85,14 @@ class WalkForward():
             params = unpack(str(fittest_metric.id), IS_path)['params']
 
             # run strategy blind with best params
-            strategy = LiveStrategy(OS, self.indicators, params)
+            strategy = LiveStrategy(
+                data = OS,
+                indicators = indicators,
+                params = params)
             engine = Engine(
                 id = run,
                 strategy = strategy)
             engine.run()
-
-            # todo calculate efficiency relative to companion IS
-            # metrics = unpack(str(fittest_metric.id), path)['metrics']
-            # for metric in metrics:
-            #     if metric.name == 'annual_return':
-            #         IS_annual = metric.value
-            # for metric in engine.metrics:
-            #     if metric.name == 'annual_return':
-            #         OS_annual = metric.value
-            #
-            # efficiency = (OS_annual / IS_annual) * 100
-            # efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
-            # engine.metrics.append(efficiency_metric)
 
             OS_path = self.path + '/' + fitness.value
             engine.save(OS_path, True)
@@ -146,11 +136,6 @@ class WalkForward():
             cash_series = cash_series._append(_cash_series)
             trades.extend(_trades)
 
-            # # todo engine efficiency
-            # for metric in _metrics:
-            #     if metric.name == 'efficiency':
-            #         efficiency_sum += metric.value
-
         # reindex trades
         for i, trade in enumerate(trades):
             trade.id = i + 1 # 1-based index for tradingview
@@ -158,9 +143,17 @@ class WalkForward():
         # mask data to OS sample
         OS = data.loc[cash_series.index, :]
 
+        # unique indicators per core process
+        indicators = unpack('indicators', self.path)
+
         # create engine, but don't run!
-        strategy = LiveStrategy(OS, self.indicators, params)
-        engine = Engine(fitness.value, strategy)
+        strategy = LiveStrategy(
+            data = OS,
+            indicators = indicators,
+            params = params)
+        engine = Engine(
+            id = fitness.value,
+            strategy = strategy)
 
         # finish engine build
         engine.cash_series = cash_series

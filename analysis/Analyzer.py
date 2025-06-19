@@ -26,8 +26,8 @@ class Analyzer:
         self.metrics = []
         self.fittest = { }
 
-        # todo generator pattern?
-        self.indicators = unpack('indicators', self.wfa_path)
+        # unique indicators per core process
+        self.indicators = unpack('indicators', wfa_path)
 
         # common
         self.params = LiveParams(

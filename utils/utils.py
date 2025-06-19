@@ -20,6 +20,10 @@ def getOhlc(num_months, isNetwork):
     ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-06-13'
     timezone = 'America/Chicago'
 
+    # todo save bin after download
+    #  if bin exists with data_name, load it
+    #  remove isNetwork
+
     # return local cache
     if not isNetwork:
         ohlc = pd.read_csv(csv_filename, index_col=0)
