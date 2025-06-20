@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 from analysis.Engine import Engine
 from model.Fitness import Fitness
+from strategy.FastStrategy import FastStrategy
 from strategy.LiveStrategy import LiveStrategy
 from utils.constants import *
 from utils.metrics import *
@@ -60,7 +61,8 @@ def plot_equity(wfa):
         end = cash_series.index[-1]
         comp = wfa.data[start:end]
 
-        strategy = LiveStrategy(comp, wfa.indicators, params)
+        # strategy = LiveStrategy(comp, wfa.indicators, params)
+        strategy = FastStrategy(comp, wfa.indicators, params)
         composite = Engine(fitness.value, strategy)
 
         # deserialize previous result

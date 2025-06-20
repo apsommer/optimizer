@@ -9,6 +9,7 @@ from tqdm import tqdm
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
 from model.Fitness import Fitness
+from strategy.FastStrategy import FastStrategy
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
 from utils.utils import unpack, save
@@ -85,7 +86,8 @@ class WalkForward():
             params = unpack(str(fittest_metric.id), IS_path)['params']
 
             # run strategy blind with best params
-            strategy = LiveStrategy(OS, self.indicators, params)
+            # strategy = LiveStrategy(OS, self.indicators, params)
+            strategy = FastStrategy(OS, self.indicators, params)
             engine = Engine(
                 id = run,
                 strategy = strategy)
@@ -159,7 +161,8 @@ class WalkForward():
         OS = data.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        strategy = LiveStrategy(OS, self.indicators, params)
+        # strategy = LiveStrategy(OS, self.indicators, params)
+        strategy = FastStrategy(OS, self.indicators, params)
         engine = Engine(fitness.value, strategy)
 
         # finish engine build

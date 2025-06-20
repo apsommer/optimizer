@@ -52,6 +52,8 @@ class FastStrategy(BaselineStrategy):
         self.slowSlope = indicators.loc[:, 'slowSlope']
 
         # strategy
+        self.longEntryBarIndex = -1
+        self.shortEntryBarIndex = -1
         self.longExitBarIndex = -1
         self.shortExitBarIndex = -1
         self.longFastCrossoverExit = np.nan
@@ -144,6 +146,7 @@ class FastStrategy(BaselineStrategy):
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed)
         if isEntryLong:
+            self.longEntryBarIndex = bar_index
             self.buy(ticker, size)
 
         # entry short
@@ -154,6 +157,7 @@ class FastStrategy(BaselineStrategy):
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed)
         if isEntryShort:
+            self.shortEntryBarIndex = bar_index
             self.sell(ticker, size)
 
         # exit, long crossover fast
