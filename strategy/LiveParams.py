@@ -7,7 +7,8 @@ class LiveParams:
             fastAngleFactor,
             slowMinutes,
             slowAngleFactor,
-            coolOffMinutes):
+            coolOffMinutes,
+            timeout):
 
         self.fastMinutes = fastMinutes
         self.fastCrossoverPercent = fastCrossoverPercent
@@ -16,8 +17,9 @@ class LiveParams:
         self.slowMinutes = slowMinutes
         self.slowAngleFactor = slowAngleFactor
         self.coolOffMinutes = coolOffMinutes
+        self.timeout = timeout
 
     def __repr__(self):
         return (
             f'{self.fastMinutes}, {self.fastCrossoverPercent}, {self.takeProfitPercent}, {self.fastAngleFactor}, '
-            f'{self.slowMinutes}, {self.slowAngleFactor}, {self.coolOffMinutes}')
+            f'{self.slowMinutes}, {self.slowAngleFactor}, {self.coolOffMinutes}, {self.timeout}')

@@ -36,13 +36,15 @@ class Analyzer:
             fastCrossoverPercent = 0,
             takeProfitPercent = None,
             fastAngleFactor = None,
-            slowMinutes = None,
+            slowMinutes = 2555,
             slowAngleFactor = 20,
-            coolOffMinutes = 5)
+            coolOffMinutes = 5,
+            timeout = None)
 
         # extract opt
         self.takeProfitPercent = self.opt['takeProfitPercent']
         self.fastAngleFactor = self.opt['fastAngleFactor']
+        self.timeout = self.opt['timeout']
 
     def run(self):
 
@@ -59,22 +61,24 @@ class Analyzer:
             # sweep params from opt
             for takeProfitPercent in self.takeProfitPercent:
                 for fastAngleFactor in self.fastAngleFactor:
+                    for timeout in self.timeout:
 
-                    # update params
-                    params.takeProfitPercent = takeProfitPercent
-                    params.fastAngleFactor = fastAngleFactor
+                        # update params
+                        params.takeProfitPercent = takeProfitPercent
+                        params.fastAngleFactor = fastAngleFactor
+                        params.timeout = timeout
 
-                    # create strategy and engine
-                    # strategy = LiveStrategy(self.data, self.indicators, params)
-                    strategy = FastStrategy(self.data, self.indicators, params)
-                    engine = Engine(id, strategy)
+                        # create strategy and engine
+                        # strategy = LiveStrategy(self.data, self.indicators, params)
+                        strategy = FastStrategy(self.data, self.indicators, params)
+                        engine = Engine(id, strategy)
 
-                    # run and save
-                    engine.run()
-                    engine.save(self.path, False)
-                    id += 1
+                        # run and save
+                        engine.run()
+                        engine.save(self.path, False)
+                        id += 1
 
-                    pbar.update()
+                        pbar.update()
 
         pbar.close()
         self.analyze()

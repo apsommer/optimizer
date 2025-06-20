@@ -31,6 +31,7 @@ class FastStrategy(BaselineStrategy):
         fastAngleFactor = params.fastAngleFactor
         slowAngleFactor = params.slowAngleFactor
         self.coolOffMinutes = params.coolOffMinutes
+        self.timeout = params.timeout
 
         # convert units
         self.fastAngle = fastAngleFactor / 1000.0
@@ -69,11 +70,6 @@ class FastStrategy(BaselineStrategy):
         self.bar_index += 1
         bar_index = self.bar_index
 
-        # # todo tradingview limitation ~20k bars
-        # tv_start = pd.Timestamp('2025-05-27T18:00:00', tz='America/Chicago')
-        # if tv_start > idx:
-        #     return
-
         # params
         fastAngle = self.fastAngle
         slowAngle = self.slowAngle
@@ -106,6 +102,7 @@ class FastStrategy(BaselineStrategy):
         fastCrossover = self.fastCrossover
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
+        timeout = self.timeout
 
         ticker = self.ticker
         size = self.size
@@ -199,13 +196,12 @@ class FastStrategy(BaselineStrategy):
                 isExitLastBar = True
 
         # todo exit
-        hours = 12
         hasLongTradeElapsed = (
-                bar_index - longEntryBarIndex > hours * 60
-                and self.longEntryPrice > close)
+            bar_index - longEntryBarIndex > timeout * 60
+            and self.longEntryPrice > close)
         hasShortTradeElapsed = (
-                bar_index - shortEntryBarIndex > hours * 60
-                and close > self.shortEntryPrice)
+            bar_index - shortEntryBarIndex > timeout * 60
+            and close > self.shortEntryPrice)
 
         # exit long
         isExitLong = (

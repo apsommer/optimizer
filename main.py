@@ -32,10 +32,11 @@ percent = 20
 runs = 14 # + 1 added later for final IS, 16 cores available
 
 # analyzer
-num = 1
+num = 5
 opt = {
     'takeProfitPercent': linspace(.25, .70, num=num, dtype=float),
     'fastAngleFactor': linspace(5, 45, num=num, dtype=int),
+    'timeout': linspace(4, 24, num=num, dtype=int)
 }
 
 ###################################################################
