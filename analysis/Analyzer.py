@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from analysis.Engine import Engine
 from model.Fitness import Fitness
+from strategy.FastStrategy import FastStrategy
 from utils import utils
 from utils.utils import *
 from utils.metrics import *
@@ -72,7 +73,8 @@ class Analyzer:
                         params.takeProfitPercent = takeProfitPercent
 
                         # create strategy and engine
-                        strategy = LiveStrategy(self.data, self.indicators, params)
+                        # strategy = LiveStrategy(self.data, self.indicators, params)
+                        strategy = FastStrategy(self.data, self.indicators, params)
                         engine = Engine(id, strategy)
 
                         # run and save
