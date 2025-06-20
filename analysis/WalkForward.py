@@ -21,7 +21,8 @@ class WalkForward():
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
-        self.data = data
+        # self.data = data
+        data = unpack('data', path)
         self.opt = opt
         self.path = path
 
@@ -63,7 +64,7 @@ class WalkForward():
         OS_end = OS_start + OS_len
 
         # mask dataset
-        data = self.data
+        data = unpack('data', self.path)
         OS = data.iloc[OS_start:OS_end]
 
         # get fittest params from in-sample analyzer
@@ -100,7 +101,7 @@ class WalkForward():
     ''' must call after all threads complete '''
     def build_composite(self, fitness):
 
-        data = self.data
+        data = unpack('data', self.path)
 
         # get params from last in-sample analyzer
         IS_path = self.path + '/' + str(self.runs)

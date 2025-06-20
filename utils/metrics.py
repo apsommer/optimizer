@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 
 from model.Metric import Metric
+from utils.utils import unpack
+
 
 def print_metrics(metrics):
 
@@ -159,9 +161,12 @@ def get_analyzer_metrics(analyzer):
 
 def init_walk_forward_metrics(wfa):
 
-    start_date = wfa.data.index[0]
-    end_date = wfa.data.index[-1]
-    candles = len(wfa.data.index)
+    # todo temp
+    data = unpack('data', wfa.path)
+
+    start_date = data.index[0]
+    end_date = data.index[-1]
+    candles = len(data.index)
     days = (end_date - start_date).days
     months = round(days / 30.437)
     in_sample = round(wfa.IS_len / 1440)

@@ -18,7 +18,8 @@ class Analyzer:
     def __init__(self, id, data, opt, wfa_path):
 
         self.id = id
-        self.data = data
+        # self.data = data
+        self.data = unpack('data', wfa_path)
         self.opt = opt
         self.wfa_path = wfa_path
         self.path = wfa_path  + '/' + str(id) + '/'

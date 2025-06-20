@@ -57,15 +57,15 @@ shutil.rmtree(path, ignore_errors=True)
 data = utils.getOhlc(num_months, isNetwork)
 if not isNetwork: print(f'Upload OHLC from { csv_filename }')
 
-# create averages
-create_indicators(data, path)
+# create averages todo move into wfa
+init_analysis(data, path)
 
 # init walk forward
 wfa = WalkForward(
     num_months = num_months,
     percent = percent,
     runs = runs,
-    data = data,
+    data = None, # data,
     opt = opt,
     path = path)
 

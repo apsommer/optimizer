@@ -70,7 +70,7 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
-def create_indicators(data, path):
+def init_analysis(data, path):
 
     fastMinutes = 25
     slowMinutes = 2555
@@ -89,6 +89,11 @@ def create_indicators(data, path):
     indicators['slow'] = slow
     indicators['fastSlope'] = fastSlope
     indicators['slowSlope'] = slowSlope
+
+    save(
+        bundle = data,
+        filename = 'data',
+        path = path)
 
     save(
         bundle = indicators,
