@@ -32,4 +32,5 @@ engine = Engine(
 engine.run()
 
 print_metrics(engine.metrics)
+engine.print_trades()
 plot_trades(engine)

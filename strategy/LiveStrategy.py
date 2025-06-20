@@ -8,9 +8,11 @@ class LiveStrategy(BaselineStrategy):
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'MNQ',
+            symbol = 'NQ',
+            # symbol = 'MNQ',
             tick_size = 0.25,
-            point_value = 2, # MNQ=2, NQ=20
+            point_value = 20, # NQ = 20
+            # point_value = 2, # MNQ = 2
             margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
