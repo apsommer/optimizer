@@ -184,7 +184,7 @@ def plot_trades(engine):
     fplt.plot(entities['long_trade'], color = blue, ax = ax)
     fplt.plot(entities['short_trade'], color = aqua, ax = ax)
 
-    fplt.show()
+    # fplt.show()
 
 def plot_strategy(engine):
 
