@@ -121,6 +121,7 @@ class Analyzer:
 
         # sort based on fitness max/min
         isReversed = fitness.is_max
+
         metric = sorted(
             _metrics,
             key = lambda it: it.value,

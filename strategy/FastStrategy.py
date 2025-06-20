@@ -52,8 +52,8 @@ class FastStrategy(BaselineStrategy):
         self.slowSlope = indicators.loc[:, 'slowSlope']
 
         # strategy
-        self.longEntryBarIndex = -1
-        self.shortEntryBarIndex = -1
+        self.longEntryBarIndex = np.nan
+        self.shortEntryBarIndex = np.nan
         self.longExitBarIndex = -1
         self.shortExitBarIndex = -1
         self.longFastCrossoverExit = np.nan
@@ -101,6 +101,8 @@ class FastStrategy(BaselineStrategy):
         slowSlope = self.slowSlope[idx]
 
         # strategy
+        longEntryBarIndex = self.longEntryBarIndex
+        shortEntryBarIndex = self.shortEntryBarIndex
         longExitBarIndex = self.longExitBarIndex
         shortExitBarIndex = self.shortExitBarIndex
         fastCrossover = self.fastCrossover
@@ -190,10 +192,9 @@ class FastStrategy(BaselineStrategy):
             isExitShortCrossoverEnabled
             and high > fast)
 
-        # exit, fast momentum
-        # recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
-        # isExitLongFastMomentum = is_long and -fastAngle > np.max(recentFastSlope)
-        # isExitShortFastMomentum = is_short and np.min(recentFastSlope) > fastAngle
+        # todo exit after 4 hours
+        hasLongTradeElapsed = bar_index - longEntryBarIndex > 240
+        hasShortTradeElapsed = bar_index - shortEntryBarIndex > 240
 
         # exit, long take profit
         if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
@@ -214,10 +215,14 @@ class FastStrategy(BaselineStrategy):
             if is_long or is_short:
                 isExitLastBar = True
 
+        if isExitLastBar:
+            print('exit last bar')
+
         # exit long
         isExitLong = (
             isExitLongFastCrossover
             # or isExitLongFastMomentum
+            or hasLongTradeElapsed
             or isExitLongTakeProfit
             or isExitLastBar)
         if isExitLong:
@@ -228,6 +233,7 @@ class FastStrategy(BaselineStrategy):
         isExitShort = (
             isExitShortFastCrossover
             # or isExitShortFastMomentum
+            or hasShortTradeElapsed
             or isExitShortTakeProfit
             or isExitLastBar)
         if isExitShort:

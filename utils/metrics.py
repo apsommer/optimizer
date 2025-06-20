@@ -37,6 +37,7 @@ def get_engine_metrics(engine):
     # check trades exist
     num_trades = len(engine.trades)
     if num_trades == 0:
+        print('Engine has no trades\n')
         return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
 
     trades = engine.trades
