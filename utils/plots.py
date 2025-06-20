@@ -163,8 +163,12 @@ def plot_trades(engine):
 
             # y = mx + b
             price = slope * trade_bar + entry_price
-            if trade.is_long: entities.loc[timestamp, 'long_trade'] = price
-            else: entities.loc[timestamp, 'short_trade'] = price
+            if trade.is_long:
+                entities.loc[timestamp, 'long_trade'] = price
+                entities.loc[timestamp, 'short_trade'] = np.nan
+            else:
+                entities.loc[timestamp, 'long_trade'] = np.nan
+                entities.loc[timestamp, 'short_trade'] = price
 
             trade_bar += 1
 
@@ -180,7 +184,7 @@ def plot_trades(engine):
     fplt.plot(entities['long_trade'], color = blue, ax = ax)
     fplt.plot(entities['short_trade'], color = aqua, ax = ax)
 
-    # fplt.show()
+    fplt.show()
 
 def plot_strategy(engine):
 

@@ -32,7 +32,7 @@ percent = 20
 runs = 14 # + 1 added later for final IS, 16 cores available
 
 # analyzer
-num = 1
+num = 5
 opt = {
     'disableEntryMinutes': linspace(60, 180, num=2, dtype=int),
     'fastMomentumMinutes': linspace(55, 130, num=num, dtype=int),
