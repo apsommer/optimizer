@@ -26,13 +26,10 @@ class FastStrategy(BaselineStrategy):
         self.params = params
 
         # unpack params
-        fastAngleFactor = params.fastAngleFactor
-        slowAngleFactor = params.slowAngleFactor
         fastCrossoverPercent = params.fastCrossoverPercent
         takeProfitPercent = params.takeProfitPercent
-
-        self.disableEntryMinutes = params.disableEntryMinutes
-        self.fastMomentumMinutes = params.fastMomentumMinutes
+        fastAngleFactor = params.fastAngleFactor
+        slowAngleFactor = params.slowAngleFactor
         self.coolOffMinutes = params.coolOffMinutes
 
         # convert units
@@ -52,6 +49,8 @@ class FastStrategy(BaselineStrategy):
         self.slowSlope = indicators.loc[:, 'slowSlope']
 
         # strategy
+        self.longEntryPrice = np.nan
+        self.shortEntryPrice = np.nan
         self.longEntryBarIndex = np.nan
         self.shortEntryBarIndex = np.nan
         self.longExitBarIndex = -1
@@ -78,7 +77,6 @@ class FastStrategy(BaselineStrategy):
         # params
         fastAngle = self.fastAngle
         slowAngle = self.slowAngle
-        disableEntryMinutes = self.disableEntryMinutes
         coolOffMinutes = self.coolOffMinutes
         takeProfit = self.takeProfit
 
@@ -106,7 +104,6 @@ class FastStrategy(BaselineStrategy):
         longExitBarIndex = self.longExitBarIndex
         shortExitBarIndex = self.shortExitBarIndex
         fastCrossover = self.fastCrossover
-        fastMomentumMinutes = self.fastMomentumMinutes
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
 
@@ -127,15 +124,6 @@ class FastStrategy(BaselineStrategy):
             and (open > fast or prev_close > fast)
             and fast > low)
 
-        # disable entry
-        # if disableEntryMinutes == 0:
-        #     isEntryLongDisabled = False
-        #     isEntryShortDisabled = False
-        # else:
-        #     recentFastSlope = self.fastSlope[bar_index - disableEntryMinutes : bar_index]
-        #     isEntryLongDisabled = np.min(recentFastSlope) > 0
-        #     isEntryShortDisabled = 0 > np.max(recentFastSlope)
-
         # cooloff after trade exit
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
@@ -144,10 +132,10 @@ class FastStrategy(BaselineStrategy):
         isEntryLong = (
             is_flat
             and isFastCrossoverLong
-            # and not isEntryLongDisabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed)
         if isEntryLong:
+            self.longEntryPrice = close
             self.longEntryBarIndex = bar_index
             self.buy(ticker, size)
 
@@ -155,10 +143,10 @@ class FastStrategy(BaselineStrategy):
         isEntryShort = (
             is_flat
             and isFastCrossoverShort
-            # and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed)
         if isEntryShort:
+            self.shortEntryPrice = close
             self.shortEntryBarIndex = bar_index
             self.sell(ticker, size)
 
@@ -192,10 +180,6 @@ class FastStrategy(BaselineStrategy):
             isExitShortCrossoverEnabled
             and high > fast)
 
-        # todo exit after 4 hours
-        hasLongTradeElapsed = bar_index - longEntryBarIndex > 240
-        hasShortTradeElapsed = bar_index - shortEntryBarIndex > 240
-
         # exit, long take profit
         if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
         elif not is_long: longTakeProfit = np.nan
@@ -208,20 +192,24 @@ class FastStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
-        # exit on last bar of data
-        # todo prevents any open trades in strategy
+        # exit on last bar of data, prevent last trade open
         isExitLastBar = False
         if idx == self.data.index[-1]:
             if is_long or is_short:
                 isExitLastBar = True
 
-        if isExitLastBar:
-            print('exit last bar')
+        # todo exit
+        hours = 12
+        hasLongTradeElapsed = (
+                bar_index - longEntryBarIndex > hours * 60
+                and self.longEntryPrice > close)
+        hasShortTradeElapsed = (
+                bar_index - shortEntryBarIndex > hours * 60
+                and close > self.shortEntryPrice)
 
         # exit long
         isExitLong = (
             isExitLongFastCrossover
-            # or isExitLongFastMomentum
             or hasLongTradeElapsed
             or isExitLongTakeProfit
             or isExitLastBar)
@@ -232,7 +220,6 @@ class FastStrategy(BaselineStrategy):
         # exit short
         isExitShort = (
             isExitShortFastCrossover
-            # or isExitShortFastMomentum
             or hasShortTradeElapsed
             or isExitShortTakeProfit
             or isExitLastBar)

@@ -33,25 +33,22 @@ class Analyzer:
         # common
         self.params = LiveParams(
             fastMinutes = 25,
-            disableEntryMinutes = None,
-            fastMomentumMinutes = None,
             fastCrossoverPercent = 0,
             takeProfitPercent = None,
-            fastAngleFactor = 15,
-            slowMinutes = 2555,
+            fastAngleFactor = None,
+            slowMinutes = None,
             slowAngleFactor = 20,
             coolOffMinutes = 5)
 
         # extract opt
-        self.disableEntryMinutes = self.opt['disableEntryMinutes']
-        self.fastMomentumMinutes = self.opt['fastMomentumMinutes']
         self.takeProfitPercent = self.opt['takeProfitPercent']
+        self.fastAngleFactor = self.opt['fastAngleFactor']
 
     def run(self):
 
         params = self.params
         id = 0
-        total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
+        total = len(self.takeProfitPercent) * len(self.fastAngleFactor)
 
         with tqdm(
             disable = self.id != 0, # show only 1 core
@@ -60,29 +57,24 @@ class Analyzer:
             bar_format = '        In-sample:      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
             # sweep params from opt
-            for disableEntryMinutes in self.disableEntryMinutes:
-                for fastMomentumMinutes in self.fastMomentumMinutes:
-                    for takeProfitPercent in self.takeProfitPercent:
+            for takeProfitPercent in self.takeProfitPercent:
+                for fastAngleFactor in self.fastAngleFactor:
 
-                        # if id > 100:
-                        #     break
+                    # update params
+                    params.takeProfitPercent = takeProfitPercent
+                    params.fastAngleFactor = fastAngleFactor
 
-                        # update params
-                        params.disableEntryMinutes = disableEntryMinutes
-                        params.fastMomentumMinutes = fastMomentumMinutes
-                        params.takeProfitPercent = takeProfitPercent
+                    # create strategy and engine
+                    # strategy = LiveStrategy(self.data, self.indicators, params)
+                    strategy = FastStrategy(self.data, self.indicators, params)
+                    engine = Engine(id, strategy)
 
-                        # create strategy and engine
-                        # strategy = LiveStrategy(self.data, self.indicators, params)
-                        strategy = FastStrategy(self.data, self.indicators, params)
-                        engine = Engine(id, strategy)
+                    # run and save
+                    engine.run()
+                    engine.save(self.path, False)
+                    id += 1
 
-                        # run and save
-                        engine.run()
-                        engine.save(self.path, False)
-                        id += 1
-
-                        pbar.update()
+                    pbar.update()
 
         pbar.close()
         self.analyze()
