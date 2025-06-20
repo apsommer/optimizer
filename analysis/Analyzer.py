@@ -2,6 +2,7 @@ import os
 import pickle
 
 import pandas as pd
+import pandas.core.util.hashing
 from numpy import linspace
 from tqdm import tqdm
 
@@ -27,7 +28,7 @@ class Analyzer:
         self.metrics = []
         self.fittest = { }
 
-        # todo generator pattern?
+        # indicators for each process (core)
         self.indicators = unpack('indicators', self.wfa_path)
 
         # common
@@ -50,7 +51,7 @@ class Analyzer:
 
         params = self.params
         id = 0
-        total = len(self.takeProfitPercent) * len(self.fastAngleFactor)
+        total = len(self.takeProfitPercent) * len(self.fastAngleFactor) * len(self.timeout)
 
         with tqdm(
             disable = self.id != 0, # show only 1 core
