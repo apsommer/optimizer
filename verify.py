@@ -7,6 +7,8 @@ from utils.metrics import print_metrics
 from utils.plots import plot_equity, plot_trades
 from utils.utils import *
 
+''' verify strategy results align with tradingview '''
+
 os.system('clear')
 warnings.filterwarnings('ignore')
 
