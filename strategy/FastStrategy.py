@@ -27,6 +27,11 @@ class FastStrategy(BaselineStrategy):
         self.params = params
         self.avgs = avgs
 
+        takeProfitPercent = params.takeProfitPercent
+        self.takeProfit = takeProfitPercent / 100.0
+        self.longTakeProfit = np.nan
+        self.shortTakeProfit = np.nan
+
     def on_bar(self):
 
         data = self.data
@@ -52,6 +57,11 @@ class FastStrategy(BaselineStrategy):
         ticker = self.ticker
         size = self.size
 
+        # strategy
+        takeProfit = self.takeProfit
+        longTakeProfit = self.longTakeProfit
+        shortTakeProfit = self.shortTakeProfit
+
         ################################################################################################################
 
         # count how many averages are positive/negative
@@ -64,7 +74,7 @@ class FastStrategy(BaselineStrategy):
         # entry long
         isEntryLong = (
             is_flat
-            and p > 7
+            and p > 9
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -72,18 +82,42 @@ class FastStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
-            and 3 > p
+            and 1 > p
         )
         if isEntryShort:
             self.sell(ticker, size)
 
+        ################################################################################################################
+
+        # exit, long take profit
+        if isEntryLong: longTakeProfit = (1 + takeProfit) * close
+        elif not is_long: longTakeProfit = np.nan
+        self.longTakeProfit = longTakeProfit
+        isExitLongTakeProfit = high > longTakeProfit
+
+        # exit, short take profit:
+        if isEntryShort: shortTakeProfit = (1 - takeProfit) * close
+        elif not is_short: shortTakeProfit = np.nan
+        self.shortTakeProfit = shortTakeProfit
+        isExitShortTakeProfit = shortTakeProfit > low
+
+        # exit, momentum
+        isExitLongMomentum = is_long and 1 > p
+        isExitShortMomentum = is_short and p > 9
+
         # exit long
-        isExitLong = (is_long and p > 9) or (is_long and 5 > p)
+        isExitLong = (
+            isExitLongTakeProfit
+            or isExitLongMomentum
+        )
         if isExitLong:
             self.flat(ticker, size)
 
         # exit short
-        isExitShort = (is_short and 1 > p) or (is_short and p > 5)
+        isExitShort = (
+            isExitShortTakeProfit
+            or isExitShortMomentum
+        )
         if isExitShort:
             self.flat(ticker, size)
 
@@ -93,7 +127,7 @@ class FastStrategy(BaselineStrategy):
 
         # candlestick ohlc
         data = self.data
-        fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax, draw_body=False, draw_shadow=False)
+        fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax)
 
         for column in self.avgs.columns:
             if 'avg' in column:

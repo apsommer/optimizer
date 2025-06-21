@@ -25,7 +25,7 @@ start_time = time.time()
 data = getOhlc(num_months, isNetwork)
 
 path = 'wfa/single'
-create_avgs(data, path)
+# create_avgs(data, path)
 avgs = unpack('avgs', path)
 
 params = FastParams(
@@ -50,10 +50,10 @@ engine = Engine(
 engine.run(
     showProgress = True)
 
-# engine.print_metrics()
-# engine.print_trades()
-# engine.plot_trades()
-# engine.plot_equity()
+engine.print_metrics()
+engine.print_trades()
+engine.plot_trades()
+engine.plot_equity()
 
 strategy.plot()
 
