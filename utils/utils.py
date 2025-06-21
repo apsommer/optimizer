@@ -75,7 +75,7 @@ def set_process_name():
 
 def create_avgs(data, path):
 
-    minutes = np.linspace(525, 2525, 15, dtype = int)
+    minutes = np.linspace(525, 2525, 10, dtype = int)
 
     avgs = pd.DataFrame(
         index = data.index)

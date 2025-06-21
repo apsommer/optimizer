@@ -29,14 +29,9 @@ path = 'wfa/single'
 avgs = unpack('avgs', path)
 
 params = FastParams(
-    fastMinutes = 25,
-    fastCrossoverPercent = 0,
-    takeProfitPercent = 0.45,
-    fastAngleFactor = 25,
-    slowMinutes = 2555,
-    slowAngleFactor = 20,
-    coolOffMinutes = 5,
-    ratio= 2)
+    takeProfitPercent = 0.55,
+    num = 10
+)
 
 strategy = FastStrategy(
     data = data,

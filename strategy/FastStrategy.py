@@ -32,6 +32,8 @@ class FastStrategy(BaselineStrategy):
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
 
+        self.num = params.num
+
     def on_bar(self):
 
         data = self.data
@@ -61,6 +63,7 @@ class FastStrategy(BaselineStrategy):
         takeProfit = self.takeProfit
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
+        num = self.num
 
         ################################################################################################################
 
@@ -74,7 +77,7 @@ class FastStrategy(BaselineStrategy):
         # entry long
         isEntryLong = (
             is_flat
-            and p > 9
+            and p >= num
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -82,7 +85,7 @@ class FastStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
-            and 1 > p
+            and 10 - num >= p
         )
         if isEntryShort:
             self.sell(ticker, size)
@@ -102,8 +105,8 @@ class FastStrategy(BaselineStrategy):
         isExitShortTakeProfit = shortTakeProfit > low
 
         # exit, momentum
-        isExitLongMomentum = is_long and 1 > p
-        isExitShortMomentum = is_short and p > 9
+        isExitLongMomentum = is_long and 10 - num >= p
+        isExitShortMomentum = is_short and p >= num
 
         # exit on last bar of data
         isExitLastBar = False
