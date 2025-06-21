@@ -17,19 +17,17 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, opt, wfa_path):
+    def __init__(self, id, data, indicators, opt, wfa_path):
 
         self.id = id
         self.data = data
+        self.indicators = indicators
         self.opt = opt
         self.wfa_path = wfa_path
         self.path = wfa_path  + '/' + str(id) + '/'
         self.engines = []
         self.metrics = []
         self.fittest = { }
-
-        # indicators for each process (core)
-        self.indicators = unpack('indicators', self.wfa_path)
 
         # common
         self.params = LiveParams(

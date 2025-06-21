@@ -36,8 +36,7 @@ class WalkForward():
         # init metrics with header
         self.metrics = init_walk_forward_metrics(self)
 
-        # todo generator pattern
-        self.indicators = unpack('indicators', path)
+        self.indicators = unpack('indicators', self.path)
 
     def in_sample(self, run):
 
@@ -48,11 +47,11 @@ class WalkForward():
         IS_end = IS_start + IS_len
 
         # mask dataset, one dataset each core
-        data = utils.getOhlc(self.num_months, False)
-        IS = data.iloc[IS_start : IS_end]
+        IS_data = self.data.iloc[IS_start : IS_end]
+        IS_indicators = self.indicators.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        analyzer = Analyzer(run, IS, self.opt, self.path)
+        analyzer = Analyzer(run, IS_data, IS_indicators, self.opt, self.path)
         analyzer.run()
         analyzer.save()
 
@@ -67,8 +66,8 @@ class WalkForward():
         OS_end = OS_start + OS_len
 
         # mask dataset
-        data = self.data
-        OS = data.iloc[OS_start:OS_end]
+        OS_data = self.data.iloc[OS_start : OS_end]
+        OS_indicators = self.indicators.iloc[OS_start : OS_end]
 
         # get fittest params from in-sample analyzer
         IS_path = self.path + '/' + str(run)
@@ -86,33 +85,17 @@ class WalkForward():
             params = unpack(str(fittest_metric.id), IS_path)['params']
 
             # run strategy blind with best params
-            # strategy = LiveStrategy(OS, self.indicators, params)
-            strategy = FastStrategy(OS, self.indicators, params)
+            strategy = FastStrategy(OS_data, OS_indicators, params)
             engine = Engine(
                 id = run,
                 strategy = strategy)
             engine.run()
-
-            # todo calculate efficiency relative to companion IS
-            # metrics = unpack(str(fittest_metric.id), path)['metrics']
-            # for metric in metrics:
-            #     if metric.name == 'annual_return':
-            #         IS_annual = metric.value
-            # for metric in engine.metrics:
-            #     if metric.name == 'annual_return':
-            #         OS_annual = metric.value
-            #
-            # efficiency = (OS_annual / IS_annual) * 100
-            # efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
-            # engine.metrics.append(efficiency_metric)
 
             OS_path = self.path + '/' + fitness.value
             engine.save(OS_path, True)
 
     ''' must call after all threads complete '''
     def build_composite(self, fitness):
-
-        data = self.data
 
         # get params from last in-sample analyzer
         IS_path = self.path + '/' + str(self.runs)
@@ -148,32 +131,22 @@ class WalkForward():
             cash_series = cash_series._append(_cash_series)
             trades.extend(_trades)
 
-            # # todo engine efficiency
-            # for metric in _metrics:
-            #     if metric.name == 'efficiency':
-            #         efficiency_sum += metric.value
-
         # reindex trades
         for i, trade in enumerate(trades):
             trade.id = i + 1 # 1-based index for tradingview
 
         # mask data to OS sample
-        OS = data.loc[cash_series.index, :]
+        OS_data = self.data.loc[cash_series.index, :]
+        OS_indicators = self.indicators.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        # strategy = LiveStrategy(OS, self.indicators, params)
-        strategy = FastStrategy(OS, self.indicators, params)
+        strategy = FastStrategy(OS_data, OS_indicators, params)
         engine = Engine(fitness.value, strategy)
 
         # finish engine build
         engine.cash_series = cash_series
         engine.trades = trades
         engine.analyze() # generate metrics
-
-        # todo engine efficiency
-        # efficiency = efficiency_sum / self.runs
-        # efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
-        # engine.metrics.append(efficiency_metric)
 
         engine.save(self.path, True)
 

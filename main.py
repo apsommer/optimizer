@@ -36,7 +36,7 @@ num = 2
 opt = {
     'takeProfitPercent': linspace(.25, .70, num=num, dtype=float),
     'fastAngleFactor': linspace(5, 45, num=num, dtype=int),
-    'timeout': linspace(4, 24, num=num, dtype=int)
+    'timeout': linspace(4, 48, num=num, dtype=int)
 }
 
 ###################################################################
