@@ -8,11 +8,9 @@ class FastStrategy(BaselineStrategy):
     @property
     def ticker(self):
         return Ticker(
-            # symbol = 'NQ',
             symbol = 'MNQ',
             tick_size = 0.25,
-            # point_value = 20, # NQ = 20
-            point_value = 2, # MNQ = 2
+            point_value = 2, # NQ = 20, MNQ = 2
             margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
@@ -198,11 +196,13 @@ class FastStrategy(BaselineStrategy):
         # todo exit
         ratio = timeout
         hasLongTradeElapsed = (
-            bar_index - longEntryBarIndex > 15
+            is_long
+            and bar_index - longEntryBarIndex > 15
             and (1 - ratio * takeProfit) * self.longEntryPrice > close
         )
         hasShortTradeElapsed = (
-            bar_index - shortEntryBarIndex > 15
+            is_short
+            and bar_index - shortEntryBarIndex > 15
             and close > (1 + ratio * takeProfit) * self.shortEntryPrice
         )
 

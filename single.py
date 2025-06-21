@@ -2,10 +2,12 @@ import os
 import time
 import warnings
 
+from analysis.Engine import Engine
 from strategy.FastParams import FastParams
+from strategy.FastStrategy import FastStrategy
 from utils.constants import *
-from utils.plots import *
-from utils.utils import *
+from utils.metrics import print_metrics
+from utils.utils import create_indicators, getOhlc, unpack
 
 ''' examine single engine '''
 
@@ -28,7 +30,7 @@ params = FastParams(
     slowMinutes = 2555,
     slowAngleFactor = 20,
     coolOffMinutes = 5,
-    timeout = 2)
+    timeout = 1)
 
 strategy = FastStrategy(
     data = data,
@@ -39,11 +41,12 @@ engine = Engine(
     id = 0,
     strategy = strategy)
 
-print('running ...')
-engine.run()
+engine.run(showProgress = True)
+print_metrics(engine.metrics)
 
-print('plotting ...')
-plot_equity(engine)
+engine.print_trades()
+engine.plot_trades()
+engine.plot_equity()
 
 
 

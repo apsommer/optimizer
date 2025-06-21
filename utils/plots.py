@@ -6,10 +6,9 @@ from tqdm import tqdm
 from analysis.Engine import Engine
 from model.Fitness import Fitness
 from strategy.FastStrategy import FastStrategy
-from strategy.LiveStrategy import LiveStrategy
 from utils.constants import *
-from utils.metrics import *
-from utils.utils import *
+from utils.metrics import print_metrics
+from utils.utils import unpack
 
 def init_plot(id):
 
@@ -44,30 +43,6 @@ def init_plot(id):
     ax.crosshair.hline.setPen(axis_pen)
 
     return ax
-
-def plot_equity(engine):
-
-    # init plot
-    ax = init_plot(0)
-
-    # plot equity
-    fplt.plot(
-        engine.cash_series,
-        ax = ax)
-
-    # plot initial cash
-    fplt.plot(engine.initial_cash, color=dark_gray, ax=ax)
-
-    # reference simple buy and hold
-    size = engine.strategy.size
-    point_value = engine.strategy.ticker.point_value
-    delta_df = engine.data.Close - engine.data.Close.iloc[0]
-    initial_cash = engine.initial_cash
-    buy_hold = size * point_value * delta_df + initial_cash
-
-    # plot buy and hold
-    fplt.plot(buy_hold, color=dark_gray, ax=ax)
-    fplt.show()
 
 def plot_composite_equity(wfa):
 
