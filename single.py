@@ -35,20 +35,20 @@ params = FastParams(
 
 strategy = FastStrategy(
     data = data,
-    avgs= avgs,
+    avgs = avgs,
     params = params)
 
-engine = Engine(
-    id = 0,
-    strategy = strategy)
-
-engine.run(
-    showProgress = True)
-
-engine.print_metrics()
-engine.print_trades()
-engine.plot_trades()
-engine.plot_equity()
+# engine = Engine(
+#     id = 0,
+#     strategy = strategy)
+#
+# engine.run(
+#     showProgress = True)
+#
+# engine.print_metrics()
+# engine.print_trades()
+# engine.plot_trades()
+# engine.plot_equity()
 
 strategy.plot()
 

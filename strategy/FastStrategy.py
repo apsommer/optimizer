@@ -5,6 +5,7 @@ from model.Ticker import Ticker
 from utils.constants import *
 from utils.utils import *
 import finplot as fplt
+import matplotlib as mpl
 
 class FastStrategy(BaselineStrategy):
 
@@ -138,10 +139,16 @@ class FastStrategy(BaselineStrategy):
 
         # candlestick ohlc
         data = self.data
-        fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax)
+        fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax, draw_body=False)
 
-        for column in self.avgs.columns:
+        # color ribbon
+        crest = sns.color_palette("crest", as_cmap=True)
+        colors = crest(np.linspace(0, 1, len(self.avgs.columns)))
+
+        # plot ribbon
+        for i, column in enumerate(self.avgs.columns):
             if 'avg' in column:
-                fplt.plot(self.avgs.loc[:, column], color=blue, width=2, ax=ax)
+                color = mpl.colors.rgb2hex(colors[i])
+                fplt.plot(self.avgs.loc[:, column], color=color, width=2, ax=ax)
 
         fplt.show()

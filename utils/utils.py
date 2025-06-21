@@ -143,13 +143,15 @@ def init_plot(pos, title):
     fplt.winw = 3840
     fplt.winh = 2160
 
-    # background todo font size
+    # background
     fplt.background = light_black
-    fplt.candle_bull_color = light_gray
-    fplt.candle_bull_body_color = light_gray
+    fplt.candle_bull_color = dark_gray
+    fplt.candle_bull_body_color = dark_gray
     fplt.candle_bear_color = dark_gray
     fplt.candle_bear_body_color = dark_gray
     fplt.cross_hair_color = white
+
+    # todo font size
 
     # init finplot
     ax = fplt.create_plot(title=title)
