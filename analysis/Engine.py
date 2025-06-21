@@ -118,7 +118,7 @@ class Engine:
 
     def plot_trades(self):
 
-        ax = init_plot(0)
+        ax = init_plot(0, 'Trades')
 
         # candlestick ohlc
         data = self.data
@@ -210,7 +210,7 @@ class Engine:
 
     def plot_equity(self):
 
-        ax = init_plot(1)
+        ax = init_plot(1, 'Equity')
 
         # buy and hold
         size = self.strategy.size

@@ -10,13 +10,19 @@ from utils.metrics import *
 from utils.utils import *
 
 ''' examine single engine '''
+# INPUT ###########################################################
+
+# data
+num_months = 3
+isNetwork = False
+
+###################################################################
 
 os.system('clear')
 warnings.filterwarnings('ignore')
 start_time = time.time()
 
-num_months = 3
-data = getOhlc(num_months, False)
+data = getOhlc(num_months, isNetwork)
 
 path = 'wfa/single'
 create_indicators(data, path)
@@ -44,10 +50,11 @@ engine = Engine(
 engine.run(
     showProgress = True)
 
-engine.print_metrics()
-engine.print_trades()
-engine.plot_trades()
-engine.plot_equity()
+# engine.print_metrics()
+# engine.print_trades()
+# engine.plot_trades()
+# engine.plot_equity()
 
+strategy.plot()
 
 

@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from strategy.BaseStrategy import BaselineStrategy
 from model.Ticker import Ticker
+from utils.constants import *
+from utils.utils import *
+import finplot as fplt
 
 class FastStrategy(BaselineStrategy):
 
@@ -145,6 +148,8 @@ class FastStrategy(BaselineStrategy):
             self.shortEntryBarIndex = bar_index
             self.sell(ticker, size)
 
+        ################################################################################################################
+
         # exit, long crossover fast
         longFastCrossoverExit = np.nan
         if isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
@@ -224,3 +229,61 @@ class FastStrategy(BaselineStrategy):
         if isExitShort:
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size)
+
+    def plot(self):
+
+        ax = init_plot(0, 'Strategy')
+
+        # candlestick ohlc
+        data = self.data
+        fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax, draw_body=False, draw_shadow=False)
+
+        # build enabled long, short, and disabled
+        fast = self.fast
+        fastSlope = self.fastSlope
+        fastAngle = self.fastAngle
+        slow = self.slow
+        slowSlope = self.slowSlope
+        slowAngle = self.slowAngle
+
+        # init containers of nan
+        fast_df = pd.DataFrame(
+            data=np.full([len(data), 3], np.nan),
+            columns=['long_enabled', 'short_enabled', 'disabled'],
+            index=data.index)
+        slow_df = fast_df.copy()
+
+        prev_idx = data.index[0]
+        for idx in data.index:
+
+            # slow
+            is_slow_long_enabled = slowSlope[idx] > slowAngle or slowSlope[prev_idx] > slowAngle
+            is_slow_short_enabled = -slowAngle > slowSlope[idx] or -slowAngle > slowSlope[prev_idx]
+            is_slow_disabled = -slowAngle < slowSlope[idx] < slowAngle or -slowAngle < slowSlope[prev_idx] < slowAngle
+
+            if is_slow_long_enabled: slow_df.loc[idx, 'long_enabled'] = slow[idx]
+            if is_slow_short_enabled: slow_df.loc[idx, 'short_enabled'] = slow[idx]
+            if is_slow_disabled: slow_df.loc[idx, 'disabled'] = slow[idx]
+
+            # fast
+            is_fast_long_enabled = fastSlope[idx] > fastAngle or fastSlope[prev_idx] > fastAngle
+            is_fast_short_enabled = -fastAngle > fastSlope[idx] or -fastAngle > fastSlope[prev_idx]
+            is_fast_disabled = -fastAngle < fastSlope[idx] < fastAngle or -fastAngle < fastSlope[prev_idx] < fastAngle
+
+            if is_fast_long_enabled: fast_df.loc[idx, 'long_enabled'] = fast[idx]
+            if is_fast_short_enabled: fast_df.loc[idx, 'short_enabled'] = fast[idx]
+            if is_fast_disabled: fast_df.loc[idx, 'disabled'] = fast[idx]
+
+            prev_idx = idx
+
+        # overlay slow
+        fplt.plot(slow_df['long_enabled'], color=blue, width=2, ax=ax)
+        fplt.plot(slow_df['short_enabled'], color=aqua, width=2, ax=ax)
+        fplt.plot(slow_df['disabled'], color=gray, width=2, ax=ax)
+
+        # overlay fast
+        fplt.plot(fast_df['long_enabled'], color=green, width=2, ax=ax)
+        fplt.plot(fast_df['short_enabled'], color=red, width=2, ax=ax)
+        fplt.plot(fast_df['disabled'], color=gray, width=2, ax=ax)
+
+        fplt.show()

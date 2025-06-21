@@ -108,10 +108,10 @@ def get_slope(series):
 
     return np.rad2deg(np.atan(slope))
 
-def init_plot(id):
+def init_plot(pos, title):
 
     # window position, maximized
-    fplt.winx = id * 3840
+    fplt.winx = pos * 3840
     fplt.winy = 0
     fplt.winw = 3840
     fplt.winh = 2160
@@ -125,7 +125,7 @@ def init_plot(id):
     fplt.cross_hair_color = white
 
     # init finplot
-    ax = fplt.create_plot(title='Equity')
+    ax = fplt.create_plot(title=title)
 
     # axis
     axis_pen = fplt._makepen(color = gray)

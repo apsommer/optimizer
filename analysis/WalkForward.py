@@ -174,7 +174,7 @@ class WalkForward():
 
     def plot_equity(self):
 
-        ax = init_plot(1)
+        ax = init_plot(1, 'Equity')
 
         for fitness in Fitness:
 

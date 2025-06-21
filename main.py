@@ -20,6 +20,7 @@ from utils import utils
 from utils.utils import *
 from utils.metrics import *
 
+''' execute full walk-forward analysis '''
 # INPUT ###########################################################
 
 # data
@@ -28,10 +29,10 @@ isNetwork = False
 
 # walk forward
 percent = 20
-runs = 14 # + 1 added later for final IS, 16 cores available
+runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
-num = 5
+num = 4
 opt = {
     'takeProfitPercent': linspace(.30, .65, num=num, dtype=float),
     'fastAngleFactor': linspace(15, 45, num=num, dtype=int),
