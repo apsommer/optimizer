@@ -105,10 +105,17 @@ class FastStrategy(BaselineStrategy):
         isExitLongMomentum = is_long and 1 > p
         isExitShortMomentum = is_short and p > 9
 
+        # exit on last bar of data
+        isExitLastBar = False
+        if idx == self.data.index[-1]:
+            if is_long or is_short:
+                isExitLastBar = True
+
         # exit long
         isExitLong = (
             isExitLongTakeProfit
             or isExitLongMomentum
+            or isExitLastBar
         )
         if isExitLong:
             self.flat(ticker, size)
@@ -117,6 +124,7 @@ class FastStrategy(BaselineStrategy):
         isExitShort = (
             isExitShortTakeProfit
             or isExitShortMomentum
+            or isExitLastBar
         )
         if isExitShort:
             self.flat(ticker, size)
