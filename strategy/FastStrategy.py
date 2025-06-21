@@ -196,12 +196,15 @@ class FastStrategy(BaselineStrategy):
                 isExitLastBar = True
 
         # todo exit
+        ratio = timeout
         hasLongTradeElapsed = (
-            bar_index - longEntryBarIndex > timeout * 60
-            and self.longEntryPrice > close)
+            bar_index - longEntryBarIndex > 15
+            and (1 - ratio * takeProfit) * self.longEntryPrice > close
+        )
         hasShortTradeElapsed = (
-            bar_index - shortEntryBarIndex > timeout * 60
-            and close > self.shortEntryPrice)
+            bar_index - shortEntryBarIndex > 15
+            and close > (1 + ratio * takeProfit) * self.shortEntryPrice
+        )
 
         # exit long
         isExitLong = (

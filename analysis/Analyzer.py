@@ -128,14 +128,11 @@ class Analyzer:
 
     def save(self):
 
-        bundle = {
-            'id': self.id,
-            'metrics': self.metrics,
-            'fittest': self.fittest
-        }
-
         save(
-            bundle = bundle,
+            bundle = {
+                'id': self.id,
+                'metrics': self.metrics,
+                'fittest': self.fittest,
+            },
             filename = 'analyzer',
-            path = self.path
-        )
+            path = self.path)

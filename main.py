@@ -24,7 +24,7 @@ from utils.plots import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 14
 isNetwork = False
 
 # walk forward
@@ -32,11 +32,11 @@ percent = 20
 runs = 14 # + 1 added later for final IS, 16 cores available
 
 # analyzer
-num = 2
+num = 5
 opt = {
-    'takeProfitPercent': linspace(.25, .70, num=num, dtype=float),
+    'takeProfitPercent': linspace(.30, .65, num=num, dtype=float),
     'fastAngleFactor': linspace(5, 45, num=num, dtype=int),
-    'timeout': linspace(4, 48, num=num, dtype=int)
+    'timeout': linspace(1, 4, num=num, dtype=float)
 }
 
 ###################################################################

@@ -36,6 +36,7 @@ class WalkForward():
         # init metrics with header
         self.metrics = init_walk_forward_metrics(self)
 
+        # init indicators
         self.indicators = unpack('indicators', self.path)
 
     def in_sample(self, run):
