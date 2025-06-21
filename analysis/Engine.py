@@ -10,6 +10,7 @@ from utils.metrics import *
 from model.Trade import Trade
 import pandas as pd
 import finplot as fplt
+
 from utils.utils import *
 
 class Engine:
@@ -117,37 +118,7 @@ class Engine:
 
     def plot_trades(self):
 
-        # window position, maximized
-        fplt.winx = 0
-        fplt.winy = 0
-        fplt.winw = 3840
-        fplt.winh = 2160
-
-        # background todo font size
-        fplt.background = light_black
-        fplt.candle_bull_color = light_gray
-        fplt.candle_bull_body_color = light_gray
-        fplt.candle_bear_color = dark_gray
-        fplt.candle_bear_body_color = dark_gray
-        fplt.cross_hair_color = white
-
-        # init finplot
-        ax = fplt.create_plot(title=f'{self.id}: Trades')
-
-        # axis
-        axis_pen = fplt._makepen(color=gray)
-        ax.axes['right']['item'].setPen(axis_pen)
-        ax.axes['right']['item'].setTextPen(axis_pen)
-        ax.axes['right']['item'].setTickPen(None)
-        ax.axes['bottom']['item'].setPen(axis_pen)
-        ax.axes['bottom']['item'].setTextPen(axis_pen)
-        ax.axes['bottom']['item'].setTickPen(None)
-
-        # crosshair
-        ax.crosshair.vline.setPen(axis_pen)
-        ax.crosshair.hline.setPen(axis_pen)
-
-        ##########################################
+        ax = init_plot(0)
 
         # candlestick ohlc
         data = self.data
@@ -239,37 +210,7 @@ class Engine:
 
     def plot_equity(self):
 
-        # window position, maximized
-        fplt.winx = 3840
-        fplt.winy = 0
-        fplt.winw = 3840
-        fplt.winh = 2160
-
-        # background todo font size
-        fplt.background = light_black
-        fplt.candle_bull_color = light_gray
-        fplt.candle_bull_body_color = light_gray
-        fplt.candle_bear_color = dark_gray
-        fplt.candle_bear_body_color = dark_gray
-        fplt.cross_hair_color = white
-
-        # init finplot
-        ax = fplt.create_plot(title=f'{self.id}: Equity')
-
-        # axis
-        axis_pen = fplt._makepen(color=gray)
-        ax.axes['right']['item'].setPen(axis_pen)
-        ax.axes['right']['item'].setTextPen(axis_pen)
-        ax.axes['right']['item'].setTickPen(None)
-        ax.axes['bottom']['item'].setPen(axis_pen)
-        ax.axes['bottom']['item'].setTextPen(axis_pen)
-        ax.axes['bottom']['item'].setTickPen(None)
-
-        # crosshair
-        ax.crosshair.vline.setPen(axis_pen)
-        ax.crosshair.hline.setPen(axis_pen)
-
-        ##########################################
+        ax = init_plot(1)
 
         # buy and hold
         size = self.strategy.size
@@ -286,6 +227,9 @@ class Engine:
         fplt.plot(self.cash_series, ax = ax)
 
         fplt.show()
+
+    def print_metrics(self):
+        print_metrics(self.metrics)
 
     ''' serialize '''
     def save(self, path, isFull):

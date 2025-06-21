@@ -17,14 +17,13 @@ from analysis.WalkForward import WalkForward
 from model.Fitness import Fitness
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
-from utils.utils import unpack
-from utils.metrics import print_metrics, get_walk_forward_results_metrics
-from utils.plots import *
+from utils.utils import *
+from utils.metrics import *
 
 # INPUT ###########################################################
 
 # data
-num_months = 14
+num_months = 3
 isNetwork = False
 
 # walk forward
@@ -35,8 +34,8 @@ runs = 14 # + 1 added later for final IS, 16 cores available
 num = 5
 opt = {
     'takeProfitPercent': linspace(.30, .65, num=num, dtype=float),
-    'fastAngleFactor': linspace(5, 45, num=num, dtype=int),
-    'timeout': linspace(1, 4, num=num, dtype=float)
+    'fastAngleFactor': linspace(15, 45, num=num, dtype=int),
+    'timeout': linspace(1, 3, num=num, dtype=float)
 }
 
 ###################################################################
@@ -55,7 +54,6 @@ shutil.rmtree(path, ignore_errors=True)
 
 # get ohlc prices
 data = utils.getOhlc(num_months, isNetwork)
-if not isNetwork: print(f'Upload OHLC from { csv_filename }')
 
 # create averages
 create_indicators(data, path)
@@ -116,4 +114,4 @@ pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
 
 # plot results
-plot_composite_equity(wfa)
+wfa.plot_equity()

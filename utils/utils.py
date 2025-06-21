@@ -10,6 +10,8 @@ import databento as db
 import pandas as pd
 import local.api_keys as keys
 import numpy as np
+import finplot as fplt
+from utils.constants import *
 
 def getOhlc(num_months, isNetwork):
 
@@ -105,6 +107,40 @@ def get_slope(series):
         prev = value
 
     return np.rad2deg(np.atan(slope))
+
+def init_plot(id):
+
+    # window position, maximized
+    fplt.winx = id * 3840
+    fplt.winy = 0
+    fplt.winw = 3840
+    fplt.winh = 2160
+
+    # background todo font size
+    fplt.background = light_black
+    fplt.candle_bull_color = light_gray
+    fplt.candle_bull_body_color = light_gray
+    fplt.candle_bear_color = dark_gray
+    fplt.candle_bear_body_color = dark_gray
+    fplt.cross_hair_color = white
+
+    # init finplot
+    ax = fplt.create_plot(title='Equity')
+
+    # axis
+    axis_pen = fplt._makepen(color = gray)
+    ax.axes['right']['item'].setPen(axis_pen)
+    ax.axes['right']['item'].setTextPen(axis_pen)
+    ax.axes['right']['item'].setTickPen(None)
+    ax.axes['bottom']['item'].setPen(axis_pen)
+    ax.axes['bottom']['item'].setTextPen(axis_pen)
+    ax.axes['bottom']['item'].setTickPen(None)
+
+    # crosshair
+    ax.crosshair.vline.setPen(axis_pen)
+    ax.crosshair.hline.setPen(axis_pen)
+
+    return ax
 
 ''' serialize '''
 def save(bundle, filename, path):

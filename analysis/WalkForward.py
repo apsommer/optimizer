@@ -12,9 +12,10 @@ from model.Fitness import Fitness
 from strategy.FastStrategy import FastStrategy
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
-from utils.plots import plot_composite_equity
-from utils.utils import unpack, save
+from utils.constants import *
+from utils.utils import *
 from utils.metrics import *
+import finplot as fplt
 
 class WalkForward():
 
@@ -96,7 +97,6 @@ class WalkForward():
             OS_path = self.path + '/' + fitness.value
             engine.save(OS_path, True)
 
-    ''' must call after all threads complete '''
     def build_composite(self, fitness):
 
         # get params from last in-sample analyzer
@@ -152,7 +152,6 @@ class WalkForward():
 
         engine.save(self.path, True)
 
-    ''' must call after all composites finished'''
     def analyze(self):
 
         # isolate composite with highest profit
@@ -175,5 +174,54 @@ class WalkForward():
 
     def plot_equity(self):
 
+        ax = init_plot(1)
+
         for fitness in Fitness:
-            plot_composite_equity()
+
+            # unpack composite engine
+            engine = unpack(fitness.value, self.path)
+            params = engine['params']
+            cash_series = engine['cash_series']
+
+            # mask dataset
+            start = cash_series.index[0]
+            end = cash_series.index[-1]
+            comp_data = self.data[start: end]
+            comp_indicators = self.indicators[start: end]
+
+            strategy = FastStrategy(comp_data, comp_indicators, params)
+            composite = Engine(fitness.value, strategy)
+
+            # deserialize previous result
+            composite.id = engine['id']
+            composite.params = params
+            composite.metrics = engine['metrics']
+            composite.trades = engine['trades']
+            composite.cash_series = cash_series
+            composite.cash = cash_series[-1]
+
+            # plot cash series
+            fplt.plot(cash_series, color=fitness.color, legend=fitness.pretty, ax=ax)
+
+            # plot selected fitness composite
+            if fitness is self.best_fitness:
+                print_metrics(composite.metrics)
+                composite.print_trades()
+                composite.plot_trades()
+
+            # only calc once
+            if fitness is Fitness.PROFIT:
+                # plot initial cash
+                fplt.plot(composite.initial_cash, color=dark_gray, ax=ax)
+
+                # reference simple buy and hold
+                size = composite.strategy.size
+                point_value = composite.strategy.ticker.point_value
+                delta_df = composite.data.Close - composite.data.Close.iloc[0]
+                initial_cash = composite.initial_cash
+                buy_hold = size * point_value * delta_df + initial_cash
+
+                # plot buy and hold
+                fplt.plot(buy_hold, color=dark_gray, ax=ax)
+
+        fplt.show()
