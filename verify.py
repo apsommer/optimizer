@@ -4,7 +4,6 @@ from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import print_metrics
-from utils.plots import plot_composite_equity, plot_trades
 from utils.utils import *
 
 ''' verify strategy results align with tradingview '''
