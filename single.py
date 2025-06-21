@@ -30,7 +30,7 @@ params = FastParams(
     slowMinutes = 2555,
     slowAngleFactor = 20,
     coolOffMinutes = 5,
-    timeout = 2)
+    ratio= 2)
 
 strategy = FastStrategy(
     data = data,

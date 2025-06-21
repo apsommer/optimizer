@@ -38,18 +38,18 @@ class Analyzer:
             slowMinutes = 2555,
             slowAngleFactor = 20,
             coolOffMinutes = 5,
-            timeout = None)
+            ratio= None)
 
         # extract opt
         self.takeProfitPercent = self.opt['takeProfitPercent']
         self.fastAngleFactor = self.opt['fastAngleFactor']
-        self.timeout = self.opt['timeout']
+        self.ratio = self.opt['ratio']
 
     def run(self):
 
         params = self.params
         id = 0
-        total = len(self.takeProfitPercent) * len(self.fastAngleFactor) * len(self.timeout)
+        total = len(self.takeProfitPercent) * len(self.fastAngleFactor) * len(self.ratio)
 
         with tqdm(
             disable = self.id != 0, # show only 1 core
@@ -60,12 +60,12 @@ class Analyzer:
             # sweep params from opt
             for takeProfitPercent in self.takeProfitPercent:
                 for fastAngleFactor in self.fastAngleFactor:
-                    for timeout in self.timeout:
+                    for ratio in self.ratio:
 
                         # update params
                         params.takeProfitPercent = takeProfitPercent
                         params.fastAngleFactor = fastAngleFactor
-                        params.timeout = timeout
+                        params.ratio = ratio
 
                         # create strategy and engine
                         # strategy = LiveStrategy(self.data, self.indicators, params)

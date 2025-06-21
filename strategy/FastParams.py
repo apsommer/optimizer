@@ -1,14 +1,14 @@
 class FastParams:
 
     def __init__(self,
-            fastMinutes,
-            fastCrossoverPercent,
-            takeProfitPercent,
-            fastAngleFactor,
-            slowMinutes,
-            slowAngleFactor,
-            coolOffMinutes,
-            timeout):
+         fastMinutes,
+         fastCrossoverPercent,
+         takeProfitPercent,
+         fastAngleFactor,
+         slowMinutes,
+         slowAngleFactor,
+         coolOffMinutes,
+         ratio):
 
         self.fastMinutes = fastMinutes
         self.fastCrossoverPercent = fastCrossoverPercent
@@ -17,9 +17,9 @@ class FastParams:
         self.slowMinutes = slowMinutes
         self.slowAngleFactor = slowAngleFactor
         self.coolOffMinutes = coolOffMinutes
-        self.timeout = timeout
+        self.ratio = ratio
 
     def __repr__(self):
         return (
             f'{self.fastMinutes}, {self.fastCrossoverPercent}, {self.takeProfitPercent}, {self.fastAngleFactor}, '
-            f'{self.slowMinutes}, {self.slowAngleFactor}, {self.coolOffMinutes}, {self.timeout}')
+            f'{self.slowMinutes}, {self.slowAngleFactor}, {self.coolOffMinutes}, {self.ratio}')

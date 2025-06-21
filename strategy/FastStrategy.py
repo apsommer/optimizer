@@ -29,7 +29,7 @@ class FastStrategy(BaselineStrategy):
         fastAngleFactor = params.fastAngleFactor
         slowAngleFactor = params.slowAngleFactor
         self.coolOffMinutes = params.coolOffMinutes
-        self.timeout = params.timeout
+        self.ratio = params.ratio
 
         # convert units
         self.fastAngle = fastAngleFactor / 1000.0
@@ -100,7 +100,7 @@ class FastStrategy(BaselineStrategy):
         fastCrossover = self.fastCrossover
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
-        timeout = self.timeout
+        ratio = self.ratio
 
         ticker = self.ticker
         size = self.size
@@ -194,7 +194,6 @@ class FastStrategy(BaselineStrategy):
                 isExitLastBar = True
 
         # todo exit
-        ratio = timeout
         hasLongTradeElapsed = (
             is_long
             and bar_index - longEntryBarIndex > 15

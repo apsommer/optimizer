@@ -23,7 +23,7 @@ from utils.metrics import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 28
 isNetwork = False
 
 # walk forward
@@ -35,7 +35,7 @@ num = 5
 opt = {
     'takeProfitPercent': linspace(.30, .65, num=num, dtype=float),
     'fastAngleFactor': linspace(15, 45, num=num, dtype=int),
-    'timeout': linspace(1, 3, num=num, dtype=float)
+    'ratio': linspace(1, 3, num=num, dtype=float)
 }
 
 ###################################################################
