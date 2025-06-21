@@ -8,6 +8,8 @@ from inspect import trace
 
 import databento as db
 import pandas as pd
+from sympy.plotting.textplot import linspace
+
 import local.api_keys as keys
 import numpy as np
 import finplot as fplt
@@ -70,6 +72,31 @@ def set_process_name():
 
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
+
+def create_avgs(data, path):
+
+    minutes = np.linspace(25, 2525, 10, dtype = int)
+
+    avgs = pd.DataFrame(
+        index = data.index)
+
+    for minute in minutes:
+
+        smooth = minute / 5
+
+        raw = pd.Series(data.Open).ewm(span = minute).mean()
+        avg = raw.ewm(span = smooth).mean()
+        slope = get_slope(avg)
+
+        avg_key = 'avg_' + str(minute)
+        slope_key = 'slope_' + str(minute)
+        avgs.loc[:, avg_key] = avg
+        avgs.loc[:, slope_key] = slope
+
+    save(
+        bundle = avgs,
+        filename = 'avgs',
+        path = path)
 
 def create_indicators(data, path):
 

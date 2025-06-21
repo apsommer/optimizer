@@ -7,7 +7,6 @@ import time
 import warnings
 
 import pandas as pd
-from numpy import linspace
 from tqdm import tqdm
 from multiprocessing import Pool, Process
 
@@ -34,9 +33,9 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 # analyzer
 num = 4
 opt = {
-    'takeProfitPercent': linspace(.30, .65, num=num, dtype=float),
-    'fastAngleFactor': linspace(15, 45, num=num, dtype=int),
-    'ratio': linspace(1, 3, num=num, dtype=float)
+    'takeProfitPercent': np.linspace(.30, .65, num=num, dtype=float),
+    'fastAngleFactor': np.linspace(15, 45, num=num, dtype=int),
+    'ratio': np.linspace(1, 3, num=num, dtype=float)
 }
 
 ###################################################################

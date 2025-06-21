@@ -20,7 +20,7 @@ class FastStrategy(BaselineStrategy):
     def size(self):
         return 1
 
-    def __init__(self, data, indicators, params):
+    def __init__(self, data, avgs, params):
         super().__init__()
 
         self.data = data
@@ -45,10 +45,10 @@ class FastStrategy(BaselineStrategy):
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
         # get raw averages
-        self.fast = indicators.loc[:, 'fast']
-        self.slow = indicators.loc[:, 'slow']
-        self.fastSlope = indicators.loc[:, 'fastSlope']
-        self.slowSlope = indicators.loc[:, 'slowSlope']
+        self.fast = avgs.loc[:, 'avg_25']
+        self.slow = avgs.loc[:, 'avg_2525']
+        self.fastSlope = avgs.loc[:, 'slope_25']
+        self.slowSlope = avgs.loc[:, 'slope_2525']
 
         # strategy
         self.longEntryPrice = np.nan

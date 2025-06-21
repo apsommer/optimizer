@@ -25,8 +25,8 @@ start_time = time.time()
 data = getOhlc(num_months, isNetwork)
 
 path = 'wfa/single'
-create_indicators(data, path)
-indicators = unpack('indicators', path)
+create_avgs(data, path)
+avgs = unpack('avgs', path)
 
 params = FastParams(
     fastMinutes = 25,
@@ -40,7 +40,7 @@ params = FastParams(
 
 strategy = FastStrategy(
     data = data,
-    indicators = indicators,
+    avgs= avgs,
     params = params)
 
 engine = Engine(
