@@ -8,11 +8,11 @@ from tqdm import tqdm
 
 from analysis.Engine import Engine
 from model.Fitness import Fitness
+from strategy.FastParams import FastParams
 from strategy.FastStrategy import FastStrategy
 from utils import utils
 from utils.utils import *
 from utils.metrics import *
-from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
 class Analyzer:
@@ -30,7 +30,7 @@ class Analyzer:
         self.fittest = { }
 
         # common
-        self.params = LiveParams(
+        self.params = FastParams(
             fastMinutes = 25,
             fastCrossoverPercent = 0,
             takeProfitPercent = None,

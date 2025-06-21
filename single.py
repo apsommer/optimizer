@@ -3,7 +3,6 @@ import time
 import warnings
 
 from strategy.FastParams import FastParams
-from strategy.LiveParams import LiveParams
 from utils.constants import *
 from utils.plots import *
 from utils.utils import *
