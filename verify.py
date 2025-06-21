@@ -18,8 +18,6 @@ data = getOhlc(3, False)
 
 params = LiveParams(
     fastMinutes=25,
-    disableEntryMinutes=105,
-    fastMomentumMinutes=135,
     fastCrossoverPercent=80,
     takeProfitPercent=0.5,
     fastAngleFactor=15,

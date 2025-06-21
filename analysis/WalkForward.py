@@ -12,6 +12,7 @@ from model.Fitness import Fitness
 from strategy.FastStrategy import FastStrategy
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
+from utils.plots import plot_equity
 from utils.utils import unpack, save
 from utils.metrics import *
 
@@ -171,3 +172,8 @@ class WalkForward():
         self.best_fitness = best_fitness
 
         self.metrics += get_walk_forward_results_metrics(self)
+
+    def plot_equity(self):
+
+        for fitness in Fitness:
+            plot_equity()

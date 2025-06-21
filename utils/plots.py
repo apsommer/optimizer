@@ -72,14 +72,14 @@ def plot_equity(wfa):
         composite.cash_series = cash_series
         composite.cash = cash_series[-1]
 
+        # plot cash series
+        fplt.plot(cash_series, color = fitness.color, legend = fitness.pretty, ax = ax)
+
         # plot selected fitness composite
         if fitness is wfa.best_fitness:
             print_metrics(composite.metrics)
             composite.print_trades()
             plot_trades(composite)
-
-        # plot cash series
-        fplt.plot(cash_series, color = fitness.color, legend = fitness.pretty, ax = ax)
 
         # only calc once
         if fitness is Fitness.PROFIT:
@@ -98,6 +98,8 @@ def plot_equity(wfa):
             fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
     fplt.show()
+
+
 
 def plot_trades(engine):
 
