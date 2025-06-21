@@ -33,14 +33,14 @@ class Engine:
         self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
 
-    def run(self):
+    def run(self, isShow=False):
 
         # determine which process (core) is running
         isFirstProcess = '0' == multiprocessing.current_process().name
 
         # loop each bar
         for idx in tqdm(
-            disable = not isFirstProcess,
+            disable = not isFirstProcess or not isShow,
             leave = False,
             position = 1,
             iterable = self.data.index,

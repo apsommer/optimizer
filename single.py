@@ -2,6 +2,7 @@ import os
 import time
 import warnings
 
+from strategy.FastParams import FastParams
 from strategy.LiveParams import LiveParams
 from utils.constants import *
 from utils.plots import *
@@ -13,12 +14,14 @@ os.system('clear')
 warnings.filterwarnings('ignore')
 start_time = time.time()
 
-path = 'wfa/NQ_3mon/20_14'
-data = getOhlc(14, False)
+num_months = 3
+data = getOhlc(num_months, False)
+
+path = 'wfa/single'
 create_indicators(data, path)
 indicators = unpack('indicators', path)
 
-params = LiveParams(
+params = FastParams(
     fastMinutes = 25,
     fastCrossoverPercent = 0,
     takeProfitPercent = 0.45,
@@ -34,15 +37,14 @@ strategy = FastStrategy(
     params = params)
 
 engine = Engine(
-    id = 42,
+    id = 0,
     strategy = strategy)
 
+print('running ...')
 engine.run()
 
-fplt.plot(
-    engine.cash_series,
-    ax = init_plot(engine.id))
+print('plotting ...')
+plot_equity(engine)
 
-fplt.show()
 
 

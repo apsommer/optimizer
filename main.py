@@ -116,4 +116,4 @@ pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
 
 # plot results
-plot_equity(wfa)
+plot_composite_equity(wfa)

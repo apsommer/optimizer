@@ -45,23 +45,48 @@ def init_plot(id):
 
     return ax
 
-def plot_equity(wfa):
+def plot_equity(engine):
+
+    # init plot
+    ax = init_plot(0)
+
+    # plot equity
+    fplt.plot(
+        engine.cash_series,
+        ax = ax)
+
+    # plot initial cash
+    fplt.plot(engine.initial_cash, color=dark_gray, ax=ax)
+
+    # reference simple buy and hold
+    size = engine.strategy.size
+    point_value = engine.strategy.ticker.point_value
+    delta_df = engine.data.Close - engine.data.Close.iloc[0]
+    initial_cash = engine.initial_cash
+    buy_hold = size * point_value * delta_df + initial_cash
+
+    # plot buy and hold
+    fplt.plot(buy_hold, color=dark_gray, ax=ax)
+    fplt.show()
+
+def plot_composite_equity(wfa):
 
     ax = init_plot(0)
 
     for fitness in Fitness:
 
-        # rebuild composite OS engine
+        # unpack composite engine
         engine = unpack(fitness.value, wfa.path)
         params = engine['params']
         cash_series = engine['cash_series']
 
-        # create strategy, engine
+        # mask dataset
         start = cash_series.index[0]
         end = cash_series.index[-1]
-        comp = wfa.data[start:end]
+        comp_data = wfa.data[start : end]
+        comp_indicators = wfa.indicators[start : end]
 
-        strategy = FastStrategy(comp, wfa.indicators, params)
+        strategy = FastStrategy(comp_data, comp_indicators, params)
         composite = Engine(fitness.value, strategy)
 
         # deserialize previous result
@@ -98,8 +123,6 @@ def plot_equity(wfa):
             fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
     fplt.show()
-
-
 
 def plot_trades(engine):
 
