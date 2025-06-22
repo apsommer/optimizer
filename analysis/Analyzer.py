@@ -17,12 +17,13 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, emas, slopes, opt, wfa_path):
+    def __init__(self, id, data, emas, slopes, fractals, opt, wfa_path):
 
         self.id = id
         self.data = data
         self.emas = emas
         self.slopes = slopes
+        self.fractals = fractals
         self.opt = opt
         self.wfa_path = wfa_path
         self.path = wfa_path  + '/' + str(id) + '/'
@@ -61,7 +62,7 @@ class Analyzer:
                     params.stopLossPercent = stopLossPercent
 
                     # create strategy and engine
-                    strategy = FastStrategy(self.data, self.emas, self.slopes, params)
+                    strategy = FastStrategy(self.data, self.emas, self.slopes, self.fractals, params)
                     engine = Engine(id, strategy)
 
                     # run and save

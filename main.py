@@ -31,7 +31,7 @@ percent = 25
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
-num = 16
+num = 1
 opt = {
     'takeProfitPercent': np.linspace(.25, 1, num),
     'stopLossPercent': np.linspace(.25, 1, num),
@@ -53,9 +53,10 @@ path = parent_path + '/' + str(percent) + '_' + str(runs)
 data = utils.getOhlc(num_months, isNetwork)
 
 # build indicators
-build_indicators(data, parent_path)
+# build_indicators(data, parent_path)
 emas = unpack('emas', parent_path)
 slopes = unpack('slopes', parent_path)
+fractals = unpack('fractals', parent_path)
 
 # remove any residual analyses
 shutil.rmtree(path, ignore_errors=True)
@@ -68,6 +69,7 @@ wfa = WalkForward(
     data = data,
     emas = emas,
     slopes = slopes,
+    fractals = fractals,
     opt = opt,
     path = path)
 

@@ -19,7 +19,7 @@ import finplot as fplt
 
 class WalkForward():
 
-    def __init__(self, num_months, percent, runs, data, emas, slopes, opt, path):
+    def __init__(self, num_months, percent, runs, data, emas, slopes, fractals, opt, path):
 
         self.num_months = num_months
         self.percent = percent
@@ -27,6 +27,7 @@ class WalkForward():
         self.data = data
         self.emas = emas
         self.slopes = slopes
+        self.fractals = fractals
         self.opt = opt
         self.path = path
 
@@ -52,9 +53,10 @@ class WalkForward():
         IS_data = self.data.iloc[IS_start : IS_end]
         IS_emas = self.emas.iloc[IS_start : IS_end]
         IS_slopes = self.slopes.iloc[IS_start : IS_end]
+        IS_fractals = self.fractals.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        analyzer = Analyzer(run, IS_data, IS_emas, IS_slopes, self.opt, self.path)
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_slopes, IS_fractals, self.opt, self.path)
         analyzer.run()
         analyzer.save()
 

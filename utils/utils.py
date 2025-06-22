@@ -76,45 +76,48 @@ def set_process_name():
 
 def build_indicators(data, path):
 
+    print('Indicators:')
+
     build_emas(data, path)
     build_fractals(data, path)
 
 def build_fractals(data, path):
 
     # init container
-    fractals = pd.DataFrame(index = data.index)
+    fractals = pd.DataFrame(
+        index = data.index,
+        dtype = float,
+        columns = ['buyFractal', 'sellFractal'])
 
     # fractal indicator
-    buyPrice, sellPrice = np.nan, np.nan
+    buyPrice = data.iloc[0].High
+    sellPrice = data.iloc[0].Low
 
     for i in tqdm(
         iterable = range(len(data.index)),
         colour = yellow,
-        bar_format = 'Fractals: {percentage:3.0f}%|{bar:100}{r_bar}'):
+        bar_format = '        Fractals:       {percentage:3.0f}%|{bar:100}{r_bar}'):
 
         # skip first 2 bars and last 2 bars
-        if 2 > i or i > len(data.index) - 3:
-            continue
+        if 2 < i < len(data.index) - 3:
 
-        isBuyFractal = (
-            data.iloc[i].High > data.iloc[i-1].High
-            and data.iloc[i].High > data.iloc[i-2].High
-            and data.iloc[i].High > data.iloc[i+1].High
-            and data.iloc[i].High > data.iloc[i+2].High)
+            # update prices, if needed
+            if (data.iloc[i].High > data.iloc[i-1].High
+                and data.iloc[i].High > data.iloc[i-2].High
+                and data.iloc[i].High > data.iloc[i+1].High
+                and data.iloc[i].High > data.iloc[i+2].High):
 
-        isSellFractal = (
-            data.iloc[i].Low < data.iloc[i-1].Low
-            and data.iloc[i].Low < data.iloc[i-2].Low
-            and data.iloc[i].Low < data.iloc[i+1].Low
-            and data.iloc[i].Low < data.iloc[i+2].Low)
+                buyPrice = data.iloc[i].High
 
-        if isBuyFractal:
-            buyPrice = data.iloc[i].High
-        if isSellFractal:
-            sellPrice = data.iloc[i].Low
+            if (data.iloc[i].Low < data.iloc[i-1].Low
+                and data.iloc[i].Low < data.iloc[i-2].Low
+                and data.iloc[i].Low < data.iloc[i+1].Low
+                and data.iloc[i].Low < data.iloc[i+2].Low):
 
-        fractals.iloc[i]['buyFractal'] = buyPrice
-        fractals.iloc[i]['sellFractal'] = sellPrice
+                sellPrice = data.iloc[i].Low
+
+        fractals.iloc[i].buy = buyPrice
+        fractals.iloc[i].sell = sellPrice
 
     save(fractals, 'fractals', path)
 
@@ -136,7 +139,7 @@ def build_emas(data, path):
     for min in tqdm(
         iterable = mins,
         colour = yellow,
-        bar_format = 'Moving averages: {percentage:3.0f}%|{bar:100}{r_bar}'):
+        bar_format = '        Averages:       {percentage:3.0f}%|{bar:100}{r_bar}'):
 
         # smooth averages
         smooth = round(0.2 * min)

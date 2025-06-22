@@ -21,13 +21,14 @@ class FastStrategy(BaselineStrategy):
     def size(self):
         return 1
 
-    def __init__(self, data, emas, slopes, params):
+    def __init__(self, data, emas, slopes, fractals, params):
         super().__init__()
 
         self.data = data
         self.params = params
         self.emas = emas
         self.slopes = slopes
+        self.fractals = fractals
 
         takeProfitPercent = params.takeProfitPercent
         self.takeProfit = takeProfitPercent / 100.0
@@ -45,6 +46,7 @@ class FastStrategy(BaselineStrategy):
         params = self.params
         emas = self.emas
         slopes = self.slopes
+        fractals = self.fractals
 
         # index
         idx = self.current_idx
@@ -76,30 +78,22 @@ class FastStrategy(BaselineStrategy):
 
         ################################################################################################################
 
-        fastestEma = 0
-        fastestSlope = 0
-        slowestEma = 0
-        slowestSlope = 0
+        # fastest and slowest average
+        fastestEma = emas.loc[idx, 60]
+        fastestSlope = slopes.loc[idx, 60]
+        slowestEma = emas.loc[idx, 2160]
+        slowestSlope = slopes.loc[idx, 2160]
 
-        # get slowest ema
-        for min in emas.columns:
-
-            ema = emas.loc[idx, min]
-            slope = slopes.loc[idx, min]
-
-            if min == 60:
-                fastestEma = ema
-                fastestSlope = slope
-
-            if min == 2160:
-                slowestEma = ema
-                slowestSlope = slope
+        # fractal points
+        buyFractal = self.fractals.loc[idx, 'buyFractal']
+        sellFractal = self.fractals.loc[idx, 'sellFractal']
 
         # entry long
         isEntryLong = (
             is_flat
             and slowestSlope > 0
-            and low < slowestEma < close
+            and slowestEma < open < fastestEma
+            and close > buyFractal
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -108,7 +102,8 @@ class FastStrategy(BaselineStrategy):
         isEntryShort = (
             is_flat
             and 0 > slowestSlope
-            and high > slowestEma > close
+            and slowestEma > open > fastestEma
+            and sellFractal > close
         )
         if isEntryShort:
             self.sell(ticker, size)
@@ -149,8 +144,7 @@ class FastStrategy(BaselineStrategy):
             isExitLongTakeProfit
             or isExitLongStopLoss
             # high > fastestEma
-            or isExitLastBar
-        )
+            or isExitLastBar)
         if isExitLong:
             self.flat(ticker, size)
 
@@ -158,8 +152,7 @@ class FastStrategy(BaselineStrategy):
         isExitShort = is_short and (
             isExitShortTakeProfit
             or isExitShortStopLoss
-            or isExitLastBar
-        )
+            or isExitLastBar)
         if isExitShort:
             self.flat(ticker, size)
 
@@ -180,6 +173,34 @@ class FastStrategy(BaselineStrategy):
         for i, min in enumerate(emas.columns):
             color = mpl.colors.rgb2hex(colors[i])
             fplt.plot(emas.loc[:, min], color=color, width=2, ax=ax)
+
+        buyFractals = self.fractals.loc[:, 'buyFractal']
+        sellFractals = self.fractals.loc[:, 'sellFractal']
+
+        # init dataframe plot entities
+        entities = pd.DataFrame(
+            index = data.index,
+            dtype = float,
+            columns = [
+                'buyFractal',
+                'sellFractal'])
+
+        lastBuyPrice, lastSellPrice = 0, 0
+        for idx in data.index:
+
+            buyPrice = buyFractals[idx]
+            sellPrice = sellFractals[idx]
+
+            if buyPrice != lastBuyPrice:
+                entities.loc[idx, 'buyFractal'] = buyPrice
+            if sellPrice != lastSellPrice:
+                entities.loc[idx, 'sellFractal'] = sellPrice
+
+            lastBuyPrice = buyPrice
+            lastSellPrice = sellPrice
+
+        fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
+        fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
 
         if show: fplt.show()
         return ax
