@@ -75,18 +75,21 @@ def set_process_name():
 
 def create_avgs(data, path):
 
-    # spread of averages from fastest to slowest
-    fastest = 4
-    slowest = 44
+    fastestMinutes = 25
+    slowestMinutes = 2525
     num = 10
-    mins = np.linspace(fastest, slowest, num, dtype = int)
+
+    ###################################################################
+
+    # spread of averages from fastest to slowest
+    mins = np.linspace(fastestMinutes, slowestMinutes, num)
 
     # init container
     avgs = pd.DataFrame(index = data.index)
 
     for min in mins:
 
-        smooth = min / 5
+        smooth = round(min/5)
 
         raw = pd.Series(data.Open).ewm(span = min).mean()
         avg = raw.ewm(span = smooth).mean()
@@ -166,10 +169,13 @@ def init_plot(pos, title):
     axis_pen = fplt._makepen(color = gray)
     ax.axes['right']['item'].setPen(axis_pen)
     ax.axes['right']['item'].setTextPen(axis_pen)
-    ax.axes['right']['item'].setTickPen(None)
+    ax.axes['right']['item'].setTickPen(axis_pen)
     ax.axes['bottom']['item'].setPen(axis_pen)
     ax.axes['bottom']['item'].setTextPen(axis_pen)
-    ax.axes['bottom']['item'].setTickPen(None)
+    ax.axes['bottom']['item'].setTickPen(axis_pen)
+
+    # gridlines
+    ax.set_visible(xgrid = True, ygrid = True)
 
     # crosshair
     ax.crosshair.vline.setPen(axis_pen)
