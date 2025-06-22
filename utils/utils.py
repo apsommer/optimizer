@@ -76,34 +76,13 @@ def set_process_name():
 
 def build_indicators(data, path):
 
-    fastestMinutes = 60
-    slowestMinutes = 2160
-    num = 2
+    build_emas(data, path)
+    build_fractals(data, path)
 
-    ###################################################################
+def build_fractals(data, path):
 
-    # spread of averages from fastest to slowest
-    mins = np.linspace(fastestMinutes, slowestMinutes, num)
-
-    # init containers
-    emas = pd.DataFrame(index = data.index)
-    slopes = pd.DataFrame(index = data.index)
+    # init container
     fractals = pd.DataFrame(index = data.index)
-
-    for min in tqdm(
-        iterable = mins,
-        colour = yellow,
-        bar_format = 'Moving averages: {percentage:3.0f}%|{bar:100}{r_bar}'):
-
-        # smooth averages
-        smooth = round(0.2 * min)
-
-        raw = pd.Series(data.Open).ewm(span = min).mean()
-        smoothed = raw.ewm(span = smooth).mean()
-        slope = get_slope(smoothed)
-
-        emas.loc[:, min] = smoothed
-        slopes.loc[:, min] = slope
 
     # fractal indicator
     buyPrice, sellPrice = np.nan, np.nan
@@ -138,6 +117,37 @@ def build_indicators(data, path):
         fractals.iloc[i]['sellFractal'] = sellPrice
 
     save(fractals, 'fractals', path)
+
+def build_emas(data, path):
+
+    fastestMinutes = 60
+    slowestMinutes = 2160
+    num = 2
+
+    ###################################################################
+
+    # spread of averages from fastest to slowest
+    mins = np.linspace(fastestMinutes, slowestMinutes, num)
+
+    # init containers
+    emas = pd.DataFrame(index = data.index)
+    slopes = pd.DataFrame(index = data.index)
+
+    for min in tqdm(
+        iterable = mins,
+        colour = yellow,
+        bar_format = 'Moving averages: {percentage:3.0f}%|{bar:100}{r_bar}'):
+
+        # smooth averages
+        smooth = round(0.2 * min)
+
+        raw = pd.Series(data.Open).ewm(span = min).mean()
+        smoothed = raw.ewm(span = smooth).mean()
+        slope = get_slope(smoothed)
+
+        emas.loc[:, min] = smoothed
+        slopes.loc[:, min] = slope
+
     save(emas, 'emas', path)
     save(slopes, 'slopes', path)
 
