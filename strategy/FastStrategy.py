@@ -40,6 +40,9 @@ class FastStrategy(BaselineStrategy):
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
 
+        proximityPercent = params.proximityPercent
+        self.proximity = proximityPercent / 100.0
+
     def on_bar(self):
 
         data = self.data
@@ -91,9 +94,11 @@ class FastStrategy(BaselineStrategy):
         # entry long
         isEntryLong = (
             is_flat
-            and slowestSlope > 0
             and slowestEma < open < fastestEma
             and close > buyFractal
+            and close > fastestEma
+            and buyFractal > fastestEma
+            and self.proximity > abs(close - slowestEma) / slowestEma
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -101,9 +106,11 @@ class FastStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
-            and 0 > slowestSlope
             and slowestEma > open > fastestEma
             and sellFractal > close
+            and fastestEma > close
+            and fastestEma > sellFractal
+            and self.proximity > abs(close - slowestEma) / slowestEma
         )
         if isEntryShort:
             self.sell(ticker, size)

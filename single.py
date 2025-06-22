@@ -30,8 +30,9 @@ slopes = unpack('slopes', path)
 fractals = unpack('fractals', path)
 
 params = FastParams(
-    takeProfitPercent = 0.5,
-    stopLossPercent = 0.5,)
+    takeProfitPercent = 1,
+    stopLossPercent = 1,
+    proximityPercent = 2)
 
 strategy = FastStrategy(
     data = data,

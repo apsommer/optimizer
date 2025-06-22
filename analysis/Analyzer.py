@@ -34,18 +34,23 @@ class Analyzer:
         # common
         self.params = FastParams(
             takeProfitPercent = None,
-            stopLossPercent = None
+            stopLossPercent = None,
+            proximityPercent = None,
         )
 
         # extract opt
         self.takeProfitPercent = self.opt['takeProfitPercent']
         self.stopLossPercent = self.opt['stopLossPercent']
+        self.proximityPercent = self.opt['proximityPercent']
 
     def run(self):
 
         params = self.params
         id = 0
-        total = len(self.takeProfitPercent) * len(self.stopLossPercent)
+        total = (
+            len(self.takeProfitPercent)
+            * len(self.stopLossPercent)
+            * len(self.proximityPercent))
 
         with tqdm(
             disable = self.id != 0, # show only 1 core
@@ -56,21 +61,23 @@ class Analyzer:
             # sweep params from opt
             for takeProfitPercent in self.takeProfitPercent:
                 for stopLossPercent in self.stopLossPercent:
+                    for proximityPercent in self.proximityPercent:
 
-                    # update params
-                    params.takeProfitPercent = takeProfitPercent
-                    params.stopLossPercent = stopLossPercent
+                        # update params
+                        params.takeProfitPercent = takeProfitPercent
+                        params.stopLossPercent = stopLossPercent
+                        params.proximityPercent = proximityPercent
 
-                    # create strategy and engine
-                    strategy = FastStrategy(self.data, self.emas, self.slopes, self.fractals, params)
-                    engine = Engine(id, strategy)
+                        # create strategy and engine
+                        strategy = FastStrategy(self.data, self.emas, self.slopes, self.fractals, params)
+                        engine = Engine(id, strategy)
 
-                    # run and save
-                    engine.run()
-                    engine.save(self.path, False)
-                    id += 1
+                        # run and save
+                        engine.run()
+                        engine.save(self.path, False)
+                        id += 1
 
-                    pbar.update()
+                        pbar.update()
 
         pbar.close()
         self.analyze()

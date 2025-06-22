@@ -116,8 +116,8 @@ def build_fractals(data, path):
 
                 sellPrice = data.iloc[i].Low
 
-        fractals.iloc[i].buy = buyPrice
-        fractals.iloc[i].sell = sellPrice
+        fractals.iloc[i].buyFractal = buyPrice
+        fractals.iloc[i].sellFractal = sellPrice
 
     save(fractals, 'fractals', path)
 

@@ -27,14 +27,15 @@ num_months = 14
 isNetwork = False
 
 # walk forward
-percent = 25
+percent = 20
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
 num = 1
 opt = {
-    'takeProfitPercent': np.linspace(.25, 1, num),
-    'stopLossPercent': np.linspace(.25, 1, num),
+    'takeProfitPercent': np.linspace(.25, 2, num),
+    'stopLossPercent': np.linspace(.25, 2, num),
+    'proximityPercent': np.linspace(.25, 2, num),
 }
 
 ###################################################################
