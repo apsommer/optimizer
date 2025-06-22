@@ -25,17 +25,20 @@ start_time = time.time()
 data = getOhlc(num_months, isNetwork)
 
 path = 'wfa/single'
-# create_avgs(data, path)
-avgs = unpack('avgs', path)
+build_indicators(data, path)
+emas = unpack('emas', path)
+slopes = unpack('slopes', path)
 
 params = FastParams(
-    takeProfitPercent = 0.55,
+    takeProfitPercent = 0.7,
+    stopLossPercent = 0.35,
     num = 10
 )
 
 strategy = FastStrategy(
     data = data,
-    avgs = avgs,
+    emas = emas,
+    slopes = slopes,
     params = params)
 
 # engine = Engine(

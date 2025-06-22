@@ -73,10 +73,10 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
-def create_avgs(data, path):
+def build_indicators(data, path):
 
-    fastestMinutes = 25
-    slowestMinutes = 2525
+    fastestMinutes = 60
+    slowestMinutes = 2160
     num = 10
 
     ###################################################################
@@ -85,27 +85,25 @@ def create_avgs(data, path):
     mins = np.linspace(fastestMinutes, slowestMinutes, num)
 
     # init container
-    avgs = pd.DataFrame(index = data.index)
+    emas = pd.DataFrame(index = data.index)
+    slopes = pd.DataFrame(index = data.index)
 
     for min in mins:
 
-        smooth = round(min/5)
+        # smooth averages
+        smooth = round(0.2 * min)
 
         raw = pd.Series(data.Open).ewm(span = min).mean()
-        avg = raw.ewm(span = smooth).mean()
-        slope = get_slope(avg)
+        smoothed = raw.ewm(span = smooth).mean()
+        slope = get_slope(smoothed)
 
-        avg_key = 'avg_' + str(min)
-        slope_key = 'slope_' + str(min)
-        avgs.loc[:, avg_key] = avg
-        avgs.loc[:, slope_key] = slope
+        emas.loc[:, min] = smoothed
+        slopes.loc[:, min] = slope
 
     # todo add columns
 
-    save(
-        bundle = avgs,
-        filename = 'avgs',
-        path = path)
+    save(emas, 'emas', path)
+    save(slopes, 'slopes', path)
 
 def create_indicators(data, path):
 

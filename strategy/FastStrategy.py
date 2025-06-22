@@ -21,17 +21,23 @@ class FastStrategy(BaselineStrategy):
     def size(self):
         return 1
 
-    def __init__(self, data, avgs, params):
+    def __init__(self, data, emas, slopes, params):
         super().__init__()
 
         self.data = data
         self.params = params
-        self.avgs = avgs
+        self.emas = emas
+        self.slopes = slopes
 
         takeProfitPercent = params.takeProfitPercent
         self.takeProfit = takeProfitPercent / 100.0
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
+
+        stopLossPercent = params.stopLossPercent
+        self.stopLoss = stopLossPercent / 100.0
+        self.longStopLoss = np.nan
+        self.shortStopLoss = np.nan
 
         self.num = params.num
 
@@ -39,7 +45,8 @@ class FastStrategy(BaselineStrategy):
 
         data = self.data
         params = self.params
-        avgs = self.avgs
+        emas = self.emas
+        slopes = self.slopes
 
         # index
         idx = self.current_idx
@@ -64,21 +71,32 @@ class FastStrategy(BaselineStrategy):
         takeProfit = self.takeProfit
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
-        num = self.num
+        stopLoss = self.stopLoss
+        longStopLoss = self.longStopLoss
+        shortStopLoss = self.shortStopLoss
 
         ################################################################################################################
 
-        # count how many averages are positive/negative
-        p = 0
-        for column in avgs.columns:
-            if 'slope' in column:
-                value = avgs.loc[idx, column]
-                if value > 0: p += 1
+        positives = 0
+        slowestEma = 0
+
+        # get slowest ema
+        for min in emas.columns:
+            ema = emas.loc[idx, min]
+            if min == 2160:
+                slowestEma = ema
+
+        # count bullish slopes
+        positives = 0
+        for min in slopes.columns:
+            slope = slopes.loc[idx, min]
+            if slope > 0: positives += 1
 
         # entry long
         isEntryLong = (
             is_flat
-            and p >= num
+            and positives == 10
+            and low < slowestEma < close
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -86,7 +104,8 @@ class FastStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
-            and 10 - num >= p
+            and positives == 0
+            and high > slowestEma > close
         )
         if isEntryShort:
             self.sell(ticker, size)
@@ -99,15 +118,23 @@ class FastStrategy(BaselineStrategy):
         self.longTakeProfit = longTakeProfit
         isExitLongTakeProfit = high > longTakeProfit
 
-        # exit, short take profit:
+        # exit, short take profit
         if isEntryShort: shortTakeProfit = (1 - takeProfit) * close
         elif not is_short: shortTakeProfit = np.nan
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
-        # exit, momentum
-        isExitLongMomentum = is_long and 10 - num >= p
-        isExitShortMomentum = is_short and p >= num
+        # exit, long stop loss
+        if isEntryLong: longStopLoss = (1 - stopLoss) * close
+        elif not is_long: longStopLoss = np.nan
+        self.longStopLoss = longStopLoss
+        isExitLongStopLoss = longStopLoss > low
+
+        # exit, short stop loss
+        if isEntryShort: shortStopLoss = (1 + stopLoss) * close
+        elif not is_short: shortStopLoss = np.nan
+        self.shortStopLoss = shortStopLoss
+        isExitShortStopLoss = high > shortStopLoss
 
         # exit on last bar of data
         isExitLastBar = False
@@ -118,7 +145,7 @@ class FastStrategy(BaselineStrategy):
         # exit long
         isExitLong = (
             isExitLongTakeProfit
-            or isExitLongMomentum
+            or isExitLongStopLoss
             or isExitLastBar
         )
         if isExitLong:
@@ -127,7 +154,7 @@ class FastStrategy(BaselineStrategy):
         # exit short
         isExitShort = (
             isExitShortTakeProfit
-            or isExitShortMomentum
+            or isExitShortStopLoss
             or isExitLastBar
         )
         if isExitShort:
@@ -135,7 +162,7 @@ class FastStrategy(BaselineStrategy):
 
     def plot(self):
 
-        ax = init_plot(0, 'Strategy')
+        ax = init_plot(1, 'Strategy')
 
         # candlestick ohlc
         data = self.data
@@ -143,12 +170,12 @@ class FastStrategy(BaselineStrategy):
 
         # color ribbon
         crest = sns.color_palette("crest", as_cmap=True)
-        colors = crest(np.linspace(0, 1, len(self.avgs.columns)))
+        colors = crest(np.linspace(0, 1, 10))
 
         # plot ribbon
-        for i, column in enumerate(self.avgs.columns):
-            if 'avg' in column:
-                color = mpl.colors.rgb2hex(colors[i])
-                fplt.plot(self.avgs.loc[:, column], color=color, width=2, ax=ax)
+        emas = self.emas
+        for i, min in enumerate(emas.columns):
+            color = mpl.colors.rgb2hex(colors[i])
+            fplt.plot(emas.loc[:, min], color=color, width=2, ax=ax)
 
         fplt.show()
