@@ -75,23 +75,29 @@ def set_process_name():
 
 def create_avgs(data, path):
 
-    minutes = np.linspace(525, 2525, 10, dtype = int)
+    # spread of averages from fastest to slowest
+    fastest = 4
+    slowest = 44
+    num = 10
+    mins = np.linspace(fastest, slowest, num, dtype = int)
 
-    avgs = pd.DataFrame(
-        index = data.index)
+    # init container
+    avgs = pd.DataFrame(index = data.index)
 
-    for minute in minutes:
+    for min in mins:
 
-        smooth = minute / 5
+        smooth = min / 5
 
-        raw = pd.Series(data.Open).ewm(span = minute).mean()
+        raw = pd.Series(data.Open).ewm(span = min).mean()
         avg = raw.ewm(span = smooth).mean()
         slope = get_slope(avg)
 
-        avg_key = 'avg_' + str(minute)
-        slope_key = 'slope_' + str(minute)
+        avg_key = 'avg_' + str(min)
+        slope_key = 'slope_' + str(min)
         avgs.loc[:, avg_key] = avg
         avgs.loc[:, slope_key] = slope
+
+    # todo add columns
 
     save(
         bundle = avgs,
