@@ -53,7 +53,7 @@ path = parent_path + '/' + str(percent) + '_' + str(runs)
 data = utils.getOhlc(num_months, isNetwork)
 
 # build indicators
-# build_indicators(data, parent_path)
+build_indicators(data, parent_path)
 emas = unpack('emas', parent_path)
 slopes = unpack('slopes', parent_path)
 

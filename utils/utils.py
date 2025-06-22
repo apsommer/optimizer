@@ -85,14 +85,15 @@ def build_indicators(data, path):
     # spread of averages from fastest to slowest
     mins = np.linspace(fastestMinutes, slowestMinutes, num)
 
-    # init container
+    # init containers
     emas = pd.DataFrame(index = data.index)
     slopes = pd.DataFrame(index = data.index)
+    fractals = pd.DataFrame(index = data.index)
 
     for min in tqdm(
         iterable = mins,
         colour = yellow,
-        bar_format = 'Indicators: {percentage:3.0f}%|{bar:100}{r_bar}'):
+        bar_format = 'Moving averages: {percentage:3.0f}%|{bar:100}{r_bar}'):
 
         # smooth averages
         smooth = round(0.2 * min)
@@ -104,8 +105,39 @@ def build_indicators(data, path):
         emas.loc[:, min] = smoothed
         slopes.loc[:, min] = slope
 
-    # todo add columns
+    # fractal indicator
+    buyPrice, sellPrice = np.nan, np.nan
 
+    for i in tqdm(
+        iterable = range(len(data.index)),
+        colour = yellow,
+        bar_format = 'Fractals: {percentage:3.0f}%|{bar:100}{r_bar}'):
+
+        # skip first 2 bars and last 2 bars
+        if 2 > i or i > len(data.index) - 3:
+            continue
+
+        isBuyFractal = (
+            data.iloc[i].High > data.iloc[i-1].High
+            and data.iloc[i].High > data.iloc[i-2].High
+            and data.iloc[i].High > data.iloc[i+1].High
+            and data.iloc[i].High > data.iloc[i+2].High)
+
+        isSellFractal = (
+            data.iloc[i].Low < data.iloc[i-1].Low
+            and data.iloc[i].Low < data.iloc[i-2].Low
+            and data.iloc[i].Low < data.iloc[i+1].Low
+            and data.iloc[i].Low < data.iloc[i+2].Low)
+
+        if isBuyFractal:
+            buyPrice = data.iloc[i].High
+        if isSellFractal:
+            sellPrice = data.iloc[i].Low
+
+        fractals.iloc[i]['buyFractal'] = buyPrice
+        fractals.iloc[i]['sellFractal'] = sellPrice
+
+    save(fractals, 'fractals', path)
     save(emas, 'emas', path)
     save(slopes, 'slopes', path)
 
