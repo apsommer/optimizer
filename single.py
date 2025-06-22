@@ -25,13 +25,13 @@ start_time = time.time()
 data = getOhlc(num_months, isNetwork)
 
 path = 'wfa/single'
-build_indicators(data, path)
+# build_indicators(data, path)
 emas = unpack('emas', path)
 slopes = unpack('slopes', path)
 
 params = FastParams(
-    takeProfitPercent = 0.7,
-    stopLossPercent = 0.35,
+    takeProfitPercent = 1,
+    stopLossPercent = 0.6,
     num = 10
 )
 
@@ -41,18 +41,19 @@ strategy = FastStrategy(
     slopes = slopes,
     params = params)
 
-# engine = Engine(
-#     id = 0,
-#     strategy = strategy)
-#
-# engine.run(
-#     showProgress = True)
-#
-# engine.print_metrics()
-# engine.print_trades()
-# engine.plot_trades()
-# engine.plot_equity()
+engine = Engine(
+    id = 0,
+    strategy = strategy)
 
-strategy.plot()
+engine.run(
+    showProgress = True)
+
+engine.print_metrics()
+engine.print_trades()
+engine.plot_trades()
+engine.plot_equity()
+
+# strategy.plot(
+#     show = True)
 
 

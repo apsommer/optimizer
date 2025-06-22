@@ -74,28 +74,34 @@ class FastStrategy(BaselineStrategy):
         stopLoss = self.stopLoss
         longStopLoss = self.longStopLoss
         shortStopLoss = self.shortStopLoss
+        isExitLastBar = False
 
         ################################################################################################################
 
-        positives = 0
+        num_bullish = 0
         slowestEma = 0
+        slowestSlope = 0
 
         # get slowest ema
         for min in emas.columns:
+
             ema = emas.loc[idx, min]
+            slope = slopes.loc[idx, min]
+
             if min == 2160:
                 slowestEma = ema
+                slowestSlope = slope
 
         # count bullish slopes
-        positives = 0
         for min in slopes.columns:
             slope = slopes.loc[idx, min]
-            if slope > 0: positives += 1
+            if slope > 0: num_bullish += 1
 
         # entry long
         isEntryLong = (
             is_flat
-            and positives == 10
+            # and num_bullish == 10
+            and slowestSlope > 0
             and low < slowestEma < close
         )
         if isEntryLong:
@@ -104,7 +110,8 @@ class FastStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
-            and positives == 0
+            # and num_bullish == 0
+            and 0 > slowestSlope
             and high > slowestEma > close
         )
         if isEntryShort:
@@ -137,13 +144,12 @@ class FastStrategy(BaselineStrategy):
         isExitShortStopLoss = high > shortStopLoss
 
         # exit on last bar of data
-        isExitLastBar = False
         if idx == self.data.index[-1]:
             if is_long or is_short:
                 isExitLastBar = True
 
         # exit long
-        isExitLong = (
+        isExitLong = is_long and (
             isExitLongTakeProfit
             or isExitLongStopLoss
             or isExitLastBar
@@ -152,7 +158,7 @@ class FastStrategy(BaselineStrategy):
             self.flat(ticker, size)
 
         # exit short
-        isExitShort = (
+        isExitShort = is_short and (
             isExitShortTakeProfit
             or isExitShortStopLoss
             or isExitLastBar
@@ -160,9 +166,9 @@ class FastStrategy(BaselineStrategy):
         if isExitShort:
             self.flat(ticker, size)
 
-    def plot(self):
+    def plot(self, show = False):
 
-        ax = init_plot(1, 'Strategy')
+        ax = init_plot(0, 'Strategy')
 
         # candlestick ohlc
         data = self.data
@@ -178,4 +184,5 @@ class FastStrategy(BaselineStrategy):
             color = mpl.colors.rgb2hex(colors[i])
             fplt.plot(emas.loc[:, min], color=color, width=2, ax=ax)
 
-        fplt.show()
+        if show: fplt.show()
+        return ax

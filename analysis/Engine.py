@@ -118,7 +118,8 @@ class Engine:
 
     def plot_trades(self):
 
-        ax = init_plot(0, 'Trades')
+        # ax = init_plot(0, 'Trades')
+        ax = self.strategy.plot()
 
         # candlestick ohlc
         data = self.data
@@ -166,7 +167,9 @@ class Engine:
 
             if profit > 0:
                 entities.loc[exit_idx, 'profit_exit'] = exit_price
+                entities.loc[exit_idx, 'loss_exit'] = np.nan
             else:
+                entities.loc[exit_idx, 'profit_exit'] = np.nan
                 entities.loc[exit_idx, 'loss_exit'] = exit_price
 
             # linear interpolate between entry and exit
@@ -203,8 +206,8 @@ class Engine:
         fplt.plot(entities['loss_exit'], style='o', color=red, ax=ax)
 
         # trades
-        fplt.plot(entities['long_trade'], color=blue, ax=ax)
-        fplt.plot(entities['short_trade'], color=aqua, ax=ax)
+        fplt.plot(entities['long_trade'], color=blue, width= 4, ax=ax)
+        fplt.plot(entities['short_trade'], color=aqua, width = 4, ax=ax)
 
         # fplt.show()
 
