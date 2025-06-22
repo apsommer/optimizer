@@ -23,19 +23,18 @@ from utils.metrics import *
 # INPUT ###########################################################
 
 # data
-num_months = 28
+num_months = 14
 isNetwork = False
 
 # walk forward
-percent = 20
+percent = 25
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
-num = 4
+num = 5
 opt = {
-    'takeProfitPercent': np.linspace(.30, .65, num=num, dtype=float),
-    'fastAngleFactor': np.linspace(15, 45, num=num, dtype=int),
-    'ratio': np.linspace(1, 3, num=num, dtype=float)
+    'takeProfitPercent': np.linspace(.25, 1, 2),
+    'stopLossPercent': np.linspace(.25, 1, num),
 }
 
 ###################################################################
@@ -47,16 +46,19 @@ start_time = time.time()
 # organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
 csv_filename = 'data/' + data_name + '.csv'
-path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs)
-
-# remove any residual analyses
-shutil.rmtree(path, ignore_errors=True)
+parent_path = 'wfa/' + data_name
+path = parent_path + '/' + str(percent) + '_' + str(runs)
 
 # get ohlc prices
 data = utils.getOhlc(num_months, isNetwork)
 
-# create averages
-create_indicators(data, path)
+# build indicators
+# build_indicators(data, parent_path)
+emas = unpack('emas', parent_path)
+slopes = unpack('slopes', parent_path)
+
+# remove any residual analyses
+shutil.rmtree(path, ignore_errors=True)
 
 # init walk forward
 wfa = WalkForward(
@@ -64,6 +66,8 @@ wfa = WalkForward(
     percent = percent,
     runs = runs,
     data = data,
+    emas = emas,
+    slopes = slopes,
     opt = opt,
     path = path)
 

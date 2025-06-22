@@ -17,11 +17,12 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, indicators, opt, wfa_path):
+    def __init__(self, id, data, emas, slopes, opt, wfa_path):
 
         self.id = id
         self.data = data
-        self.indicators = indicators
+        self.emas = emas
+        self.slopes = slopes
         self.opt = opt
         self.wfa_path = wfa_path
         self.path = wfa_path  + '/' + str(id) + '/'
@@ -31,53 +32,44 @@ class Analyzer:
 
         # common
         self.params = FastParams(
-            fastMinutes = 25,
-            fastCrossoverPercent = 0,
             takeProfitPercent = None,
-            fastAngleFactor = None,
-            slowMinutes = 2555,
-            slowAngleFactor = 20,
-            coolOffMinutes = 5,
-            ratio= None)
+            stopLossPercent = None
+        )
 
         # extract opt
         self.takeProfitPercent = self.opt['takeProfitPercent']
-        self.fastAngleFactor = self.opt['fastAngleFactor']
-        self.ratio = self.opt['ratio']
+        self.stopLossPercent = self.opt['stopLossPercent']
 
     def run(self):
 
         params = self.params
         id = 0
-        total = len(self.takeProfitPercent) * len(self.fastAngleFactor) * len(self.ratio)
+        total = len(self.takeProfitPercent) * len(self.stopLossPercent)
 
         with tqdm(
             disable = self.id != 0, # show only 1 core
             total = total,
-            colour = '#4287f5',
+            colour = blue,
             bar_format = '        In-sample:      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
             # sweep params from opt
             for takeProfitPercent in self.takeProfitPercent:
-                for fastAngleFactor in self.fastAngleFactor:
-                    for ratio in self.ratio:
+                for stopLossPercent in self.stopLossPercent:
 
-                        # update params
-                        params.takeProfitPercent = takeProfitPercent
-                        params.fastAngleFactor = fastAngleFactor
-                        params.ratio = ratio
+                    # update params
+                    params.takeProfitPercent = takeProfitPercent
+                    params.stopLossPercent = stopLossPercent
 
-                        # create strategy and engine
-                        # strategy = LiveStrategy(self.data, self.indicators, params)
-                        strategy = FastStrategy(self.data, self.indicators, params)
-                        engine = Engine(id, strategy)
+                    # create strategy and engine
+                    strategy = FastStrategy(self.data, self.emas, self.slopes, params)
+                    engine = Engine(id, strategy)
 
-                        # run and save
-                        engine.run()
-                        engine.save(self.path, False)
-                        id += 1
+                    # run and save
+                    engine.run()
+                    engine.save(self.path, False)
+                    id += 1
 
-                        pbar.update()
+                    pbar.update()
 
         pbar.close()
         self.analyze()

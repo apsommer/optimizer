@@ -47,7 +47,7 @@ class Engine:
             leave = False,
             position = position,
             iterable = self.data.index,
-            colour = '#42f5f5',
+            colour = aqua,
             bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # set index
@@ -125,7 +125,7 @@ class Engine:
         data = self.data
         fplt.candlestick_ochl(
             data[['Open', 'Close', 'High', 'Low']],
-            ax=ax)  # , draw_body=False, draw_shadow=False)
+            ax=ax) # draw_body=False, draw_shadow=False)
 
         # cloud
         # low = fplt.plot(data.Low, color=black, width=0, ax=ax)
@@ -134,9 +134,9 @@ class Engine:
 
         # init dataframe plot entities
         entities = pd.DataFrame(
-            index=data.index,
-            dtype=float,
-            columns=[
+            index = data.index,
+            dtype = float,
+            columns = [
                 'long_entry',
                 'long_trade',
                 'short_entry',
@@ -145,9 +145,9 @@ class Engine:
                 'loss_exit'])
 
         for trade in tqdm(
-                iterable=self.trades,
-                colour=green,
-                bar_format='        Plot:           {percentage:3.0f}%|{bar:100}{r_bar}'):
+                iterable = self.trades,
+                colour = green,
+                bar_format = '        Plot:           {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # entry
             entry_idx = trade.entry_order.idx

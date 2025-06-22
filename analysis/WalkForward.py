@@ -19,12 +19,14 @@ import finplot as fplt
 
 class WalkForward():
 
-    def __init__(self, num_months, percent, runs, data, opt, path):
+    def __init__(self, num_months, percent, runs, data, emas, slopes, opt, path):
 
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
         self.data = data
+        self.emas = emas
+        self.slopes = slopes
         self.opt = opt
         self.path = path
 
@@ -38,9 +40,6 @@ class WalkForward():
         # init metrics with header
         self.metrics = init_walk_forward_metrics(self)
 
-        # init indicators
-        self.indicators = unpack('indicators', self.path)
-
     def in_sample(self, run):
 
         # isolate training xet
@@ -51,10 +50,11 @@ class WalkForward():
 
         # mask dataset, one dataset each core
         IS_data = self.data.iloc[IS_start : IS_end]
-        IS_indicators = self.indicators.iloc[IS_start : IS_end]
+        IS_emas = self.emas.iloc[IS_start : IS_end]
+        IS_slopes = self.slopes.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        analyzer = Analyzer(run, IS_data, IS_indicators, self.opt, self.path)
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_slopes, self.opt, self.path)
         analyzer.run()
         analyzer.save()
 
@@ -70,7 +70,8 @@ class WalkForward():
 
         # mask dataset
         OS_data = self.data.iloc[OS_start : OS_end]
-        OS_indicators = self.indicators.iloc[OS_start : OS_end]
+        OS_emas = self.emas.iloc[OS_start : OS_end]
+        OS_slopes = self.slopes.iloc[OS_start : OS_end]
 
         # get fittest params from in-sample analyzer
         IS_path = self.path + '/' + str(run)
@@ -80,7 +81,7 @@ class WalkForward():
         for fitness in tqdm(
             iterable = Fitness,
             disable = run != 0, # show only 1 core
-            colour = '#4287f5',
+            colour = blue,
             bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # extract params of fittest engine
@@ -88,7 +89,7 @@ class WalkForward():
             params = unpack(str(fittest_metric.id), IS_path)['params']
 
             # run strategy blind with best params
-            strategy = FastStrategy(OS_data, OS_indicators, params)
+            strategy = FastStrategy(OS_data, OS_emas, OS_slopes, params)
             engine = Engine(
                 id = run,
                 strategy = strategy)
@@ -114,7 +115,7 @@ class WalkForward():
         for run in tqdm(
             iterable = range(self.runs),
             disable = fitness is not Fitness.DRAWDOWN_PER_PROFIT, # show only 1 core
-            colour = '#4287f5',
+            colour = blue,
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             OS_path = self.path + '/' + fitness.value
@@ -139,10 +140,11 @@ class WalkForward():
 
         # mask data to OS sample
         OS_data = self.data.loc[cash_series.index, :]
-        OS_indicators = self.indicators.loc[cash_series.index, :]
+        OS_emas = self.emas.loc[cash_series.index, :]
+        OS_slopes = self.slopes.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        strategy = FastStrategy(OS_data, OS_indicators, params)
+        strategy = FastStrategy(OS_data, OS_emas, OS_slopes, params)
         engine = Engine(fitness.value, strategy)
 
         # finish engine build
@@ -187,9 +189,10 @@ class WalkForward():
             start = cash_series.index[0]
             end = cash_series.index[-1]
             comp_data = self.data[start: end]
-            comp_indicators = self.indicators[start: end]
+            comp_ema = self.emas[start: end]
+            comp_slopes = self.slopes[start: end]
 
-            strategy = FastStrategy(comp_data, comp_indicators, params)
+            strategy = FastStrategy(comp_data, comp_ema, comp_slopes, params)
             composite = Engine(fitness.value, strategy)
 
             # deserialize previous result
@@ -205,12 +208,14 @@ class WalkForward():
 
             # plot selected fitness composite
             if fitness is self.best_fitness:
-                print_metrics(composite.metrics)
+                composite.print_metrics()
                 composite.print_trades()
                 composite.plot_trades()
+                composite.plot_equity()
 
             # only calc once
             if fitness is Fitness.PROFIT:
+
                 # plot initial cash
                 fplt.plot(composite.initial_cash, color=dark_gray, ax=ax)
 

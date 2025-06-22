@@ -12,9 +12,9 @@ from utils.utils import *
 ''' examine single engine '''
 # INPUT ###########################################################
 
-# data
 num_months = 3
 isNetwork = False
+path = 'wfa/single'
 
 ###################################################################
 
@@ -23,16 +23,13 @@ warnings.filterwarnings('ignore')
 start_time = time.time()
 
 data = getOhlc(num_months, isNetwork)
-
-path = 'wfa/single'
-# build_indicators(data, path)
+build_indicators(data, path)
 emas = unpack('emas', path)
 slopes = unpack('slopes', path)
 
 params = FastParams(
     takeProfitPercent = 1,
     stopLossPercent = 0.6,
-    num = 10
 )
 
 strategy = FastStrategy(
@@ -52,8 +49,3 @@ engine.print_metrics()
 engine.print_trades()
 engine.plot_trades()
 engine.plot_equity()
-
-# strategy.plot(
-#     show = True)
-
-

@@ -39,8 +39,6 @@ class FastStrategy(BaselineStrategy):
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
 
-        self.num = params.num
-
     def on_bar(self):
 
         data = self.data
@@ -78,7 +76,8 @@ class FastStrategy(BaselineStrategy):
 
         ################################################################################################################
 
-        num_bullish = 0
+        fastestEma = 0
+        fastestSlope = 0
         slowestEma = 0
         slowestSlope = 0
 
@@ -88,19 +87,17 @@ class FastStrategy(BaselineStrategy):
             ema = emas.loc[idx, min]
             slope = slopes.loc[idx, min]
 
+            if min == 60:
+                fastestEma = ema
+                fastestSlope = slope
+
             if min == 2160:
                 slowestEma = ema
                 slowestSlope = slope
 
-        # count bullish slopes
-        for min in slopes.columns:
-            slope = slopes.loc[idx, min]
-            if slope > 0: num_bullish += 1
-
         # entry long
         isEntryLong = (
             is_flat
-            # and num_bullish == 10
             and slowestSlope > 0
             and low < slowestEma < close
         )
@@ -110,7 +107,6 @@ class FastStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
-            # and num_bullish == 0
             and 0 > slowestSlope
             and high > slowestEma > close
         )
@@ -152,6 +148,7 @@ class FastStrategy(BaselineStrategy):
         isExitLong = is_long and (
             isExitLongTakeProfit
             or isExitLongStopLoss
+            # high > fastestEma
             or isExitLastBar
         )
         if isExitLong:

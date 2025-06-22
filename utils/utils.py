@@ -9,6 +9,7 @@ from inspect import trace
 import databento as db
 import pandas as pd
 from sympy.plotting.textplot import linspace
+from tqdm import tqdm
 
 import local.api_keys as keys
 import numpy as np
@@ -77,7 +78,7 @@ def build_indicators(data, path):
 
     fastestMinutes = 60
     slowestMinutes = 2160
-    num = 10
+    num = 2
 
     ###################################################################
 
@@ -88,7 +89,10 @@ def build_indicators(data, path):
     emas = pd.DataFrame(index = data.index)
     slopes = pd.DataFrame(index = data.index)
 
-    for min in mins:
+    for min in tqdm(
+        iterable = mins,
+        colour = yellow,
+        bar_format = 'Indicators: {percentage:3.0f}%|{bar:100}{r_bar}'):
 
         # smooth averages
         smooth = round(0.2 * min)
@@ -104,31 +108,6 @@ def build_indicators(data, path):
 
     save(emas, 'emas', path)
     save(slopes, 'slopes', path)
-
-def create_indicators(data, path):
-
-    fastMinutes = 25
-    slowMinutes = 2555
-
-    # calculate raw averages
-    rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
-    rawSlow = pd.Series(data.Open).ewm(span=slowMinutes).mean()
-    fast = rawFast.ewm(span=5).mean()
-    slow = rawSlow.ewm(span=200).mean()
-    fastSlope = get_slope(fast)
-    slowSlope = get_slope(slow)
-
-    # persist
-    indicators = pd.DataFrame(index=data.index)
-    indicators['fast'] = fast
-    indicators['slow'] = slow
-    indicators['fastSlope'] = fastSlope
-    indicators['slowSlope'] = slowSlope
-
-    save(
-        bundle = indicators,
-        filename = 'indicators',
-        path = path)
 
 def get_slope(series):
 
