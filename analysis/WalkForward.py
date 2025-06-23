@@ -178,6 +178,22 @@ class WalkForward():
 
         self.metrics += get_walk_forward_results_metrics(self)
 
+    ''' serialize '''
+    def save(self):
+
+        bundle = {
+            'best_params': self.best_params,
+            'best_fitness': self.best_fitness,
+            'metrics': self.metrics
+        }
+
+        save(
+            bundle = bundle,
+            filename = 'wfa',
+            path = self.path)
+
+    ####################################################################################################################
+
     def plot_equity(self):
 
         ax = init_plot(1, 'Equity')
