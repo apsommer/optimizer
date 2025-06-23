@@ -1,6 +1,7 @@
 
 import warnings
 from analysis.Engine import Engine
+from common import init_engine
 from strategy.FastParams import FastParams
 from strategy.FastStrategy import FastStrategy
 from utils.utils import *
@@ -8,11 +9,14 @@ from utils.utils import *
 ''' rebuild single engine '''
 # INPUT ###########################################################
 
+# data, indicators
 num_months = 3
 isNetwork = False
 path = 'wfa/NQ_3mon'
+
+# finished engine
 engine_path = path + '/20_14'
-id = 'drawdown'
+id = 'profit'
 
 ###################################################################
 
@@ -20,30 +24,10 @@ os.system('clear')
 warnings.filterwarnings('ignore')
 start_time = time.time()
 
-data = getOhlc(num_months, isNetwork)
-
-# build_indicators(data, path)
-emas = unpack('emas', path)
-slopes = unpack('slopes', path)
-fractals = unpack('fractals', path)
-
-params = FastParams(
-    takeProfitPercent = np.nan,
-    stopLossPercent = np.nan,
-    proximityPercent = np.nan)
-
-strategy = FastStrategy(
-    data = data,
-    emas = emas,
-    slopes = slopes,
-    fractals = fractals,
-    params = params)
-
-engine = Engine(
-    id = 'single',
-    strategy = strategy)
-
-# don't run or save!
+engine = init_engine(
+    num_months = num_months,
+    isNetwork = isNetwork,
+    path = path)
 
 # copy from bin to engine
 bin = unpack(id, engine_path)

@@ -166,9 +166,9 @@ class FastStrategy(BaselineStrategy):
         if isExitShort:
             self.flat(ticker, size)
 
-    def plot(self):
+    def plot(self, title = 'Strategy'):
 
-        ax = init_plot(0, 'Strategy')
+        ax = init_plot(0, title)
 
         # candlestick ohlc
         data = self.data

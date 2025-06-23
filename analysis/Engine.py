@@ -32,9 +32,6 @@ class Engine:
         self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
 
-    def rebuild(self, id, path):
-        pass
-
     def run(self, showProgress=False):
 
         # progress bar attributes
@@ -118,18 +115,14 @@ class Engine:
     def plot_trades(self):
 
         # init
-        ax = self.strategy.plot()
+        ax = self.strategy.plot(
+            title = f'{self.id}: Trades')
 
         # candlestick ohlc
         data = self.data
         fplt.candlestick_ochl(
             data[['Open', 'Close', 'High', 'Low']],
-            ax=ax) # draw_body=False, draw_shadow=False)
-
-        # cloud
-        # low = fplt.plot(data.Low, color=black, width=0, ax=ax)
-        # high = fplt.plot(data.High, color=black, width=0, ax=ax)
-        # fplt.fill_between(low, high, color = light_gray)
+            ax = ax)
 
         # init dataframe plot entities
         entities = pd.DataFrame(
@@ -152,18 +145,14 @@ class Engine:
             entry_idx = trade.entry_order.idx
             entry_price = trade.entry_order.price
             entry_bar = trade.entry_order.bar_index
-
-            if trade.is_long:
-                entities.loc[entry_idx, 'long_entry'] = entry_price
-            else:
-                entities.loc[entry_idx, 'short_entry'] = entry_price
+            if trade.is_long: entities.loc[entry_idx, 'long_entry'] = entry_price
+            else: entities.loc[entry_idx, 'short_entry'] = entry_price
 
             # exit
             exit_idx = trade.exit_order.idx
             exit_price = trade.exit_order.price
             exit_bar = trade.exit_order.bar_index
             profit = trade.profit
-
             if profit > 0:
                 entities.loc[exit_idx, 'profit_exit'] = exit_price
                 entities.loc[exit_idx, 'loss_exit'] = np.nan
@@ -171,15 +160,14 @@ class Engine:
                 entities.loc[exit_idx, 'profit_exit'] = np.nan
                 entities.loc[exit_idx, 'loss_exit'] = exit_price
 
-            # linear interpolate between entry and exit
+            # build trade line
             timestamps = pd.date_range(
                 start=entry_idx,
                 end=exit_idx,
                 freq='1min')
-
-            # build trade line
             slope = (exit_price - entry_price) / (exit_bar - entry_bar)
             trade_bar = 0
+
             for timestamp in timestamps:
 
                 # prevent gaps in plot
@@ -212,7 +200,7 @@ class Engine:
 
     def plot_equity(self):
 
-        ax = init_plot(1, 'Equity')
+        ax = init_plot(1, f'{self.id}: Equity')
 
         # buy and hold
         size = self.strategy.size
