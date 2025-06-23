@@ -19,7 +19,7 @@ from utils import utils
 from utils.utils import *
 from utils.metrics import *
 
-''' execute full walk-forward analysis '''
+''' execute walk-forward analysis '''
 # INPUT ###########################################################
 
 # data

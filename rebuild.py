@@ -1,20 +1,18 @@
-import os
-import time
-import warnings
 
+import warnings
 from analysis.Engine import Engine
 from strategy.FastParams import FastParams
 from strategy.FastStrategy import FastStrategy
-from utils.constants import *
-from utils.metrics import *
 from utils.utils import *
 
-''' run single engine '''
+''' rebuild single engine '''
 # INPUT ###########################################################
 
 num_months = 3
 isNetwork = False
-path = 'wfa/single'
+path = 'wfa/NQ_3mon'
+engine_path = path + '/20_14'
+id = 'drawdown'
 
 ###################################################################
 
@@ -30,9 +28,9 @@ slopes = unpack('slopes', path)
 fractals = unpack('fractals', path)
 
 params = FastParams(
-    takeProfitPercent = 1,
-    stopLossPercent = 1,
-    proximityPercent = 2)
+    takeProfitPercent = np.nan,
+    stopLossPercent = np.nan,
+    proximityPercent = np.nan)
 
 strategy = FastStrategy(
     data = data,
@@ -44,16 +42,19 @@ strategy = FastStrategy(
 engine = Engine(
     id = 'single',
     strategy = strategy)
-engine.run(
-    showProgress = True)
-engine.save(
-    path = path,
-    isFull = True)
 
+# don't run or save!
+
+# copy from bin to engine
+bin = unpack(id, engine_path)
+engine.id = bin['id']
+engine.params = bin['params']
+engine.metrics = bin['metrics']
+engine.trades = bin['trades']
+engine.cash_series = bin['cash_series']
+
+# print results
 engine.print_metrics()
 engine.print_trades()
 engine.plot_trades()
 engine.plot_equity()
-
-# strategy.plot(
-#     show = True)

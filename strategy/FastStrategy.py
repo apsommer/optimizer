@@ -166,7 +166,7 @@ class FastStrategy(BaselineStrategy):
         if isExitShort:
             self.flat(ticker, size)
 
-    def plot(self, show = False):
+    def plot(self):
 
         ax = init_plot(0, 'Strategy')
 
@@ -212,5 +212,5 @@ class FastStrategy(BaselineStrategy):
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
 
-        if show: fplt.show()
+        # fplt.show()
         return ax

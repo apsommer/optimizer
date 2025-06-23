@@ -41,7 +41,7 @@ class Trade:
     def __repr__(self):
 
         # format to match tradingview
-        if self.id > 99: begin = '\n\t' + str(self.id)
+        if self.id > 500: begin = '\n\t' + str(self.id)
         else: begin = '\n\t' + str(self.id) + '\t'
         exit = begin + str(self.exit_order) + '\t' + str(round(self.profit))
 

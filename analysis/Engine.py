@@ -17,9 +17,6 @@ class Engine:
 
     def __init__(self, id, strategy):
 
-        # allow blank engine for rebuild
-        if strategy is None: return
-
         self.id = id
         self.data = strategy.data
         self.strategy = strategy
@@ -34,6 +31,9 @@ class Engine:
         initial_cash = margin * self.data.Close.iloc[0] * size
         self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
+
+    def rebuild(self, id, path):
+        pass
 
     def run(self, showProgress=False):
 
@@ -64,9 +64,6 @@ class Engine:
 
             # track cash balance
             self.cash_series[idx] = self.cash
-
-            # todo temp
-            # print(self.cash_series[idx])
 
         # analyze results
         self.analyze()
@@ -100,6 +97,8 @@ class Engine:
         # tag all metrics with engine id
         for metric in self.metrics: metric.id = self.id
 
+    ####################################################################################################################
+
     def print_trades(self):
 
         show_last = 3
@@ -118,7 +117,7 @@ class Engine:
 
     def plot_trades(self):
 
-        # ax = init_plot(0, 'Trades')
+        # init
         ax = self.strategy.plot()
 
         # candlestick ohlc
