@@ -29,7 +29,7 @@ engine = init_engine(
     isNetwork = isNetwork,
     path = path)
 
-# copy from bin to engine
+# unpack bin
 bin = unpack(id, engine_path)
 engine.id = bin['id']
 engine.params = bin['params']
