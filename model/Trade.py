@@ -40,9 +40,11 @@ class Trade:
 
     def __repr__(self):
 
-        if self.exit_order is None: exit_line = '\n\t' + str(self.id) + ' (open)'
-        else: exit_line = '\n\t' + str(self.id) + str(self.exit_order) + '\t' + str(round(self.profit))
+        # format to match tradingview
+        if self.id > 99: begin = '\n\t' + str(self.id)
+        else: begin = '\n\t' + str(self.id) + '\t'
+        exit = begin + str(self.exit_order) + '\t' + str(round(self.profit))
 
-        entry_line = '\n\t' + str(self.entry_order)
+        entry = '\n\t' + str(self.entry_order)
 
-        return exit_line + entry_line
+        return exit + entry

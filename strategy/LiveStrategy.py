@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from strategy.BaselineStrategy import BaselineStrategy
+from strategy.BaseStrategy import BaselineStrategy
 from model.Ticker import Ticker
 
 class LiveStrategy(BaselineStrategy):
@@ -8,25 +8,25 @@ class LiveStrategy(BaselineStrategy):
     @property
     def ticker(self):
         return Ticker(
+            # symbol = 'NQ',
             symbol = 'MNQ',
             tick_size = 0.25,
-            point_value = 2, # MNQ=2, NQ=20
+            # point_value = 20, # NQ = 20
+            point_value = 2, # MNQ = 2
             margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
     def size(self):
         return 1
 
-    def __init__(self, data, avgs, params):
+    def __init__(self, data, indicators, params):
         super().__init__()
 
         self.data = data
         self.params = params
 
         # unpack params
-        fastMinutes = params.fastMinutes
-        slowMinutes = params.slowMinutes
-        fastAngleFactor = params.fastAngleFactor
+        fastAngleFactor = params.stopLossPercent
         slowAngleFactor = params.slowAngleFactor
         fastCrossoverPercent = params.fastCrossoverPercent
         takeProfitPercent = params.takeProfitPercent
@@ -46,10 +46,10 @@ class LiveStrategy(BaselineStrategy):
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
         # get raw averages
-        self.fast = avgs.loc[:, 'fast']
-        self.slow = avgs.loc[:, 'slow']
-        self.fastSlope = avgs.loc[:, 'fastSlope']
-        self.slowSlope = avgs.loc[:, 'slowSlope']
+        self.fast = indicators.loc[:, 'fast']
+        self.slow = indicators.loc[:, 'slow']
+        self.fastSlope = indicators.loc[:, 'fastSlope']
+        self.slowSlope = indicators.loc[:, 'slowSlope']
 
         # strategy
         self.longExitBarIndex = -1
@@ -68,8 +68,8 @@ class LiveStrategy(BaselineStrategy):
         self.bar_index += 1
         bar_index = self.bar_index
 
-        # todo tradingview limitation ~20k bars
-        # tv_start = pd.Timestamp('2025-05-13T12:30:00', tz='America/Chicago')
+        # # todo tradingview limitation ~20k bars
+        # tv_start = pd.Timestamp('2025-05-27T18:00:00', tz='America/Chicago')
         # if tv_start > idx:
         #     return
 

@@ -1,193 +1,154 @@
 import os
+import pickle
 import shutil
 
 import pandas as pd
+from numpy import linspace
 from tqdm import tqdm
 
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
 from model.Fitness import Fitness
+from strategy.FastStrategy import FastStrategy
 from strategy.LiveStrategy import LiveStrategy
-from utils.utils import load_result
+from utils import utils
+from utils.constants import *
+from utils.utils import *
 from utils.metrics import *
+import finplot as fplt
 
 class WalkForward():
 
-    def __init__(self, num_months, percent, runs, data, opt):
+    def __init__(self, num_months, percent, runs, data, emas, slopes, fractals, opt, path):
+
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
         self.data = data
+        self.emas = emas
+        self.slopes = slopes
+        self.fractals = fractals
         self.opt = opt
-        self.params = None # todo final recommended set
+        self.path = path
 
-        # organize outputs
-        data_name = 'NQ_' + str(num_months) + 'mon'
-        self.path = 'wfa/' + data_name + '/' + str(percent) + '_' + str(runs) + '/'
-
-        # remove any residual analyses
-        shutil.rmtree(self.path, ignore_errors=True)
+        self.best_params = None
+        self.best_fitness = None
 
         # isolate training and testing sets
         self.IS_len = round(len(data) / ((percent / 100) * runs + 1))
         self.OS_len = round((percent / 100) * self.IS_len)
 
         # init metrics with header
-        self.metrics = get_walk_forward_init_metrics(self)
+        self.metrics = init_walk_forward_metrics(self)
 
-        # init exponential averages
-        self.calculate_avgs()
-
-    def calculate_avgs(self):
-
-        fastMinutes = 25
-        slowMinutes = 2555
-
-        data = self.data
-
-        # calculate raw averages
-        rawFast = pd.Series(data.Open).ewm(span=fastMinutes).mean()
-        rawSlow = pd.Series(data.Open).ewm(span=slowMinutes).mean()
-        fast = rawFast.ewm(span=5).mean()
-        slow = rawSlow.ewm(span=200).mean()
-        fastSlope = get_slope(fast)
-        slowSlope = get_slope(slow)
-
-        # persist
-        self.avgs = pd.DataFrame(index=data.index)
-        self.avgs['fast'] = fast
-        self.avgs['slow'] = slow
-        self.avgs['fastSlope'] = fastSlope
-        self.avgs['slowSlope'] = slowSlope
-
-    def walk_forward(self, run):
-
-        # sweep in-sample
-        self.sweep_IS(run)
-
-        # skip OS on last run
-        if run == self.runs:
-            return
-
-        # run out-of-sample
-        self.run_OS(run)
-
-    def sweep_IS(self, run):
-
-        path = self.path + str(run) + '/'
-        IS_len = self.IS_len
-        OS_len = self.OS_len
-        data = self.data
+    def in_sample(self, run):
 
         # isolate training xet
-        IS_start = run * OS_len
-        IS_end = IS_start + IS_len
-        IS = data.iloc[IS_start : IS_end]
-
-        # run exhaustive sweep over IS
-        analyzer = Analyzer(run, IS, self.avgs, self.opt, path)
-        analyzer.run()
-        analyzer.save()
-        # print_metrics(analyzer.metrics)
-
-    def run_OS(self, run):
-
         IS_len = self.IS_len
         OS_len = self.OS_len
-        data = self.data
-
         IS_start = run * OS_len
         IS_end = IS_start + IS_len
 
+        # mask dataset, one dataset each core
+        IS_data = self.data.iloc[IS_start : IS_end]
+        IS_emas = self.emas.iloc[IS_start : IS_end]
+        IS_slopes = self.slopes.iloc[IS_start : IS_end]
+        IS_fractals = self.fractals.iloc[IS_start : IS_end]
+
+        # run exhaustive sweep
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_slopes, IS_fractals, self.opt, self.path)
+        analyzer.run()
+        analyzer.save()
+
+    def out_of_sample(self, run):
+
+        # isolate testing test
+        IS_len = self.IS_len
+        OS_len = self.OS_len
+        IS_start = run * OS_len
+        IS_end = IS_start + IS_len
         OS_start = IS_end
         OS_end = OS_start + OS_len
-        OS = data.iloc[OS_start:OS_end]
 
-        # get fittest params from last IS analyzer
-        IS_path = self.path + str(run)
-        fittest = load_result('analyzer', IS_path)['fittest']
+        # mask dataset
+        OS_data = self.data.iloc[OS_start : OS_end]
+        OS_emas = self.emas.iloc[OS_start : OS_end]
+        OS_slopes = self.slopes.iloc[OS_start : OS_end]
+        OS_fractals = self.fractals.iloc[OS_start : OS_end]
 
-        for fitness in Fitness:
+        # get fittest params from in-sample analyzer
+        IS_path = self.path + '/' + str(run)
+        fittest = unpack('analyzer', IS_path)['fittest']
+
+        # create and save engine for each fitness
+        for fitness in tqdm(
+            iterable = Fitness,
+            disable = run != 0, # show only 1 core
+            colour = blue,
+            bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # extract params of fittest engine
             fittest_metric = fittest[fitness]
-            params = load_result(str(fittest_metric.id), IS_path)['params']
-            metrics = load_result(str(fittest_metric.id), IS_path)['metrics']
+            params = unpack(str(fittest_metric.id), IS_path)['params']
 
-            # run strategy blind over OS with best params
-            strategy = LiveStrategy(OS, self.avgs, params)
-            engine = Engine(run, strategy)
+            # run strategy blind with best params
+            strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
+            engine = Engine(
+                id = run,
+                strategy = strategy)
             engine.run()
 
-            # calculate efficiency relative to companion IS
-            for metric in metrics:
-                if metric.name == 'annual_return':
-                    IS_annual = metric.value
-
-            for metric in engine.metrics:
-                if metric.name == 'annual_return':
-                    OS_annual = metric.value
-
-            efficiency = (OS_annual / IS_annual) * 100
-            efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
-            engine.metrics.append(efficiency_metric)
-
-            OS_path = self.path + fitness.value + '/'
+            OS_path = self.path + '/' + fitness.value
             engine.save(OS_path, True)
 
-        # print results
-        # print_metrics(engine.metrics)
-        # engine.print_trades()
-
-    ''' must call after all threads complete '''
     def build_composite(self, fitness):
 
-        data = self.data
-
-        # get params from last IS
-        IS_path = self.path + str(self.runs)
-        fittest = load_result('analyzer', IS_path)['fittest']
+        # get params from last in-sample analyzer
+        IS_path = self.path + '/' + str(self.runs)
+        fittest = unpack('analyzer', IS_path)['fittest']
 
         # extract params of fittest engine
         metric = fittest[fitness]
-        params = load_result(str(metric.id), IS_path)['params']
+        params = unpack(str(metric.id), IS_path)['params']
 
         # build composite engine
         cash_series, trades, efficiency_sum = pd.Series(), [], 0
 
-        for run in range(self.runs):
+        # loop out-of-sample
+        for run in tqdm(
+            iterable = range(self.runs),
+            disable = fitness is not Fitness.DRAWDOWN_PER_PROFIT, # show only 1 core
+            colour = blue,
+            bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
-            OS_path = self.path + fitness.value + '/'
+            OS_path = self.path + '/' + fitness.value
 
             # extract saved OS engine results
-            OS_cash_series = load_result(run, OS_path)['cash_series']
-            OS_trades = load_result(run, OS_path)['trades']
-            OS_metrics = load_result(run, OS_path)['metrics']
+            _cash_series = unpack(run, OS_path)['cash_series']
+            _trades = unpack(run, OS_path)['trades']
+            _metrics = unpack(run, OS_path)['metrics']
 
-            initial_cash = OS_cash_series.values[0]
-
-            # todo engine efficiency error?
-            for metric in OS_metrics:
-                if metric.name == 'efficiency':
-                    efficiency_sum += metric.value
-
+            # cumulative cash series
+            initial_cash = _cash_series.values[0]
             if len(cash_series) > 0:
-
                 last_balance = cash_series.values[-1]
-                OS_cash_series += last_balance - initial_cash
+                _cash_series += last_balance - initial_cash
 
-            cash_series = cash_series._append(OS_cash_series)
-            trades.extend(OS_trades)
+            cash_series = cash_series._append(_cash_series)
+            trades.extend(_trades)
 
         # reindex trades
         for i, trade in enumerate(trades):
-            trade.id = i + 1 # 1-based index
+            trade.id = i + 1 # 1-based index for tradingview
 
         # mask data to OS sample
-        OS = data.loc[cash_series.index, :]
+        OS_data = self.data.loc[cash_series.index, :]
+        OS_emas = self.emas.loc[cash_series.index, :]
+        OS_slopes = self.slopes.loc[cash_series.index, :]
+        OS_fractals = self.fractals.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        strategy = LiveStrategy(OS, self.avgs, params)
+        strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
         engine = Engine(fitness.value, strategy)
 
         # finish engine build
@@ -195,26 +156,82 @@ class WalkForward():
         engine.trades = trades
         engine.analyze() # generate metrics
 
-        # todo calculate efficiency, add to metrics
-        efficiency = efficiency_sum / self.runs
-        efficiency_metric = Metric('efficiency', efficiency, '%', 'Efficiency', None, engine.id)
-        engine.metrics.append(efficiency_metric)
-
         engine.save(self.path, True)
 
-        self.analyze()
-
     def analyze(self):
+
+        # isolate composite with highest profit
+        highest_profit = -np.inf
+        for fitness in Fitness:
+
+            engine = unpack(fitness.value, self.path)
+            cash_series = engine['cash_series']
+            cash = cash_series[-1]
+
+            if cash > highest_profit:
+                highest_profit = cash
+                best_params = engine['params']
+                best_fitness = fitness
+
+        self.best_params = best_params
+        self.best_fitness = best_fitness
+
         self.metrics += get_walk_forward_results_metrics(self)
 
-def get_slope(series):
+    def plot_equity(self):
 
-    slope = pd.Series(index=series.index)
-    prev = series.iloc[0]
+        ax = init_plot(1, 'Equity')
 
-    for idx, value in series.items():
-        if idx == series.index[0]: continue
-        slope[idx] = ((value - prev) / prev) * 100
-        prev = value
+        for fitness in Fitness:
 
-    return np.rad2deg(np.atan(slope))
+            # unpack composite engine
+            engine = unpack(fitness.value, self.path)
+            params = engine['params']
+            cash_series = engine['cash_series']
+
+            # mask dataset
+            start = cash_series.index[0]
+            end = cash_series.index[-1]
+            comp_data = self.data[start: end]
+            comp_ema = self.emas[start: end]
+            comp_slopes = self.slopes[start: end]
+            comp_fractals = self.fractals[start: end]
+
+            strategy = FastStrategy(comp_data, comp_ema, comp_slopes, comp_fractals, params)
+            composite = Engine(fitness.value, strategy)
+
+            # deserialize previous result
+            composite.id = engine['id']
+            composite.params = params
+            composite.metrics = engine['metrics']
+            composite.trades = engine['trades']
+            composite.cash_series = cash_series
+            composite.cash = cash_series[-1]
+
+            # plot cash series
+            fplt.plot(cash_series, color=fitness.color, legend=fitness.pretty, ax=ax)
+
+            # plot selected fitness composite
+            if fitness is self.best_fitness:
+                composite.print_metrics()
+                composite.print_trades()
+                composite.plot_trades()
+                composite.plot_equity()
+
+            # only calc once
+            if fitness is Fitness.PROFIT:
+
+                # plot initial cash
+                fplt.plot(composite.initial_cash, color=dark_gray, ax=ax)
+
+                # reference simple buy and hold
+                size = composite.strategy.size
+                point_value = composite.strategy.ticker.point_value
+                delta_df = composite.data.Close - composite.data.Close.iloc[0]
+                initial_cash = composite.initial_cash
+                buy_hold = size * point_value * delta_df + initial_cash
+
+                # plot buy and hold
+                fplt.plot(buy_hold, color=dark_gray, ax=ax)
+
+        fplt.show()

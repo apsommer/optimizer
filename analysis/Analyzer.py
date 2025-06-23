@@ -2,77 +2,74 @@ import os
 import pickle
 
 import pandas as pd
+import pandas.core.util.hashing
 from numpy import linspace
 from tqdm import tqdm
 
 from analysis.Engine import Engine
 from model.Fitness import Fitness
-from utils.utils import load_result
+from strategy.FastParams import FastParams
+from strategy.FastStrategy import FastStrategy
+from utils import utils
+from utils.utils import *
 from utils.metrics import *
-from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, avgs, opt, path):
+    def __init__(self, id, data, emas, slopes, fractals, opt, wfa_path):
 
         self.id = id
         self.data = data
-        self.avgs = avgs
+        self.emas = emas
+        self.slopes = slopes
+        self.fractals = fractals
         self.opt = opt
-        self.path = path
-
-        self.results = []
+        self.wfa_path = wfa_path
+        self.path = wfa_path  + '/' + str(id) + '/'
+        self.engines = []
         self.metrics = []
         self.fittest = { }
 
         # common
-        self.params = LiveParams(
-            fastMinutes = 25,
-            disableEntryMinutes = None,
-            fastMomentumMinutes = None,
-            fastCrossoverPercent = 0,
+        self.params = FastParams(
             takeProfitPercent = None,
-            fastAngleFactor = 15,
-            slowMinutes = 2555,
-            slowAngleFactor = 20,
-            coolOffMinutes = 5)
+            stopLossPercent = None,
+            proximityPercent = None,
+        )
 
         # extract opt
-        self.disableEntryMinutes = self.opt['disableEntryMinutes']
-        self.fastMomentumMinutes = self.opt['fastMomentumMinutes']
         self.takeProfitPercent = self.opt['takeProfitPercent']
+        self.stopLossPercent = self.opt['stopLossPercent']
+        self.slowAngleFactor = self.opt['slowAngleFactor']
 
     def run(self):
 
-        data = self.data
         params = self.params
-
         id = 0
-        total = len(self.disableEntryMinutes) * len(self.fastMomentumMinutes) * len(self.takeProfitPercent)
+        total = (
+            len(self.takeProfitPercent)
+            * len(self.stopLossPercent)
+            * len(self.slowAngleFactor))
 
         with tqdm(
-            disable = self.id != 0,
-            # leave = self.id == 0,
-            # position = self.id,
+            disable = self.id != 0, # show only 1 core
             total = total,
-            colour = '#4287f5',
-            bar_format = '        {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            colour = blue,
+            bar_format = '        In-sample:      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
-            for disableEntryMinutes in self.disableEntryMinutes:
-                for fastMomentumMinutes in self.fastMomentumMinutes:
-                    for takeProfitPercent in self.takeProfitPercent:
-
-                        # if id > 100:
-                        #     break
+            # sweep params from opt
+            for takeProfitPercent in self.takeProfitPercent:
+                for stopLossPercent in self.stopLossPercent:
+                    for slowAngleFactor in self.slowAngleFactor:
 
                         # update params
-                        params.disableEntryMinutes = disableEntryMinutes
-                        params.fastMomentumMinutes = fastMomentumMinutes
                         params.takeProfitPercent = takeProfitPercent
+                        params.stopLossPercent = stopLossPercent
+                        params.slowAngleFactor = slowAngleFactor
 
                         # create strategy and engine
-                        strategy = LiveStrategy(data, self.avgs, params)
+                        strategy = FastStrategy(self.data, self.emas, self.slopes, self.fractals, params)
                         engine = Engine(id, strategy)
 
                         # run and save
@@ -93,9 +90,8 @@ class Analyzer:
 
         # collect engine metrics
         for id in ids:
-            result = load_result(id, self.path)
-            metrics = result['metrics']
-            self.results.append(metrics)
+            self.engines.append(
+                unpack(id, self.path)['metrics'])
 
         # init metrics
         self.metrics = get_analyzer_metrics(self)
@@ -108,52 +104,35 @@ class Analyzer:
 
     def get_fittest_metric(self, fitness):
 
-        results = self.results
-        name = fitness.value
+        engines = self.engines
+        fitness_name = fitness.value
 
         # isolate metric of interest
         _metrics = []
-        for metrics in results:
+        for metrics in engines:
             for metric in metrics:
-                if metric.name == name:
+                if metric.name == fitness_name:
                     _metrics.append(metric)
 
-        # sort metrics on fitness
-        ranked = sorted(
+        # sort based on fitness max/min
+        isReversed = fitness.is_max
+
+        metric = sorted(
             _metrics,
             key = lambda it: it.value,
-            reverse = fitness.is_max)
-
-        metric = ranked[0]
+            reverse = isReversed)[0]
 
         # tag title
-        title = '* ' + metric.title
+        metric.title = '* ' + metric.title
+        return metric
 
-        return Metric(metric.name, metric.value, metric.unit, title, metric.formatter, metric.id)
-
-    ''' serialize '''
     def save(self):
 
-        path = self.path
-
-        result = {
-            'id': self.id,
-            'metrics': self.metrics,
-            'fittest': self.fittest
-        }
-
-        # make directory, if needed
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        # create new binary
-        filename = 'analyzer' + '.bin'
-        path_filename = path + '/' + filename
-
-        filehandler = open(path_filename, 'wb')
-        pickle.dump(result, filehandler)
-
-########################################################################################################################
-
-
-
+        save(
+            bundle = {
+                'id': self.id,
+                'metrics': self.metrics,
+                'fittest': self.fittest,
+            },
+            filename = 'analyzer',
+            path = self.path)

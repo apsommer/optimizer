@@ -37,6 +37,7 @@ def get_engine_metrics(engine):
     # check trades exist
     num_trades = len(engine.trades)
     if num_trades == 0:
+        print('Engine has no trades\n')
         return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
 
     trades = engine.trades
@@ -139,7 +140,7 @@ def get_analyzer_metrics(analyzer):
 
     start_date = analyzer.data.index[0]
     end_date = analyzer.data.index[-1]
-    num_engines = len(analyzer.results)
+    num_engines = len(analyzer.engines)
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
     candles = len(analyzer.data.index)
 
@@ -157,7 +158,7 @@ def get_analyzer_metrics(analyzer):
         Metric('days', days, None, 'Days'),
     ]
 
-def get_walk_forward_init_metrics(wfa):
+def init_walk_forward_metrics(wfa):
 
     start_date = wfa.data.index[0]
     end_date = wfa.data.index[-1]
@@ -173,9 +174,9 @@ def get_walk_forward_init_metrics(wfa):
 
     # pretty
     candles = '{:,}'.format(candles)
-    runs = str(wfa.runs + 1) + ' [' + str(wfa.runs) + ' + 1]'
-    in_sample = str(in_sample) + ' / ' + str(in_sample * (wfa.runs + 1))
-    out_of_sample = str(out_of_sample) + ' / ' + str(out_of_sample * wfa.runs)
+    runs = str(wfa.runs) + ' + 1 last in-sample'
+    in_sample = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
+    out_of_sample = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
 
     return [
         Metric('header', None, None, 'Walk forward:'),
@@ -190,10 +191,10 @@ def get_walk_forward_init_metrics(wfa):
         Metric('out_of_sample', out_of_sample, None, 'Out-of-sample days'),
     ]
 
-def get_walk_forward_results_metrics(walk_forward):
+def get_walk_forward_results_metrics(wfa):
 
-    candles = walk_forward.OS_len
-    start = walk_forward.data.index[-1]
+    candles = wfa.OS_len
+    start = wfa.data.index[-1]
     end = start + timedelta(minutes = candles)
     days = (end - start).days
 
@@ -202,7 +203,8 @@ def get_walk_forward_results_metrics(walk_forward):
     end = format_timestamp(end)
 
     return [
-        Metric('params', str(walk_forward.params), None, 'Params'),
+        Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
+        Metric('params', str(wfa.best_params), None, 'Params'),
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),
