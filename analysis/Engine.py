@@ -94,8 +94,35 @@ class Engine:
         # tag all metrics with engine id
         for metric in self.metrics: metric.id = self.id
 
+    ''' serialize '''
+    def save(self, path, isFull):
+
+        # out-of-sample
+        if isFull: bundle = {
+            'id': self.id,
+            'params': self.strategy.params,
+            'metrics': self.metrics,
+            'trades': self.trades,
+            'cash_series': self.cash_series
+        }
+
+        # in-sample
+        else: bundle = {
+            'id': self.id,
+            'params': self.strategy.params,
+            'metrics': self.metrics
+        }
+
+        save(
+            bundle = bundle,
+            filename = str(self.id),
+            path = path)
+
     ####################################################################################################################
 
+    def print_metrics(self):
+        print_metrics(self.metrics)
+        
     def print_trades(self):
 
         show_last = 3
@@ -217,30 +244,3 @@ class Engine:
         fplt.plot(self.cash_series, ax = ax)
 
         fplt.show()
-
-    def print_metrics(self):
-        print_metrics(self.metrics)
-
-    ''' serialize '''
-    def save(self, path, isFull):
-
-        # out-of-sample
-        if isFull: bundle = {
-            'id': self.id,
-            'params': self.strategy.params,
-            'metrics': self.metrics,
-            'trades': self.trades,
-            'cash_series': self.cash_series
-        }
-
-        # in-sample
-        else: bundle = {
-            'id': self.id,
-            'params': self.strategy.params,
-            'metrics': self.metrics
-        }
-
-        save(
-            bundle = bundle,
-            filename = str(self.id),
-            path = path)
