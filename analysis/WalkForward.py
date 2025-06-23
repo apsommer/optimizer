@@ -74,6 +74,7 @@ class WalkForward():
         OS_data = self.data.iloc[OS_start : OS_end]
         OS_emas = self.emas.iloc[OS_start : OS_end]
         OS_slopes = self.slopes.iloc[OS_start : OS_end]
+        OS_fractals = self.fractals.iloc[OS_start : OS_end]
 
         # get fittest params from in-sample analyzer
         IS_path = self.path + '/' + str(run)
@@ -91,7 +92,7 @@ class WalkForward():
             params = unpack(str(fittest_metric.id), IS_path)['params']
 
             # run strategy blind with best params
-            strategy = FastStrategy(OS_data, OS_emas, OS_slopes, params)
+            strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
             engine = Engine(
                 id = run,
                 strategy = strategy)
@@ -144,9 +145,10 @@ class WalkForward():
         OS_data = self.data.loc[cash_series.index, :]
         OS_emas = self.emas.loc[cash_series.index, :]
         OS_slopes = self.slopes.loc[cash_series.index, :]
+        OS_fractals = self.fractals.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        strategy = FastStrategy(OS_data, OS_emas, OS_slopes, params)
+        strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
         engine = Engine(fitness.value, strategy)
 
         # finish engine build
@@ -193,8 +195,9 @@ class WalkForward():
             comp_data = self.data[start: end]
             comp_ema = self.emas[start: end]
             comp_slopes = self.slopes[start: end]
+            comp_fractals = self.fractals[start: end]
 
-            strategy = FastStrategy(comp_data, comp_ema, comp_slopes, params)
+            strategy = FastStrategy(comp_data, comp_ema, comp_slopes, comp_fractals, params)
             composite = Engine(fitness.value, strategy)
 
             # deserialize previous result

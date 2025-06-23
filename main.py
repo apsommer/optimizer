@@ -23,7 +23,7 @@ from utils.metrics import *
 # INPUT ###########################################################
 
 # data
-num_months = 14
+num_months = 3
 isNetwork = False
 
 # walk forward
@@ -33,9 +33,9 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 # analyzer
 num = 1
 opt = {
-    'takeProfitPercent': np.linspace(.25, 2, num),
-    'stopLossPercent': np.linspace(.25, 2, num),
-    'proximityPercent': np.linspace(.25, 2, num),
+    'takeProfitPercent': np.linspace(0.25, 0.75, num),
+    'stopLossPercent': np.linspace(0.25, 2, num),
+    'proximityPercent': np.linspace(0.25, 2, num),
 }
 
 ###################################################################
