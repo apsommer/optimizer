@@ -30,18 +30,20 @@ class FastStrategy(BaselineStrategy):
         self.slopes = slopes
         self.fractals = fractals
 
+        # unpack params
         takeProfitPercent = params.takeProfitPercent
+        stopLossPercent = params.stopLossPercent
+        slowAngleFactor = params.slowAngleFactor
+
         self.takeProfit = takeProfitPercent / 100.0
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
 
-        stopLossPercent = params.stopLossPercent
         self.stopLoss = stopLossPercent / 100.0
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
 
-        proximityPercent = params.proximityPercent
-        self.proximity = proximityPercent / 100.0
+        self.slowAngle = slowAngleFactor / 1000.0
 
     def on_bar(self):
 
@@ -78,6 +80,7 @@ class FastStrategy(BaselineStrategy):
         longStopLoss = self.longStopLoss
         shortStopLoss = self.shortStopLoss
         isExitLastBar = False
+        slowAngle = self.slowAngle
 
         ################################################################################################################
 
@@ -93,24 +96,24 @@ class FastStrategy(BaselineStrategy):
 
         # entry long
         isEntryLong = (
-            is_flat
-            and slowestEma < open < fastestEma
-            and close > buyFractal
-            and close > fastestEma
-            and buyFractal > fastestEma
-            and self.proximity > abs(close - slowestEma) / slowestEma
+                is_flat
+                and slowestEma < open < fastestEma
+                and close > buyFractal
+                and close > fastestEma
+                and buyFractal > fastestEma
+                and slowestSlope > slowAngle
         )
         if isEntryLong:
             self.buy(ticker, size)
 
         # entry short
         isEntryShort = (
-            is_flat
-            and slowestEma > open > fastestEma
-            and sellFractal > close
-            and fastestEma > close
-            and fastestEma > sellFractal
-            and self.proximity > abs(close - slowestEma) / slowestEma
+                is_flat
+                and slowestEma > open > fastestEma
+                and sellFractal > close
+                and fastestEma > close
+                and fastestEma > sellFractal
+                and -slowAngle > slowestSlope
         )
         if isEntryShort:
             self.sell(ticker, size)

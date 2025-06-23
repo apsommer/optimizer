@@ -23,19 +23,21 @@ from utils.metrics import *
 # INPUT ###########################################################
 
 # data
-num_months = 3
+num_months = 6
 isNetwork = False
+
+# indicators
+shouldBuildIndicators = False
 
 # walk forward
 percent = 20
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
-num = 1
 opt = {
-    'takeProfitPercent': np.linspace(0.25, 0.75, num),
-    'stopLossPercent': np.linspace(0.25, 2, num),
-    'proximityPercent': np.linspace(0.25, 2, num),
+    'takeProfitPercent': np.linspace(0.25, 0.75, 6),
+    'stopLossPercent': np.linspace(0.5, 1.5, 6),
+    'slowAngleFactor': np.linspace(5, 20, 4),
 }
 
 ###################################################################
@@ -54,7 +56,7 @@ path = parent_path + '/' + str(percent) + '_' + str(runs)
 data = utils.getOhlc(num_months, isNetwork)
 
 # build indicators
-# build_indicators(data, parent_path)
+if shouldBuildIndicators: build_indicators(data, parent_path)
 emas = unpack('emas', parent_path)
 slopes = unpack('slopes', parent_path)
 fractals = unpack('fractals', parent_path)
