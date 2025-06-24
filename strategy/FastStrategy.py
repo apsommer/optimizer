@@ -32,16 +32,16 @@ class FastStrategy(BaselineStrategy):
 
         # unpack params
         takeProfitPercent = params.takeProfitPercent
-        stopLossPercent = params.stopLossPercent
+        # stopLossPercent = params.stopLossPercent
         slowAngleFactor = params.slowAngleFactor
 
         self.takeProfit = takeProfitPercent / 100.0
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
 
-        self.stopLoss = stopLossPercent / 100.0
-        self.longStopLoss = np.nan
-        self.shortStopLoss = np.nan
+        # self.stopLoss = stopLossPercent / 100.0
+        # self.longStopLoss = np.nan
+        # self.shortStopLoss = np.nan
 
         self.slowAngle = slowAngleFactor / 1000.0
 
@@ -76,9 +76,9 @@ class FastStrategy(BaselineStrategy):
         takeProfit = self.takeProfit
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
-        stopLoss = self.stopLoss
-        longStopLoss = self.longStopLoss
-        shortStopLoss = self.shortStopLoss
+        # stopLoss = self.stopLoss
+        # longStopLoss = self.longStopLoss
+        # shortStopLoss = self.shortStopLoss
         isExitLastBar = False
         slowAngle = self.slowAngle
 
@@ -132,17 +132,24 @@ class FastStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
-        # exit, long stop loss
-        if isEntryLong: longStopLoss = (1 - stopLoss) * close
-        elif not is_long: longStopLoss = np.nan
-        self.longStopLoss = longStopLoss
-        isExitLongStopLoss = longStopLoss > low
+        # # exit, long stop loss
+        # if isEntryLong: longStopLoss = (1 - stopLoss) * close
+        # elif not is_long: longStopLoss = np.nan
+        # self.longStopLoss = longStopLoss
+        # isExitLongStopLoss = longStopLoss > low
+        #
+        # # exit, short stop loss
+        # if isEntryShort: shortStopLoss = (1 + stopLoss) * close
+        # elif not is_short: shortStopLoss = np.nan
+        # self.shortStopLoss = shortStopLoss
+        # isExitShortStopLoss = high > shortStopLoss
+        #
+        # exit, long momentum
+        # isExitLongMomentum = is_long and -slowAngle > slowestSlope
+        # isExitShortMomentum = is_short and slowestSlope > slowAngle
 
-        # exit, short stop loss
-        if isEntryShort: shortStopLoss = (1 + stopLoss) * close
-        elif not is_short: shortStopLoss = np.nan
-        self.shortStopLoss = shortStopLoss
-        isExitShortStopLoss = high > shortStopLoss
+        isExitCrossoverLong = is_long and slowestEma > fastestEma
+        isExitCrossoverShort = is_short and fastestEma > slowestEma
 
         # exit on last bar of data
         if idx == self.data.index[-1]:
@@ -152,8 +159,10 @@ class FastStrategy(BaselineStrategy):
         # exit long
         isExitLong = is_long and (
             isExitLongTakeProfit
-            or isExitLongStopLoss
+            # or isExitLongStopLoss
             # high > fastestEma
+            # or isExitLongMomentum
+            or isExitShortTakeProfit
             or isExitLastBar)
         if isExitLong:
             self.flat(ticker, size)
@@ -161,7 +170,9 @@ class FastStrategy(BaselineStrategy):
         # exit short
         isExitShort = is_short and (
             isExitShortTakeProfit
-            or isExitShortStopLoss
+            # or isExitShortStopLoss
+            # or isExitShortMomentum
+            or isExitLongTakeProfit
             or isExitLastBar)
         if isExitShort:
             self.flat(ticker, size)

@@ -33,9 +33,9 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
 opt = {
-    'takeProfitPercent': np.linspace(0.25, 0.75, 11),
-    'stopLossPercent': np.linspace(0.25, 0.75, 11),
-    'slowAngleFactor': np.linspace(0, 20, 5),
+    'takeProfitPercent': np.linspace(0.25, 1, 16),
+    # 'stopLossPercent': np.linspace(0.25, 0.75, 6),
+    'slowAngleFactor': np.linspace(0, 20, 11),
 }
 
 ###################################################################

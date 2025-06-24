@@ -40,7 +40,7 @@ class Analyzer:
 
         # extract opt
         self.takeProfitPercent = self.opt['takeProfitPercent']
-        self.stopLossPercent = self.opt['stopLossPercent']
+        # self.stopLossPercent = self.opt['stopLossPercent']
         self.slowAngleFactor = self.opt['slowAngleFactor']
 
     def run(self):
@@ -49,7 +49,7 @@ class Analyzer:
         id = 0
         total = (
             len(self.takeProfitPercent)
-            * len(self.stopLossPercent)
+            # * len(self.stopLossPercent)
             * len(self.slowAngleFactor))
 
         with tqdm(
@@ -60,12 +60,12 @@ class Analyzer:
 
             # sweep params from opt
             for takeProfitPercent in self.takeProfitPercent:
-                for stopLossPercent in self.stopLossPercent:
+                # for stopLossPercent in self.stopLossPercent:
                     for slowAngleFactor in self.slowAngleFactor:
 
                         # update params
                         params.takeProfitPercent = takeProfitPercent
-                        params.stopLossPercent = stopLossPercent
+                        # params.stopLossPercent = stopLossPercent
                         params.slowAngleFactor = slowAngleFactor
 
                         # create strategy and engine

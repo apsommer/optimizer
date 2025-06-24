@@ -122,7 +122,7 @@ class Engine:
 
     def print_metrics(self):
         print_metrics(self.metrics)
-        
+
     def print_trades(self):
 
         show_last = 3
@@ -220,8 +220,8 @@ class Engine:
         fplt.plot(entities['loss_exit'], style='o', color=red, ax=ax)
 
         # trades
-        fplt.plot(entities['long_trade'], color=blue, width= 4, ax=ax)
-        fplt.plot(entities['short_trade'], color=aqua, width = 4, ax=ax)
+        fplt.plot(entities['long_trade'], color=blue, width= 6, ax=ax)
+        fplt.plot(entities['short_trade'], color=aqua, width = 6, ax=ax)
 
         # fplt.show()
 
