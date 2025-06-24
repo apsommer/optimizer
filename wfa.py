@@ -19,11 +19,11 @@ from utils import utils
 from utils.utils import *
 from utils.metrics import *
 
-''' execute walk-forward analysis '''
+''' walk-forward analysis '''
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 8
+num_months = 14
 isNetwork = False
 shouldBuildIndicators = False
 
@@ -34,8 +34,8 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 # analyzer
 opt = {
     'takeProfitPercent': np.linspace(0.25, 0.75, 11),
-    'stopLossPercent': np.linspace(0.5, 1.5, 11),
-    'slowAngleFactor': np.linspace(5, 20, 4),
+    'stopLossPercent': np.linspace(0.25, 2.25, 11),
+    'slowAngleFactor': np.linspace(0, 20, 8),
 }
 
 ###################################################################

@@ -10,13 +10,13 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 3
+num_months = 8
 isNetwork = False
-path = 'wfa/NQ_3mon'
+path = 'wfa/NQ_8mon'
 
 # finished engine
 engine_path = path + '/20_14'
-id = 'profit'
+id = 'win_rate'
 
 ###################################################################
 

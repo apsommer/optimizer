@@ -73,14 +73,14 @@ def get_engine_metrics(engine):
     elif gross_profit == 0: profit_factor = -np.inf
     else: profit_factor = gross_profit / gross_loss
 
+    # calculate maximum drawdwon
     initial_price = cash_series.iloc[0]
     roll_max = cash_series.cummax() # series, rolling maximum
-
     daily_drawdown = cash_series / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
 
-    drawdown = max_daily_drawdown.min() * initial_price
-    drawdown_per_profit = (drawdown / profit) * 100
+    drawdown = -max_daily_drawdown.min() * initial_price # positive to minimize as fitness
+    drawdown_per_profit = (drawdown / profit) * 100 # positive to minimize as fitness
 
     # wins
     num_wins = len(wins)
@@ -92,15 +92,17 @@ def get_engine_metrics(engine):
     num_losses = len(losses)
     loss_rate = (num_losses / num_trades) * 100
     if num_losses == 0: average_loss = 0
-    else: average_loss = sum(losses) / len(losses)
+    else: average_loss = -sum(losses) / len(losses) # positive to minimize as fitness
 
-    expectancy = ((win_rate / 100) * average_win) + ((loss_rate / 100) * average_loss)
+    expectancy = ((win_rate / 100) * average_win) - ((loss_rate / 100) * average_loss)
 
     # percent long, short
     longs = len([1 for trade in trades if trade.is_long])
     shorts = len([1 for trade in trades if trade.is_short])
     long_percent = round((longs / num_trades) * 100)
     short_percent = round((shorts / num_trades) * 100)
+
+    params = engine.strategy.params
 
     return [
 
@@ -133,7 +135,8 @@ def get_engine_metrics(engine):
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
         Metric('long_percent', long_percent, '%', 'Long'),
-        Metric('short_percent', short_percent, '%', 'Short')
+        Metric('short_percent', short_percent, '%', 'Short'),
+        Metric('params', params, None, 'Params'),
     ]
 
 def get_analyzer_metrics(analyzer):
