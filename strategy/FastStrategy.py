@@ -87,8 +87,8 @@ class FastStrategy(BaselineStrategy):
         # fastest and slowest average
         fastestEma = emas.loc[idx, 60]
         fastestSlope = slopes.loc[idx, 60]
-        slowestEma = emas.loc[idx, 2160]
-        slowestSlope = slopes.loc[idx, 2160]
+        slowestEma = emas.loc[idx, 3000]
+        slowestSlope = slopes.loc[idx, 3000]
 
         # fractal points
         buyFractal = self.fractals.loc[idx, 'buyFractal']
