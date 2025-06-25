@@ -17,7 +17,6 @@ class Fitness(Enum):
 
     @property
     def pretty(self):
-
         title = ''
         match self:
             case Fitness.PROFIT: title = 'Profit'
@@ -31,19 +30,7 @@ class Fitness(Enum):
         return title
 
     @property
-    def is_max(self):
-
-        if (
-            self is Fitness.PROFIT or
-            self is Fitness.EXPECTANCY or
-            self is Fitness.WIN_RATE or
-            self is Fitness.AVERAGE_WIN
-        ): return True
-        return False
-
-    @property
     def color(self):
-
         match self:
             case Fitness.PROFIT: return blue
             case Fitness.EXPECTANCY: return orange

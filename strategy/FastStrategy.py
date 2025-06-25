@@ -148,8 +148,8 @@ class FastStrategy(BaselineStrategy):
         # isExitLongMomentum = is_long and -slowAngle > slowestSlope
         # isExitShortMomentum = is_short and slowestSlope > slowAngle
 
-        isExitCrossoverLong = is_long and slowestEma > fastestEma
-        isExitCrossoverShort = is_short and fastestEma > slowestEma
+        isExitCrossoverLong = is_long and close > fastestEma
+        isExitCrossoverShort = is_short and fastestEma > close
 
         # exit on last bar of data
         if idx == self.data.index[-1]:
@@ -162,6 +162,7 @@ class FastStrategy(BaselineStrategy):
             # or isExitLongStopLoss
             # high > fastestEma
             # or isExitLongMomentum
+            or isExitCrossoverLong
             or isExitShortTakeProfit
             or isExitLastBar)
         if isExitLong:
@@ -172,6 +173,7 @@ class FastStrategy(BaselineStrategy):
             isExitShortTakeProfit
             # or isExitShortStopLoss
             # or isExitShortMomentum
+            or isExitCrossoverShort
             or isExitLongTakeProfit
             or isExitLastBar)
         if isExitShort:

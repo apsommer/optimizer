@@ -114,16 +114,15 @@ class Analyzer:
                 if metric.name == fitness_name:
                     _metrics.append(metric)
 
-        # sort based on fitness max/min
-        isReversed = fitness.is_max
-
-        metric = sorted(
+        # sort by value
+        _sorted = sorted(
             _metrics,
             key = lambda it: it.value,
-            reverse = isReversed)[0]
+            reverse = True)
 
         # tag title
-        metric.title = '* ' + metric.title
+        metric = _sorted[0]
+        metric.title = '* [' + metric.id + '] ' + metric.title
         return metric
 
     def save(self):
