@@ -59,6 +59,10 @@ class BaselineStrategy():
     def close(self):
         return self.data.loc[self.current_idx]['Close']
 
+    @property
+    def is_last_bar(self):
+        return self.current_idx == self.data.index[-1]
+
     """ Override by implementers """
     def on_bar(self):
         pass

@@ -45,6 +45,9 @@ class FastStrategy(BaselineStrategy):
 
         self.slowAngle = slowAngleFactor / 1000.0
 
+        self.longEntryBarIndex = -1
+        self.shortEntryBarIndex = -1
+
     def on_bar(self):
 
         # index
@@ -97,26 +100,30 @@ class FastStrategy(BaselineStrategy):
 
         # entry long
         isEntryLong = (
-                is_flat
-                and slowestEma < open < fastestEma
-                and close > buyFractal
-                and close > fastestEma
-                and buyFractal > fastestEma
-                and slowestSlope > slowAngle
+            is_flat
+            and slowestEma < open < fastestEma
+            and close > buyFractal
+            and close > fastestEma
+            and buyFractal > fastestEma
+            and slowestSlope > slowAngle
+            and not self.is_last_bar
         )
         if isEntryLong:
+            self.longEntryBarIndex = bar_index
             self.buy(ticker, size)
 
         # entry short
         isEntryShort = (
-                is_flat
-                and slowestEma > open > fastestEma
-                and sellFractal > close
-                and fastestEma > close
-                and fastestEma > sellFractal
-                and -slowAngle > slowestSlope
+            is_flat
+            and slowestEma > open > fastestEma
+            and sellFractal > close
+            and fastestEma > close
+            and fastestEma > sellFractal
+            and -slowAngle > slowestSlope
+            and not self.is_last_bar
         )
         if isEntryShort:
+            self.shortEntryBarIndex = bar_index
             self.sell(ticker, size)
 
         ################################################################################################################
@@ -153,10 +160,8 @@ class FastStrategy(BaselineStrategy):
         isExitLongCrossover = is_long and slowestEma > close
         isExitShortCrossover = is_short and close > slowestEma
 
-        # exit on last bar of data
-        if idx == self.data.index[-1]:
-            if is_long or is_short:
-                isExitLastBar = True
+        isExitLongTimeout = is_long and bar_index - self.longEntryBarIndex > 5
+        isExitShortTimeout = is_short and bar_index - self.shortEntryBarIndex > 5
 
         # exit long
         isExitLong = is_long and (
@@ -164,7 +169,8 @@ class FastStrategy(BaselineStrategy):
             or isExitLongStopLoss
             or isExitLongMomentum
             or isExitLongCrossover
-            or isExitLastBar)
+            or isExitLongTimeout
+            or self.is_last_bar)
         if isExitLong:
             self.flat(ticker, size)
 
@@ -174,7 +180,8 @@ class FastStrategy(BaselineStrategy):
             or isExitShortStopLoss
             or isExitShortMomentum
             or isExitShortCrossover
-            or isExitLastBar)
+            or isExitShortTimeout
+            or self.is_last_bar)
         if isExitShort:
             self.flat(ticker, size)
 

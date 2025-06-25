@@ -187,6 +187,9 @@ class Engine:
                 entities.loc[exit_idx, 'profit_exit'] = np.nan
                 entities.loc[exit_idx, 'loss_exit'] = exit_price
 
+            if trade.id > 110:
+                pass
+
             # build trade line
             timestamps = pd.date_range(
                 start=entry_idx,

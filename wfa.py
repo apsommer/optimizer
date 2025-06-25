@@ -23,7 +23,7 @@ from utils.metrics import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 14
+num_months = 3
 isNetwork = False
 shouldBuildIndicators = False
 
@@ -33,9 +33,9 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
 opt = {
-    'takeProfitPercent': np.linspace(0.25, 0.75, 5),
-    'stopLossRatio': np.linspace(0.1, 1, 10),
-    'slowAngleFactor': np.linspace(0, 20, 5),
+    'takeProfitPercent': [0.1], # np.linspace(0.25, 0.75, 5),
+    'stopLossRatio': [0.5, 1], # np.linspace(0.1, 1, 10),
+    'slowAngleFactor': [5] # np.linespace() np.linspace(0, 20, 5),
 }
 
 ###################################################################
