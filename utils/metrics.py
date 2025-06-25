@@ -71,7 +71,7 @@ def get_engine_metrics(engine):
 
     if gross_loss == 0: profit_factor = np.inf
     elif gross_profit == 0: profit_factor = -np.inf
-    else: profit_factor = gross_profit / gross_loss
+    else: profit_factor = - gross_profit / gross_loss
 
     # calculate maximum drawdown
     initial_price = cash_series.iloc[0]

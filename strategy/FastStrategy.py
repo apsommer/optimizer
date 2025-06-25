@@ -32,14 +32,14 @@ class FastStrategy(BaselineStrategy):
 
         # unpack params
         takeProfitPercent = params.takeProfitPercent
-        stopLossPercent = params.stopLossPercent
+        stopLossRatio = params.stopLossRatio
         slowAngleFactor = params.slowAngleFactor
 
         self.takeProfit = takeProfitPercent / 100.0
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
 
-        self.stopLoss = stopLossPercent / 100.0
+        self.stopLoss = stopLossRatio * self.takeProfit
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
 
@@ -150,8 +150,8 @@ class FastStrategy(BaselineStrategy):
         isExitShortMomentum = is_short and slowestSlope > slowAngle
 
         # exit, crossover regime change
-        isExitLongCrossover = is_long and close > fastestEma
-        isExitShortCrossover = is_short and fastestEma > close
+        isExitLongCrossover = is_long and slowestEma > close
+        isExitShortCrossover = is_short and close > slowestEma
 
         # exit on last bar of data
         if idx == self.data.index[-1]:

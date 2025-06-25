@@ -7,10 +7,10 @@ class FastParams:
     ):
 
         self.takeProfitPercent = takeProfitPercent
-        self.stopLossPercent = stopLossPercent
+        self.stopLossRatio = stopLossPercent
         self.slowAngleFactor = proximityPercent
 
     def __repr__(self):
         return (
-            f'{self.takeProfitPercent}, {self.stopLossPercent}, {self.slowAngleFactor}')
+            f'{self.takeProfitPercent}, {self.stopLossRatio}, {self.slowAngleFactor}')
 
