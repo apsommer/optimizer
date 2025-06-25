@@ -63,7 +63,7 @@ def get_engine_metrics(engine):
     wins = [ trade.profit for trade in trades if trade.profit > 0 ]
     losses = [ trade.profit for trade in trades if 0 > trade.profit ]
     gross_profit = sum(wins)
-    gross_loss = -sum(losses)
+    gross_loss = sum(losses)
 
     total_return = (profit / initial_cash) * 100
     annual_return = ((abs(cash) / initial_cash) ** (1 / (days / 365)) - 1) * 100
@@ -73,7 +73,7 @@ def get_engine_metrics(engine):
     elif gross_profit == 0: profit_factor = -np.inf
     else: profit_factor = gross_profit / gross_loss
 
-    # calculate maximum drawdwon
+    # calculate maximum drawdown
     initial_price = cash_series.iloc[0]
     roll_max = cash_series.cummax() # series, rolling maximum
     daily_drawdown = cash_series / roll_max - 1.0

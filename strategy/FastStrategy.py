@@ -32,20 +32,25 @@ class FastStrategy(BaselineStrategy):
 
         # unpack params
         takeProfitPercent = params.takeProfitPercent
-        # stopLossPercent = params.stopLossPercent
+        stopLossPercent = params.stopLossPercent
         slowAngleFactor = params.slowAngleFactor
 
         self.takeProfit = takeProfitPercent / 100.0
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
 
-        # self.stopLoss = stopLossPercent / 100.0
-        # self.longStopLoss = np.nan
-        # self.shortStopLoss = np.nan
+        self.stopLoss = stopLossPercent / 100.0
+        self.longStopLoss = np.nan
+        self.shortStopLoss = np.nan
 
         self.slowAngle = slowAngleFactor / 1000.0
 
     def on_bar(self):
+
+        # index
+        idx = self.current_idx
+        self.bar_index += 1
+        bar_index = self.bar_index
 
         data = self.data
         params = self.params
@@ -53,36 +58,11 @@ class FastStrategy(BaselineStrategy):
         slopes = self.slopes
         fractals = self.fractals
 
-        # index
-        idx = self.current_idx
-        self.bar_index += 1
-        bar_index = self.bar_index
-
         # data
-        open = self.data.Open[idx]
-        high = self.data.High[idx]
-        low = self.data.Low[idx]
-        close = self.data.Close[idx]
-
-        # position
-        is_flat = self.is_flat
-        is_long = self.is_long
-        is_short = self.is_short
-
-        ticker = self.ticker
-        size = self.size
-
-        # strategy
-        takeProfit = self.takeProfit
-        longTakeProfit = self.longTakeProfit
-        shortTakeProfit = self.shortTakeProfit
-        # stopLoss = self.stopLoss
-        # longStopLoss = self.longStopLoss
-        # shortStopLoss = self.shortStopLoss
-        isExitLastBar = False
-        slowAngle = self.slowAngle
-
-        ################################################################################################################
+        open = data.Open[idx]
+        high = data.High[idx]
+        low = data.Low[idx]
+        close = data.Close[idx]
 
         # fastest and slowest average
         fastestEma = emas.loc[idx, 60]
@@ -91,8 +71,29 @@ class FastStrategy(BaselineStrategy):
         slowestSlope = slopes.loc[idx, 3000]
 
         # fractal points
-        buyFractal = self.fractals.loc[idx, 'buyFractal']
-        sellFractal = self.fractals.loc[idx, 'sellFractal']
+        buyFractal = fractals.loc[idx, 'buyFractal']
+        sellFractal = fractals.loc[idx, 'sellFractal']
+
+        # position
+        is_flat = self.is_flat
+        is_long = self.is_long
+        is_short = self.is_short
+
+        # strategy
+        takeProfit = self.takeProfit
+        longTakeProfit = self.longTakeProfit
+        shortTakeProfit = self.shortTakeProfit
+        stopLoss = self.stopLoss
+        longStopLoss = self.longStopLoss
+        shortStopLoss = self.shortStopLoss
+        isExitLastBar = False
+        slowAngle = self.slowAngle
+
+        # orders
+        ticker = self.ticker
+        size = self.size
+
+        ################################################################################################################
 
         # entry long
         isEntryLong = (
@@ -132,24 +133,25 @@ class FastStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
-        # # exit, long stop loss
-        # if isEntryLong: longStopLoss = (1 - stopLoss) * close
-        # elif not is_long: longStopLoss = np.nan
-        # self.longStopLoss = longStopLoss
-        # isExitLongStopLoss = longStopLoss > low
-        #
-        # # exit, short stop loss
-        # if isEntryShort: shortStopLoss = (1 + stopLoss) * close
-        # elif not is_short: shortStopLoss = np.nan
-        # self.shortStopLoss = shortStopLoss
-        # isExitShortStopLoss = high > shortStopLoss
-        #
-        # exit, long momentum
-        # isExitLongMomentum = is_long and -slowAngle > slowestSlope
-        # isExitShortMomentum = is_short and slowestSlope > slowAngle
+        # exit, long stop loss
+        if isEntryLong: longStopLoss = (1 - stopLoss) * close
+        elif not is_long: longStopLoss = np.nan
+        self.longStopLoss = longStopLoss
+        isExitLongStopLoss = longStopLoss > low
 
-        isExitCrossoverLong = is_long and close > fastestEma
-        isExitCrossoverShort = is_short and fastestEma > close
+        # exit, short stop loss
+        if isEntryShort: shortStopLoss = (1 + stopLoss) * close
+        elif not is_short: shortStopLoss = np.nan
+        self.shortStopLoss = shortStopLoss
+        isExitShortStopLoss = high > shortStopLoss
+
+        # exit, long momentum
+        isExitLongMomentum = is_long and -slowAngle > slowestSlope
+        isExitShortMomentum = is_short and slowestSlope > slowAngle
+
+        # exit, crossover regime change
+        isExitLongCrossover = is_long and close > fastestEma
+        isExitShortCrossover = is_short and fastestEma > close
 
         # exit on last bar of data
         if idx == self.data.index[-1]:
@@ -158,23 +160,20 @@ class FastStrategy(BaselineStrategy):
 
         # exit long
         isExitLong = is_long and (
-            isExitLongTakeProfit
-            # or isExitLongStopLoss
-            # high > fastestEma
-            # or isExitLongMomentum
-            or isExitCrossoverLong
-            or isExitShortTakeProfit
+               isExitLongTakeProfit
+            or isExitLongStopLoss
+            or isExitLongMomentum
+            or isExitLongCrossover
             or isExitLastBar)
         if isExitLong:
             self.flat(ticker, size)
 
         # exit short
         isExitShort = is_short and (
-            isExitShortTakeProfit
-            # or isExitShortStopLoss
-            # or isExitShortMomentum
-            or isExitCrossoverShort
-            or isExitLongTakeProfit
+               isExitShortTakeProfit
+            or isExitShortStopLoss
+            or isExitShortMomentum
+            or isExitShortCrossover
             or isExitLastBar)
         if isExitShort:
             self.flat(ticker, size)

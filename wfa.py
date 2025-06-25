@@ -28,13 +28,13 @@ isNetwork = False
 shouldBuildIndicators = False
 
 # walk forward
-percent = 25
+percent = 20
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
 opt = {
-    'takeProfitPercent': np.linspace(0.25, 1, 3),
-    # 'stopLossPercent': np.linspace(0.25, 0.75, 6),
+    'takeProfitPercent': np.linspace(0.25, 1, 2),
+    'stopLossPercent': np.linspace(0.5, 2, 1),
     'slowAngleFactor': np.linspace(0, 20, 1),
 }
 
