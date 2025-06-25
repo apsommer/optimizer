@@ -39,7 +39,7 @@ class FastStrategy(BaselineStrategy):
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
 
-        self.stopLoss = stopLossRatio * self.takeProfit
+        # self.stopLoss = stopLossRatio * self.takeProfit
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
 
@@ -67,11 +67,12 @@ class FastStrategy(BaselineStrategy):
         low = data.Low[idx]
         close = data.Close[idx]
 
-        # fastest and slowest average
-        fastestEma = emas.loc[idx, 60]
-        fastestSlope = slopes.loc[idx, 60]
-        slowestEma = emas.loc[idx, 3000]
-        slowestSlope = slopes.loc[idx, 3000]
+        # fastest and slowest average todo refactor to df
+        fastEma = emas.loc[idx, 550]
+        fastestEma = emas.loc[idx, 50]
+        fastestSlope = slopes.loc[idx, 50]
+        slowestEma = emas.loc[idx, 5050]
+        slowestSlope = slopes.loc[idx, 5050]
 
         # fractal points
         buyFractal = fractals.loc[idx, 'buyFractal']
@@ -86,9 +87,9 @@ class FastStrategy(BaselineStrategy):
         takeProfit = self.takeProfit
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
-        stopLoss = self.stopLoss
-        longStopLoss = self.longStopLoss
-        shortStopLoss = self.shortStopLoss
+        # stopLoss = self.stopLoss
+        # longStopLoss = self.longStopLoss
+        # shortStopLoss = self.shortStopLoss
         isExitLastBar = False
         slowAngle = self.slowAngle
 
@@ -98,15 +99,12 @@ class FastStrategy(BaselineStrategy):
 
         ################################################################################################################
 
-        # entry long
+        # entry long todo become a billionaire
         isEntryLong = (
             is_flat
-            and slowestEma < open < fastestEma
-            and close > buyFractal
-            and close > fastestEma
-            and buyFractal > fastestEma
             and slowestSlope > slowAngle
-            and not self.is_last_bar
+            and fastEma > fastestEma
+            and sellFractal == low # next sell fractal
         )
         if isEntryLong:
             self.longEntryBarIndex = bar_index
@@ -115,12 +113,10 @@ class FastStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
-            and slowestEma > open > fastestEma
-            and sellFractal > close
-            and fastestEma > close
-            and fastestEma > sellFractal
             and -slowAngle > slowestSlope
-            and not self.is_last_bar
+            and fastestEma > fastEma
+            and fastestEma > close
+            and buyFractal == high # next buy fractal
         )
         if isEntryShort:
             self.shortEntryBarIndex = bar_index
@@ -140,47 +136,45 @@ class FastStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
-        # exit, long stop loss
-        if isEntryLong: longStopLoss = (1 - stopLoss) * close
-        elif not is_long: longStopLoss = np.nan
-        self.longStopLoss = longStopLoss
-        isExitLongStopLoss = longStopLoss > low
-
-        # exit, short stop loss
-        if isEntryShort: shortStopLoss = (1 + stopLoss) * close
-        elif not is_short: shortStopLoss = np.nan
-        self.shortStopLoss = shortStopLoss
-        isExitShortStopLoss = high > shortStopLoss
-
-        # exit, long momentum
-        isExitLongMomentum = is_long and -slowAngle > slowestSlope
-        isExitShortMomentum = is_short and slowestSlope > slowAngle
+        # # exit, long stop loss
+        # if isEntryLong: longStopLoss = close - 0.5 * (close - slowestEma)
+        # elif not is_long: longStopLoss = np.nan
+        # # self.longStopLoss = longStopLoss
+        # self.longStopLoss = close - 0.5 * (close - slowestEma)
+        # isExitLongStopLoss = longStopLoss > low
+        #
+        # # exit, short stop loss
+        # if isEntryShort:
+        #     shortStopLoss = close + 0.5 * (slowestEma - close)
+        # elif not is_short: shortStopLoss = np.nan
+        # # self.shortStopLoss = shortStopLoss
+        # self.shortStopLoss = close + 0.5 * (slowestEma - close)
+        # isExitShortStopLoss = high > shortStopLoss
 
         # exit, crossover regime change
-        isExitLongCrossover = is_long and slowestEma > close
-        isExitShortCrossover = is_short and close > slowestEma
+        isExitLongCrossover = is_long and slowestEma > low
+        isExitShortCrossover = is_short and high > slowestEma
 
-        isExitLongTimeout = is_long and bar_index - self.longEntryBarIndex > 5
-        isExitShortTimeout = is_short and bar_index - self.shortEntryBarIndex > 5
+        # # exit, timeout
+        # isExitLongTimeout = is_long and bar_index - self.longEntryBarIndex > 5
+        # isExitShortTimeout = is_short and bar_index - self.shortEntryBarIndex > 5
 
         # exit long
-        isExitLong = is_long and (
-               isExitLongTakeProfit
-            or isExitLongStopLoss
-            or isExitLongMomentum
+        isExitLong = (
+            isExitLongTakeProfit
+            # or isExitLongStopLoss
             or isExitLongCrossover
-            or isExitLongTimeout
+            # or isExitLongTimeout
             or self.is_last_bar)
         if isExitLong:
             self.flat(ticker, size)
 
         # exit short
-        isExitShort = is_short and (
-               isExitShortTakeProfit
-            or isExitShortStopLoss
-            or isExitShortMomentum
+        isExitShort = (
+            isExitShortTakeProfit
+            # or isExitShortStopLoss
             or isExitShortCrossover
-            or isExitShortTimeout
+            # or isExitShortTimeout
             or self.is_last_bar)
         if isExitShort:
             self.flat(ticker, size)
@@ -200,7 +194,7 @@ class FastStrategy(BaselineStrategy):
         # plot ribbon
         emas = self.emas
         for i, min in enumerate(emas.columns):
-            color = mpl.colors.rgb2hex(colors[i])
+            color = mpl.colors.rgb2hex(colors[i % 10])
             fplt.plot(emas.loc[:, min], color=color, width=2, ax=ax)
 
         buyFractals = self.fractals.loc[:, 'buyFractal']
