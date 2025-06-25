@@ -49,7 +49,7 @@ class Analyzer:
         id = 0
         total = (
             len(self.takeProfitPercent)
-            # * len(self.stopLossPercent)
+            * len(self.stopLossPercent)
             * len(self.slowAngleFactor))
 
         with tqdm(
@@ -122,7 +122,7 @@ class Analyzer:
 
         # tag title
         metric = _sorted[0]
-        metric.title = f'({metric.id}) {metric.title}'
+        metric.title = f'[{metric.id}] {metric.title}'
         return metric
 
     def save(self):
