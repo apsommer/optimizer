@@ -181,7 +181,7 @@ class FastStrategy(BaselineStrategy):
         isExitShortTimeout = is_short and bar_index - self.shortEntryBarIndex > 120
 
         # exit long
-        isExitLong = (
+        isExitLong = is_long and (
             isExitLongTakeProfit
             or isExitLongStopLoss
             or isExitLongCrossover
@@ -192,7 +192,7 @@ class FastStrategy(BaselineStrategy):
             self.flat(ticker, size)
 
         # exit short
-        isExitShort = (
+        isExitShort = is_short and (
             isExitShortTakeProfit
             or isExitShortStopLoss
             or isExitShortCrossover
