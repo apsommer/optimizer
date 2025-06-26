@@ -14,6 +14,7 @@ from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
 
 from model.Fitness import Fitness
+from strategy.FastParams import FastParams
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
 from utils.utils import *
@@ -32,12 +33,18 @@ percent = 25
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
-opt = {
-    'takeProfitPercent': [.35, .45, .55, .65, .75],
-    'stopLossRatio': [.5, .75, 1, 1.25],
-    'slowAngleFactor': [5, 10, 15, 20, 25],
-    'stopAverage': [5],
-}
+# opt = FastParams(
+#     takeProfitPercent = [.55],
+#     stopLossRatio = [.75],
+#     slowAngleFactor = [15],
+#     stopAverage = [5],
+# )
+opt = FastParams(
+    takeProfitPercent = [.35, .45, .55, .65, .75],
+    stopLossRatio = [.5, .75, 1, 1.25],
+    slowAngleFactor = [5, 10, 15, 20, 25],
+    stopAverage = [5],
+)
 
 ###################################################################
 

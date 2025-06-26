@@ -175,7 +175,7 @@ def init_walk_forward_metrics(wfa):
     start_date = format_timestamp(start_date)
     end_date = format_timestamp(end_date)
 
-    opt = str(wfa.opt)
+    opt = wfa.opt
 
     # pretty
     candles = '{:,}'.format(candles)

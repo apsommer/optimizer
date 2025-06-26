@@ -14,5 +14,5 @@ class FastParams:
 
     def __repr__(self):
         return (
-            f'{self.takeProfitPercent}, {self.stopLossRatio}, {self.slowAngleFactor}, {self.stopAverage}')
+            f'\n\t\ttakeProfitPercent: {self.takeProfitPercent}\n\t\tstopLossRatio: {self.stopLossRatio}\n\t\tslowAngleFactor: {self.slowAngleFactor}\n\t\tstopAverage: {self.stopAverage}')
 

@@ -40,10 +40,10 @@ class Analyzer:
         )
 
         # extract opt
-        self.takeProfitPercent = self.opt['takeProfitPercent']
-        self.stopLossRatio = self.opt['stopLossRatio']
-        self.slowAngleFactor = self.opt['slowAngleFactor']
-        self.stopAverage = self.opt['stopAverage']
+        self.takeProfitPercent = self.opt.takeProfitPercent
+        self.stopLossRatio = self.opt.stopLossRatio
+        self.slowAngleFactor = self.opt.slowAngleFactor
+        self.stopAverage = self.opt.stopAverage
 
     def run(self):
 

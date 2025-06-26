@@ -88,8 +88,8 @@ class WalkForward():
             bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # extract params of fittest engine
-            fittest_metric = fittest[fitness]
-            params = unpack(str(fittest_metric.id), IS_path)['params']
+            fittest_id = fittest[fitness].id
+            params = unpack(str(fittest_id), IS_path)['params']
 
             # run strategy blind with best params
             strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
@@ -98,6 +98,19 @@ class WalkForward():
                 strategy = strategy)
             engine.run()
 
+            # calculate efficiency
+            IS_engine = unpack(fittest_id, IS_path)
+            IS_metrics = IS_engine['metrics']
+            IS_return = next((metric.value for metric in IS_metrics if metric.name == 'annual_return'), None)
+            OS_return = next((metric.value for metric in engine.metrics if metric.name == 'annual_return'), None)
+
+            if 0 > IS_return: eff = np.nan
+            else: eff = (OS_return / IS_return) * 100
+
+            eff_metric = Metric('efficiency', eff, '%', 'Efficiency', formatter = None, id = run)
+            engine.metrics.append(eff_metric)
+
+            # persist full engine for out-of-sample
             OS_path = self.path + '/' + fitness.value
             engine.save(OS_path, True)
 
@@ -106,7 +119,7 @@ class WalkForward():
         # build composite engine by stitching OS runs for this fitness
         cash_series = pd.Series()
         trades = []
-        highest_profit = -np.nan
+        effs = []
         for run in tqdm(
             iterable = range(self.runs),
             disable = fitness is not Fitness.DRAWDOWN_PER_PROFIT, # show only 1 core
@@ -114,25 +127,28 @@ class WalkForward():
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             OS_path = self.path + '/' + fitness.value
+            OS_engine = unpack(run, OS_path)
 
             # extract saved OS engine results
-            _cash_series = unpack(run, OS_path)['cash_series']
-            _trades = unpack(run, OS_path)['trades']
-            _metrics = unpack(run, OS_path)['metrics']
+            OS_cash_series = OS_engine['cash_series']
+            OS_trades = OS_engine['trades']
+            OS_metrics = OS_engine['metrics']
+
+            eff_metric = next((metric for metric in OS_metrics if metric.name == 'efficiency'), None)
+            effs.append(eff_metric.value)
 
             # cumulative cash series
-            initial_cash = _cash_series.values[0]
-            gross_profit = _cash_series.values[-1]
+            initial_cash = OS_cash_series.values[0]
             if len(cash_series) > 0:
                 last_balance = cash_series.values[-1]
-                _cash_series += last_balance - initial_cash
+                OS_cash_series += last_balance - initial_cash
 
-            profit = gross_profit - initial_cash
-            if profit > highest_profit:
-                highest_profit = profit
+            cash_series = cash_series._append(OS_cash_series)
+            trades.extend(OS_trades)
 
-            cash_series = cash_series._append(_cash_series)
-            trades.extend(_trades)
+        # todo add metrics, handle bad IS runs 0 > profit
+        avg_eff = np.nanmean(effs)
+        # print(f'avg_eff: {avg_eff}')
 
         # reindex trades
         for i, trade in enumerate(trades):
