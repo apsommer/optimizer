@@ -175,6 +175,8 @@ def init_walk_forward_metrics(wfa):
     start_date = format_timestamp(start_date)
     end_date = format_timestamp(end_date)
 
+    opt = str(wfa.opt)
+
     # pretty
     candles = '{:,}'.format(candles)
     runs = str(wfa.runs) + ' + 1 last in-sample'
@@ -192,6 +194,7 @@ def init_walk_forward_metrics(wfa):
         Metric('runs', runs, None, 'Runs'),
         Metric('in_sample', in_sample, None, 'In-sample days'),
         Metric('out_of_sample', out_of_sample, None, 'Out-of-sample days'),
+        Metric('opt', opt, None, 'Optimization'),
     ]
 
 def get_walk_forward_results_metrics(wfa):

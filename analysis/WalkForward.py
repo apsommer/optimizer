@@ -164,28 +164,6 @@ class WalkForward():
         # save OS composite for this fitness
         engine.save(self.path, True)
 
-    def comp(self):
-
-        highest_profit = -np.nan
-        highest_profit_metric = None
-        best_fitness_ids = []
-
-        for run in range(self.runs):
-
-            for fitness in Fitness:
-
-                OS_path = self.path + '/' + fitness.value
-                metrics = unpack(run, OS_path)['metrics']
-
-                # capture highest profit
-                profit_metric = next((metric for metric in metrics if metric.name == 'profit'), None)
-                if profit_metric.value > highest_profit:
-                    highest_profit_metric = profit_metric
-
-            best_fitness_ids.append(highest_profit_metric.id)
-
-        print(best_fitness_ids)
-
     def analyze(self):
 
         # isolate composite with highest profit

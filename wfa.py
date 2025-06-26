@@ -107,9 +107,6 @@ pool.map(wfa.build_composite, fitnesses)
 pool.close()
 pool.join()
 
-# todo temp
-wfa.comp()
-
 # select composite of interest
 wfa.analyze()
 wfa.save()
