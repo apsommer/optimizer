@@ -2,15 +2,15 @@ class FastParams:
 
     def __init__(self,
         takeProfitPercent,
-        stopLossPercent,
-        proximityPercent,
+        slowAngleFactor,
+        stopAverage
     ):
 
         self.takeProfitPercent = takeProfitPercent
-        self.stopLossRatio = stopLossPercent
-        self.slowAngleFactor = proximityPercent
+        self.slowAngleFactor = slowAngleFactor
+        self.stopAverage = stopAverage
 
     def __repr__(self):
         return (
-            f'{self.takeProfitPercent}, {self.stopLossRatio}, {self.slowAngleFactor}')
+            f'{self.takeProfitPercent}, {self.slowAngleFactor}, {self.stopAverage}')
 

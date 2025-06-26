@@ -30,28 +30,26 @@ class FastStrategy(BaselineStrategy):
         self.slopes = slopes
         self.fractals = fractals
 
+        # unpack params
+        takeProfitPercent = params.takeProfitPercent
+        slowAngleFactor = params.slowAngleFactor
+        stopAverage = params.stopAverage
+
         # emas
         fastMinutes = emas.columns[0]
+        midMinutes = emas.columns[stopAverage]
         slowMinutes = emas.columns[-1]
         self.fast = emas.loc[:, fastMinutes]
         self.fastSlope = slopes.loc[:, fastMinutes]
+        self.mid = emas.loc[:, midMinutes]
+        self.midSlope = slopes.loc[:, midMinutes]
         self.slow = emas.loc[:, slowMinutes]
         self.slowSlope = slopes.loc[:, slowMinutes]
-
-        # unpack params
-        takeProfitPercent = params.takeProfitPercent
-        stopLossRatio = params.stopLossRatio
-        slowAngleFactor = params.slowAngleFactor
 
         # take profit
         self.takeProfit = takeProfitPercent / 100.0
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
-
-        # stop loss
-        self.stopLoss = stopLossRatio * self.takeProfit
-        self.longStopLoss = np.nan
-        self.shortStopLoss = np.nan
 
         # slope threshold
         self.slowAngle = slowAngleFactor / 1000.0
@@ -85,8 +83,8 @@ class FastStrategy(BaselineStrategy):
 
         # emas
         fast = self.fast[idx]
+        mid = self.mid[idx]
         slow = self.slow[idx]
-        fastSlope = self.fastSlope[idx]
         slowSlope = self.slowSlope[idx]
 
         # fractal points
@@ -102,10 +100,6 @@ class FastStrategy(BaselineStrategy):
         takeProfit = self.takeProfit
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
-        stopLoss = self.stopLoss
-        longStopLoss = self.longStopLoss
-        shortStopLoss = self.shortStopLoss
-        isExitLastBar = False
         slowAngle = self.slowAngle
 
         # orders
@@ -122,8 +116,8 @@ class FastStrategy(BaselineStrategy):
         isEntryLong = (
             is_flat
             and slowSlope > slowAngle
-            and fast > slow
-            and fast > low
+            and fast > mid
+            and fast > open
             and close > fast
             and close > buyFractal
             and hasLongEntryDelayElapsed
@@ -136,8 +130,8 @@ class FastStrategy(BaselineStrategy):
         isEntryShort = (
             is_flat
             and -slowAngle > slowSlope
-            and slow > fast
-            and high > fast
+            and mid > fast
+            and open > fast
             and fast > close
             and sellFractal > close
             and hasShortEntryDelayElapsed
@@ -160,21 +154,9 @@ class FastStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
-        # exit, long stop loss
-        if isEntryLong: longStopLoss = (1 - stopLoss) * close
-        elif not is_long: longStopLoss = np.nan
-        self.longStopLoss = longStopLoss
-        isExitLongStopLoss = longStopLoss > low
-
-        # exit, short stop loss
-        if isEntryShort: shortStopLoss = (1 + stopLoss) * close
-        elif not is_short: shortStopLoss = np.nan
-        self.shortStopLoss = shortStopLoss
-        isExitShortStopLoss = high > shortStopLoss
-
         # exit, crossover regime change
-        isExitLongCrossover = is_long and slow > low
-        isExitShortCrossover = is_short and high > slow
+        isExitLongCrossover = is_long and mid > low
+        isExitShortCrossover = is_short and high > mid
 
         # exit, timeout
         isExitLongTimeout = is_long and bar_index - self.longEntryBarIndex > 120
@@ -183,7 +165,6 @@ class FastStrategy(BaselineStrategy):
         # exit long
         isExitLong = is_long and (
             isExitLongTakeProfit
-            or isExitLongStopLoss
             or isExitLongCrossover
             # or isExitLongTimeout
             or self.is_last_bar)
@@ -194,7 +175,6 @@ class FastStrategy(BaselineStrategy):
         # exit short
         isExitShort = is_short and (
             isExitShortTakeProfit
-            or isExitShortStopLoss
             or isExitShortCrossover
             # or isExitShortTimeout
             or self.is_last_bar)

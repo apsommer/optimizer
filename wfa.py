@@ -28,14 +28,14 @@ isNetwork = False
 shouldBuildIndicators = False
 
 # walk forward
-percent = 20
+percent = 25
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
 opt = {
-    'takeProfitPercent': [.25,.30,.35,.40,.45,.50],
-    'stopLossRatio': [0.9,1,2,10],
-    'slowAngleFactor': [0,3,6,9,12,15,18,21]
+    'takeProfitPercent': [.35, .45, .55, .65, .75],
+    'slowAngleFactor': [5, 10, 15, 20, 25],
+    'stopAverage': [1, 3, 5, 7],
 }
 
 ###################################################################

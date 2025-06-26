@@ -34,14 +34,14 @@ class Analyzer:
         # common
         self.params = FastParams(
             takeProfitPercent = None,
-            stopLossPercent = None,
-            proximityPercent = None,
+            slowAngleFactor = None,
+            stopAverage = None,
         )
 
         # extract opt
         self.takeProfitPercent = self.opt['takeProfitPercent']
-        self.stopLossRatio = self.opt['stopLossRatio']
         self.slowAngleFactor = self.opt['slowAngleFactor']
+        self.stopAverage = self.opt['stopAverage']
 
     def run(self):
 
@@ -49,8 +49,10 @@ class Analyzer:
         id = 0
         total = (
             len(self.takeProfitPercent)
-            * len(self.stopLossRatio)
-            * len(self.slowAngleFactor))
+            # * len(self.stopLossRatio)
+            * len(self.slowAngleFactor)
+            * len(self.stopAverage)
+        )
 
         with tqdm(
             disable = self.id != 0, # show only 1 core
@@ -60,13 +62,13 @@ class Analyzer:
 
             # sweep params from opt
             for takeProfitPercent in self.takeProfitPercent:
-                for stopLossRatio in self.stopLossRatio:
-                    for slowAngleFactor in self.slowAngleFactor:
+                for slowAngleFactor in self.slowAngleFactor:
+                    for stopAverage in self.stopAverage:
 
                         # update params
                         params.takeProfitPercent = takeProfitPercent
-                        params.stopLossRatio = stopLossRatio
                         params.slowAngleFactor = slowAngleFactor
+                        params.stopAverage = stopAverage
 
                         # create strategy and engine
                         strategy = FastStrategy(self.data, self.emas, self.slopes, self.fractals, params)

@@ -26,7 +26,7 @@ class LiveStrategy(BaselineStrategy):
         self.params = params
 
         # unpack params
-        fastAngleFactor = params.stopLossRatio
+        fastAngleFactor = params.stopAverage
         slowAngleFactor = params.slowAngleFactor
         fastCrossoverPercent = params.fastCrossoverPercent
         takeProfitPercent = params.takeProfitPercent

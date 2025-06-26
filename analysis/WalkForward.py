@@ -112,9 +112,11 @@ class WalkForward():
         params = unpack(str(metric.id), IS_path)['params']
 
         # build composite engine
-        cash_series, trades, efficiency_sum = pd.Series(), [], 0
+        cash_series = pd.Series()
+        trades = []
+        highest_profit = -np.nan
 
-        # loop out-of-sample
+        # stitch OS runs
         for run in tqdm(
             iterable = range(self.runs),
             disable = fitness is not Fitness.DRAWDOWN_PER_PROFIT, # show only 1 core
@@ -130,9 +132,14 @@ class WalkForward():
 
             # cumulative cash series
             initial_cash = _cash_series.values[0]
+            gross_profit = _cash_series.values[-1]
             if len(cash_series) > 0:
                 last_balance = cash_series.values[-1]
                 _cash_series += last_balance - initial_cash
+
+            profit = gross_profit - initial_cash
+            if profit > highest_profit:
+                highest_profit = profit
 
             cash_series = cash_series._append(_cash_series)
             trades.extend(_trades)
