@@ -123,9 +123,9 @@ def build_fractals(data, path):
 
 def build_emas(data, path):
 
-    fastestMinutes = 50
-    slowestMinutes = 5050
-    num = 11
+    fastestMinutes = 25
+    slowestMinutes = 2555
+    num = 10
 
     ###################################################################
 
