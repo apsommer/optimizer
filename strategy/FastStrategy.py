@@ -32,6 +32,7 @@ class FastStrategy(BaselineStrategy):
 
         # unpack params
         takeProfitPercent = params.takeProfitPercent
+        stopLossRatio = params.stopLossRatio
         slowAngleFactor = params.slowAngleFactor
         stopAverage = params.stopAverage
 
@@ -50,6 +51,10 @@ class FastStrategy(BaselineStrategy):
         self.takeProfit = takeProfitPercent / 100.0
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
+
+        self.stopLoss = stopLossRatio * self.takeProfit
+        self.longStopLoss = np.nan
+        self.shortStopLoss = np.nan
 
         # slope threshold
         self.slowAngle = slowAngleFactor / 1000.0
@@ -100,6 +105,9 @@ class FastStrategy(BaselineStrategy):
         takeProfit = self.takeProfit
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
+        stopLoss = self.stopLoss
+        longStopLoss = self.longStopLoss
+        shortStopLoss = self.shortStopLoss
         slowAngle = self.slowAngle
 
         # orders
@@ -154,6 +162,18 @@ class FastStrategy(BaselineStrategy):
         self.shortTakeProfit = shortTakeProfit
         isExitShortTakeProfit = shortTakeProfit > low
 
+        # exit, long stop loss
+        if isEntryLong: longStopLoss = (1 - stopLoss) * close
+        elif not is_long: longStopLoss = np.nan
+        self.longStopLoss = longStopLoss
+        isExitLongStopLoss = longStopLoss > low
+
+        # exit, short stop loss
+        if isEntryShort: shortStopLoss = (1 + stopLoss) * close
+        elif not is_short: shortStopLoss = np.nan
+        self.shortStopLoss = shortStopLoss
+        isExitShortStopLoss = high > shortStopLoss
+
         # exit, crossover regime change
         isExitLongCrossover = is_long and mid > low
         isExitShortCrossover = is_short and high > mid
@@ -165,6 +185,7 @@ class FastStrategy(BaselineStrategy):
         # exit long
         isExitLong = is_long and (
             isExitLongTakeProfit
+            or isExitLongStopLoss
             or isExitLongCrossover
             # or isExitLongTimeout
             or self.is_last_bar)
@@ -175,6 +196,7 @@ class FastStrategy(BaselineStrategy):
         # exit short
         isExitShort = is_short and (
             isExitShortTakeProfit
+            or isExitShortStopLoss
             or isExitShortCrossover
             # or isExitShortTimeout
             or self.is_last_bar)

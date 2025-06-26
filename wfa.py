@@ -34,8 +34,9 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 # analyzer
 opt = {
     'takeProfitPercent': [.35, .45, .55, .65, .75],
+    'stopLossRatio': [.5, .75, 1, 1.25],
     'slowAngleFactor': [5, 10, 15, 20, 25],
-    'stopAverage': [1, 3, 5, 7],
+    'stopAverage': [5],
 }
 
 ###################################################################
@@ -105,6 +106,9 @@ pool = Pool(
 pool.map(wfa.build_composite, fitnesses)
 pool.close()
 pool.join()
+
+# todo temp
+wfa.comp()
 
 # select composite of interest
 wfa.analyze()

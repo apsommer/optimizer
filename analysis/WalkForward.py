@@ -103,20 +103,10 @@ class WalkForward():
 
     def build_composite(self, fitness):
 
-        # get params from last in-sample analyzer
-        IS_path = self.path + '/' + str(self.runs)
-        fittest = unpack('analyzer', IS_path)['fittest']
-
-        # extract params of fittest engine
-        metric = fittest[fitness]
-        params = unpack(str(metric.id), IS_path)['params']
-
-        # build composite engine
+        # build composite engine by stitching OS runs for this fitness
         cash_series = pd.Series()
         trades = []
         highest_profit = -np.nan
-
-        # stitch OS runs
         for run in tqdm(
             iterable = range(self.runs),
             disable = fitness is not Fitness.DRAWDOWN_PER_PROFIT, # show only 1 core
@@ -148,6 +138,14 @@ class WalkForward():
         for i, trade in enumerate(trades):
             trade.id = i + 1 # 1-based index for tradingview
 
+        # get params from last in-sample analyzer
+        IS_path = self.path + '/' + str(self.runs)
+        fittest = unpack('analyzer', IS_path)['fittest']
+
+        # extract params of fittest engine
+        metric = fittest[fitness]
+        params = unpack(str(metric.id), IS_path)['params']
+
         # mask data to OS sample
         OS_data = self.data.loc[cash_series.index, :]
         OS_emas = self.emas.loc[cash_series.index, :]
@@ -163,7 +161,30 @@ class WalkForward():
         engine.trades = trades
         engine.analyze() # generate metrics
 
+        # save OS composite for this fitness
         engine.save(self.path, True)
+
+    def comp(self):
+
+        highest_profit = -np.nan
+        highest_profit_metric = None
+        best_fitness_ids = []
+
+        for run in range(self.runs):
+
+            for fitness in Fitness:
+
+                OS_path = self.path + '/' + fitness.value
+                metrics = unpack(run, OS_path)['metrics']
+
+                # capture highest profit
+                profit_metric = next((metric for metric in metrics if metric.name == 'profit'), None)
+                if profit_metric.value > highest_profit:
+                    highest_profit_metric = profit_metric
+
+            best_fitness_ids.append(highest_profit_metric.id)
+
+        print(best_fitness_ids)
 
     def analyze(self):
 

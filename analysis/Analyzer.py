@@ -34,12 +34,14 @@ class Analyzer:
         # common
         self.params = FastParams(
             takeProfitPercent = None,
+            stopLossRatio= None,
             slowAngleFactor = None,
             stopAverage = None,
         )
 
         # extract opt
         self.takeProfitPercent = self.opt['takeProfitPercent']
+        self.stopLossRatio = self.opt['stopLossRatio']
         self.slowAngleFactor = self.opt['slowAngleFactor']
         self.stopAverage = self.opt['stopAverage']
 
@@ -49,7 +51,7 @@ class Analyzer:
         id = 0
         total = (
             len(self.takeProfitPercent)
-            # * len(self.stopLossRatio)
+            * len(self.stopLossRatio)
             * len(self.slowAngleFactor)
             * len(self.stopAverage)
         )
@@ -62,24 +64,26 @@ class Analyzer:
 
             # sweep params from opt
             for takeProfitPercent in self.takeProfitPercent:
-                for slowAngleFactor in self.slowAngleFactor:
-                    for stopAverage in self.stopAverage:
+                for stopLossRatio in self.stopLossRatio:
+                    for slowAngleFactor in self.slowAngleFactor:
+                        for stopAverage in self.stopAverage:
 
-                        # update params
-                        params.takeProfitPercent = takeProfitPercent
-                        params.slowAngleFactor = slowAngleFactor
-                        params.stopAverage = stopAverage
+                            # update params
+                            params.takeProfitPercent = takeProfitPercent
+                            params.stopLossRatio = stopLossRatio
+                            params.slowAngleFactor = slowAngleFactor
+                            params.stopAverage = stopAverage
 
-                        # create strategy and engine
-                        strategy = FastStrategy(self.data, self.emas, self.slopes, self.fractals, params)
-                        engine = Engine(id, strategy)
+                            # create strategy and engine
+                            strategy = FastStrategy(self.data, self.emas, self.slopes, self.fractals, params)
+                            engine = Engine(id, strategy)
 
-                        # run and save
-                        engine.run()
-                        engine.save(self.path, False)
-                        id += 1
+                            # run and save
+                            engine.run()
+                            engine.save(self.path, False)
+                            id += 1
 
-                        pbar.update()
+                            pbar.update()
 
         pbar.close()
         self.analyze()
