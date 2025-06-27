@@ -5,7 +5,7 @@ class FastParams:
          stopLossRatio,
          slowAngleFactor,
          stopAverage
-         ):
+    ):
 
         self.takeProfitPercent = takeProfitPercent
         self.stopLossRatio = stopLossRatio

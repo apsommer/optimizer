@@ -38,10 +38,12 @@ class FastStrategy(BaselineStrategy):
 
         # emas
         fastMinutes = emas.columns[0]
+        secondFastestMinutes = emas.columns[1]
         midMinutes = emas.columns[stopAverage]
         slowMinutes = emas.columns[-1]
         self.fast = emas.loc[:, fastMinutes]
         self.fastSlope = slopes.loc[:, fastMinutes]
+        self.secondFastest = emas.loc[:, secondFastestMinutes]
         self.mid = emas.loc[:, midMinutes]
         self.midSlope = slopes.loc[:, midMinutes]
         self.slow = emas.loc[:, slowMinutes]
@@ -88,6 +90,7 @@ class FastStrategy(BaselineStrategy):
 
         # emas
         fast = self.fast[idx]
+        secondFastest = self.secondFastest[idx]
         mid = self.mid[idx]
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
@@ -128,6 +131,7 @@ class FastStrategy(BaselineStrategy):
             and fast > open
             and close > fast
             and close > buyFractal
+            and fast > secondFastest
             and hasLongEntryDelayElapsed
         )
         if isEntryLong:
@@ -142,6 +146,7 @@ class FastStrategy(BaselineStrategy):
             and open > fast
             and fast > close
             and sellFractal > close
+            and secondFastest > fast
             and hasShortEntryDelayElapsed
         )
         if isEntryShort:

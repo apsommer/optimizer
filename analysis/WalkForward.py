@@ -254,7 +254,7 @@ class WalkForward():
                 composite.print_metrics()
                 composite.print_trades()
                 composite.plot_trades()
-                composite.plot_equity()
+                # composite.plot_equity()
 
             # only calc once
             if fitness is Fitness.PROFIT:

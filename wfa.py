@@ -29,22 +29,22 @@ isNetwork = False
 shouldBuildIndicators = False
 
 # walk forward
-percent = 25
+percent = 20
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
-# opt = FastParams(
-#     takeProfitPercent = [.55],
-#     stopLossRatio = [.75],
-#     slowAngleFactor = [15],
-#     stopAverage = [5],
-# )
 opt = FastParams(
-    takeProfitPercent = [.35, .45, .55, .65, .75],
-    stopLossRatio = [.5, .75, 1, 1.25],
-    slowAngleFactor = [5, 10, 15, 20, 25],
+    takeProfitPercent = [.5, .7, .9],
+    stopLossRatio = [.3, .5, .7, .9, 1, 1.1, 2, 10],
+    slowAngleFactor = [10],
     stopAverage = [5],
 )
+# opt = FastParams(
+#     takeProfitPercent = [.35, .45, .55, .65, .75],
+#     stopLossRatio = [.5, 1, 1.5],
+#     slowAngleFactor = [5, 10, 15, 20, 25],
+#     stopAverage = [2, 4, 6],
+# )
 
 ###################################################################
 

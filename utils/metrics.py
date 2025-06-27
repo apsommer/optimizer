@@ -186,14 +186,14 @@ def init_walk_forward_metrics(wfa):
     return [
         Metric('header', None, None, 'Walk forward:'),
         Metric('months', months, None, 'Months'),
-        Metric('start_date', start_date, None, 'Start date'),
-        Metric('end_date', end_date, None, 'End date'),
-        Metric('candles', candles, None, 'Candles'),
-        Metric('days', days, None, 'Days'),
         Metric('percent', wfa.percent, '%', 'Percent'),
         Metric('runs', runs, None, 'Runs'),
         Metric('in_sample', in_sample, None, 'In-sample days'),
         Metric('out_of_sample', out_of_sample, None, 'Out-of-sample days'),
+        Metric('start_date', start_date, None, 'Start date'),
+        Metric('end_date', end_date, None, 'End date'),
+        # Metric('candles', candles, None, 'Candles'),
+        # Metric('days', days, None, 'Days'),
         Metric('opt', opt, None, 'Optimization'),
     ]
 
