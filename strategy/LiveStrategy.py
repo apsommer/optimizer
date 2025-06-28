@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from strategy.BaseStrategy import BaselineStrategy
 from model.Ticker import Ticker
+from utils.constants import *
 from utils.utils import init_plot
 import finplot as fplt
 import seaborn as sns
@@ -127,13 +128,13 @@ class LiveStrategy(BaselineStrategy):
         isFastCrossoverLong = (
             fastSlope > fastAngle
             and (fast > open or fast > prev_close)
-            and high > fast)
+            and close > fast)
 
         # entry, short crossover fast
         isFastCrossoverShort = (
             -fastAngle > fastSlope
             and (open > fast or prev_close > fast)
-            and fast > low)
+            and fast > close)
 
         # disable entry
         if disableEntryMinutes == 0:
@@ -158,11 +159,12 @@ class LiveStrategy(BaselineStrategy):
         isEntryLong = (
             is_flat
             and fast > slow
-            and isFastCrossoverLong
+            # and isFastCrossoverLong
             and not isEntryLongDisabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed
             and proximityMaximum > proximityLong > proximityMinimum
+            and fast > close > buyFractal > slow
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -171,11 +173,12 @@ class LiveStrategy(BaselineStrategy):
         isEntryShort = (
             is_flat
             and slow > fast
-            and isFastCrossoverShort
+            # and isFastCrossoverShort
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed
             and proximityMaximum > proximityShort > proximityMinimum
+            and slow > sellFractal > close > fast
         )
         if isEntryShort:
             self.sell(ticker, size)
@@ -243,24 +246,24 @@ class LiveStrategy(BaselineStrategy):
         isExitShortSlowCrossover = is_short and high > slow
 
         # exit long
-        isExitLong = (
+        isExitLong = is_long and (
             isExitLongFastCrossover
             or isExitLongFastMomentum
             or isExitLongTakeProfit
             or isExitLastBar
-            or isExitLongSlowCrossover
+            # or isExitLongSlowCrossover
         )
         if isExitLong:
             self.longExitBarIndex = bar_index
             self.flat(ticker, size)
 
         # exit short
-        isExitShort = (
+        isExitShort = is_short and (
             isExitShortFastCrossover
             or isExitShortFastMomentum
             or isExitShortTakeProfit
             or isExitLastBar
-            or isExitShortSlowCrossover
+            # or isExitShortSlowCrossover
         )
         if isExitShort:
             self.shortExitBarIndex = bar_index

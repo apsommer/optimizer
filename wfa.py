@@ -25,9 +25,10 @@ from utils.metrics import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 14
+num_months = 6
 isNetwork = False
-shouldBuildIndicators = True
+shouldBuildEmas = False
+shouldBuildFractals = False
 
 # walk forward
 percent = 20
@@ -39,9 +40,9 @@ opt = LiveParams(
     disableEntryMinutes = [105],
     fastMomentumMinutes = [135],
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.35],
+    takeProfitPercent = [.5],
     fastAngleFactor = [15],
-    slowMinutes = [2555],
+    slowMinutes = [2025],
     slowAngleFactor = [20],
     coolOffMinutes = [5],
 )
@@ -62,7 +63,10 @@ path = parent_path + '/' + str(percent) + '_' + str(runs)
 data = utils.getOhlc(num_months, isNetwork)
 
 # build indicators
-if shouldBuildIndicators: build_indicators(data, parent_path)
+if shouldBuildEmas or shouldBuildFractals:
+    print(f'Indicators:')
+if shouldBuildEmas: build_emas(data, parent_path)
+if shouldBuildFractals: build_fractals(data, parent_path)
 emas = unpack('emas', parent_path)
 slopes = unpack('slopes', parent_path)
 fractals = unpack('fractals', parent_path)
@@ -89,6 +93,8 @@ fitnesses = [fitness for fitness in Fitness]
 
 # print header metrics
 print_metrics(wfa.metrics)
+
+
 
 # run in-sample sweep
 pool = Pool(

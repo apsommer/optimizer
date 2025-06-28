@@ -74,12 +74,32 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
-def build_indicators(data, path):
+def build_emas(data, path):
 
-    print('Indicators:')
+    # window length
+    minutes = [25, 2025]
 
-    build_emas(data, path)
-    build_fractals(data, path)
+    # init containers
+    emas = pd.DataFrame(index = data.index)
+    slopes = pd.DataFrame(index = data.index)
+
+    for min in tqdm(
+        iterable = minutes,
+        colour = yellow,
+        bar_format = '        Averages:       {percentage:3.0f}%|{bar:100}{r_bar}'):
+
+        # smooth averages
+        smooth = round(0.2 * min)
+
+        raw = pd.Series(data.Open).ewm(span = min).mean()
+        smoothed = raw.ewm(span = smooth).mean()
+        slope = get_slope(smoothed)
+
+        emas.loc[:, min] = smoothed
+        slopes.loc[:, min] = slope
+
+    save(emas, 'emas', path)
+    save(slopes, 'slopes', path)
 
 def build_fractals(data, path):
 
@@ -120,34 +140,6 @@ def build_fractals(data, path):
         fractals.iloc[i].sellFractal = sellPrice
 
     save(fractals, 'fractals', path)
-
-def build_emas(data, path):
-
-    minutes = [25, 2555, 5555, 8555]
-
-    ###################################################################
-
-    # init containers
-    emas = pd.DataFrame(index = data.index)
-    slopes = pd.DataFrame(index = data.index)
-
-    for min in tqdm(
-        iterable = minutes,
-        colour = yellow,
-        bar_format = '        Averages:       {percentage:3.0f}%|{bar:100}{r_bar}'):
-
-        # smooth averages
-        smooth = round(0.2 * min)
-
-        raw = pd.Series(data.Open).ewm(span = min).mean()
-        smoothed = raw.ewm(span = smooth).mean()
-        slope = get_slope(smoothed)
-
-        emas.loc[:, min] = smoothed
-        slopes.loc[:, min] = slope
-
-    save(emas, 'emas', path)
-    save(slopes, 'slopes', path)
 
 def get_slope(series):
 
