@@ -37,12 +37,12 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 opt = LiveParams(
     fastMinutes = 25,
     disableEntryMinutes = [0],
-    fastMomentumMinutes = [95],
+    fastMomentumMinutes = [0],
     fastCrossoverPercent = 0,
-    takeProfitPercent = [.4],
+    takeProfitPercent = [.5],
     fastAngleFactor = 15,
-    slowMinutes = 2355,
-    slowAngleFactor = 20,
+    slowMinutes = 8555,
+    slowAngleFactor = [10],
     coolOffMinutes = 5,
 )
 # opt = FastParams(

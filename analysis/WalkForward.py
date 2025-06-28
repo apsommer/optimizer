@@ -129,7 +129,7 @@ class WalkForward():
         effs = []
         for run in tqdm(
             iterable = range(self.runs),
-            disable = fitness is not Fitness.DRAWDOWN_PER_PROFIT, # show only 1 core
+            disable = fitness is not Fitness.PROFIT, # show only 1 core
             colour = blue,
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 

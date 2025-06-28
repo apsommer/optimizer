@@ -8,13 +8,13 @@ from utils.constants import *
 class Fitness(Enum):
     
     PROFIT = 'profit'
-    PROFIT_FACTOR = 'profit_factor'
-    EXPECTANCY = 'expectancy'
-    WIN_RATE = 'win_rate'
-    AVERAGE_WIN = 'average_win'
-    AVERAGE_LOSS = 'average_loss'
-    DRAWDOWN = 'drawdown'
-    DRAWDOWN_PER_PROFIT = 'drawdown_per_profit'
+    # PROFIT_FACTOR = 'profit_factor'
+    # EXPECTANCY = 'expectancy'
+    # WIN_RATE = 'win_rate'
+    # AVERAGE_WIN = 'average_win'
+    # AVERAGE_LOSS = 'average_loss'
+    # DRAWDOWN = 'drawdown'
+    # DRAWDOWN_PER_PROFIT = 'drawdown_per_profit'
 
     @property
     def pretty(self):

@@ -145,7 +145,7 @@ class LiveStrategy(BaselineStrategy):
         # entry long
         isEntryLong = (
             is_flat
-            # and slow > fast
+            and fast > slow
             and isFastCrossoverLong
             and not isEntryLongDisabled
             and slowSlope > slowAngle
@@ -156,7 +156,7 @@ class LiveStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
-            # and fast > slow
+            and slow > fast
             and isFastCrossoverShort
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
@@ -195,9 +195,13 @@ class LiveStrategy(BaselineStrategy):
             and high > fast)
 
         # exit, fast momentum
-        recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
-        isExitLongFastMomentum = is_long and -fastAngle > np.max(recentFastSlope)
-        isExitShortFastMomentum = is_short and np.min(recentFastSlope) > fastAngle
+        if fastMomentumMinutes == 0:
+            isExitLongFastMomentum = False
+            isExitShortFastMomentum = False
+        else:
+            recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
+            isExitLongFastMomentum = is_long and -fastAngle > np.max(recentFastSlope)
+            isExitShortFastMomentum = is_short and np.min(recentFastSlope) > fastAngle
 
         # exit, long take profit
         if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
@@ -218,12 +222,18 @@ class LiveStrategy(BaselineStrategy):
             if is_long or is_short:
                 isExitLastBar = True
 
+        # exit, slow crossover
+        isExitLongSlowCrossover = is_long and slow > low
+        isExitShortSlowCrossover = is_short and high > slow
+
         # exit long
         isExitLong = (
             isExitLongFastCrossover
             or isExitLongFastMomentum
             or isExitLongTakeProfit
-            or isExitLastBar)
+            or isExitLastBar
+            or isExitLongSlowCrossover
+        )
         if isExitLong:
             self.longExitBarIndex = bar_index
             self.flat(ticker, size)
@@ -233,7 +243,9 @@ class LiveStrategy(BaselineStrategy):
             isExitShortFastCrossover
             or isExitShortFastMomentum
             or isExitShortTakeProfit
-            or isExitLastBar)
+            or isExitLastBar
+            or isExitShortSlowCrossover
+        )
         if isExitShort:
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size)

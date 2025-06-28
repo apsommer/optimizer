@@ -33,21 +33,22 @@ class LiveAnalyzer:
 
         # common
         self.params = LiveParams(
-            fastMinutes=25,
+            fastMinutes=opt.fastMinutes,
             disableEntryMinutes=None,
             fastMomentumMinutes=None,
-            fastCrossoverPercent=0,
+            fastCrossoverPercent=opt.fastCrossoverPercent,
             takeProfitPercent=None,
-            fastAngleFactor=15,
-            slowMinutes=2355,
-            slowAngleFactor=20,
-            coolOffMinutes=5,
+            fastAngleFactor=opt.fastAngleFactor,
+            slowMinutes=opt.slowMinutes,
+            slowAngleFactor=None,
+            coolOffMinutes=opt.coolOffMinutes,
         )
 
         # extract opt
         self.disableEntryMinutes = self.opt.disableEntryMinutes
         self.fastMomentumMinutes = self.opt.fastMomentumMinutes
         self.takeProfitPercent = self.opt.takeProfitPercent
+        self.slowAngleFactor = self.opt.slowAngleFactor
 
     def run(self):
 
@@ -57,6 +58,7 @@ class LiveAnalyzer:
             len(self.disableEntryMinutes)
             * len(self.fastMomentumMinutes)
             * len(self.takeProfitPercent)
+            * len(self.slowAngleFactor)
         )
 
         with tqdm(
@@ -69,22 +71,24 @@ class LiveAnalyzer:
             for disableEntryMinutes in self.disableEntryMinutes:
                 for fastMomentumMinutes in self.fastMomentumMinutes:
                     for takeProfitPercent in self.takeProfitPercent:
+                        for slowAngleFactor in self.slowAngleFactor:
 
-                        # update params
-                        params.disableEntryMinutes = disableEntryMinutes
-                        params.fastMomentumMinutes = fastMomentumMinutes
-                        params.takeProfitPercent = takeProfitPercent
+                            # update params
+                            params.disableEntryMinutes = disableEntryMinutes
+                            params.fastMomentumMinutes = fastMomentumMinutes
+                            params.takeProfitPercent = takeProfitPercent
+                            params.slowAngleFactor = slowAngleFactor
 
-                        # create strategy and engine
-                        strategy = LiveStrategy(self.data, self.emas, self.slopes, params)
-                        engine = Engine(id, strategy)
+                            # create strategy and engine
+                            strategy = LiveStrategy(self.data, self.emas, self.slopes, params)
+                            engine = Engine(id, strategy)
 
-                        # run and save
-                        engine.run()
-                        engine.save(self.path, False)
-                        id += 1
+                            # run and save
+                            engine.run()
+                            engine.save(self.path, False)
+                            id += 1
 
-                        pbar.update()
+                            pbar.update()
 
         pbar.close()
         self.analyze()
