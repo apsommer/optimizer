@@ -123,21 +123,16 @@ def build_fractals(data, path):
 
 def build_emas(data, path):
 
-    fastestMinutes = 25
-    slowestMinutes = 8555
-    num = 2
+    minutes = [25, 2555, 5555, 8555]
 
     ###################################################################
-
-    # spread of averages from fastest to slowest
-    mins = np.linspace(fastestMinutes, slowestMinutes, num)
 
     # init containers
     emas = pd.DataFrame(index = data.index)
     slopes = pd.DataFrame(index = data.index)
 
     for min in tqdm(
-        iterable = mins,
+        iterable = minutes,
         colour = yellow,
         bar_format = '        Averages:       {percentage:3.0f}%|{bar:100}{r_bar}'):
 

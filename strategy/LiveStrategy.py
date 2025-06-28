@@ -32,13 +32,14 @@ class LiveStrategy(BaselineStrategy):
         self.slopes = slopes
 
         # unpack params
-        fastAngleFactor = params.fastAngleFactor
-        slowAngleFactor = params.slowAngleFactor
-        fastCrossoverPercent = params.fastCrossoverPercent
-        takeProfitPercent = params.takeProfitPercent
-
+        self.fastMinutes = params.fastMinutes
         self.disableEntryMinutes = params.disableEntryMinutes
         self.fastMomentumMinutes = params.fastMomentumMinutes
+        fastCrossoverPercent = params.fastCrossoverPercent
+        takeProfitPercent = params.takeProfitPercent
+        fastAngleFactor = params.fastAngleFactor
+        self.slowMinutes = params.slowMinutes
+        slowAngleFactor = params.slowAngleFactor
         self.coolOffMinutes = params.coolOffMinutes
 
         # convert units
@@ -52,10 +53,10 @@ class LiveStrategy(BaselineStrategy):
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
         # get raw averages
-        self.fast = emas.loc[:, emas.columns[0]]
-        self.slow = emas.loc[:, emas.columns[1]]
-        self.fastSlope = slopes.loc[:, emas.columns[0]]
-        self.slowSlope = slopes.loc[:, emas.columns[1]]
+        self.fast = emas.loc[:, self.fastMinutes]
+        self.slow = emas.loc[:, self.slowMinutes]
+        self.fastSlope = slopes.loc[:, self.fastMinutes]
+        self.slowSlope = slopes.loc[:, self.slowMinutes]
 
         # strategy
         self.longExitBarIndex = -1

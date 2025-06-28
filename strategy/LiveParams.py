@@ -21,6 +21,19 @@ class LiveParams:
         self.slowAngleFactor = slowAngleFactor
         self.coolOffMinutes = coolOffMinutes
 
+    @property
+    def size(self):
+        return (
+            len(self.fastMinutes)
+            * len(self.disableEntryMinutes)
+            * len(self.fastMomentumMinutes)
+            * len(self.fastCrossoverPercent)
+            * len(self.takeProfitPercent)
+            * len(self.fastAngleFactor)
+            * len(self.slowMinutes)
+            * len(self.slowAngleFactor)
+            * len(self.coolOffMinutes))
+
     def __repr__(self):
         return (
             f'\n\t\tfastMinutes: {self.fastMinutes}'
