@@ -212,7 +212,7 @@ class LiveStrategy(BaselineStrategy):
         isExitShortTakeProfit = shortTakeProfit > low
 
         # exit on last bar of data
-        # todo prevents any open trades in strategy
+        # prevents open trade at end of window
         isExitLastBar = False
         if idx == self.data.index[-1]:
             if is_long or is_short:

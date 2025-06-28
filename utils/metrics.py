@@ -97,10 +97,26 @@ def get_engine_metrics(engine):
     expectancy = ((win_rate / 100) * average_win) + ((loss_rate / 100) * average_loss)
 
     # percent long, short
-    longs = len([1 for trade in trades if trade.is_long])
-    shorts = len([1 for trade in trades if trade.is_short])
-    long_percent = round((longs / num_trades) * 100)
-    short_percent = round((shorts / num_trades) * 100)
+    longs = [trade for trade in trades if trade.is_long]
+    shorts = [trade for trade in trades if trade.is_short]
+    percent_long = round((len(longs) / num_trades) * 100)
+    percent_short = round((len(shorts) / num_trades) * 100)
+
+    profitable_longs = [trade.profit for trade in longs if trade.profit > 0]
+    losing_longs = [trade.profit for trade in longs if 0 >= trade.profit]
+    profitable_shorts = [trade.profit for trade in shorts if trade.profit > 0]
+    losing_shorts = [trade.profit for trade in shorts if 0 > trade.profit]
+
+    avg_win_longs = np.mean(profitable_longs)
+    avg_loss_longs = np.mean(losing_longs)
+    avg_win_shorts = np.mean(profitable_shorts)
+    avg_loss_shorts = np.mean(losing_shorts)
+
+    if len(longs) == 0: win_rate_long = np.nan
+    else: win_rate_long = (len(profitable_longs) / len(longs)) * 100
+
+    if len(shorts) == 0: win_rate_short = np.nan
+    else: win_rate_short = (len(profitable_shorts) / len(shorts)) * 100
 
     params = engine.strategy.params
 
@@ -134,8 +150,16 @@ def get_engine_metrics(engine):
         Metric('average_win', average_win, 'USD', 'Average win'),
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
-        Metric('long_percent', long_percent, '%', 'Long'),
-        Metric('short_percent', short_percent, '%', 'Short'),
+
+        Metric('long_percent', percent_long, '%', 'Long'),
+        Metric('short_percent', percent_short, '%', 'Short'),
+        Metric('avg_win_longs', avg_win_longs, 'USD', 'Average win (long)'),
+        Metric('avg_loss_longs', avg_loss_longs, 'USD', 'Average loss (long)'),
+        Metric('avg_win_shorts', avg_win_shorts, 'USD', 'Average win (short)'),
+        Metric('avg_loss_shorts', avg_loss_shorts, 'USD', 'Average loss (short)'),
+        Metric('win_rate_long', win_rate_long, '%', 'Win rate (long)'),
+        Metric('win_rate_short', win_rate_short, '%', 'Win rate (short)'),
+
         Metric('params', params, None, 'Params'),
     ]
 

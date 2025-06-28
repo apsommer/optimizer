@@ -133,9 +133,9 @@ wfa.save()
 print_metrics(get_walk_forward_results_metrics(wfa))
 
 # print last in-sample analyzer
-IS_path = wfa.path + '/' + str(runs)
-analyzer_metrics = unpack('analyzer', IS_path)['metrics']
-print_metrics(analyzer_metrics)
+# IS_path = wfa.path + '/' + str(runs)
+# analyzer_metrics = unpack('analyzer', IS_path)['metrics']
+# print_metrics(analyzer_metrics)
 
 # print analysis time
 elapsed = time.time() - start_time
