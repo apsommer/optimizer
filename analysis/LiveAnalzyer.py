@@ -18,12 +18,13 @@ from strategy.LiveStrategy import *
 
 class LiveAnalyzer:
 
-    def __init__(self, id, data, emas, slopes, opt, wfa_path):
+    def __init__(self, id, data, emas, slopes, fractals, opt, wfa_path):
 
         self.id = id
         self.data = data
         self.emas = emas
         self.slopes = slopes
+        self.fractals = fractals
         self.opt = opt
         self.wfa_path = wfa_path
         self.path = wfa_path  + '/' + str(id) + '/'
@@ -76,7 +77,7 @@ class LiveAnalyzer:
                                                 )
 
                                                 # create strategy and engine
-                                                strategy = LiveStrategy(self.data, self.emas, self.slopes, params)
+                                                strategy = LiveStrategy(self.data, self.emas, self.slopes, self.fractals, params)
                                                 engine = Engine(id, strategy)
 
                                                 # run and save
@@ -98,7 +99,7 @@ class LiveAnalyzer:
         # collect engine metrics
         for id in ids:
 
-            # todo discard engines that lose
+            # todo discard engines that lose?
             engine_metrics = unpack(id, self.path)['metrics']
             # profit = next((metric.value for metric in engine_metrics if metric.name == 'profit'), None)
             # if 0 > profit:
@@ -111,9 +112,8 @@ class LiveAnalyzer:
 
         # persist fittest engines
         for fitness in Fitness:
-
             metric = self.get_fittest_metric(fitness)
-            self.metrics.append(metric)
+            self.metrics.append(metric) # todo no need to save extraneous metrics
             self.fittest[fitness] = metric
 
     def get_fittest_metric(self, fitness):
@@ -126,10 +126,6 @@ class LiveAnalyzer:
             for metric in metrics:
                 if metric.name == fitness.value:
                     _metrics.append(metric)
-
-        # todo
-        # if len(_metrics) == 0:
-        #     return
 
         # sort by value
         _sorted = sorted(

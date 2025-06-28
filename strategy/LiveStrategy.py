@@ -23,12 +23,13 @@ class LiveStrategy(BaselineStrategy):
     def size(self):
         return 1
 
-    def __init__(self, data, emas, slopes, params):
+    def __init__(self, data, emas, slopes, fractals, params):
         super().__init__()
 
         self.data = data
         self.params = params
         self.emas = emas
+        self.fractals = fractals
         self.slopes = slopes
 
         # unpack params
@@ -105,6 +106,10 @@ class LiveStrategy(BaselineStrategy):
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
 
+        # fractal points
+        buyFractal = self.fractals.loc[idx, 'buyFractal']
+        sellFractal = self.fractals.loc[idx, 'sellFractal']
+
         # strategy
         longExitBarIndex = self.longExitBarIndex
         shortExitBarIndex = self.shortExitBarIndex
@@ -143,6 +148,12 @@ class LiveStrategy(BaselineStrategy):
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
+        # restrict entry (mean reversion)
+        proximityMinimum = 0
+        proximityMaximum = 100
+        proximityLong = ((close - slow) / close) * 100
+        proximityShort = ((slow - close) / close) * 100
+
         # entry long
         isEntryLong = (
             is_flat
@@ -150,7 +161,9 @@ class LiveStrategy(BaselineStrategy):
             and isFastCrossoverLong
             and not isEntryLongDisabled
             and slowSlope > slowAngle
-            and hasLongEntryDelayElapsed)
+            and hasLongEntryDelayElapsed
+            and proximityMaximum > proximityLong > proximityMinimum
+        )
         if isEntryLong:
             self.buy(ticker, size)
 
@@ -161,7 +174,9 @@ class LiveStrategy(BaselineStrategy):
             and isFastCrossoverShort
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
-            and hasShortEntryDelayElapsed)
+            and hasShortEntryDelayElapsed
+            and proximityMaximum > proximityShort > proximityMinimum
+        )
         if isEntryShort:
             self.sell(ticker, size)
 
@@ -267,7 +282,35 @@ class LiveStrategy(BaselineStrategy):
         emas = self.emas
         for i, min in enumerate(emas.columns):
             color = mpl.colors.rgb2hex(colors[i % 10])
-            fplt.plot(emas.loc[:, min], color=color, width=2, ax=ax)
+            fplt.plot(emas.loc[:, min], color=color, width=i, ax=ax)
+
+        buyFractals = self.fractals.loc[:, 'buyFractal']
+        sellFractals = self.fractals.loc[:, 'sellFractal']
+
+        # init dataframe plot entities
+        entities = pd.DataFrame(
+            index=data.index,
+            dtype=float,
+            columns=[
+                'buyFractal',
+                'sellFractal'])
+
+        lastBuyPrice, lastSellPrice = 0, 0
+        for idx in data.index:
+
+            buyPrice = buyFractals[idx]
+            sellPrice = sellFractals[idx]
+
+            if buyPrice != lastBuyPrice:
+                entities.loc[idx, 'buyFractal'] = buyPrice
+            if sellPrice != lastSellPrice:
+                entities.loc[idx, 'sellFractal'] = sellPrice
+
+            lastBuyPrice = buyPrice
+            lastSellPrice = sellPrice
+
+        fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
+        fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
 
         # fplt.show()
         return ax

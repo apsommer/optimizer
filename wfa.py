@@ -27,7 +27,7 @@ from utils.metrics import *
 # data, indicators
 num_months = 14
 isNetwork = False
-shouldBuildIndicators = False
+shouldBuildIndicators = True
 
 # walk forward
 percent = 20
@@ -36,28 +36,15 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 # analyzer
 opt = LiveParams(
     fastMinutes = [25],
-    disableEntryMinutes = [120],
-    fastMomentumMinutes = [0],
-    fastCrossoverPercent = [90],
-    takeProfitPercent = [.5, .7],
+    disableEntryMinutes = [105],
+    fastMomentumMinutes = [135],
+    fastCrossoverPercent = [0],
+    takeProfitPercent = [.35],
     fastAngleFactor = [15],
-    slowMinutes = [2555, 5555, 8555],
-    slowAngleFactor = [1, 3, 5, 7],
+    slowMinutes = [2555],
+    slowAngleFactor = [20],
     coolOffMinutes = [5],
 )
-# opt = FastParams(
-#     takeProfitPercent = [.5],
-#     stopLossRatio = [10],
-#     slowAngleFactor = [15],
-#     stopAverage = [5],
-#     restrictionMinutes = [60, 120, 240]
-# )
-# opt = FastParams(
-#     takeProfitPercent = [.35, .45, .55, .65, .75],
-#     stopLossRatio = [.5, 1, 1.5],
-#     slowAngleFactor = [5, 10, 15, 20, 25],
-#     stopAverage = [2, 4, 6],
-# )
 
 ###################################################################
 
@@ -133,9 +120,9 @@ wfa.save()
 print_metrics(get_walk_forward_results_metrics(wfa))
 
 # print last in-sample analyzer
-# IS_path = wfa.path + '/' + str(runs)
-# analyzer_metrics = unpack('analyzer', IS_path)['metrics']
-# print_metrics(analyzer_metrics)
+IS_path = wfa.path + '/' + str(runs)
+analyzer_metrics = unpack('analyzer', IS_path)['metrics']
+print_metrics(analyzer_metrics)
 
 # print analysis time
 elapsed = time.time() - start_time

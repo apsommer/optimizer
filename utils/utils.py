@@ -79,7 +79,7 @@ def build_indicators(data, path):
     print('Indicators:')
 
     build_emas(data, path)
-    # build_fractals(data, path)
+    build_fractals(data, path)
 
 def build_fractals(data, path):
 

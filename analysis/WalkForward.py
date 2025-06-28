@@ -58,12 +58,8 @@ class WalkForward():
 
         # run exhaustive sweep
         # analyzer = FastAnalyzer(run, IS_data, IS_emas, IS_slopes, IS_fractals, self.opt, self.path)
-        analyzer = LiveAnalyzer(run, IS_data, IS_emas, IS_slopes, self.opt, self.path)
+        analyzer = LiveAnalyzer(run, IS_data, IS_emas, IS_slopes, IS_fractals, self.opt, self.path)
         analyzer.run()
-
-        # print last run to console
-        if run == self.runs:
-            print_metrics(analyzer.metrics)
         analyzer.save()
 
     def out_of_sample(self, run):
@@ -99,7 +95,7 @@ class WalkForward():
 
             # run strategy blind with best params
             # strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
-            strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, params)
+            strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
             engine = Engine(
                 id = run,
                 strategy = strategy)
@@ -177,7 +173,7 @@ class WalkForward():
 
         # create engine, but don't run!
         # strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
-        strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, params)
+        strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
         engine = Engine(fitness.value, strategy)
 
         # finish engine build
@@ -244,7 +240,7 @@ class WalkForward():
             comp_fractals = self.fractals[start: end]
 
             # strategy = FastStrategy(comp_data, comp_ema, comp_slopes, comp_fractals, params)
-            strategy = LiveStrategy(comp_data, comp_ema, comp_slopes, params)
+            strategy = LiveStrategy(comp_data, comp_ema, comp_slopes, comp_fractals, params)
             composite = Engine(fitness.value, strategy)
 
             # deserialize previous result
