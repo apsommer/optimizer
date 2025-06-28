@@ -23,6 +23,13 @@ class LiveParams:
 
     def __repr__(self):
         return (
-            f'{self.fastMinutes}, {self.disableEntryMinutes}, {self.fastMomentumMinutes}, '
-            f'{self.fastCrossoverPercent}, {self.takeProfitPercent}, {self.fastAngleFactor}, '
-            f'{self.slowMinutes}, {self.slowAngleFactor}, {self.coolOffMinutes}')
+            f'\n\t\tfastMinutes: {self.fastMinutes}'
+            f'\n\t\tdisableEntryMinutes: {self.disableEntryMinutes}'
+            f'\n\t\tfastMomentumMinutes: {self.fastMomentumMinutes}'
+            f'\n\t\tfastCrossoverPercent: {self.fastCrossoverPercent}'
+            f'\n\t\ttakeProfitPercent: {self.takeProfitPercent}'
+            f'\n\t\tfastAngleFactor: {self.fastAngleFactor}'
+            f'\n\t\tslowMinutes: {self.slowMinutes}'
+            f'\n\t\tslowAngleFactor: {self.slowAngleFactor}'
+            f'\n\t\tcoolOffMinutes: {self.coolOffMinutes}'
+        )

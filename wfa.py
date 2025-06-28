@@ -15,6 +15,7 @@ from analysis.WalkForward import WalkForward
 
 from model.Fitness import Fitness
 from strategy.FastParams import FastParams
+from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
 from utils.utils import *
@@ -33,12 +34,24 @@ percent = 20
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
-opt = FastParams(
-    takeProfitPercent = [.5, .7, .9],
-    stopLossRatio = [.3, .5, .7, .9, 1, 1.1, 2, 10],
-    slowAngleFactor = [10],
-    stopAverage = [5],
+opt = LiveParams(
+    fastMinutes = 25,
+    disableEntryMinutes = [0],
+    fastMomentumMinutes = [95],
+    fastCrossoverPercent = 0,
+    takeProfitPercent = [.4],
+    fastAngleFactor = 15,
+    slowMinutes = 2355,
+    slowAngleFactor = 20,
+    coolOffMinutes = 5,
 )
+# opt = FastParams(
+#     takeProfitPercent = [.5],
+#     stopLossRatio = [10],
+#     slowAngleFactor = [15],
+#     stopAverage = [5],
+#     restrictionMinutes = [60, 120, 240]
+# )
 # opt = FastParams(
 #     takeProfitPercent = [.35, .45, .55, .65, .75],
 #     stopLossRatio = [.5, 1, 1.5],

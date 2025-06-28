@@ -79,7 +79,7 @@ def build_indicators(data, path):
     print('Indicators:')
 
     build_emas(data, path)
-    build_fractals(data, path)
+    # build_fractals(data, path)
 
 def build_fractals(data, path):
 
@@ -124,8 +124,8 @@ def build_fractals(data, path):
 def build_emas(data, path):
 
     fastestMinutes = 25
-    slowestMinutes = 2880
-    num = 10
+    slowestMinutes = 2355
+    num = 2
 
     ###################################################################
 

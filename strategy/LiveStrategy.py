@@ -2,6 +2,10 @@ import numpy as np
 import pandas as pd
 from strategy.BaseStrategy import BaselineStrategy
 from model.Ticker import Ticker
+from utils.utils import init_plot
+import finplot as fplt
+import seaborn as sns
+import matplotlib as mpl
 
 class LiveStrategy(BaselineStrategy):
 
@@ -19,14 +23,16 @@ class LiveStrategy(BaselineStrategy):
     def size(self):
         return 1
 
-    def __init__(self, data, indicators, params):
+    def __init__(self, data, emas, slopes, params):
         super().__init__()
 
         self.data = data
         self.params = params
+        self.emas = emas
+        self.slopes = slopes
 
         # unpack params
-        fastAngleFactor = params.stopAverage
+        fastAngleFactor = params.fastAngleFactor
         slowAngleFactor = params.slowAngleFactor
         fastCrossoverPercent = params.fastCrossoverPercent
         takeProfitPercent = params.takeProfitPercent
@@ -46,10 +52,10 @@ class LiveStrategy(BaselineStrategy):
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
         # get raw averages
-        self.fast = indicators.loc[:, 'fast']
-        self.slow = indicators.loc[:, 'slow']
-        self.fastSlope = indicators.loc[:, 'fastSlope']
-        self.slowSlope = indicators.loc[:, 'slowSlope']
+        self.fast = emas.loc[:, emas.columns[0]]
+        self.slow = emas.loc[:, emas.columns[1]]
+        self.fastSlope = slopes.loc[:, emas.columns[0]]
+        self.slowSlope = slopes.loc[:, emas.columns[1]]
 
         # strategy
         self.longExitBarIndex = -1
@@ -139,6 +145,7 @@ class LiveStrategy(BaselineStrategy):
         # entry long
         isEntryLong = (
             is_flat
+            # and slow > fast
             and isFastCrossoverLong
             and not isEntryLongDisabled
             and slowSlope > slowAngle
@@ -149,6 +156,7 @@ class LiveStrategy(BaselineStrategy):
         # entry short
         isEntryShort = (
             is_flat
+            # and fast > slow
             and isFastCrossoverShort
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
@@ -229,3 +237,24 @@ class LiveStrategy(BaselineStrategy):
         if isExitShort:
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size)
+
+    def plot(self, title = 'Strategy'):
+
+        ax = init_plot(0, title)
+
+        # candlestick ohlc
+        data = self.data
+        fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax, draw_body=False)
+
+        # color ribbon
+        crest = sns.color_palette("crest", as_cmap=True)
+        colors = crest(np.linspace(0, 1, 10))
+
+        # plot ribbon
+        emas = self.emas
+        for i, min in enumerate(emas.columns):
+            color = mpl.colors.rgb2hex(colors[i % 10])
+            fplt.plot(emas.loc[:, min], color=color, width=2, ax=ax)
+
+        # fplt.show()
+        return ax

@@ -35,6 +35,7 @@ class FastStrategy(BaselineStrategy):
         stopLossRatio = params.stopLossRatio
         slowAngleFactor = params.slowAngleFactor
         stopAverage = params.stopAverage
+        self.restrictionMinutes = params.restrictionMinutes
 
         # emas
         fastMinutes = emas.columns[0]
@@ -61,13 +62,19 @@ class FastStrategy(BaselineStrategy):
         # slope threshold
         self.slowAngle = slowAngleFactor / 1000.0
 
-        # track indices
+        #
         self.longEntryBarIndex = -1
         self.shortEntryBarIndex = -1
         self.longExitBarIndex = -1
         self.shortExitBarIndex = -1
 
-        self.coolOffMinutes = 120
+        self.longEntryPrice = np.nan
+        self.shortEntryPrice = np.nan
+        self.longExitPrice = np.inf
+        self.shortExitPrice = -np.inf
+
+        # todo temp
+        self.coolOffMinutes = 0
 
     def on_bar(self):
 
@@ -123,6 +130,14 @@ class FastStrategy(BaselineStrategy):
         hasLongEntryDelayElapsed = bar_index - self.longExitBarIndex > self.coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - self.shortExitBarIndex > self.coolOffMinutes
 
+        isLongPriceRestricted = self.restrictionMinutes > bar_index - self.longExitBarIndex
+        if isLongPriceRestricted: longEntryPriceMax = self.longExitPrice
+        else: longEntryPriceMax = np.inf
+
+        isShortPriceRestricted = self.restrictionMinutes > bar_index - self.shortExitBarIndex
+        if isShortPriceRestricted: shortEntryPriceMin = self.shortExitPrice
+        else: shortEntryPriceMin = -np.inf
+
         # entry long
         isEntryLong = (
             is_flat
@@ -133,9 +148,11 @@ class FastStrategy(BaselineStrategy):
             and close > buyFractal
             and fast > secondFastest
             and hasLongEntryDelayElapsed
+            and longEntryPriceMax > close
         )
         if isEntryLong:
             self.longEntryBarIndex = bar_index
+            self.longEntryPrice = close
             self.buy(ticker, size)
 
         # entry short
@@ -148,9 +165,11 @@ class FastStrategy(BaselineStrategy):
             and sellFractal > close
             and secondFastest > fast
             and hasShortEntryDelayElapsed
+            and close > shortEntryPriceMin
         )
         if isEntryShort:
             self.shortEntryBarIndex = bar_index
+            self.shortEntryPrice = close
             self.sell(ticker, size)
 
         ################################################################################################################
@@ -196,6 +215,7 @@ class FastStrategy(BaselineStrategy):
             or self.is_last_bar)
         if isExitLong:
             self.longExitBarIndex = bar_index
+            self.longExitPrice = close
             self.flat(ticker, size)
 
         # exit short
@@ -207,6 +227,7 @@ class FastStrategy(BaselineStrategy):
             or self.is_last_bar)
         if isExitShort:
             self.shortExitBarIndex = bar_index
+            self.shortExitPrice = close
             self.flat(ticker, size)
 
     def plot(self, title = 'Strategy'):
