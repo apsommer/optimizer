@@ -105,12 +105,7 @@ class LiveAnalyzer:
         # collect engine metrics
         for id in ids:
 
-            # todo discard engines that lose?
             engine_metrics = unpack(id, self.path)['metrics']
-            # profit = next((metric.value for metric in engine_metrics if metric.name == 'profit'), None)
-            # if 0 > profit:
-            #     continue
-
             self.engines.append(engine_metrics)
 
         # init metrics

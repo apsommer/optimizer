@@ -172,8 +172,8 @@ class LiveStrategy(BaselineStrategy):
             and self.trendStartMinutes < self.positiveMinutes < self.trendEndMinutes
             and (
                 fast > close > buyFractal > slow
-                or isFastCrossoverLong
-            )
+                # or isFastCrossoverLong
+            ) # 1.19, 217
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -188,7 +188,7 @@ class LiveStrategy(BaselineStrategy):
             and self.trendStartMinutes < self.negativeMinutes < self.trendEndMinutes
             and (
                 slow > sellFractal > close > fast
-                or isFastCrossoverShort
+                # or isFastCrossoverShort
             )
         )
         if isEntryShort:
@@ -252,17 +252,12 @@ class LiveStrategy(BaselineStrategy):
             if is_long or is_short:
                 isExitLastBar = True
 
-        # exit, slow crossover
-        isExitLongSlowMomentum = is_long and -slowAngle > slowSlope
-        isExitShortSlowMomentum = is_short and slowSlope > slowAngle
-
         # exit long
         isExitLong = is_long and (
             isExitLongFastCrossover
             or isExitLongFastMomentum
             or isExitLongTakeProfit
             or isExitLastBar
-            # or isExitLongSlowMomentum
         )
         if isExitLong:
             self.longExitBarIndex = bar_index
@@ -274,7 +269,6 @@ class LiveStrategy(BaselineStrategy):
             or isExitShortFastMomentum
             or isExitShortTakeProfit
             or isExitLastBar
-            # or isExitShortSlowMomentum
         )
         if isExitShort:
             self.shortExitBarIndex = bar_index
