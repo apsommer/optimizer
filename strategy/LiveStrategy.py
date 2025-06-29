@@ -252,9 +252,9 @@ class LiveStrategy(BaselineStrategy):
 
         # exit long
         isExitLong = is_long and (
-            isExitLongFastCrossover
-            or isExitLongFastMomentum
-            or isExitLongTakeProfit
+            # isExitLongFastCrossover
+            # isExitLongFastMomentum
+            isExitLongTakeProfit
             or isExitLastBar
         )
         if isExitLong:
@@ -263,9 +263,9 @@ class LiveStrategy(BaselineStrategy):
 
         # exit short
         isExitShort = is_short and (
-            isExitShortFastCrossover
-            or isExitShortFastMomentum
-            or isExitShortTakeProfit
+            # isExitShortFastCrossover
+            # isExitShortFastMomentum
+            isExitShortTakeProfit
             or isExitLastBar
         )
         if isExitShort:

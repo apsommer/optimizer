@@ -38,15 +38,15 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [0],
-    fastMomentumMinutes = [70],
+    fastMomentumMinutes = [55, 75, 95, 125],
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.25],
-    fastAngleFactor = [15],
+    takeProfitPercent = [.35],
+    fastAngleFactor = [1],
     slowMinutes = [2025],
-    slowAngleFactor = [25],
+    slowAngleFactor = [0],
     coolOffMinutes = [5],
-    trendStartHour = [4],
-    trendEndHour = [48],
+    trendStartHour = [2, 4, 6, 8],
+    trendEndHour = [12, 16, 24, 48],
 )
 
 ###################################################################
@@ -96,8 +96,6 @@ fitnesses = [fitness for fitness in Fitness]
 # print header metrics
 print_metrics(wfa.metrics)
 
-
-
 # run in-sample sweep
 pool = Pool(
     processes = cores,
@@ -121,6 +119,8 @@ pool = Pool(
 pool.map(wfa.build_composite, fitnesses)
 pool.close()
 pool.join()
+
+# wfa.build_composite(Fitness.PROFIT)
 
 # select composite of interest
 wfa.analyze()

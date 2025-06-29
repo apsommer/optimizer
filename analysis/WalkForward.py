@@ -6,9 +6,8 @@ import pandas as pd
 from numpy import linspace
 from tqdm import tqdm
 
-from analysis.FastAnalyzer import FastAnalyzer
 from analysis.Engine import Engine
-from analysis.LiveAnalzyer import LiveAnalyzer
+from analysis.Analyzer import Analyzer
 from model.Fitness import Fitness
 from strategy.FastStrategy import FastStrategy
 from strategy.LiveStrategy import LiveStrategy
@@ -57,8 +56,7 @@ class WalkForward():
         IS_fractals = self.fractals.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        # analyzer = FastAnalyzer(run, IS_data, IS_emas, IS_slopes, IS_fractals, self.opt, self.path)
-        analyzer = LiveAnalyzer(run, IS_data, IS_emas, IS_slopes, IS_fractals, self.opt, self.path)
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_slopes, IS_fractals, self.opt, self.path)
         analyzer.run()
         analyzer.save()
 
@@ -94,7 +92,6 @@ class WalkForward():
             params = unpack(str(fittest_id), IS_path)['params']
 
             # run strategy blind with best params
-            # strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
             strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
             engine = Engine(
                 id = run,
@@ -151,7 +148,8 @@ class WalkForward():
 
         # todo add metrics, handle bad IS runs 0 > profit
         avg_eff = np.nanmean(effs)
-        # print(f'avg_eff: {avg_eff}')
+        print(effs)
+        print(f'avg_eff: {avg_eff}')
 
         # reindex trades
         for i, trade in enumerate(trades):
@@ -172,7 +170,6 @@ class WalkForward():
         OS_fractals = self.fractals.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        # strategy = FastStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
         strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
         engine = Engine(fitness.value, strategy)
 
@@ -239,7 +236,6 @@ class WalkForward():
             comp_slopes = self.slopes[start: end]
             comp_fractals = self.fractals[start: end]
 
-            # strategy = FastStrategy(comp_data, comp_ema, comp_slopes, comp_fractals, params)
             strategy = LiveStrategy(comp_data, comp_ema, comp_slopes, comp_fractals, params)
             composite = Engine(fitness.value, strategy)
 

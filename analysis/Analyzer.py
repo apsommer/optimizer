@@ -16,7 +16,7 @@ from utils.utils import *
 from utils.metrics import *
 from strategy.LiveStrategy import *
 
-class LiveAnalyzer:
+class Analyzer:
 
     def __init__(self, id, data, emas, slopes, fractals, opt, wfa_path):
 
@@ -114,7 +114,7 @@ class LiveAnalyzer:
         # persist fittest engines
         for fitness in Fitness:
             metric = self.get_fittest_metric(fitness)
-            self.metrics.append(metric) # todo no need to save extraneous metrics
+            self.metrics.append(metric)
             self.fittest[fitness] = metric
 
     def get_fittest_metric(self, fitness):
