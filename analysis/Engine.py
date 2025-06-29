@@ -214,17 +214,20 @@ class Engine:
 
                 trade_bar += 1
 
+        marker_size = 3
+        line_width = 7
+
         # entries
-        fplt.plot(entities['long_entry'], style='o', color=blue, ax=ax)
-        fplt.plot(entities['short_entry'], style='o', color=aqua, ax=ax)
+        # fplt.plot(entities['long_entry'], style='o', width = marker_size, color=blue, ax=ax)
+        # fplt.plot(entities['short_entry'], style='o', width = marker_size, color=aqua, ax=ax)
 
         # exits
-        fplt.plot(entities['profit_exit'], style='o', color=green, ax=ax)
-        fplt.plot(entities['loss_exit'], style='o', color=red, ax=ax)
+        fplt.plot(entities['profit_exit'], style='o', width = marker_size, color=green, ax=ax)
+        fplt.plot(entities['loss_exit'], style='o', width = marker_size, color=red, ax=ax)
 
         # trades
-        fplt.plot(entities['long_trade'], color=blue, width= 6, ax=ax)
-        fplt.plot(entities['short_trade'], color=aqua, width = 6, ax=ax)
+        fplt.plot(entities['long_trade'], color=blue, width= line_width, ax=ax)
+        fplt.plot(entities['short_trade'], color=aqua, width = line_width, ax=ax)
 
         # fplt.show()
 

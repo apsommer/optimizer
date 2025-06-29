@@ -42,6 +42,8 @@ class LiveAnalyzer:
         self.slowMinutes = self.opt.slowMinutes
         self.slowAngleFactor = self.opt.slowAngleFactor
         self.coolOffMinutes = self.opt.coolOffMinutes
+        self.trendStartHour = self.opt.trendStartHour
+        self.trendEndHour = self.opt.trendEndHour
 
     def run(self):
 
@@ -62,30 +64,34 @@ class LiveAnalyzer:
                                     for slowMinutes in self.slowMinutes:
                                         for slowAngleFactor in self.slowAngleFactor:
                                             for coolOffMinutes in self.coolOffMinutes:
+                                                for trendStartHour in self.trendStartHour:
+                                                    for trendEndHour in self.trendEndHour:
 
-                                                # update params
-                                                params = LiveParams(
-                                                    fastMinutes = fastMinutes,
-                                                    disableEntryMinutes = disableEntryMinutes,
-                                                    fastMomentumMinutes = fastMomentumMinutes,
-                                                    fastCrossoverPercent = fastCrossoverPercent,
-                                                    takeProfitPercent = takeProfitPercent,
-                                                    fastAngleFactor = fastAngleFactor,
-                                                    slowMinutes = slowMinutes,
-                                                    slowAngleFactor = slowAngleFactor,
-                                                    coolOffMinutes = coolOffMinutes,
-                                                )
+                                                        # update params
+                                                        params = LiveParams(
+                                                            fastMinutes = fastMinutes,
+                                                            disableEntryMinutes = disableEntryMinutes,
+                                                            fastMomentumMinutes = fastMomentumMinutes,
+                                                            fastCrossoverPercent = fastCrossoverPercent,
+                                                            takeProfitPercent = takeProfitPercent,
+                                                            fastAngleFactor = fastAngleFactor,
+                                                            slowMinutes = slowMinutes,
+                                                            slowAngleFactor = slowAngleFactor,
+                                                            coolOffMinutes = coolOffMinutes,
+                                                            trendStartHour = trendStartHour,
+                                                            trendEndHour = trendEndHour,
+                                                        )
 
-                                                # create strategy and engine
-                                                strategy = LiveStrategy(self.data, self.emas, self.slopes, self.fractals, params)
-                                                engine = Engine(id, strategy)
+                                                        # create strategy and engine
+                                                        strategy = LiveStrategy(self.data, self.emas, self.slopes, self.fractals, params)
+                                                        engine = Engine(id, strategy)
 
-                                                # run and save
-                                                engine.run()
-                                                engine.save(self.path, False)
-                                                id += 1
+                                                        # run and save
+                                                        engine.run()
+                                                        engine.save(self.path, False)
+                                                        id += 1
 
-                                                pbar.update()
+                                                        pbar.update()
 
         pbar.close()
         self.analyze()

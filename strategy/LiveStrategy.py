@@ -43,6 +43,8 @@ class LiveStrategy(BaselineStrategy):
         self.slowMinutes = params.slowMinutes
         slowAngleFactor = params.slowAngleFactor
         self.coolOffMinutes = params.coolOffMinutes
+        self.trendStartMinutes = params.trendStartHour * 60
+        self.trendEndMinutes = params.trendEndHour * 60
 
         # convert units
         self.fastAngle = fastAngleFactor / 1000.0
@@ -69,6 +71,9 @@ class LiveStrategy(BaselineStrategy):
         self.isExitShortCrossoverEnabled = False
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
+
+        self.positiveMinutes = 0
+        self.negativeMinutes = 0
 
     def on_bar(self):
 
@@ -106,6 +111,14 @@ class LiveStrategy(BaselineStrategy):
         fastSlope = self.fastSlope[idx]
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
+
+        # todo count mins in trend
+        if slowSlope > 0:
+            self.positiveMinutes += 1
+            self.negativeMinutes = 0
+        else:
+            self.positiveMinutes = 0
+            self.negativeMinutes += 1
 
         # fractal points
         buyFractal = self.fractals.loc[idx, 'buyFractal']
@@ -149,22 +162,18 @@ class LiveStrategy(BaselineStrategy):
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
-        # restrict entry (mean reversion)
-        proximityMinimum = 0
-        proximityMaximum = 100
-        proximityLong = ((close - slow) / close) * 100
-        proximityShort = ((slow - close) / close) * 100
-
         # entry long
         isEntryLong = (
             is_flat
             and fast > slow
-            # and isFastCrossoverLong
             and not isEntryLongDisabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed
-            and proximityMaximum > proximityLong > proximityMinimum
-            and fast > close > buyFractal > slow
+            and self.trendStartMinutes < self.positiveMinutes < self.trendEndMinutes
+            and (
+                fast > close > buyFractal > slow
+                or isFastCrossoverLong
+            )
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -173,12 +182,14 @@ class LiveStrategy(BaselineStrategy):
         isEntryShort = (
             is_flat
             and slow > fast
-            # and isFastCrossoverShort
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed
-            and proximityMaximum > proximityShort > proximityMinimum
-            and slow > sellFractal > close > fast
+            and self.trendStartMinutes < self.negativeMinutes < self.trendEndMinutes
+            and (
+                slow > sellFractal > close > fast
+                or isFastCrossoverShort
+            )
         )
         if isEntryShort:
             self.sell(ticker, size)
@@ -242,8 +253,8 @@ class LiveStrategy(BaselineStrategy):
                 isExitLastBar = True
 
         # exit, slow crossover
-        isExitLongSlowCrossover = is_long and slow > low
-        isExitShortSlowCrossover = is_short and high > slow
+        isExitLongSlowMomentum = is_long and -slowAngle > slowSlope
+        isExitShortSlowMomentum = is_short and slowSlope > slowAngle
 
         # exit long
         isExitLong = is_long and (
@@ -251,7 +262,7 @@ class LiveStrategy(BaselineStrategy):
             or isExitLongFastMomentum
             or isExitLongTakeProfit
             or isExitLastBar
-            # or isExitLongSlowCrossover
+            # or isExitLongSlowMomentum
         )
         if isExitLong:
             self.longExitBarIndex = bar_index
@@ -263,7 +274,7 @@ class LiveStrategy(BaselineStrategy):
             or isExitShortFastMomentum
             or isExitShortTakeProfit
             or isExitLastBar
-            # or isExitShortSlowCrossover
+            # or isExitShortSlowMomentum
         )
         if isExitShort:
             self.shortExitBarIndex = bar_index
