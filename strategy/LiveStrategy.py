@@ -72,8 +72,11 @@ class LiveStrategy(BaselineStrategy):
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
 
-        self.positiveMinutes = 0
-        self.negativeMinutes = 0
+
+        self.fastLongEnabledMinutes = 0
+        self.fastShortEnabledMinutes = 0
+        self.slowPositiveMinutes = 0
+        self.slowNegativeMinutes = 0
 
     def on_bar(self):
 
@@ -112,13 +115,19 @@ class LiveStrategy(BaselineStrategy):
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
 
-        # todo count mins in trend
-        if slowSlope > 0:
-            self.positiveMinutes += 1
-            self.negativeMinutes = 0
+        # todo count mins in trends
+        if fastSlope > fastAngle: self.fastLongEnabledMinutes += 1
+        elif -fastAngle > fastSlope: self.fastShortEnabledMinutes += 1
         else:
-            self.positiveMinutes = 0
-            self.negativeMinutes += 1
+            self.fastLongEnabledMinutes = 0
+            self.fastShortEnabledMinutes = 0
+
+        if slowSlope > 0:
+            self.slowPositiveMinutes += 1
+            self.slowNegativeMinutes = 0
+        else:
+            self.slowPositiveMinutes = 0
+            self.slowNegativeMinutes += 1
 
         # fractal points
         buyFractal = self.fractals.loc[idx, 'buyFractal']
@@ -137,26 +146,13 @@ class LiveStrategy(BaselineStrategy):
 
         ################################################################################################################
 
-        # entry, long crossover fast
-        isFastCrossoverLong = (
-            fastSlope > fastAngle
-            and (fast > open or fast > prev_close)
-            and close > fast)
-
-        # entry, short crossover fast
-        isFastCrossoverShort = (
-            -fastAngle > fastSlope
-            and (open > fast or prev_close > fast)
-            and fast > close)
-
         # disable entry
         if disableEntryMinutes == 0:
             isEntryLongDisabled = False
             isEntryShortDisabled = False
         else:
-            recentFastSlope = self.fastSlope[bar_index - disableEntryMinutes : bar_index]
-            isEntryLongDisabled = np.min(recentFastSlope) > 0
-            isEntryShortDisabled = 0 > np.max(recentFastSlope)
+            isEntryLongDisabled = self.fastLongEnabledMinutes > disableEntryMinutes
+            isEntryShortDisabled = self.fastShortEnabledMinutes > disableEntryMinutes
 
         # cooloff after trade exit
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
@@ -169,11 +165,8 @@ class LiveStrategy(BaselineStrategy):
             and not isEntryLongDisabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed
-            and self.trendStartMinutes < self.positiveMinutes < self.trendEndMinutes
-            and (
-                fast > close > buyFractal > slow
-                # or isFastCrossoverLong
-            ) # 1.19, 217
+            and self.trendStartMinutes < self.slowPositiveMinutes < self.trendEndMinutes
+            and fast > close > buyFractal > slow
         )
         if isEntryLong:
             self.buy(ticker, size)
@@ -185,11 +178,8 @@ class LiveStrategy(BaselineStrategy):
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed
-            and self.trendStartMinutes < self.negativeMinutes < self.trendEndMinutes
-            and (
-                slow > sellFractal > close > fast
-                # or isFastCrossoverShort
-            )
+            and self.trendStartMinutes < self.slowNegativeMinutes < self.trendEndMinutes
+            and slow > sellFractal > close > fast
         )
         if isEntryShort:
             self.sell(ticker, size)
@@ -207,7 +197,8 @@ class LiveStrategy(BaselineStrategy):
 
         isExitLongFastCrossover =(
             isExitLongCrossoverEnabled
-            and fast > low)
+            and fast > low
+        )
 
         # exit, short crossover fast
         shortFastCrossoverExit = np.nan
@@ -222,16 +213,23 @@ class LiveStrategy(BaselineStrategy):
 
         isExitShortFastCrossover = (
             isExitShortCrossoverEnabled
-            and high > fast)
+            and high > fast
+        )
 
         # exit, fast momentum
         if fastMomentumMinutes == 0:
             isExitLongFastMomentum = False
             isExitShortFastMomentum = False
+
         else:
-            recentFastSlope = self.fastSlope[bar_index - fastMomentumMinutes : bar_index]
-            isExitLongFastMomentum = is_long and -fastAngle > np.max(recentFastSlope)
-            isExitShortFastMomentum = is_short and np.min(recentFastSlope) > fastAngle
+            isExitLongFastMomentum = (
+                is_long
+                and self.fastShortEnabledMinutes > fastMomentumMinutes
+            )
+            isExitShortFastMomentum = (
+                is_short
+                and self.fastLongEnabledMinutes > fastMomentumMinutes
+            )
 
         # exit, long take profit
         if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
