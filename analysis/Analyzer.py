@@ -89,8 +89,8 @@ class Analyzer:
                                                         # run and save
                                                         engine.run()
                                                         engine.save(self.path, False)
-                                                        id += 1
 
+                                                        id += 1
                                                         pbar.update()
 
         pbar.close()
@@ -113,7 +113,11 @@ class Analyzer:
 
         # persist fittest engines
         for fitness in Fitness:
+
             metric = self.get_fittest_metric(fitness)
+
+            if metric is None: continue
+
             self.metrics.append(metric)
             self.fittest[fitness] = metric
 
@@ -134,10 +138,18 @@ class Analyzer:
             key = lambda it: it.value,
             reverse = True)
 
-        # tag title
-        metric = _sorted[0]
-        metric.title = f'[{metric.id}] {metric.title}'
-        return metric
+        # find first profitable engine for this fitness
+        for metric in _sorted:
+
+            id = metric.id
+            engine_metrics = unpack(id, self.path)['metrics']
+            profit = next((metric.value for metric in engine_metrics if metric.name == 'profit'), None)
+
+            if profit > 0:
+                metric.title = f'[{metric.id}] {metric.title}' # tag title
+                return metric
+
+        return None
 
     def save(self):
 

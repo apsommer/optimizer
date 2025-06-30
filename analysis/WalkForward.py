@@ -1,6 +1,7 @@
 import os
 import pickle
 import shutil
+from datetime import timezone
 
 import pandas as pd
 from numpy import linspace
@@ -82,14 +83,15 @@ class WalkForward():
 
         # create and save engine for each fitness
         for fitness in tqdm(
-            iterable = Fitness,
+            iterable = fittest,
             disable = run != 0, # show only 1 core
             colour = blue,
             bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             # extract params of fittest engine
             fittest_id = fittest[fitness].id
-            params = unpack(str(fittest_id), IS_path)['params']
+            IS_engine = unpack(fittest_id, IS_path)
+            params = IS_engine['params']
 
             # run strategy blind with best params
             strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
@@ -99,14 +101,11 @@ class WalkForward():
             engine.run()
 
             # calculate efficiency
-            IS_engine = unpack(fittest_id, IS_path)
             IS_metrics = IS_engine['metrics']
             IS_return = next((metric.value for metric in IS_metrics if metric.name == 'annual_return'), None)
             OS_return = next((metric.value for metric in engine.metrics if metric.name == 'annual_return'), None)
 
-            if 0 > IS_return: eff = np.nan
-            else: eff = (OS_return / IS_return) * 100
-
+            eff = (OS_return / IS_return) * 100
             eff_metric = Metric('efficiency', eff, '%', 'Efficiency', formatter = None, id = run)
             engine.metrics.append(eff_metric)
 
@@ -127,29 +126,62 @@ class WalkForward():
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             OS_path = self.path + '/' + fitness.value
-            OS_engine = unpack(run, OS_path)
+            OS_engine_filepath = OS_path + '/' + str(run) + '.bin'
 
-            # extract saved OS engine results
-            OS_cash_series = OS_engine['cash_series']
-            OS_trades = OS_engine['trades']
-            OS_metrics = OS_engine['metrics']
+            # check if OS run exists from profitable fittest IS
+            if os.path.exists(OS_engine_filepath):
 
-            eff_metric = next((metric for metric in OS_metrics if metric.name == 'efficiency'), None)
-            effs.append(eff_metric.value)
+                OS_engine = unpack(run, OS_path)
 
-            # cumulative cash series
-            initial_cash = OS_cash_series.values[0]
-            if len(cash_series) > 0:
-                last_balance = cash_series.values[-1]
-                OS_cash_series += last_balance - initial_cash
+                # extract saved OS engine results
+                OS_cash_series = OS_engine['cash_series']
+                OS_trades = OS_engine['trades']
+                OS_metrics = OS_engine['metrics']
+
+                eff_metric = next((metric for metric in OS_metrics if metric.name == 'efficiency'), None)
+                effs.append(eff_metric.value)
+
+                # cumulative cash series
+                initial_cash = OS_cash_series.values[0]
+                if len(cash_series) > 0:
+                    last_balance = cash_series.values[-1]
+                    OS_cash_series += last_balance - initial_cash
+
+                # todo add metrics
+                avg_eff = np.mean(effs)
+                print(f'fitness: {fitness}, avg_eff: {avg_eff}')
+
+            # no profitable IS, build flat line to not trade during
+            else:
+
+                # isolate testing test
+                IS_len = self.IS_len
+                OS_len = self.OS_len
+                IS_start = run * OS_len
+                IS_end = IS_start + IS_len
+                OS_start = IS_end
+                OS_end = OS_start + OS_len
+
+                # mask dataset
+                mask = self.data.iloc[OS_start: OS_end]
+
+                # create timestamps
+                OS_timestamps = pd.date_range(
+                    start = mask.index[0],
+                    end = mask.index[-1],
+                    freq = '1min'
+                )
+
+                # no cash or trades
+                OS_cash_series = pd.Series()
+                for timestamp in OS_timestamps:
+                    if timestamp not in self.data.index: continue
+                    OS_cash_series[timestamp] = 10000
+
+                OS_trades = []
 
             cash_series = cash_series._append(OS_cash_series)
             trades.extend(OS_trades)
-
-        # todo add metrics, handle bad IS runs 0 > profit
-        avg_eff = np.nanmean(effs)
-        print(effs)
-        print(f'avg_eff: {avg_eff}')
 
         # reindex trades
         for i, trade in enumerate(trades):
@@ -159,9 +191,15 @@ class WalkForward():
         IS_path = self.path + '/' + str(self.runs)
         fittest = unpack('analyzer', IS_path)['fittest']
 
-        # extract params of fittest engine
-        metric = fittest[fitness]
-        params = unpack(str(metric.id), IS_path)['params']
+        # todo check if fitness in fittest
+        if fitness in fittest:
+
+            # extract params of fittest engine
+            metric = fittest[fitness]
+            params = unpack(str(metric.id), IS_path)['params']
+
+        else:
+            params = None
 
         # mask data to OS sample
         OS_data = self.data.loc[cash_series.index, :]

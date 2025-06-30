@@ -37,16 +37,16 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 # analyzer
 opt = LiveParams(
     fastMinutes = [25],
-    disableEntryMinutes = [0],
-    fastMomentumMinutes = [55, 75, 95, 125],
+    disableEntryMinutes = [105],
+    fastMomentumMinutes = [55], #, 95, 105, 115, 125, 135],
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.35],
-    fastAngleFactor = [1],
+    takeProfitPercent = [1, 2], # .35, .40, .45],
+    fastAngleFactor = [5],
     slowMinutes = [2025],
-    slowAngleFactor = [0],
+    slowAngleFactor = [5],
     coolOffMinutes = [5],
-    trendStartHour = [2, 4, 6, 8],
-    trendEndHour = [12, 16, 24, 48],
+    trendStartHour = [6],
+    trendEndHour = [24],
 )
 
 ###################################################################
@@ -119,8 +119,6 @@ pool = Pool(
 pool.map(wfa.build_composite, fitnesses)
 pool.close()
 pool.join()
-
-# wfa.build_composite(Fitness.PROFIT)
 
 # select composite of interest
 wfa.analyze()

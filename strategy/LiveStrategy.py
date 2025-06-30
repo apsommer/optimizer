@@ -52,7 +52,7 @@ class LiveStrategy(BaselineStrategy):
         self.takeProfit = takeProfitPercent / 100.0
 
         # calculate fast crossover
-        if fastCrossoverPercent == 0: self.fastCrossover = np.nan # off, tp only
+        if fastCrossoverPercent == 0: self.fastCrossover = 0 # off, tp only
         elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # tp off, fc only
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
@@ -71,8 +71,6 @@ class LiveStrategy(BaselineStrategy):
         self.isExitShortCrossoverEnabled = False
         self.longTakeProfit = np.nan
         self.shortTakeProfit = np.nan
-
-
         self.fastLongEnabledMinutes = 0
         self.fastShortEnabledMinutes = 0
         self.slowPositiveMinutes = 0
@@ -102,7 +100,6 @@ class LiveStrategy(BaselineStrategy):
         high = self.data.High[idx]
         low = self.data.Low[idx]
         close = self.data.Close[idx]
-        prev_close = self.data.Close.iloc[bar_index-1]
 
         # position
         is_flat = self.is_flat
@@ -115,19 +112,22 @@ class LiveStrategy(BaselineStrategy):
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
 
-        # todo count mins in trends
-        if fastSlope > fastAngle: self.fastLongEnabledMinutes += 1
-        elif -fastAngle > fastSlope: self.fastShortEnabledMinutes += 1
+        # count bars in trends
+        if fastSlope > fastAngle:
+            self.fastLongEnabledMinutes += 1
+        elif -fastAngle > fastSlope:
+            self.fastShortEnabledMinutes += 1
         else:
             self.fastLongEnabledMinutes = 0
             self.fastShortEnabledMinutes = 0
 
-        if slowSlope > 0:
+        if slowSlope > slowAngle:
             self.slowPositiveMinutes += 1
-            self.slowNegativeMinutes = 0
+        elif -slowAngle > slowSlope:
+            self.slowNegativeMinutes += 1
         else:
             self.slowPositiveMinutes = 0
-            self.slowNegativeMinutes += 1
+            self.slowNegativeMinutes = 0
 
         # fractal points
         buyFractal = self.fractals.loc[idx, 'buyFractal']
@@ -184,37 +184,43 @@ class LiveStrategy(BaselineStrategy):
         if isEntryShort:
             self.sell(ticker, size)
 
-        # exit, long crossover fast
-        longFastCrossoverExit = np.nan
-        if isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
-        elif is_long: longFastCrossoverExit = self.longFastCrossoverExit
-        self.longFastCrossoverExit = longFastCrossoverExit
+        # exit, fast crossover after hitting threshold
+        if fastCrossover == 0:
+            isExitLongFastCrossover = False
+            isExitShortFastCrossover = False
 
-        if not is_long: isExitLongCrossoverEnabled = False
-        elif self.isExitLongCrossoverEnabled: isExitLongCrossoverEnabled = True
-        else: isExitLongCrossoverEnabled = high > longFastCrossoverExit
-        self.isExitLongCrossoverEnabled = isExitLongCrossoverEnabled
+        else:
 
-        isExitLongFastCrossover =(
-            isExitLongCrossoverEnabled
-            and fast > low
-        )
+            longFastCrossoverExit = np.nan
+            if isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
+            elif is_long: longFastCrossoverExit = self.longFastCrossoverExit
+            self.longFastCrossoverExit = longFastCrossoverExit
 
-        # exit, short crossover fast
-        shortFastCrossoverExit = np.nan
-        if isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
-        elif is_short: shortFastCrossoverExit = self.shortFastCrossoverExit
-        self.shortFastCrossoverExit = shortFastCrossoverExit
+            if not is_long: isExitLongCrossoverEnabled = False
+            elif self.isExitLongCrossoverEnabled: isExitLongCrossoverEnabled = True
+            else: isExitLongCrossoverEnabled = high > longFastCrossoverExit
+            self.isExitLongCrossoverEnabled = isExitLongCrossoverEnabled
 
-        if not is_short: isExitShortCrossoverEnabled = False
-        elif self.isExitShortCrossoverEnabled: isExitShortCrossoverEnabled = True
-        else: isExitShortCrossoverEnabled = shortFastCrossoverExit > low
-        self.isExitShortCrossoverEnabled = isExitShortCrossoverEnabled
+            isExitLongFastCrossover =(
+                isExitLongCrossoverEnabled
+                and fast > low
+            )
 
-        isExitShortFastCrossover = (
-            isExitShortCrossoverEnabled
-            and high > fast
-        )
+            # exit, short crossover fast
+            shortFastCrossoverExit = np.nan
+            if isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
+            elif is_short: shortFastCrossoverExit = self.shortFastCrossoverExit
+            self.shortFastCrossoverExit = shortFastCrossoverExit
+
+            if not is_short: isExitShortCrossoverEnabled = False
+            elif self.isExitShortCrossoverEnabled: isExitShortCrossoverEnabled = True
+            else: isExitShortCrossoverEnabled = shortFastCrossoverExit > low
+            self.isExitShortCrossoverEnabled = isExitShortCrossoverEnabled
+
+            isExitShortFastCrossover = (
+                isExitShortCrossoverEnabled
+                and high > fast
+            )
 
         # exit, fast momentum
         if fastMomentumMinutes == 0:
@@ -231,17 +237,23 @@ class LiveStrategy(BaselineStrategy):
                 and self.fastLongEnabledMinutes > fastMomentumMinutes
             )
 
-        # exit, long take profit
-        if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
-        elif not is_long: longTakeProfit = np.nan
-        self.longTakeProfit = longTakeProfit
-        isExitLongTakeProfit = high > longTakeProfit
+        # exit, take profit
+        if takeProfit == 0:
+            isExitLongTakeProfit = False
+            isExitShortTakeProfit = False
 
-        # exit, short take profit:
-        if isEntryShort: shortTakeProfit = (1 - takeProfit) * fast
-        elif not is_short: shortTakeProfit = np.nan
-        self.shortTakeProfit = shortTakeProfit
-        isExitShortTakeProfit = shortTakeProfit > low
+        else:
+
+            if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
+            elif not is_long: longTakeProfit = np.nan
+            self.longTakeProfit = longTakeProfit
+            isExitLongTakeProfit = high > longTakeProfit
+
+            # exit, short take profit:
+            if isEntryShort: shortTakeProfit = (1 - takeProfit) * fast
+            elif not is_short: shortTakeProfit = np.nan
+            self.shortTakeProfit = shortTakeProfit
+            isExitShortTakeProfit = shortTakeProfit > low
 
         # exit on last bar of data
         # prevents open trade at end of window
@@ -252,9 +264,9 @@ class LiveStrategy(BaselineStrategy):
 
         # exit long
         isExitLong = is_long and (
-            # isExitLongFastCrossover
-            # isExitLongFastMomentum
-            isExitLongTakeProfit
+            isExitLongFastCrossover
+            or isExitLongFastMomentum
+            or isExitLongTakeProfit
             or isExitLastBar
         )
         if isExitLong:
@@ -263,9 +275,9 @@ class LiveStrategy(BaselineStrategy):
 
         # exit short
         isExitShort = is_short and (
-            # isExitShortFastCrossover
-            # isExitShortFastMomentum
-            isExitShortTakeProfit
+            isExitShortFastCrossover
+            or isExitShortFastMomentum
+            or isExitShortTakeProfit
             or isExitLastBar
         )
         if isExitShort:
