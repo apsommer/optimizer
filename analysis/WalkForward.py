@@ -119,6 +119,7 @@ class WalkForward():
         cash_series = pd.Series()
         trades = []
         effs = []
+        invalids = []
         for run in tqdm(
             iterable = range(self.runs),
             disable = fitness is not Fitness.PROFIT, # show only 1 core
@@ -153,6 +154,9 @@ class WalkForward():
 
             # no profitable IS, build flat line to not trade during
             else:
+
+                # count invalid runs
+                invalids.append(run)
 
                 # isolate testing test
                 IS_len = self.IS_len
@@ -215,6 +219,12 @@ class WalkForward():
         engine.cash_series = cash_series
         engine.trades = trades
         engine.analyze() # generate metrics
+
+        # add metric for number of invalid analyzers
+        if len(invalids) > 0:
+            pretty_invalids = str(len(invalids)) + ' ' + str(invalids)
+            engine.metrics.append(
+                Metric('invalids', pretty_invalids, None, 'Invalid runs'))
 
         # save OS composite for this fitness
         engine.save(self.path, True)
