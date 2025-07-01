@@ -34,7 +34,7 @@ def getOhlc(num_months, isNetwork):
         print(f'Upload OHLC from {csv_filename}')
         return ohlc
 
-    print('Download OHLC from databento, costs $$$')
+    print(f'$$$ Download OHLC from databento as {csv_filename}')
 
     # request network data synchronous
     client = db.Historical(keys.bento_api_key) # $$$

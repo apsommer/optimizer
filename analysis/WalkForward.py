@@ -81,6 +81,9 @@ class WalkForward():
         IS_path = self.path + '/' + str(run)
         fittest = unpack('analyzer', IS_path)['fittest']
 
+        if run == self.runs:
+            pass
+
         # create and save engine for each fitness
         for fitness in tqdm(
             iterable = fittest,
@@ -104,6 +107,10 @@ class WalkForward():
             IS_metrics = IS_engine['metrics']
             IS_return = next((metric.value for metric in IS_metrics if metric.name == 'annual_return'), None)
             OS_return = next((metric.value for metric in engine.metrics if metric.name == 'annual_return'), None)
+
+            # catch engine with no trades
+            if OS_return is None:
+                return
 
             eff = (OS_return / IS_return) * 100
             eff_metric = Metric('efficiency', eff, '%', 'Efficiency', formatter = None, id = run)
@@ -148,10 +155,6 @@ class WalkForward():
                     last_balance = cash_series.values[-1]
                     OS_cash_series += last_balance - initial_cash
 
-                # todo add metrics
-                avg_eff = np.mean(effs)
-                print(f'fitness: {fitness}, avg_eff: {avg_eff}')
-
             # no profitable IS, build flat line to not trade during
             else:
 
@@ -195,13 +198,11 @@ class WalkForward():
         IS_path = self.path + '/' + str(self.runs)
         fittest = unpack('analyzer', IS_path)['fittest']
 
-        # todo check if fitness in fittest
+        # ensure fitness in fittest
+        # extract params of fittest engine
         if fitness in fittest:
-
-            # extract params of fittest engine
             metric = fittest[fitness]
             params = unpack(str(metric.id), IS_path)['params']
-
         else:
             params = None
 
@@ -220,11 +221,16 @@ class WalkForward():
         engine.trades = trades
         engine.analyze() # generate metrics
 
-        # add metric for number of invalid analyzers
+        # add summary metrics
+
+        # efficiency
+        # avg_eff = np.mean(effs)
+        # print(f'fitness: {fitness}, avg_eff: {avg_eff}')
+
+        # invalid analyzers
         if len(invalids) > 0:
-            pretty_invalids = str(len(invalids)) + ' ' + str(invalids)
             engine.metrics.append(
-                Metric('invalids', pretty_invalids, None, 'Invalid runs'))
+                Metric('invalids', str(invalids), None, 'Invalid runs'))
 
         # save OS composite for this fitness
         engine.save(self.path, True)
