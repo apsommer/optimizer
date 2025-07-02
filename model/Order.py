@@ -16,7 +16,4 @@ class Order:
         sentiment = self.sentiment
         if sentiment == 'flat': sentiment = ''
 
-        return (
-            sentiment + '\t' +
-            format_timestamp(self.idx) + '\t\t' +
-            str(round(self.price)))
+        return sentiment + '\t' + format_timestamp(self.idx) + '\t\t' + str(round(self.price))

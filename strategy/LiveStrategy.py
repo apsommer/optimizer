@@ -112,18 +112,23 @@ class LiveStrategy(BaselineStrategy):
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
 
-        # count bars in trends
+        # count bars in fast trend
         if fastSlope > fastAngle:
             self.fastLongEnabledMinutes += 1
+            self.fastShortEnabledMinutes = 0
         elif -fastAngle > fastSlope:
+            self.fastLongEnabledMinutes = 0
             self.fastShortEnabledMinutes += 1
         else:
             self.fastLongEnabledMinutes = 0
             self.fastShortEnabledMinutes = 0
 
+        # count bars in slow trend
         if slowSlope > slowAngle:
             self.slowPositiveMinutes += 1
+            self.slowNegativeMinutes = 0
         elif -slowAngle > slowSlope:
+            self.slowPositiveMinutes = 0
             self.slowNegativeMinutes += 1
         else:
             self.slowPositiveMinutes = 0
@@ -237,6 +242,11 @@ class LiveStrategy(BaselineStrategy):
                 and self.fastLongEnabledMinutes > fastMomentumMinutes
             )
 
+        if isExitShortFastMomentum and '2025-06-13' in str(idx):
+            print(f'idx: {idx}, bar_index: {bar_index}, self.fastLongEnabledMinutes: {self.fastLongEnabledMinutes}, fastMomentumMinutes: {fastMomentumMinutes}')
+            print(f'fastSlope: {fastSlope}, fastAngle: {fastAngle}')
+            print()
+
         # exit, take profit
         if takeProfit == 0:
             isExitLongTakeProfit = False
@@ -272,10 +282,10 @@ class LiveStrategy(BaselineStrategy):
         if isExitLong:
 
             comment = ''
-            if isExitLongFastCrossover: comment = "isExitLongFastCrossover"
-            elif isExitLongFastMomentum: comment = "isExitLongFastMomentum"
-            elif isExitLongTakeProfit: comment = "isExitLongTakeProfit"
-            elif isExitLastBar: comment = "isExitLastBar"
+            if isExitLongFastCrossover: comment = "fastCrossover"
+            elif isExitLongFastMomentum: comment = "fastMomentum"
+            elif isExitLongTakeProfit: comment = "takeProfit"
+            elif isExitLastBar: comment = "lastBar"
 
             self.longExitBarIndex = bar_index
             self.flat(ticker, size, comment)
@@ -290,10 +300,10 @@ class LiveStrategy(BaselineStrategy):
         if isExitShort:
 
             comment = ''
-            if isExitShortFastMomentum: comment = "isExitShortFastMomentum"
-            elif isExitShortFastMomentum: comment = "isExitShortFastMomentum"
-            elif isExitShortTakeProfit: comment = "isExitShortTakeProfit"
-            elif isExitLastBar: comment = "isExitLastBar"
+            if isExitShortFastMomentum: comment = "fastMomentum"
+            elif isExitShortFastMomentum: comment = "fastMomentum"
+            elif isExitShortTakeProfit: comment = "takeProfit"
+            elif isExitLastBar: comment = "lastBar"
 
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size, comment)
