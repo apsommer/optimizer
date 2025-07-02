@@ -81,9 +81,6 @@ class WalkForward():
         IS_path = self.path + '/' + str(run)
         fittest = unpack('analyzer', IS_path)['fittest']
 
-        if run == self.runs:
-            pass
-
         # create and save engine for each fitness
         for fitness in tqdm(
             iterable = fittest,

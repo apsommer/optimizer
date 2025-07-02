@@ -125,12 +125,12 @@ class Engine:
 
     def print_trades(self):
 
-        show_last = 3
+        show_last = 1000
         trades = self.trades
 
         # header
         print('\nTrades:')
-        print('\t\t\t\t\t\tclose\tprofit')
+        print('\t\t\t\t\t\tclose\tprofit\tcomment')
         if len(trades) > show_last:
             print('\t...')
 

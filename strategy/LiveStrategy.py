@@ -270,8 +270,15 @@ class LiveStrategy(BaselineStrategy):
             or isExitLastBar
         )
         if isExitLong:
+
+            comment = ''
+            if isExitLongFastCrossover: comment = "isExitLongFastCrossover"
+            elif isExitLongFastMomentum: comment = "isExitLongFastMomentum"
+            elif isExitLongTakeProfit: comment = "isExitLongTakeProfit"
+            elif isExitLastBar: comment = "isExitLastBar"
+
             self.longExitBarIndex = bar_index
-            self.flat(ticker, size)
+            self.flat(ticker, size, comment)
 
         # exit short
         isExitShort = is_short and (
@@ -281,8 +288,15 @@ class LiveStrategy(BaselineStrategy):
             or isExitLastBar
         )
         if isExitShort:
+
+            comment = ''
+            if isExitShortFastMomentum: comment = "isExitShortFastMomentum"
+            elif isExitShortFastMomentum: comment = "isExitShortFastMomentum"
+            elif isExitShortTakeProfit: comment = "isExitShortTakeProfit"
+            elif isExitLastBar: comment = "isExitLastBar"
+
             self.shortExitBarIndex = bar_index
-            self.flat(ticker, size)
+            self.flat(ticker, size, comment)
 
     def plot(self, title = 'Strategy'):
 
