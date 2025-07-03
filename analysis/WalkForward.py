@@ -81,10 +81,12 @@ class WalkForward():
         IS_path = self.path + '/' + str(run)
         fittest = unpack('analyzer', IS_path)['fittest']
 
+        #
+
         # create and save engine for each fitness
         for fitness in tqdm(
             iterable = fittest,
-            disable = run != self.runs, # show only 1 core
+            disable = run != 0, # show only 1 core
             colour = blue,
             bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
 

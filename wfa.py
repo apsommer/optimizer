@@ -37,16 +37,16 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 # analyzer
 opt = LiveParams(
     fastMinutes = [25],
-    disableEntryMinutes = [0],
-    fastMomentumMinutes = [105], # [85, 95, 105, 115, 125, 130],
+    disableEntryMinutes = [105],
+    fastMomentumMinutes = [95], # [65, 75, 85, 95, 105, 115, 125],
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.4], # [.3 , .4, .5],
-    fastAngleFactor = [5],
-    slowMinutes = [2025], # [2025, 4025, 6025],
-    slowAngleFactor = [5],
+    takeProfitPercent = [.4], # [.3, .35, .4, .45, .5],
+    fastAngleFactor = [0],
+    slowMinutes = [2555], # [2555, 5555],
+    slowAngleFactor = [0],
     coolOffMinutes = [5],
     trendStartHour = [4],
-    trendEndHour = [60], # [36, 48, 60],
+    trendEndHour = [48],
 )
 
 ###################################################################

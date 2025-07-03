@@ -9,7 +9,7 @@ class BaselineStrategy():
         self.orders = []
         self.params = None
 
-    def buy(self, ticker, size, sentiment = 'long', comment = None):
+    def buy(self, ticker, size, sentiment, comment):
         self.orders.append(
             Order(
                 ticker = ticker,
@@ -20,7 +20,7 @@ class BaselineStrategy():
                 price = self.close,
                 comment = comment))
 
-    def sell(self, ticker, size, sentiment = 'short', comment = None):
+    def sell(self, ticker, size, sentiment, comment):
         self.orders.append(
             Order(
                 ticker = ticker,

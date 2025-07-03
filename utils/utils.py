@@ -77,7 +77,7 @@ def set_process_name():
 def build_emas(data, path):
 
     # window length
-    minutes = [25, 2025, 4025, 6025]
+    minutes = [25, 2555, 5555]
 
     # init containers
     emas = pd.DataFrame(index = data.index)

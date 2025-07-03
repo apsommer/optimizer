@@ -174,7 +174,8 @@ class LiveStrategy(BaselineStrategy):
             and fast > close > buyFractal > slow
         )
         if isEntryLong:
-            self.buy(ticker, size)
+            comment = str(round(self.slowPositiveMinutes/60))
+            self.buy(ticker, size, 'long', comment)
 
         # entry short
         isEntryShort = (
@@ -187,7 +188,8 @@ class LiveStrategy(BaselineStrategy):
             and slow > sellFractal > close > fast
         )
         if isEntryShort:
-            self.sell(ticker, size)
+            comment = str(round(self.slowNegativeMinutes/60))
+            self.sell(ticker, size, 'short', comment)
 
         # exit, fast crossover after hitting threshold
         if fastCrossover == 0:
@@ -242,11 +244,6 @@ class LiveStrategy(BaselineStrategy):
                 and self.fastLongEnabledMinutes > fastMomentumMinutes
             )
 
-        if isExitShortFastMomentum and '2025-06-13' in str(idx):
-            print(f'idx: {idx}, bar_index: {bar_index}, self.fastLongEnabledMinutes: {self.fastLongEnabledMinutes}, fastMomentumMinutes: {fastMomentumMinutes}')
-            print(f'fastSlope: {fastSlope}, fastAngle: {fastAngle}')
-            print()
-
         # exit, take profit
         if takeProfit == 0:
             isExitLongTakeProfit = False
@@ -300,7 +297,7 @@ class LiveStrategy(BaselineStrategy):
         if isExitShort:
 
             comment = ''
-            if isExitShortFastMomentum: comment = "fastMomentum"
+            if isExitShortFastCrossover: comment = "fastCrossover"
             elif isExitShortFastMomentum: comment = "fastMomentum"
             elif isExitShortTakeProfit: comment = "takeProfit"
             elif isExitLastBar: comment = "lastBar"
