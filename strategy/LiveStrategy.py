@@ -309,6 +309,9 @@ class LiveStrategy(BaselineStrategy):
 
         ax = init_plot(0, title)
 
+        emas = self.emas
+        slopes = self.slopes
+
         # candlestick ohlc
         data = self.data
         fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax, draw_body=False)
@@ -318,7 +321,6 @@ class LiveStrategy(BaselineStrategy):
         colors = crest(np.linspace(0, 1, 10))
 
         # plot ribbon
-        emas = self.emas
         for i, min in enumerate(emas.columns):
             color = mpl.colors.rgb2hex(colors[i % 10])
             fplt.plot(emas.loc[:, min], color=color, width=i, ax=ax)
@@ -328,25 +330,39 @@ class LiveStrategy(BaselineStrategy):
 
         # init dataframe plot entities
         entities = pd.DataFrame(
-            index=data.index,
-            dtype=float,
-            columns=[
-                'buyFractal',
-                'sellFractal'])
+            index = data.index,
+            dtype = float)
 
-        lastBuyPrice, lastSellPrice = 0, 0
+        lastBuyPrice = 0
+        lastSellPrice = 0
+        lastSlope = -np.inf
         for idx in data.index:
 
+            # todo
+            ema = emas.loc[idx, 2555]
+            if self.slowPositiveMinutes == self.trendStartMinutes:
+                entities.loc[idx, 'longEnabled'] = ema
+            if self.slowPositiveMinutes == self.trendEndMinutes:
+                entities.loc[idx, 'longDisabled'] = ema
+            if self.slowNegativeMinutes == self.trendStartMinutes:
+                entities.loc[idx, 'shortEnabled'] = ema
+            if self.slowNegativeMinutes == self.trendEndMinutes:
+                entities.loc[idx, 'shortDisabled'] = ema
+
+            # fractals
             buyPrice = buyFractals[idx]
             sellPrice = sellFractals[idx]
-
             if buyPrice != lastBuyPrice:
                 entities.loc[idx, 'buyFractal'] = buyPrice
             if sellPrice != lastSellPrice:
                 entities.loc[idx, 'sellFractal'] = sellPrice
-
             lastBuyPrice = buyPrice
             lastSellPrice = sellPrice
+
+        fplt.plot(entities['longEnabled'], style='o', color=blue, ax=ax)
+        fplt.plot(entities['longDisabled'], style='o', color=red, ax=ax)
+        fplt.plot(entities['shortEnabled'], style='o', color=aqua, ax=ax)
+        fplt.plot(entities['shortDisabled'], style='o', color=red, ax=ax)
 
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)

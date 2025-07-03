@@ -5,6 +5,7 @@ import re
 import time
 from datetime import timedelta, datetime, timezone
 from inspect import trace
+import matplotlib.pyplot as plt
 
 import databento as db
 import pandas as pd
@@ -170,7 +171,8 @@ def init_plot(pos, title):
     fplt.candle_bear_body_color = dark_gray
     fplt.cross_hair_color = white
 
-    # todo font size
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Ubuntu']
 
     fplt.display_timezone = pytz.timezone('America/Chicago')
 
