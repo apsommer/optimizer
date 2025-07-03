@@ -333,33 +333,10 @@ class LiveStrategy(BaselineStrategy):
             index = data.index,
             dtype = float)
 
+        # fractals
         lastBuyPrice = 0
         lastSellPrice = 0
-        self.slowPositiveMinutes = 0
-        self.slowNegativeMinutes = 0
         for idx in data.index:
-
-            # todo
-            ema = emas.loc[idx, 2555]
-            slope = slopes.loc[idx, 2555]
-
-            # count bars in slow trend
-            if slope > 0:
-                self.slowPositiveMinutes += 1
-                self.slowNegativeMinutes = 0
-            elif 0 > slope:
-                self.slowPositiveMinutes = 0
-                self.slowNegativeMinutes += 1
-            else:
-                self.slowPositiveMinutes = 0
-                self.slowNegativeMinutes = 0
-
-            if self.trendStartMinutes < self.slowPositiveMinutes < self.trendEndMinutes:
-                entities.loc[idx, 'longEnabled'] = ema
-            if self.trendStartMinutes < self.slowNegativeMinutes < self.trendEndMinutes:
-                entities.loc[idx, 'shortEnabled'] = ema
-
-            # fractals
             buyPrice = buyFractals[idx]
             sellPrice = sellFractals[idx]
             if buyPrice != lastBuyPrice:
@@ -369,8 +346,36 @@ class LiveStrategy(BaselineStrategy):
             lastBuyPrice = buyPrice
             lastSellPrice = sellPrice
 
-        fplt.plot(entities['longEnabled'], style='-', color=blue, ax=ax, width = 3)
-        fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 3)
+        # emas
+        self.slowPositiveMinutes = 0
+        self.slowNegativeMinutes = 0
+        fast = emas[emas.columns[0]]
+        for min in emas.columns[1:]:
+            for idx in data.index:
+
+                ema = emas.loc[idx, min]
+                slope = slopes.loc[idx, min]
+
+                # count bars in slow trend
+                if slope > 0:
+                    self.slowPositiveMinutes += 1
+                    self.slowNegativeMinutes = 0
+                elif 0 > slope:
+                    self.slowPositiveMinutes = 0
+                    self.slowNegativeMinutes += 1
+                else:
+                    self.slowPositiveMinutes = 0
+                    self.slowNegativeMinutes = 0
+
+                if (fast > ema
+                    and self.trendStartMinutes < self.slowPositiveMinutes < self.trendEndMinutes):
+                    entities.loc[idx, str(min) + 'longEnabled'] = ema
+                if (ema > fast
+                    and self.trendStartMinutes < self.slowNegativeMinutes < self.trendEndMinutes):
+                    entities.loc[idx, str(min) + 'shortEnabled'] = ema
+
+            fplt.plot(entities[str(min) + 'longEnabled'], style='-', color=blue, ax=ax, width = 3)
+            fplt.plot(entities[str(min) + 'shortEnabled'], style='-', color=aqua, ax=ax, width = 3)
 
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
