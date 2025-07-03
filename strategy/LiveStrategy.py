@@ -335,19 +335,29 @@ class LiveStrategy(BaselineStrategy):
 
         lastBuyPrice = 0
         lastSellPrice = 0
-        lastSlope = -np.inf
+        self.slowPositiveMinutes = 0
+        self.slowNegativeMinutes = 0
         for idx in data.index:
 
             # todo
             ema = emas.loc[idx, 2555]
-            if self.slowPositiveMinutes == self.trendStartMinutes:
+            slope = slopes.loc[idx, 2555]
+
+            # count bars in slow trend
+            if slope > 0:
+                self.slowPositiveMinutes += 1
+                self.slowNegativeMinutes = 0
+            elif 0 > slope:
+                self.slowPositiveMinutes = 0
+                self.slowNegativeMinutes += 1
+            else:
+                self.slowPositiveMinutes = 0
+                self.slowNegativeMinutes = 0
+
+            if self.trendStartMinutes < self.slowPositiveMinutes < self.trendEndMinutes:
                 entities.loc[idx, 'longEnabled'] = ema
-            if self.slowPositiveMinutes == self.trendEndMinutes:
-                entities.loc[idx, 'longDisabled'] = ema
-            if self.slowNegativeMinutes == self.trendStartMinutes:
+            if self.trendStartMinutes < self.slowNegativeMinutes < self.trendEndMinutes:
                 entities.loc[idx, 'shortEnabled'] = ema
-            if self.slowNegativeMinutes == self.trendEndMinutes:
-                entities.loc[idx, 'shortDisabled'] = ema
 
             # fractals
             buyPrice = buyFractals[idx]
@@ -359,10 +369,8 @@ class LiveStrategy(BaselineStrategy):
             lastBuyPrice = buyPrice
             lastSellPrice = sellPrice
 
-        fplt.plot(entities['longEnabled'], style='o', color=blue, ax=ax)
-        fplt.plot(entities['longDisabled'], style='o', color=red, ax=ax)
-        fplt.plot(entities['shortEnabled'], style='o', color=aqua, ax=ax)
-        fplt.plot(entities['shortDisabled'], style='o', color=red, ax=ax)
+        fplt.plot(entities['longEnabled'], style='-', color=blue, ax=ax, width = 3)
+        fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 3)
 
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)

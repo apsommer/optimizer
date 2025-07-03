@@ -82,9 +82,9 @@ class WalkForward():
         fittest = unpack('analyzer', IS_path)['fittest']
 
         # skip extra fitness if only analyzing 1 engine
-        if len(fittest) > 0 and self.opt.size == 1:
-            first_fitness = list(fittest.keys())[0]
-            fittest = { first_fitness: fittest[first_fitness] }
+        # if len(fittest) > 0 and self.opt.size == 1:
+        #     first_fitness = list(fittest.keys())[0]
+        #     fittest = { first_fitness: fittest[first_fitness] }
 
         # create and save engine for each fitness
         for fitness in tqdm(
@@ -157,7 +157,7 @@ class WalkForward():
                     last_balance = cash_series.values[-1]
                     OS_cash_series += last_balance - initial_cash
 
-            # no profitable IS, build flat line to not trade during
+            # no profitable IS, therefore no accompanying OS
             else:
 
                 # count invalid runs
@@ -181,11 +181,14 @@ class WalkForward():
                     freq = '1min'
                 )
 
+                # todo will fail if first run has no OS
+                last_balance = cash_series.values[-1]
+
                 # no cash or trades
                 OS_cash_series = pd.Series()
                 for timestamp in OS_timestamps:
                     if timestamp not in self.data.index: continue
-                    OS_cash_series[timestamp] = 10000
+                    OS_cash_series[timestamp] = last_balance
 
                 OS_trades = []
 
