@@ -81,7 +81,10 @@ class WalkForward():
         IS_path = self.path + '/' + str(run)
         fittest = unpack('analyzer', IS_path)['fittest']
 
-        #
+        # todo
+        if self.opt.size == 1:
+            pass
+            # fittest = next(fittest)
 
         # create and save engine for each fitness
         for fitness in tqdm(

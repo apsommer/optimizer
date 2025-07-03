@@ -42,6 +42,6 @@ class Trade:
 
         # format to match tradingview
         exit = '\n\t' + str(self.id) + str(self.exit_order) + '\t' + str(round(self.profit)) + '\t' + self.exit_order.comment
-        entry = '\n\t' + str(self.entry_order) + '\t-\t' + self.entry_order.comment
+        entry = '\n\t' + str(self.entry_order) + '\t\t' + self.entry_order.comment
 
         return exit + entry

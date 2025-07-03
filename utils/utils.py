@@ -3,11 +3,12 @@ import os
 import pickle
 import re
 import time
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from inspect import trace
 
 import databento as db
 import pandas as pd
+import pytz
 from sympy.plotting.textplot import linspace
 from tqdm import tqdm
 
@@ -170,6 +171,8 @@ def init_plot(pos, title):
     fplt.cross_hair_color = white
 
     # todo font size
+
+    fplt.display_timezone = pytz.timezone('America/Chicago')
 
     # init finplot
     ax = fplt.create_plot(title=title)
