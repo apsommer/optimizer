@@ -32,17 +32,15 @@ class Engine:
         self.initial_cash = round(initial_cash, -3)
         self.cash = self.initial_cash
 
-    def run(self, showProgress=False):
+    def run(self):
 
         # progress bar attributes
         isFirstProcess = '0' == multiprocessing.current_process().name
-        if showProgress: position = 0
-        else: position = 1
 
         for idx in tqdm(
-            disable = not isFirstProcess and not showProgress,
+            disable = not isFirstProcess,
             leave = False,
-            position = position,
+            position = 1,
             iterable = self.data.index,
             colour = aqua,
             bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):

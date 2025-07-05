@@ -109,7 +109,12 @@ def build_emas(data, path):
         emas.loc[:, col_slopes] = slope
 
         # build trend counts
-        for idx in data.index:
+        for idx in tqdm(
+            leave = False,
+            position = 1,
+            iterable = data.index,
+            colour = aqua,
+            bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):
 
             if slope[idx] > 0:
                 longMinutes += 1

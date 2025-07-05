@@ -29,8 +29,7 @@ engine = init_engine(
     isNetwork = isNetwork,
     path = path)
 
-engine.run(
-    showProgress = True)
+engine.run()
 engine.save(
     path = path,
     isFull = True)
