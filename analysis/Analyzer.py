@@ -18,12 +18,11 @@ from strategy.LiveStrategy import *
 
 class Analyzer:
 
-    def __init__(self, id, data, emas, slopes, fractals, opt, wfa_path):
+    def __init__(self, id, data, emas, fractals, opt, wfa_path):
 
         self.id = id
         self.data = data
         self.emas = emas
-        self.slopes = slopes
         self.fractals = fractals
         self.opt = opt
         self.wfa_path = wfa_path
@@ -83,7 +82,7 @@ class Analyzer:
                                                         )
 
                                                         # create strategy and engine
-                                                        strategy = LiveStrategy(self.data, self.emas, self.slopes, self.fractals, params)
+                                                        strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
                                                         engine = Engine(id, strategy)
 
                                                         # run and save

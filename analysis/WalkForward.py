@@ -20,14 +20,13 @@ import finplot as fplt
 
 class WalkForward():
 
-    def __init__(self, num_months, percent, runs, data, emas, slopes, fractals, opt, path):
+    def __init__(self, num_months, percent, runs, data, emas, fractals, opt, path):
 
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
         self.data = data
         self.emas = emas
-        self.slopes = slopes
         self.fractals = fractals
         self.opt = opt
         self.path = path
@@ -53,11 +52,10 @@ class WalkForward():
         # mask dataset, one dataset each core
         IS_data = self.data.iloc[IS_start : IS_end]
         IS_emas = self.emas.iloc[IS_start : IS_end]
-        IS_slopes = self.slopes.iloc[IS_start : IS_end]
         IS_fractals = self.fractals.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        analyzer = Analyzer(run, IS_data, IS_emas, IS_slopes, IS_fractals, self.opt, self.path)
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.opt, self.path)
         analyzer.run()
         analyzer.save()
 
@@ -74,14 +72,13 @@ class WalkForward():
         # mask dataset
         OS_data = self.data.iloc[OS_start : OS_end]
         OS_emas = self.emas.iloc[OS_start : OS_end]
-        OS_slopes = self.slopes.iloc[OS_start : OS_end]
         OS_fractals = self.fractals.iloc[OS_start : OS_end]
 
         # get fittest params from in-sample analyzer
         IS_path = self.path + '/' + str(run)
         fittest = unpack('analyzer', IS_path)['fittest']
 
-        # skip extra fitness if only analyzing 1 engine
+        # todo skip extra fitness if only analyzing 1 engine
         # if len(fittest) > 0 and self.opt.size == 1:
         #     first_fitness = list(fittest.keys())[0]
         #     fittest = { first_fitness: fittest[first_fitness] }
@@ -99,7 +96,7 @@ class WalkForward():
             params = IS_engine['params']
 
             # run strategy blind with best params
-            strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
+            strategy = LiveStrategy(OS_data, OS_emas, OS_fractals, params)
             engine = Engine(
                 id = run,
                 strategy = strategy)
@@ -214,11 +211,10 @@ class WalkForward():
         # mask data to OS sample
         OS_data = self.data.loc[cash_series.index, :]
         OS_emas = self.emas.loc[cash_series.index, :]
-        OS_slopes = self.slopes.loc[cash_series.index, :]
         OS_fractals = self.fractals.loc[cash_series.index, :]
 
         # create engine, but don't run!
-        strategy = LiveStrategy(OS_data, OS_emas, OS_slopes, OS_fractals, params)
+        strategy = LiveStrategy(OS_data, OS_emas, OS_fractals, params)
         engine = Engine(fitness.value, strategy)
 
         # finish engine build
@@ -228,7 +224,7 @@ class WalkForward():
 
         # add summary metrics
 
-        # efficiency
+        # todo efficiency
         # avg_eff = np.mean(effs)
         # print(f'fitness: {fitness}, avg_eff: {avg_eff}')
 
@@ -292,10 +288,9 @@ class WalkForward():
             end = cash_series.index[-1]
             comp_data = self.data[start: end]
             comp_ema = self.emas[start: end]
-            comp_slopes = self.slopes[start: end]
             comp_fractals = self.fractals[start: end]
 
-            strategy = LiveStrategy(comp_data, comp_ema, comp_slopes, comp_fractals, params)
+            strategy = LiveStrategy(comp_data, comp_ema, comp_fractals, params)
             composite = Engine(fitness.value, strategy)
 
             # deserialize previous result

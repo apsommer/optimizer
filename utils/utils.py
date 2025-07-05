@@ -79,29 +79,49 @@ def set_process_name():
 def build_emas(data, path):
 
     # window length
-    minutes = [25, 2555, 5555]
+    mins = [25, 5555]
 
     # init containers
     emas = pd.DataFrame(index = data.index)
-    slopes = pd.DataFrame(index = data.index)
 
+    longMinutes = 0
+    shortMinutes = 0
     for min in tqdm(
-        iterable = minutes,
+        iterable = mins,
         colour = yellow,
         bar_format = '        Averages:       {percentage:3.0f}%|{bar:100}{r_bar}'):
+
+        # column names
+        col_ema = 'ema_' + str(min)
+        col_slopes = 'slope_' + str(min)
+        col_long = 'long_' + str(min)
+        col_short = 'short_' + str(min)
 
         # smooth averages
         smooth = round(0.2 * min)
 
         raw = pd.Series(data.Open).ewm(span = min).mean()
         smoothed = raw.ewm(span = smooth).mean()
-        slope = get_slope(smoothed)
+        emas.loc[:, col_ema] = smoothed
 
-        emas.loc[:, min] = smoothed
-        slopes.loc[:, min] = slope
+        # slope of average
+        slope = get_slope(smoothed)
+        emas.loc[:, col_slopes] = slope
+
+        # build trend counts
+        for idx in data.index:
+
+            if slope[idx] > 0:
+                longMinutes += 1
+                shortMinutes = 0
+            else:
+                longMinutes = 0
+                shortMinutes += 1
+
+            emas.loc[idx, col_long] = longMinutes
+            emas.loc[idx, col_short] = shortMinutes
 
     save(emas, 'emas', path)
-    save(slopes, 'slopes', path)
 
 def build_fractals(data, path):
 
@@ -138,8 +158,8 @@ def build_fractals(data, path):
 
                 sellPrice = data.iloc[i].Low
 
-        fractals.iloc[i].buyFractal = buyPrice
-        fractals.iloc[i].sellFractal = sellPrice
+        fractals.iloc[i].buyFractals = buyPrice
+        fractals.iloc[i].sellFractals = sellPrice
 
     save(fractals, 'fractals', path)
 

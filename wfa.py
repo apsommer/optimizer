@@ -25,10 +25,10 @@ from utils.metrics import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 10
+num_months = 6
 isNetwork = False
-shouldBuildEmas = False
-shouldBuildFractals = False
+shouldBuildEmas = True
+shouldBuildFractals = True
 
 # walk forward
 percent = 20
@@ -42,7 +42,7 @@ opt = LiveParams(
     fastCrossoverPercent = [0],
     takeProfitPercent = [.4], # [.3, .35, .4, .45, .5],
     fastAngleFactor = [0],
-    slowMinutes = [2555], # [2555, 5555],
+    slowMinutes = [5555], # [2555, 5555],
     slowAngleFactor = [0],
     coolOffMinutes = [5],
     trendStartHour = [4],
@@ -83,7 +83,6 @@ wfa = WalkForward(
     runs = runs,
     data = data,
     emas = emas,
-    slopes = slopes,
     fractals = fractals,
     opt = opt,
     path = path)
