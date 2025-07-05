@@ -87,7 +87,7 @@ class WalkForward():
         # create and save engine for each fitness
         for fitness in tqdm(
             iterable = fittest,
-            disable = run != 0, # show only 1 core
+            disable = run != self.runs, # show only 1 core
             colour = blue,
             bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
 
@@ -155,7 +155,7 @@ class WalkForward():
                     last_balance = cash_series.values[-1]
                     OS_cash_series += last_balance - initial_cash
 
-            # no profitable IS, therefore no accompanying OS
+            # IS not profitable, accompanying OS does not exist
             else:
 
                 # count invalid runs
@@ -180,7 +180,10 @@ class WalkForward():
                 )
 
                 # todo will fail if first run has no OS
-                last_balance = cash_series.values[-1]
+                if cash_series.empty:
+                    last_balance = 11000
+                else:
+                    last_balance = cash_series.values[-1]
 
                 # no cash or trades
                 OS_cash_series = pd.Series()

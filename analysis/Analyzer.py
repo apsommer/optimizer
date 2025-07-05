@@ -115,7 +115,9 @@ class Analyzer:
 
             metric = self.get_fittest_metric(fitness)
 
-            if metric is None: continue
+            # todo build cash_series at initial_cash
+            if metric is None:
+                continue
 
             self.metrics.append(metric)
             self.fittest[fitness] = metric

@@ -126,7 +126,6 @@ def build_emas(data, path):
             emas.loc[idx, col_long] = longMinutes
             emas.loc[idx, col_short] = shortMinutes
 
-    print(emas)
     save(emas, 'emas', path)
 
 def build_fractals(data, path):

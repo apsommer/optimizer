@@ -338,6 +338,7 @@ class LiveStrategy(BaselineStrategy):
         fplt.plot(entities['longEnabled'], style='-', color=blue, ax=ax, width = 3)
         fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 3)
         fplt.plot(entities['disabled'], style='-', color=yellow, ax=ax, width = 1)
+        fplt.plot(self.fast, style='-', color=yellow, ax=ax, width = 1)
 
         if shouldShow: fplt.show()
         return ax
