@@ -27,7 +27,7 @@ from utils.metrics import *
 # data, indicators
 num_months = 6
 isNetwork = False
-shouldBuildEmas = True
+shouldBuildEmas = False
 shouldBuildFractals = True
 
 # walk forward
@@ -70,7 +70,6 @@ if shouldBuildEmas or shouldBuildFractals:
 if shouldBuildEmas: build_emas(data, parent_path)
 if shouldBuildFractals: build_fractals(data, parent_path)
 emas = unpack('emas', parent_path)
-slopes = unpack('slopes', parent_path)
 fractals = unpack('fractals', parent_path)
 
 # remove any residual analyses

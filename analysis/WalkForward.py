@@ -11,6 +11,7 @@ from analysis.Engine import Engine
 from analysis.Analyzer import Analyzer
 from model.Fitness import Fitness
 from strategy.FastStrategy import FastStrategy
+from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
 from utils import utils
 from utils.constants import *
@@ -200,7 +201,6 @@ class WalkForward():
         IS_path = self.path + '/' + str(self.runs)
         fittest = unpack('analyzer', IS_path)['fittest']
 
-        # ensure fitness in fittest
         # extract params of fittest engine
         if fitness in fittest:
             metric = fittest[fitness]
@@ -221,8 +221,6 @@ class WalkForward():
         engine.cash_series = cash_series
         engine.trades = trades
         engine.analyze() # generate metrics
-
-        # add summary metrics
 
         # todo efficiency
         # avg_eff = np.mean(effs)

@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 10
+num_months = 6
 isNetwork = False
 path = 'wfa/single'
 
@@ -36,6 +36,9 @@ engine.save(
 
 engine.print_metrics()
 engine.print_trades()
-engine.plot_trades()
-engine.plot_equity()
+engine.strategy.plot(
+    shouldShow = True
+)
+# engine.plot_trades()
+# engine.plot_equity()
 

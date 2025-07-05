@@ -146,6 +146,9 @@ class LiveStrategy(BaselineStrategy):
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
+        if bar_index > 10000:
+            pass
+
         # entry long
         isEntryLong = (
             is_flat
@@ -286,7 +289,7 @@ class LiveStrategy(BaselineStrategy):
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size, comment)
 
-    def plot(self, title = 'Strategy'):
+    def plot(self, title = 'Strategy', shouldShow = False):
 
         ax = init_plot(0, title)
 
@@ -336,5 +339,5 @@ class LiveStrategy(BaselineStrategy):
         fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 3)
         fplt.plot(entities['disabled'], style='-', color=yellow, ax=ax, width = 1)
 
-        # fplt.show()
+        if shouldShow: fplt.show()
         return ax

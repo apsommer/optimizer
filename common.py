@@ -1,6 +1,8 @@
 from analysis.Engine import Engine
 from strategy.FastParams import FastParams
 from strategy.FastStrategy import FastStrategy
+from strategy.LiveParams import LiveParams
+from strategy.LiveStrategy import LiveStrategy
 from utils.utils import getOhlc, unpack
 
 def init_engine(num_months, isNetwork, path):
@@ -9,20 +11,23 @@ def init_engine(num_months, isNetwork, path):
 
     # build_indicators(data, path)
     emas = unpack('emas', path)
-    slopes = unpack('slopes', path)
     fractals = unpack('fractals', path)
 
-    params = FastParams(
-        takeProfitPercent=1,
-        stopLossPercent=1,
-        proximityPercent=2)
+    params = LiveParams(
+        fastMinutes = 25,
+        disableEntryMinutes = 105,
+        fastMomentumMinutes = 95, # [65, 75, 85, 95, 105, 115, 125],
+        fastCrossoverPercent = 0,
+        takeProfitPercent = .4, # [.3, .35, .4, .45, .5],
+        fastAngleFactor = 0,
+        slowMinutes = 5555, # [2555, 5555],
+        slowAngleFactor = 0,
+        coolOffMinutes = 5,
+        trendStartHour = 4,
+        trendEndHour = 48,
+    )
 
-    strategy = FastStrategy(
-        data=data,
-        emas=emas,
-        slopes=slopes,
-        fractals=fractals,
-        params=params)
+    strategy = LiveStrategy(data, emas, fractals, params)
 
     engine = Engine(
         id='single',

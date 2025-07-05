@@ -81,11 +81,9 @@ def build_emas(data, path):
     # window length
     mins = [25, 5555]
 
-    # init containers
+    # init container
     emas = pd.DataFrame(index = data.index)
 
-    longMinutes = 0
-    shortMinutes = 0
     for min in tqdm(
         iterable = mins,
         colour = yellow,
@@ -109,6 +107,8 @@ def build_emas(data, path):
         emas.loc[:, col_slopes] = slope
 
         # build trend counts
+        longMinutes = 0
+        shortMinutes = 0
         for idx in tqdm(
             leave = False,
             position = 1,
@@ -126,6 +126,7 @@ def build_emas(data, path):
             emas.loc[idx, col_long] = longMinutes
             emas.loc[idx, col_short] = shortMinutes
 
+    print(emas)
     save(emas, 'emas', path)
 
 def build_fractals(data, path):
@@ -145,7 +146,7 @@ def build_fractals(data, path):
         colour = yellow,
         bar_format = '        Fractals:       {percentage:3.0f}%|{bar:100}{r_bar}'):
 
-        # skip first 2 bars and last 2 bars
+        # skip first 2 bars and last 2 bars, due to definition -2:+2
         if 2 < i < len(data.index) - 3:
 
             # update prices, if needed
@@ -163,8 +164,8 @@ def build_fractals(data, path):
 
                 sellPrice = data.iloc[i].Low
 
-        fractals.iloc[i].buyFractals = buyPrice
-        fractals.iloc[i].sellFractals = sellPrice
+        fractals.iloc[i].buyFractal = buyPrice
+        fractals.iloc[i].sellFractal = sellPrice
 
     save(fractals, 'fractals', path)
 
