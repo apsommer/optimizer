@@ -220,12 +220,19 @@ class LiveStrategy(BaselineStrategy):
         else:
             isExitLongFastMomentum = (
                 is_long
-                and fastShort > fastMomentumMinutes
-            )
+                and fastShort > fastMomentumMinutes)
             isExitShortFastMomentum = (
                 is_short
-                and fastLong > fastMomentumMinutes
-            )
+                and fastLong > fastMomentumMinutes)
+
+        # exit, slow crossover
+        isExitLongSlowCrossover = (
+            is_long
+            and slow > low)
+
+        isExitShortSlowCrossover = (
+            is_short
+            and high > slow)
 
         # exit, take profit
         if takeProfit == 0:
@@ -258,14 +265,16 @@ class LiveStrategy(BaselineStrategy):
             or isExitLongFastMomentum
             or isExitLongTakeProfit
             or isExitLastBar
+            or isExitLongSlowCrossover
         )
         if isExitLong:
 
             comment = ''
-            if isExitLongFastCrossover: comment = "fastCrossover"
-            elif isExitLongFastMomentum: comment = "fastMomentum"
-            elif isExitLongTakeProfit: comment = "takeProfit"
-            elif isExitLastBar: comment = "lastBar"
+            if isExitLongFastCrossover: comment = 'fastCrossover'
+            elif isExitLongFastMomentum: comment = 'fastMomentum'
+            elif isExitLongTakeProfit: comment = 'takeProfit'
+            elif isExitLastBar: comment = 'lastBar'
+            elif isExitLongSlowCrossover: comment = 'slowCrossover'
 
             self.longExitBarIndex = bar_index
             self.flat(ticker, size, comment)
@@ -276,6 +285,7 @@ class LiveStrategy(BaselineStrategy):
             or isExitShortFastMomentum
             or isExitShortTakeProfit
             or isExitLastBar
+            or isExitLongSlowCrossover
         )
         if isExitShort:
 
@@ -284,6 +294,7 @@ class LiveStrategy(BaselineStrategy):
             elif isExitShortFastMomentum: comment = "fastMomentum"
             elif isExitShortTakeProfit: comment = "takeProfit"
             elif isExitLastBar: comment = "lastBar"
+            elif isExitLongSlowCrossover: comment = 'slowCrossover'
 
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size, comment)

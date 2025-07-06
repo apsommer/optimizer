@@ -38,15 +38,15 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [0],
-    fastMomentumMinutes = [105],
+    fastMomentumMinutes = [85], # [75, 85, 95, 105, 115, 125],
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.5],
+    takeProfitPercent = [.45], # [.35, .45, .55],
     fastAngleFactor = [0],
-    slowMinutes = [2555],
-    slowAngleFactor = [15],
+    slowMinutes = [5555],
+    slowAngleFactor = [5, 10],
     coolOffMinutes = [5],
-    trendStartHour = [12],
-    trendEndHour = [72],
+    trendStartHour = [4],
+    trendEndHour = [48],
 )
 
 ###################################################################
