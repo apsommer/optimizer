@@ -6,6 +6,8 @@ from analysis.Engine import Engine
 from common import init_engine
 from strategy.FastParams import FastParams
 from strategy.FastStrategy import FastStrategy
+from strategy.LiveParams import LiveParams
+from strategy.LiveStrategy import LiveStrategy
 from utils.constants import *
 from utils.metrics import *
 from utils.utils import *
@@ -24,10 +26,31 @@ os.system('clear')
 warnings.filterwarnings('ignore')
 start_time = time.time()
 
-engine = init_engine(
-    num_months = num_months,
-    isNetwork = isNetwork,
-    path = path)
+data = getOhlc(num_months, isNetwork)
+
+# build_indicators(data, path)
+emas = unpack('emas', path)
+fractals = unpack('fractals', path)
+
+params = LiveParams(
+    fastMinutes=25,
+    disableEntryMinutes=0,
+    fastMomentumMinutes=105,
+    fastCrossoverPercent=0,
+    takeProfitPercent=.5,
+    fastAngleFactor=0,
+    slowMinutes=5555,
+    slowAngleFactor=15,
+    coolOffMinutes=5,
+    trendStartHour=12,
+    trendEndHour=72,
+)
+
+strategy = LiveStrategy(data, emas, fractals, params)
+
+engine = Engine(
+    id='single',
+    strategy=strategy)
 
 engine.run()
 engine.save(
@@ -36,9 +59,11 @@ engine.save(
 
 engine.print_metrics()
 engine.print_trades()
-engine.strategy.plot(
+# engine.strategy.plot(
+#     shouldShow = True
+# )
+engine.plot_trades(
     shouldShow = True
 )
-# engine.plot_trades()
 # engine.plot_equity()
 

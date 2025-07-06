@@ -137,7 +137,7 @@ class Engine:
 
         print()
 
-    def plot_trades(self):
+    def plot_trades(self, shouldShow = False):
 
         # init
         ax = self.strategy.plot(
@@ -227,7 +227,7 @@ class Engine:
         fplt.plot(entities['long_trade'], color=blue, width= line_width, ax=ax)
         fplt.plot(entities['short_trade'], color=aqua, width = line_width, ax=ax)
 
-        # fplt.show()
+        if shouldShow: fplt.show()
 
     def plot_equity(self):
 

@@ -146,9 +146,6 @@ class LiveStrategy(BaselineStrategy):
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
-        if bar_index > 10000:
-            pass
-
         # entry long
         isEntryLong = (
             is_flat
@@ -158,6 +155,7 @@ class LiveStrategy(BaselineStrategy):
             and hasLongEntryDelayElapsed
             and self.trendStartMinutes < slowLong < self.trendEndMinutes
             and fast > close > buyFractal > slow
+            and 0.5 * fastMomentumMinutes > fastShort
         )
         if isEntryLong:
             self.buy(ticker, size, 'long', '')
@@ -171,6 +169,7 @@ class LiveStrategy(BaselineStrategy):
             and hasShortEntryDelayElapsed
             and self.trendStartMinutes < slowShort < self.trendEndMinutes
             and slow > sellFractal > close > fast
+            and 0.5 * fastMomentumMinutes > fastLong
         )
         if isEntryShort:
             self.sell(ticker, size, 'short', '')
@@ -297,7 +296,7 @@ class LiveStrategy(BaselineStrategy):
         data = self.data
         fplt.candlestick_ochl(data[['Open', 'Close', 'High', 'Low']], ax=ax, draw_body=False)
 
-        # init dataframe of plot entites
+        # init dataframe of plot entities
         entities = pd.DataFrame(
             index = data.index,
             dtype = float)
@@ -325,18 +324,23 @@ class LiveStrategy(BaselineStrategy):
             slow = self.slow[idx]
             slowLong = self.slowLongMinutes[idx]
             slowShort = self.slowShortMinutes[idx]
+            slowSlope = self.slowSlope[idx]
 
-            if (fast > slow
+            if (
+                fast > slow
+                and slowSlope > self.slowAngle
                 and self.trendStartMinutes < slowLong < self.trendEndMinutes):
                 entities.loc[idx, 'longEnabled'] = slow
-            if (slow > fast
+            elif (
+                slow > fast
+                and -self.slowAngle > slowSlope
                 and self.trendStartMinutes < slowShort < self.trendEndMinutes):
                 entities.loc[idx, 'shortEnabled'] = slow
             else:
                 entities.loc[idx, 'disabled'] = slow
 
-        fplt.plot(entities['longEnabled'], style='-', color=blue, ax=ax, width = 3)
-        fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 3)
+        fplt.plot(entities['longEnabled'], style='-', color=blue, ax=ax, width = 10)
+        fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 10)
         fplt.plot(entities['disabled'], style='-', color=yellow, ax=ax, width = 1)
         fplt.plot(self.fast, style='-', color=yellow, ax=ax, width = 1)
 

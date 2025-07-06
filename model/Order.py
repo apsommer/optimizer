@@ -14,6 +14,6 @@ class Order:
     def __repr__(self):
 
         sentiment = self.sentiment
-        if sentiment == 'flat': sentiment = ''
+        if sentiment == 'flat': sentiment = '\t'
 
         return sentiment + '\t' + format_timestamp(self.idx) + '\t\t' + str(round(self.price))
