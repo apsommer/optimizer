@@ -28,6 +28,7 @@ class LiveStrategy(BaselineStrategy):
         super().__init__()
 
         self.data = data
+        self.emas = emas
         self.params = params
 
         # unpack params
@@ -147,31 +148,34 @@ class LiveStrategy(BaselineStrategy):
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
         # entry long
-        isEntryLong = (
-            is_flat
-            and fast > slow
+        isEntryLongSignal = (
+            fast > slow
             and not isEntryLongDisabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed
             and self.trendStartMinutes < slowLong < self.trendEndMinutes
             and fast > close > buyFractal > slow
-            and 0.5 * fastMomentumMinutes > fastShort
+            # and 0.5 * fastMomentumMinutes > fastShort
         )
+
+        isEntryLong = (is_flat or is_short) and isEntryLongSignal
         if isEntryLong:
+            if is_short: size = 2 * size
             self.buy(ticker, size, 'long', '')
 
         # entry short
-        isEntryShort = (
-            is_flat
-            and slow > fast
+        isEntryShortSignal = (
+            slow > fast
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed
             and self.trendStartMinutes < slowShort < self.trendEndMinutes
             and slow > sellFractal > close > fast
-            and 0.5 * fastMomentumMinutes > fastLong
+            # and 0.5 * fastMomentumMinutes > fastLong
         )
+        isEntryShort = (is_flat or is_long) and isEntryShortSignal
         if isEntryShort:
+            if is_long: size = 2 * size
             self.sell(ticker, size, 'short', '')
 
         # exit, fast crossover after hitting threshold
@@ -252,20 +256,13 @@ class LiveStrategy(BaselineStrategy):
             self.shortTakeProfit = shortTakeProfit
             isExitShortTakeProfit = shortTakeProfit > low
 
-        # exit on last bar of data
-        # prevents open trade at end of window
-        isExitLastBar = False
-        if idx == self.data.index[-1]:
-            if is_long or is_short:
-                isExitLastBar = True
-
         # exit long
         isExitLong = is_long and (
             isExitLongFastCrossover
-            or isExitLongFastMomentum
+            # or isExitLongFastMomentum
             or isExitLongTakeProfit
-            or isExitLastBar
-            or isExitLongSlowCrossover
+            or self.is_last_bar
+            # or isExitLongSlowCrossover
         )
         if isExitLong:
 
@@ -273,7 +270,7 @@ class LiveStrategy(BaselineStrategy):
             if isExitLongFastCrossover: comment = 'fastCrossover'
             elif isExitLongFastMomentum: comment = 'fastMomentum'
             elif isExitLongTakeProfit: comment = 'takeProfit'
-            elif isExitLastBar: comment = 'lastBar'
+            elif self.is_last_bar: comment = 'lastBar'
             elif isExitLongSlowCrossover: comment = 'slowCrossover'
 
             self.longExitBarIndex = bar_index
@@ -282,10 +279,10 @@ class LiveStrategy(BaselineStrategy):
         # exit short
         isExitShort = is_short and (
             isExitShortFastCrossover
-            or isExitShortFastMomentum
+            # or isExitShortFastMomentum
             or isExitShortTakeProfit
-            or isExitLastBar
-            or isExitLongSlowCrossover
+            or self.is_last_bar
+            # or isExitShortSlowCrossover
         )
         if isExitShort:
 
@@ -293,8 +290,8 @@ class LiveStrategy(BaselineStrategy):
             if isExitShortFastCrossover: comment = "fastCrossover"
             elif isExitShortFastMomentum: comment = "fastMomentum"
             elif isExitShortTakeProfit: comment = "takeProfit"
-            elif isExitLastBar: comment = "lastBar"
-            elif isExitLongSlowCrossover: comment = 'slowCrossover'
+            elif self.is_last_bar: comment = "lastBar"
+            elif isExitShortSlowCrossover: comment = 'slowCrossover'
 
             self.shortExitBarIndex = bar_index
             self.flat(ticker, size, comment)
@@ -328,32 +325,46 @@ class LiveStrategy(BaselineStrategy):
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
 
-        # emas
-        for idx in data.index:
+        # color ribbon
+        crest = sns.color_palette("crest", as_cmap=True)
+        ribbon_colors = crest(np.linspace(0, 1, 10))
 
-            fast = self.fast[idx]
-            slow = self.slow[idx]
-            slowLong = self.slowLongMinutes[idx]
-            slowShort = self.slowShortMinutes[idx]
-            slowSlope = self.slowSlope[idx]
+        # plot ribbon
+        ema_columns = [ column for column in self.emas.columns if 'ema' in column ]
+        for i, column in enumerate(ema_columns):
 
-            if (
-                fast > slow
-                and slowSlope > self.slowAngle
-                and self.trendStartMinutes < slowLong < self.trendEndMinutes):
-                entities.loc[idx, 'longEnabled'] = slow
-            elif (
-                slow > fast
-                and -self.slowAngle > slowSlope
-                and self.trendStartMinutes < slowShort < self.trendEndMinutes):
-                entities.loc[idx, 'shortEnabled'] = slow
-            else:
-                entities.loc[idx, 'disabled'] = slow
+            color = mpl.colors.rgb2hex(ribbon_colors[i % 10])
+            fplt.plot(self.emas.loc[:, column], color=color, width=2, ax=ax)
 
-        fplt.plot(entities['longEnabled'], style='-', color=blue, ax=ax, width = 10)
-        fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 10)
-        fplt.plot(entities['disabled'], style='-', color=yellow, ax=ax, width = 1)
-        fplt.plot(self.fast, style='-', color=yellow, ax=ax, width = 1)
+        # # emas
+        # for idx in data.index:
+        #
+        #     fast = self.fast[idx]
+        #     slow = self.slow[idx]
+        #     slowLong = self.slowLongMinutes[idx]
+        #     slowShort = self.slowShortMinutes[idx]
+        #     slowSlope = self.slowSlope[idx]
+        #
+        #     if (
+        #         fast > slow
+        #         and slowSlope > self.slowAngle
+        #         and self.trendStartMinutes < slowLong < self.trendEndMinutes):
+        #
+        #         entities.loc[idx, 'longEnabled'] = slow
+        #
+        #     elif (
+        #         slow > fast
+        #         and -self.slowAngle > slowSlope
+        #         and self.trendStartMinutes < slowShort < self.trendEndMinutes):
+        #
+        #         entities.loc[idx, 'shortEnabled'] = slow
+        #
+        #     else:
+        #         entities.loc[idx, 'disabled'] = slow
+        #
+        # fplt.plot(entities['longEnabled'], style='-', color=blue, ax=ax, width = 10)
+        # fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 10)
+        # fplt.plot(entities['disabled'], style='-', color=yellow, ax=ax, width = 1)
 
         if shouldShow: fplt.show()
         return ax

@@ -123,7 +123,7 @@ class Engine:
 
     def print_trades(self):
 
-        show_last = 3
+        show_last = 1000
         trades = self.trades
 
         # header
