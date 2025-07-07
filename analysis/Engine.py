@@ -65,24 +65,36 @@ class Engine:
 
     def fill_order(self):
 
+        # get last order, and last trade
         order = self.strategy.orders[-1]
-
-        # exit open trade
-        if order.sentiment == 'flat':
-
-            trade = self.trades[-1]
-            trade.exit_order = order
-            self.cash += trade.profit
-            return
+        if len(self.trades) == 0: trade = None
+        else: trade = self.trades[-1]
 
         # enter new trade
-        self.trades.append(
-            Trade(
-                id = len(self.trades) + 1,
-                side = order.sentiment,
-                size = order.size,
-                entry_order = order,
-                exit_order = None))
+        if trade is None or trade.is_closed:
+            self.trades.append(
+                Trade(
+                    id = len(self.trades) + 1,
+                    side = order.sentiment,
+                    size = order.size,
+                    entry_order = order,
+                    exit_order = None))
+            return
+
+        # close open order
+        trade.exit_order = order
+        self.cash += trade.profit
+
+        # flip, enter new trade
+        if order.comment == 'flip':
+            entry_order = self.strategy.orders[-2]
+            self.trades.append(
+                Trade(
+                    id = len(self.trades) + 1,
+                    side = entry_order.sentiment,
+                    size = entry_order.size,
+                    entry_order = entry_order,
+                    exit_order = None))
 
     def analyze(self):
 
@@ -184,9 +196,6 @@ class Engine:
             else:
                 entities.loc[exit_idx, 'profit_exit'] = np.nan
                 entities.loc[exit_idx, 'loss_exit'] = exit_price
-
-            if trade.id > 110:
-                pass
 
             # build trade line
             timestamps = pd.date_range(

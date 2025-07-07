@@ -139,7 +139,11 @@ class Analyzer:
             key = lambda it: it.value,
             reverse = True)
 
-        # find first profitable engine for this fitness
+        isDebug = True
+        if isDebug:
+            return _sorted[0]
+
+        # find first profitable engine
         for metric in _sorted:
 
             id = metric.id

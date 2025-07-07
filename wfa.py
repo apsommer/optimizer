@@ -46,7 +46,7 @@ opt = LiveParams(
     slowAngleFactor = [5], # [0, 5, 10, 15],
     coolOffMinutes = [5],
     trendStartHour = [4],
-    trendEndHour = [10000] # [48, 72],
+    trendEndHour = [48] # [48, 72],
 )
 
 ###################################################################

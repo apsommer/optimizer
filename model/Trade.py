@@ -1,5 +1,8 @@
 import numpy as np
 
+from utils.metrics import format_timestamp
+
+
 class Trade:
     def __init__(self, id, side, size, entry_order, exit_order):
         self.id = id
@@ -41,7 +44,10 @@ class Trade:
     def __repr__(self):
 
         # format to match tradingview
-        exit = '\n\t' + str(self.id) + str(self.exit_order) + '\t' + str(round(self.profit)) + '\t' + self.exit_order.comment
-        entry = '\n\t' + str(self.entry_order) + '\t\t' + self.entry_order.comment
+        exit = ('\n\t' + str(self.id) + '\t' + format_timestamp(self.exit_order.idx) + '\t' +
+                str(round(self.exit_order.price)) + '\t' + str(round(self.profit)) + '\t' + self.exit_order.comment)
+
+        entry = ('\n\t' + str(self.entry_order.sentiment) + '\t' + format_timestamp(self.entry_order.idx) + '\t' +
+                 str(round(self.entry_order.price)))
 
         return exit + entry

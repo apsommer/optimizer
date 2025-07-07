@@ -9,33 +9,27 @@ class BaselineStrategy():
         self.orders = []
         self.params = None
 
-    def buy(self, ticker, size, sentiment, comment):
+    def buy(self, ticker, size, comment=''):
         self.orders.append(
             Order(
                 ticker = ticker,
-                sentiment = sentiment,
+                sentiment = 'long',
                 size = size,
                 idx = self.current_idx,
                 bar_index = self.bar_index,
                 price = self.close,
                 comment = comment))
 
-    def sell(self, ticker, size, sentiment, comment):
+    def sell(self, ticker, size, comment=''):
         self.orders.append(
             Order(
                 ticker = ticker,
-                sentiment = sentiment,
+                sentiment = 'short',
                 size = -size,
                 idx = self.current_idx,
                 bar_index = self.bar_index,
                 price = self.close,
                 comment = comment))
-
-    def flat(self, ticker, size, comment):
-        if self.is_long:
-            self.sell(ticker, size, 'flat', comment)
-        if self.is_short:
-            self.buy(ticker, size, 'flat', comment)
 
     @property
     def position_size(self):

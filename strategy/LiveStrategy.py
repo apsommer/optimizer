@@ -155,13 +155,11 @@ class LiveStrategy(BaselineStrategy):
             and hasLongEntryDelayElapsed
             and self.trendStartMinutes < slowLong < self.trendEndMinutes
             and fast > close > buyFractal > slow
-            # and 0.5 * fastMomentumMinutes > fastShort
         )
 
         isEntryLong = (is_flat or is_short) and isEntryLongSignal
         if isEntryLong:
-            if is_short: size = 2 * size
-            self.buy(ticker, size, 'long', '')
+            self.buy(ticker, size)
 
         # entry short
         isEntryShortSignal = (
@@ -171,12 +169,10 @@ class LiveStrategy(BaselineStrategy):
             and hasShortEntryDelayElapsed
             and self.trendStartMinutes < slowShort < self.trendEndMinutes
             and slow > sellFractal > close > fast
-            # and 0.5 * fastMomentumMinutes > fastLong
         )
         isEntryShort = (is_flat or is_long) and isEntryShortSignal
         if isEntryShort:
-            if is_long: size = 2 * size
-            self.sell(ticker, size, 'short', '')
+            self.sell(ticker, size)
 
         # exit, fast crossover after hitting threshold
         if fastCrossover == 0:
@@ -229,15 +225,6 @@ class LiveStrategy(BaselineStrategy):
                 is_short
                 and fastLong > fastMomentumMinutes)
 
-        # exit, slow crossover
-        isExitLongSlowCrossover = (
-            is_long
-            and slow > low)
-
-        isExitShortSlowCrossover = (
-            is_short
-            and high > slow)
-
         # exit, take profit
         if takeProfit == 0:
             isExitLongTakeProfit = False
@@ -256,13 +243,17 @@ class LiveStrategy(BaselineStrategy):
             self.shortTakeProfit = shortTakeProfit
             isExitShortTakeProfit = shortTakeProfit > low
 
+        # flip
+        isExitLongFlip = is_long and isEntryShortSignal
+        isExitShortFlip = is_short and isEntryLongSignal
+
         # exit long
         isExitLong = is_long and (
             isExitLongFastCrossover
             # or isExitLongFastMomentum
             or isExitLongTakeProfit
             or self.is_last_bar
-            # or isExitLongSlowCrossover
+            or isExitLongFlip
         )
         if isExitLong:
 
@@ -271,10 +262,10 @@ class LiveStrategy(BaselineStrategy):
             elif isExitLongFastMomentum: comment = 'fastMomentum'
             elif isExitLongTakeProfit: comment = 'takeProfit'
             elif self.is_last_bar: comment = 'lastBar'
-            elif isExitLongSlowCrossover: comment = 'slowCrossover'
+            elif isExitLongFlip: comment = 'flip'
 
             self.longExitBarIndex = bar_index
-            self.flat(ticker, size, comment)
+            self.sell(ticker, size, comment)
 
         # exit short
         isExitShort = is_short and (
@@ -282,7 +273,7 @@ class LiveStrategy(BaselineStrategy):
             # or isExitShortFastMomentum
             or isExitShortTakeProfit
             or self.is_last_bar
-            # or isExitShortSlowCrossover
+            or isExitShortFlip
         )
         if isExitShort:
 
@@ -291,10 +282,10 @@ class LiveStrategy(BaselineStrategy):
             elif isExitShortFastMomentum: comment = "fastMomentum"
             elif isExitShortTakeProfit: comment = "takeProfit"
             elif self.is_last_bar: comment = "lastBar"
-            elif isExitShortSlowCrossover: comment = 'slowCrossover'
+            elif isExitShortFlip: comment = 'flip'
 
             self.shortExitBarIndex = bar_index
-            self.flat(ticker, size, comment)
+            self.buy(ticker, size, comment)
 
     def plot(self, title = 'Strategy', shouldShow = False):
 
