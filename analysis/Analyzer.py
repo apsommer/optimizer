@@ -139,10 +139,6 @@ class Analyzer:
             key = lambda it: it.value,
             reverse = True)
 
-        isDebug = True
-        if isDebug:
-            return _sorted[0]
-
         # find first profitable engine
         for metric in _sorted:
 

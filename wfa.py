@@ -25,7 +25,7 @@ from utils.metrics import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 14
+num_months = 6
 isNetwork = False
 shouldBuildEmas = False
 shouldBuildFractals = False
@@ -36,17 +36,17 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
 opt = LiveParams(
-    fastMinutes =[60], # [25, 60, 120],
-    disableEntryMinutes = [0],
-    fastMomentumMinutes = [95], # [75, 85, 95, 105, 115, 125],
+    fastMinutes = [25],
+    disableEntryMinutes = [105],
+    fastMomentumMinutes = [55, 65, 75, 85, 95, 105, 115, 125],
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.4], # [.35, .45, .55],
+    takeProfitPercent = [.35, .45, .55],
     fastAngleFactor = [0],
-    slowMinutes = [5555], # [2555, 3555, 4555, 5555],
-    slowAngleFactor = [5], # [0, 5, 10, 15],
+    slowMinutes = [2555],
+    slowAngleFactor = [15],
     coolOffMinutes = [5],
-    trendStartHour = [4],
-    trendEndHour = [48] # [48, 72],
+    trendStartHour = [0],
+    trendEndHour = [10000],
 )
 
 ###################################################################

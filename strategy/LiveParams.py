@@ -42,6 +42,21 @@ class LiveParams:
             * len(self.trendEndHour)
         )
 
+    def one_line(self):
+        return (f'['
+            f'{self.fastMinutes}, '
+            f'{self.disableEntryMinutes}, '
+            f'{self.fastMomentumMinutes}, '
+            f'{self.fastCrossoverPercent}, '
+            f'{self.takeProfitPercent}, '
+            f'{self.fastAngleFactor}, '
+            f'{self.slowMinutes}, '
+            f'{self.slowAngleFactor}, '
+            f'{self.coolOffMinutes}, '
+            f'{self.trendStartHour}, '
+            f'{self.trendEndHour}, '
+        f']')
+
     def __repr__(self):
         return (
             f'\n\t\tfastMinutes: {self.fastMinutes}'

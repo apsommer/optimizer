@@ -209,19 +209,7 @@ class WalkForward():
             metric = fittest[fitness]
             params = unpack(str(metric.id), IS_path)['params']
         else:
-            params = LiveParams(
-                fastMinutes = 60,
-                disableEntryMinutes = 0,
-                fastMomentumMinutes = 95,
-                fastCrossoverPercent = 0,
-                takeProfitPercent = .4,
-                fastAngleFactor = 0,
-                slowMinutes = 5555,
-                slowAngleFactor = 5,
-                coolOffMinutes = 5,
-                trendStartHour = 4,
-                trendEndHour = 48,
-            )
+            params = None
 
         # mask data to OS sample
         OS_data = self.data.loc[cash_series.index, :]

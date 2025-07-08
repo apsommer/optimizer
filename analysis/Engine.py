@@ -86,7 +86,7 @@ class Engine:
         self.cash += trade.profit
 
         # flip, enter new trade
-        if order.comment == 'flip':
+        if 'flip' in order.comment:
             entry_order = self.strategy.orders[-2]
             self.trades.append(
                 Trade(
@@ -135,12 +135,12 @@ class Engine:
 
     def print_trades(self):
 
-        show_last = 1000
+        show_last = 3
         trades = self.trades
 
         # header
         print('\nTrades:')
-        print('\t\t\t\t\t\tclose\tprofit\tcomment')
+        print('\t\t\t\t\tclose\tprofit\tcomment')
         if len(trades) > show_last:
             print('\t...')
 
