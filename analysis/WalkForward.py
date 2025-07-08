@@ -10,6 +10,7 @@ from tqdm import tqdm
 from analysis.Engine import Engine
 from analysis.Analyzer import Analyzer
 from model.Fitness import Fitness
+from rebuild_wfa import best_fitness
 from strategy.FastStrategy import FastStrategy
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
@@ -257,18 +258,24 @@ class WalkForward():
         self.best_params = best_params
         self.best_fitness = best_fitness
 
-        # todo temp
-        print('...')
-        print(best_fitness.pretty)
-        for run in self.runs:
+        self.metrics += get_walk_forward_results_metrics(self)
+
+    def print_params_of_fittest_composite(self):
+
+        best_fitness = self.best_fitness
+
+        for run in range(self.runs):
+
             IS_path = self.path + '/' + str(run)
             fittest = unpack('analyzer', IS_path)['fittest']
+
+            if best_fitness not in fittest:
+                print('\t' + str(run) + ': in-sample not profitable')
+                continue
+
             metric = fittest[best_fitness]
             params = unpack(str(metric.id), IS_path)['params']
-            print(str(run) + ': ' + params.one_line)
-        print('...')
-
-        self.metrics += get_walk_forward_results_metrics(self)
+            print('\t' + str(run) + ', [' + str(metric.id) + ']: ' + params.one_line)
 
     ''' serialize '''
     def save(self):

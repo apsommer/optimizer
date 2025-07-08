@@ -38,7 +38,7 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [105],
-    fastMomentumMinutes = [55, 65, 75, 85, 95, 105, 115, 125],
+    fastMomentumMinutes = [75, 115], # [55, 65, 75, 85, 95, 105, 115, 125],
     fastCrossoverPercent = [0],
     takeProfitPercent = [.35, .45, .55],
     fastAngleFactor = [0],
@@ -122,6 +122,7 @@ pool.join()
 wfa.analyze()
 wfa.save()
 print_metrics(get_walk_forward_results_metrics(wfa))
+wfa.print_params_of_fittest_composite()
 
 # print last in-sample analyzer
 IS_path = wfa.path + '/' + str(runs)

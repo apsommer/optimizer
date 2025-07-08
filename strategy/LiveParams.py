@@ -55,8 +55,7 @@ class LiveParams:
             f'{self.slowAngleFactor}, '
             f'{self.coolOffMinutes}, '
             f'{self.trendStartHour}, '
-            f'{self.trendEndHour}, '
-        f']')
+            f'{self.trendEndHour}]')
 
     def __repr__(self):
         return (
