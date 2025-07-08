@@ -196,6 +196,8 @@ class WalkForward():
             cash_series = cash_series._append(OS_cash_series)
             trades.extend(OS_trades)
 
+        # todo extract to new method
+
         # reindex trades
         for i, trade in enumerate(trades):
             trade.id = i + 1 # 1-based index for tradingview
@@ -209,7 +211,7 @@ class WalkForward():
             metric = fittest[fitness]
             params = unpack(str(metric.id), IS_path)['params']
         else:
-            params = None
+            params = None # todo fix, fails if last IS for this fitness was not profitable
 
         # mask data to OS sample
         OS_data = self.data.loc[cash_series.index, :]
@@ -254,6 +256,17 @@ class WalkForward():
 
         self.best_params = best_params
         self.best_fitness = best_fitness
+
+        # todo temp
+        print('...')
+        print(best_fitness.pretty)
+        for run in self.runs:
+            IS_path = self.path + '/' + str(run)
+            fittest = unpack('analyzer', IS_path)['fittest']
+            metric = fittest[best_fitness]
+            params = unpack(str(metric.id), IS_path)['params']
+            print(str(run) + ': ' + params.one_line)
+        print('...')
 
         self.metrics += get_walk_forward_results_metrics(self)
 

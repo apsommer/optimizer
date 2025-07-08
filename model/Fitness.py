@@ -18,6 +18,7 @@ class Fitness(Enum):
 
     @property
     def pretty(self):
+
         title = ''
         match self:
             case Fitness.PROFIT: title = 'Profit'

@@ -42,6 +42,7 @@ class LiveParams:
             * len(self.trendEndHour)
         )
 
+    @property
     def one_line(self):
         return (f'['
             f'{self.fastMinutes}, '

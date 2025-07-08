@@ -233,7 +233,7 @@ def get_walk_forward_results_metrics(wfa):
 
     return [
         Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
-        Metric('params', str(wfa.best_params), None, 'Params'),
+        Metric('params', wfa.best_params.one_line, None, 'Params'),
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),
