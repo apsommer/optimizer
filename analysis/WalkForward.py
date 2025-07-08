@@ -260,23 +260,6 @@ class WalkForward():
 
         self.metrics += get_walk_forward_results_metrics(self)
 
-    def print_params_of_fittest_composite(self):
-
-        best_fitness = self.best_fitness
-
-        for run in range(self.runs):
-
-            IS_path = self.path + '/' + str(run)
-            fittest = unpack('analyzer', IS_path)['fittest']
-
-            if best_fitness not in fittest:
-                print('\t' + str(run) + ': in-sample not profitable')
-                continue
-
-            metric = fittest[best_fitness]
-            params = unpack(str(metric.id), IS_path)['params']
-            print('\t' + str(run) + ', [' + str(metric.id) + ']: ' + params.one_line)
-
     ''' serialize '''
     def save(self):
 
@@ -292,6 +275,26 @@ class WalkForward():
             path = self.path)
 
     ####################################################################################################################
+
+    def print_params_of_fittest_composite(self):
+
+        best_fitness = self.best_fitness
+
+        for run in range(self.runs):
+
+            IS_path = self.path + '/' + str(run)
+            fittest = unpack('analyzer', IS_path)['fittest']
+
+            if best_fitness not in fittest:
+                print('\t' + str(run) + ': in-sample not profitable')
+                continue
+
+            metric = fittest[best_fitness]
+            engine = unpack(str(metric.id), IS_path)
+            num_trades = next((metric.value for metric in engine['metrics'] if metric.name == 'num_trades'), None)
+            params = engine['params']
+            print('\t' + str(run) + ', [' + str(metric.id) + '], (' + str(num_trades) + '): ' + params.one_line)
+
 
     def plot_equity(self):
 
@@ -359,6 +362,6 @@ class WalkForward():
                 OS_start = IS_end
 
                 idx = self.data.index[OS_start]
-                fplt.add_line((idx, 0), (idx, 1e6), width = 1, color = light_gray, ax=ax)
+                fplt.add_line((idx, 0), (idx, 1e6), width = 1, color = dark_gray, ax=ax)
 
         fplt.show()
