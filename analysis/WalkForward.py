@@ -330,7 +330,6 @@ class WalkForward():
                 composite.print_metrics()
                 composite.print_trades()
                 composite.plot_trades()
-                # composite.plot_equity()
 
             # only calc once
             if fitness is Fitness.PROFIT:
@@ -341,11 +340,25 @@ class WalkForward():
                 # reference simple buy and hold
                 size = composite.strategy.size
                 point_value = composite.strategy.ticker.point_value
-                delta_df = composite.data.Close - composite.data.Close.iloc[0]
+                # delta_df = composite.data.Close - composite.data.Close.iloc[0]
+                delta_df = self.data.Close - self.data.Close.iloc[0]
                 initial_cash = composite.initial_cash
                 buy_hold = size * point_value * delta_df + initial_cash
 
                 # plot buy and hold
                 fplt.plot(buy_hold, color=dark_gray, ax=ax)
+
+            # superimpose OS windows
+            for run in range(self.runs):
+
+                # isolate samples
+                IS_len = self.IS_len
+                OS_len = self.OS_len
+                IS_start = run * OS_len
+                IS_end = IS_start + IS_len
+                OS_start = IS_end
+
+                idx = self.data.index[OS_start]
+                fplt.add_line((idx, 0), (idx, 1e6), width = 1, color = light_gray, ax=ax)
 
         fplt.show()

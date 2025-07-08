@@ -4,13 +4,11 @@ import pickle
 import re
 import time
 from datetime import timedelta, datetime, timezone
-from inspect import trace
 import matplotlib.pyplot as plt
 
 import databento as db
 import pandas as pd
 import pytz
-from sympy.plotting.textplot import linspace
 from tqdm import tqdm
 
 import local.api_keys as keys
