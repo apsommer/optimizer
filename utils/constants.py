@@ -18,8 +18,8 @@ aqua = colors[9]
 white = '#ffffff'
 light_gray = '#9e9e9e'
 dark_gray = '#525252'
-light_black = '#141414'
-
+dark_black = '#141414'
+light_black = '#2e2e2e'
 
 
 

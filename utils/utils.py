@@ -77,7 +77,7 @@ def set_process_name():
 def build_emas(data, path):
 
     # window length
-    mins = [25, 2555]
+    mins = [25, 2555, 3555, 4555, 5555]
 
     # init container
     emas = pd.DataFrame(index = data.index)
@@ -187,7 +187,7 @@ def init_plot(pos, title):
     fplt.winh = 2160
 
     # background
-    fplt.background = light_black
+    fplt.background = dark_black
     fplt.candle_bull_color = dark_gray
     fplt.candle_bull_body_color = dark_gray
     fplt.candle_bear_color = dark_gray

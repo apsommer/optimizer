@@ -362,6 +362,6 @@ class WalkForward():
                 OS_start = IS_end
 
                 idx = self.data.index[OS_start]
-                fplt.add_line((idx, 0), (idx, 1e6), width = 1, color = dark_gray, ax=ax)
+                fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '_', color = light_black, ax=ax)
 
         fplt.show()
