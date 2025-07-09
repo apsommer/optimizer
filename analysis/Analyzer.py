@@ -106,7 +106,7 @@ class Analyzer:
 
             engine_metrics = unpack(id, self.path)['metrics']
 
-            # filter engine with loss
+            # filter out engines with loss
             profit = next(metric.value for metric in engine_metrics if metric.name == 'profit')
             if 0 > profit: continue
 
@@ -115,26 +115,29 @@ class Analyzer:
         # init analyzer metrics
         self.metrics = get_analyzer_metrics(self)
 
-        # persist fittest engines
+        # collect fittest engines
         for fitness in Fitness:
 
+            # get fittest engine
             metric = self.get_fittest_metric(fitness)
-
-            # todo build cash_series at initial_cash
-            if metric is None:
-                continue
-
-            self.metrics.append(metric)
             self.fittest[fitness] = metric
+
+            # skip adding to analyzer metrics if not profitable
+            if metric is None: continue
+            self.metrics.append(metric)
 
     def get_fittest_metric(self, fitness):
 
-        # extract fitness metric
+        # isolate fitness metrics
         fitness_metrics = []
         for fitness_metrics in self.engine_metrics:
             for metric in fitness_metrics:
                 if metric.name == fitness.value:
                     fitness_metrics.append(metric)
+
+        # catch no profitable engines for this fitness
+        if len(fitness_metrics) == 0:
+            return None
 
         # sort by value
         fitness_metrics = sorted(
@@ -144,18 +147,10 @@ class Analyzer:
 
         print(fitness_metrics)
 
-        # find first profitable engine for this fitness
-        for metric in fitness_metrics:
-
-            id = metric.id
-            engine_metrics = unpack(id, self.path)['metrics']
-            profit = next((metric.value for metric in engine_metrics if metric.name == 'profit'), None)
-
-            if profit > 0:
-                metric.title = f'[{metric.id}] {metric.title}' # tag title
-                return metric
-
-        return None
+        # tag title
+        metric = fitness_metrics[0]
+        metric.title = f'[{metric.id}] {metric.title}'
+        return metric
 
     def save(self):
 
