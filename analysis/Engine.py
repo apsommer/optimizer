@@ -172,10 +172,7 @@ class Engine:
                 'profit_exit',
                 'loss_exit'])
 
-        for trade in tqdm(
-                iterable = self.trades,
-                colour = green,
-                bar_format = '        Plot:           {percentage:3.0f}%|{bar:100}{r_bar}'):
+        for trade in self.trades:
 
             # entry
             entry_idx = trade.entry_order.idx

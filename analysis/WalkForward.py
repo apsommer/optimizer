@@ -36,16 +36,16 @@ class WalkForward():
         self.best_params = None
         self.best_fitness = None
 
-        # isolate training and testing sets
+        # calculate window sizes
         self.IS_len = round(len(data) / ((percent / 100) * runs + 1))
         self.OS_len = round((percent / 100) * self.IS_len)
 
-        # init metrics with header
+        # init metrics
         self.metrics = init_walk_forward_metrics(self)
 
     def in_sample(self, run):
 
-        # isolate training xet
+        # isolate in-sample training set
         IS_len = self.IS_len
         OS_len = self.OS_len
         IS_start = run * OS_len
@@ -63,7 +63,7 @@ class WalkForward():
 
     def out_of_sample(self, run):
 
-        # isolate samples
+        # isolate out-of-sample testing set
         IS_len = self.IS_len
         OS_len = self.OS_len
         IS_start = run * OS_len
@@ -71,7 +71,7 @@ class WalkForward():
         OS_start = IS_end
         OS_end = OS_start + OS_len
 
-        # mask dataset
+        # mask dataset, one dataset each core
         OS_data = self.data.iloc[OS_start : OS_end]
         OS_emas = self.emas.iloc[OS_start : OS_end]
         OS_fractals = self.fractals.iloc[OS_start : OS_end]
@@ -81,10 +81,6 @@ class WalkForward():
         fittest = unpack('analyzer', IS_path)['fittest']
 
         # todo skip extra fitness if only analyzing 1 engine
-        # if len(fittest) > 0 and self.opt.size == 1:
-        #     first_fitness = list(fittest.keys())[0]
-        #     fittest = { first_fitness: fittest[first_fitness] }
-
         # create and save engine for each fitness
         for fitness in tqdm(
             iterable = fittest,
@@ -107,29 +103,30 @@ class WalkForward():
                 strategy = strategy)
             engine.run()
 
-            # calculate efficiency
+            # get annual returns for the pair
             IS_metrics = IS_engine['metrics']
             IS_return = next((metric.value for metric in IS_metrics if metric.name == 'annual_return'), None)
             OS_return = next((metric.value for metric in engine.metrics if metric.name == 'annual_return'), None)
 
             # catch engine with no trades
-            if OS_return is None: return
+            if OS_return is None: efficiency = np.nan
+            else: efficiency = (OS_return / IS_return) * 100
 
-            eff = (OS_return / IS_return) * 100
-            eff_metric = Metric('efficiency', eff, '%', 'Efficiency', formatter = None, id = run)
-            engine.metrics.append(eff_metric)
+            metric = Metric('efficiency', efficiency, '%', 'Efficiency', formatter = None, id = run)
+            engine.metrics.append(metric)
 
-            # persist full engine for out-of-sample
+            # persist full engine
             OS_path = self.path + '/' + fitness.value
             engine.save(OS_path, True)
 
     def build_composite(self, fitness):
 
-        # build composite engine by stitching OS runs for this fitness
+        # build composite engine by stitching OS runs
         cash_series = pd.Series()
         trades = []
-        effs = []
-        invalids = []
+        efficiencies = []
+        invalid_runs = []
+
         for run in tqdm(
             iterable = range(self.runs),
             disable = fitness is not Fitness.PROFIT, # show only 1 core
@@ -150,7 +147,7 @@ class WalkForward():
                 OS_metrics = OS_engine['metrics']
 
                 eff_metric = next((metric for metric in OS_metrics if metric.name == 'efficiency'), None)
-                effs.append(eff_metric.value)
+                efficiencies.append(eff_metric.value)
 
                 # cumulative cash series
                 initial_cash = OS_cash_series.values[0]
@@ -162,7 +159,7 @@ class WalkForward():
             else:
 
                 # count invalid runs
-                invalids.append(run)
+                invalid_runs.append(run)
 
                 # isolate testing test
                 IS_len = self.IS_len
@@ -184,7 +181,7 @@ class WalkForward():
 
                 # todo will fail if first run has no OS
                 if cash_series.empty:
-                    last_balance = 11000
+                    last_balance = 10000
                 else:
                     last_balance = cash_series.values[-1]
 
@@ -235,9 +232,9 @@ class WalkForward():
         # print(f'fitness: {fitness}, avg_eff: {avg_eff}')
 
         # invalid analyzers
-        if len(invalids) > 0:
+        if len(invalid_runs) > 0:
             engine.metrics.append(
-                Metric('invalids', str(invalids), None, 'Invalid runs'))
+                Metric('invalids', str(invalid_runs), None, 'Invalid runs'))
 
         # save OS composite for this fitness
         engine.save(self.path, True)
