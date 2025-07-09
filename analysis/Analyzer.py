@@ -26,12 +26,13 @@ class Analyzer:
         self.fractals = fractals
         self.opt = opt
         self.wfa_path = wfa_path
+
         self.path = wfa_path  + '/' + str(id) + '/'
-        self.engines = []
+        self.engine_metrics = []
         self.metrics = []
         self.fittest = { }
 
-        # extract opt
+        # extract optimization params
         self.fastMinutes = self.opt.fastMinutes
         self.disableEntryMinutes = self.opt.disableEntryMinutes
         self.fastMomentumMinutes = self.opt.fastMomentumMinutes
@@ -78,10 +79,9 @@ class Analyzer:
                                                             slowAngleFactor = slowAngleFactor,
                                                             coolOffMinutes = coolOffMinutes,
                                                             trendStartHour = trendStartHour,
-                                                            trendEndHour = trendEndHour,
-                                                        )
+                                                            trendEndHour = trendEndHour)
 
-                                                        # create strategy and engine
+                                                        # init strategy and engine
                                                         strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
                                                         engine = Engine(id, strategy)
 
@@ -105,9 +105,14 @@ class Analyzer:
         for id in ids:
 
             engine_metrics = unpack(id, self.path)['metrics']
-            self.engines.append(engine_metrics)
 
-        # init metrics
+            # filter engine with loss
+            profit = next(metric.value for metric in engine_metrics if metric.name == 'profit')
+            if 0 > profit: continue
+
+            self.engine_metrics.append(engine_metrics)
+
+        # init analyzer metrics
         self.metrics = get_analyzer_metrics(self)
 
         # persist fittest engines
@@ -124,23 +129,23 @@ class Analyzer:
 
     def get_fittest_metric(self, fitness):
 
-        engines = self.engines
-
-        # isolate metric of interest
-        _metrics = []
-        for metrics in engines:
-            for metric in metrics:
+        # extract fitness metric
+        fitness_metrics = []
+        for fitness_metrics in self.engine_metrics:
+            for metric in fitness_metrics:
                 if metric.name == fitness.value:
-                    _metrics.append(metric)
+                    fitness_metrics.append(metric)
 
         # sort by value
-        _sorted = sorted(
-            _metrics,
+        fitness_metrics = sorted(
+            fitness_metrics,
             key = lambda it: it.value,
             reverse = True)
 
-        # find first profitable engine
-        for metric in _sorted:
+        print(fitness_metrics)
+
+        # find first profitable engine for this fitness
+        for metric in fitness_metrics:
 
             id = metric.id
             engine_metrics = unpack(id, self.path)['metrics']
