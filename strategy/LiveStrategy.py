@@ -297,9 +297,11 @@ class LiveStrategy(BaselineStrategy):
             self.shortExitBarIndex = bar_index
             self.buy(ticker, size, comment)
 
-    def plot(self, title = 'Strategy', shouldShow = False):
+    def plot(self, window, title ='Strategy', shouldShow = False):
 
-        ax = init_plot(0, title)
+        ax = init_plot(
+            window= window,
+            title = title)
 
         # plot candles
         data = self.data

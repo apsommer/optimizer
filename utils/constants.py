@@ -21,6 +21,8 @@ dark_gray = '#525252'
 dark_black = '#141414'
 light_black = '#2e2e2e'
 
+initial_cash = 10000
+
 # # todo tradingview limitation ~20k bars
 # tv_start = pd.Timestamp('2025-05-27T18:00:00', tz='America/Chicago')
 # if tv_start > idx:

@@ -166,7 +166,7 @@ def get_analyzer_metrics(analyzer):
 
     start_date = analyzer.data.index[0]
     end_date = analyzer.data.index[-1]
-    num_engines = len(analyzer.opt.size)
+    num_engines = analyzer.opt.size
     num_engines_profitable = len(analyzer.engine_metrics)
     profitable_engine_percent = (num_engines_profitable / num_engines) * 100
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days

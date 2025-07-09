@@ -92,9 +92,12 @@ class WalkForward():
             colour = blue,
             bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
 
+            # catch unprofitable in-sample
+            metric = fittest[fitness]
+            if metric is None: return
+
             # extract params of fittest engine
-            fittest_id = fittest[fitness].id
-            IS_engine = unpack(fittest_id, IS_path)
+            IS_engine = unpack(metric.id, IS_path)
             params = IS_engine['params']
 
             # run strategy blind with best params
@@ -110,8 +113,7 @@ class WalkForward():
             OS_return = next((metric.value for metric in engine.metrics if metric.name == 'annual_return'), None)
 
             # catch engine with no trades
-            if OS_return is None:
-                return
+            if OS_return is None: return
 
             eff = (OS_return / IS_return) * 100
             eff_metric = Metric('efficiency', eff, '%', 'Efficiency', formatter = None, id = run)
@@ -284,12 +286,12 @@ class WalkForward():
 
             IS_path = self.path + '/' + str(run)
             fittest = unpack('analyzer', IS_path)['fittest']
+            metric = fittest[best_fitness]
 
-            if best_fitness not in fittest:
+            if metric is None:
                 print('\t' + str(run) + ': in-sample not profitable')
                 continue
 
-            metric = fittest[best_fitness]
             engine = unpack(str(metric.id), IS_path)
             num_trades = next((metric.value for metric in engine['metrics'] if metric.name == 'num_trades'), None)
             params = engine['params']
@@ -362,6 +364,6 @@ class WalkForward():
                 OS_start = IS_end
 
                 idx = self.data.index[OS_start]
-                fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '_', color = light_black, ax = ax)
+                fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_black, ax = ax)
 
         fplt.show()

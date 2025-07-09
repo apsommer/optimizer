@@ -178,10 +178,10 @@ def get_slope(series):
 
     return np.rad2deg(np.atan(slope))
 
-def init_plot(pos, title):
+def init_plot(window, title):
 
     # window position, maximized
-    fplt.winx = pos * 3840
+    fplt.winx = window * 3840
     fplt.winy = 0
     fplt.winw = 3840
     fplt.winh = 2160

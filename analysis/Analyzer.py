@@ -110,7 +110,7 @@ class Analyzer:
             profit = next(metric.value for metric in engine_metrics if metric.name == 'profit')
             if 0 > profit: continue
 
-            self.engine_metrics.append(engine_metrics)
+            self.engine_metrics.extend(engine_metrics)
 
         # init analyzer metrics
         self.metrics = get_analyzer_metrics(self)
@@ -130,10 +130,9 @@ class Analyzer:
 
         # isolate fitness metrics
         fitness_metrics = []
-        for fitness_metrics in self.engine_metrics:
-            for metric in fitness_metrics:
-                if metric.name == fitness.value:
-                    fitness_metrics.append(metric)
+        for metric in self.engine_metrics:
+            if metric.name == fitness.value:
+                fitness_metrics.append(metric)
 
         # catch no profitable engines for this fitness
         if len(fitness_metrics) == 0:
@@ -144,8 +143,6 @@ class Analyzer:
             fitness_metrics,
             key = lambda it: it.value,
             reverse = True)
-
-        print(fitness_metrics)
 
         # tag title
         metric = fitness_metrics[0]

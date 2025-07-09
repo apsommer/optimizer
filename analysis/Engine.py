@@ -18,18 +18,20 @@ class Engine:
     def __init__(self, id, strategy):
 
         self.id = id
-        self.data = strategy.data
         self.strategy = strategy
+
+        self.data = strategy.data
         self.current_idx = -1
         self.trades = []
-        self.cash_series = pd.Series(index=self.data.index)
         self.metrics = []
+        self.cash_series = pd.Series(index=self.data.index)
 
-        # init equity account
-        margin = self.strategy.ticker.margin
-        size = self.strategy.size
-        initial_cash = margin * self.data.Close.iloc[0] * size
-        self.initial_cash = round(initial_cash, -3)
+        # todo init equity account?
+        # margin = self.strategy.ticker.margin
+        # size = self.strategy.size
+        # initial_cash = margin * self.data.Close.iloc[0] * size
+        # self.initial_cash = round(initial_cash, -3)
+        self.initial_cash = initial_cash
         self.cash = self.initial_cash
 
     def run(self):
@@ -52,10 +54,10 @@ class Engine:
             # execute strat
             self.strategy.on_bar()
 
-            # fill order, if needed
+            # fill orders, if needed
             orders = self.strategy.orders
             if len(orders) > 0 and orders[-1].idx == self.current_idx:
-                self.fill_order()
+                self.fill_orders()
 
             # track cash balance
             self.cash_series[idx] = self.cash
@@ -63,9 +65,9 @@ class Engine:
         # analyze results
         self.analyze()
 
-    def fill_order(self):
+    def fill_orders(self):
 
-        # get last order, and last trade
+        # consider last order and trade
         order = self.strategy.orders[-1]
         if len(self.trades) == 0: trade = None
         else: trade = self.trades[-1]
@@ -81,11 +83,11 @@ class Engine:
                     exit_order = None))
             return
 
-        # close open order
+        # close open trade
         trade.exit_order = order
         self.cash += trade.profit
 
-        # flip, enter new trade
+        # flip, enter new trade immediately on exit
         if 'flip' in order.comment:
             entry_order = self.strategy.orders[-2]
             self.trades.append(
@@ -98,7 +100,7 @@ class Engine:
 
     def analyze(self):
 
-        # create metrics
+        # build metrics
         self.metrics = get_engine_metrics(self)
 
         # tag all metrics with engine id
@@ -141,35 +143,32 @@ class Engine:
         # header
         print('\nTrades:')
         print('\t\t\t\t\tclose\tprofit\tcomment')
-        if len(trades) > show_last:
-            print('\t...')
+        if len(trades) > show_last: print('\t...')
 
-        for trade in trades[-show_last:]:
-            print(trade)
-
+        # trades
+        for trade in trades[-show_last:]: print(trade)
         print()
 
     def plot_trades(self, shouldShow = False):
 
         # init
         ax = self.strategy.plot(
-            title = f'{self.id}: Trades')
+            window = 0,
+            title = f'Engine: {self.id}')
 
-        # candlestick ohlc
+        # candlesticks
         data = self.data
         fplt.candlestick_ochl(
             data[['Open', 'Close', 'High', 'Low']],
             ax = ax)
 
-        # init dataframe plot entities
+        # init dataframe of plot entities
         entities = pd.DataFrame(
             index = data.index,
             dtype = float,
             columns = [
                 'long_entry',
-                'long_trade',
                 'short_entry',
-                'short_trade'
                 'profit_exit',
                 'loss_exit'])
 
@@ -181,14 +180,12 @@ class Engine:
             # entry
             entry_idx = trade.entry_order.idx
             entry_price = trade.entry_order.price
-            entry_bar = trade.entry_order.bar_index
             if trade.is_long: entities.loc[entry_idx, 'long_entry'] = entry_price
             else: entities.loc[entry_idx, 'short_entry'] = entry_price
 
             # exit
             exit_idx = trade.exit_order.idx
             exit_price = trade.exit_order.price
-            exit_bar = trade.exit_order.bar_index
             profit = trade.profit
             if profit > 0:
                 entities.loc[exit_idx, 'profit_exit'] = exit_price
@@ -197,52 +194,30 @@ class Engine:
                 entities.loc[exit_idx, 'profit_exit'] = np.nan
                 entities.loc[exit_idx, 'loss_exit'] = exit_price
 
-            # build trade line
-            timestamps = pd.date_range(
-                start=entry_idx,
-                end=exit_idx,
-                freq='1min')
-            slope = (exit_price - entry_price) / (exit_bar - entry_bar)
-            trade_bar = 0
+            # trade line
+            color = blue
+            if trade.is_long: color = aqua
 
-            for timestamp in timestamps:
-
-                # prevent gaps in plot
-                if timestamp not in data.index: continue
-
-                # y = mx + b
-                price = slope * trade_bar + entry_price
-                if trade.is_long:
-                    entities.loc[timestamp, 'long_trade'] = price
-                    entities.loc[timestamp, 'short_trade'] = np.nan
-                else:
-                    entities.loc[timestamp, 'long_trade'] = np.nan
-                    entities.loc[timestamp, 'short_trade'] = price
-
-                trade_bar += 1
-
-        marker_size = 3
-        line_width = 7
-
-        # entries
-        # fplt.plot(entities['long_entry'], style='o', width = marker_size, color=blue, ax=ax)
-        # fplt.plot(entities['short_entry'], style='o', width = marker_size, color=aqua, ax=ax)
+            fplt.add_line(
+                p0 = (entry_idx, entry_price),
+                p1 = (exit_idx, exit_price),
+                color = color,
+                width = 7,
+                ax = ax)
 
         # exits
-        fplt.plot(entities['profit_exit'], style='o', width = marker_size, color=green, ax=ax)
-        fplt.plot(entities['loss_exit'], style='o', width = marker_size, color=red, ax=ax)
-
-        # trades
-        fplt.plot(entities['long_trade'], color=blue, width= line_width, ax=ax)
-        fplt.plot(entities['short_trade'], color=aqua, width = line_width, ax=ax)
+        fplt.plot(entities['profit_exit'], style='o', width = 3, color=green, ax=ax)
+        fplt.plot(entities['loss_exit'], style='o', width = 3, color=red, ax=ax)
 
         if shouldShow: fplt.show()
 
     def plot_equity(self):
 
-        ax = init_plot(1, f'{self.id}: Equity')
+        ax = init_plot(
+            window = 1,
+            title = f'{self.id}: Equity')
 
-        # buy and hold
+        # reference buy and hold
         size = self.strategy.size
         point_value = self.strategy.ticker.point_value
         delta_df = self.data.Close - self.data.Close.iloc[0]
@@ -250,10 +225,12 @@ class Engine:
         fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
         # initial cash
-        initial_cash = [ self.initial_cash for idx in self.data.index ]
-        fplt.plot(initial_cash, color=dark_gray, ax=ax)
+        fplt.add_line(
+            p0 = (self.data.index[0], initial_cash),
+            p1 = (self.data.index[-1], initial_cash),
+            color = dark_gray,
+            ax = ax)
 
         # equity
         fplt.plot(self.cash_series, ax = ax)
-
         fplt.show()
