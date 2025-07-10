@@ -121,47 +121,50 @@ class WalkForward():
 
     def build_composite(self, fitness):
 
-        # build composite engine by stitching OS runs
         cash_series = pd.Series()
         trades = []
         efficiencies = []
         invalid_runs = []
 
+        # stitch OS runs together
         for run in tqdm(
             iterable = range(self.runs),
             disable = fitness is not Fitness.PROFIT, # show only 1 core
             colour = blue,
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
+            # get cash balance at end of previous run
+            if cash_series.empty: balance = initial_cash
+            else: balance = cash_series.values[-1]
+
+            # check if OS exists
             OS_path = self.path + '/' + fitness.value
             OS_engine_filepath = OS_path + '/' + str(run) + '.bin'
+            isProfitable = os.path.exists(OS_engine_filepath)
 
-            # check if OS run exists from profitable fittest IS
-            if os.path.exists(OS_engine_filepath):
-
-                OS_engine = unpack(run, OS_path)
+            # OS exists: IS profitable
+            if isProfitable:
 
                 # extract saved OS engine results
-                OS_cash_series = OS_engine['cash_series']
-                OS_trades = OS_engine['trades']
-                OS_metrics = OS_engine['metrics']
+                engine = unpack(run, OS_path)
+                engine_cash_series = engine['cash_series']
+                engine_trades = engine['trades']
+                engine_metrics = engine['metrics']
 
-                eff_metric = next((metric for metric in OS_metrics if metric.name == 'efficiency'), None)
-                efficiencies.append(eff_metric.value)
+                # capture efficiency
+                metric = next(metric for metric in engine_metrics if metric.name == 'efficiency')
+                efficiencies.append(metric.value)
 
-                # cumulative cash series
-                initial_cash = OS_cash_series.values[0]
-                if len(cash_series) > 0:
-                    last_balance = cash_series.values[-1]
-                    OS_cash_series += last_balance - initial_cash
+                # adjust series to starting balance
+                engine_cash_series += balance - initial_cash
 
-            # IS not profitable, accompanying OS does not exist
+            # OS does not exist: IS not profitable
             else:
 
                 # count invalid runs
                 invalid_runs.append(run)
 
-                # isolate testing test
+                # isolate testing set
                 IS_len = self.IS_len
                 OS_len = self.OS_len
                 IS_start = run * OS_len
@@ -169,74 +172,56 @@ class WalkForward():
                 OS_start = IS_end
                 OS_end = OS_start + OS_len
 
-                # mask dataset
-                mask = self.data.iloc[OS_start: OS_end]
+                # init index
+                timestamps = pd.date_range(
+                    start = self.data.index[OS_start],
+                    end = self.data.index[OS_end],
+                    freq = '1min')
 
-                # create timestamps
-                OS_timestamps = pd.date_range(
-                    start = mask.index[0],
-                    end = mask.index[-1],
-                    freq = '1min'
-                )
-
-                # todo will fail if first run has no OS
-                if cash_series.empty:
-                    last_balance = 10000
-                else:
-                    last_balance = cash_series.values[-1]
-
-                # no cash or trades
-                OS_cash_series = pd.Series()
-                for timestamp in OS_timestamps:
+                # no trades, or change in cash
+                engine_cash_series = pd.Series()
+                for timestamp in timestamps:
                     if timestamp not in self.data.index: continue
-                    OS_cash_series[timestamp] = last_balance
+                    engine_cash_series[timestamp] = balance
+                engine_trades = []
 
-                OS_trades = []
+            # cumulative cash series
+            cash_series._append(engine_cash_series)
+            trades.extend(engine_trades)
 
-            cash_series = cash_series._append(OS_cash_series)
-            trades.extend(OS_trades)
+        # reindex trades, 1-based for tradingview
+        for i, trade in enumerate(trades): trade.id = i + 1
 
-        # todo extract to new method
-
-        # reindex trades
-        for i, trade in enumerate(trades):
-            trade.id = i + 1 # 1-based index for tradingview
-
-        # get params from last in-sample analyzer
+        # extract fittest engines from last in-sample analyzer
         IS_path = self.path + '/' + str(self.runs)
         fittest = unpack('analyzer', IS_path)['fittest']
+        metric = fittest[fitness]
 
-        # extract params of fittest engine
-        if fitness in fittest:
-            metric = fittest[fitness]
-            params = unpack(str(metric.id), IS_path)['params']
-        else:
-            params = None # todo fix, fails if last IS for this fitness was not profitable
+        # get params of fittest engine
+        if metric is None: params = None
+        else: params = unpack(str(metric.id), IS_path)['params']
 
         # mask data to OS sample
-        OS_data = self.data.loc[cash_series.index, :]
-        OS_emas = self.emas.loc[cash_series.index, :]
-        OS_fractals = self.fractals.loc[cash_series.index, :]
+        composite_data = self.data.loc[cash_series.index, :]
+        composite_emas = self.emas.loc[cash_series.index, :]
+        composite_fractals = self.fractals.loc[cash_series.index, :]
 
-        # create engine, but don't run!
-        strategy = LiveStrategy(OS_data, OS_emas, OS_fractals, params)
+        # construct engine, but don't run!
+        strategy = LiveStrategy(composite_data, composite_emas, composite_fractals, params)
         engine = Engine(fitness.value, strategy)
-
-        # finish engine build
         engine.cash_series = cash_series
         engine.trades = trades
-        engine.analyze() # generate metrics
+        engine.analyze()
 
         # todo efficiency
         # avg_eff = np.mean(effs)
         # print(f'fitness: {fitness}, avg_eff: {avg_eff}')
 
-        # invalid analyzers
+        # capture number of invalid analyzers
         if len(invalid_runs) > 0:
             engine.metrics.append(
                 Metric('invalids', str(invalid_runs), None, 'Invalid runs'))
 
-        # save OS composite for this fitness
         engine.save(self.path, True)
 
     def analyze(self):

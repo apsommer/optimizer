@@ -86,7 +86,7 @@ wfa = WalkForward(
     opt = opt,
     path = path)
 
-# multiprocessing use all cores
+# multiprocessing uses all cores
 cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave 1 for basic computer tasks
 fitnesses = [fitness for fitness in Fitness]

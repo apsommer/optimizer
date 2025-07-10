@@ -6,7 +6,7 @@ from utils.constants import *
 
 
 class Fitness(Enum):
-    
+
     PROFIT = 'profit'
     PROFIT_FACTOR = 'profit_factor'
     EXPECTANCY = 'expectancy'

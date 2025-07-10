@@ -117,7 +117,10 @@ def get_engine_metrics(engine):
     if len(shorts) == 0: win_rate_short = np.nan
     else: win_rate_short = (len(profitable_shorts) / len(shorts)) * 100
 
+    # catch composite with final in-sample not profitable
     params = engine.strategy.params
+    if params is None:
+        params = 'Last in-sample analyzer not profitable!'
 
     return [
 

@@ -31,6 +31,9 @@ class LiveStrategy(BaselineStrategy):
         self.emas = emas
         self.params = params
 
+        # allow blank strategy for walk-forward composite out-of-sample
+        if params is None: return
+
         # unpack params
         self.fastMinutes = params.fastMinutes
         self.disableEntryMinutes = params.disableEntryMinutes
@@ -168,8 +171,7 @@ class LiveStrategy(BaselineStrategy):
             and hasLongEntryDelayElapsed
             and self.trendStartMinutes < slowLong < self.trendEndMinutes
             and fast > close > buyFractal > slow
-            and 0.5 * fastMomentumMinutes > fastShort
-        )
+            and 0.5 * fastMomentumMinutes > fastShort)
 
         isEntryLong = (
             ((is_flat or is_short) and isEntryLongSignal)
@@ -186,8 +188,7 @@ class LiveStrategy(BaselineStrategy):
             and hasShortEntryDelayElapsed
             and self.trendStartMinutes < slowShort < self.trendEndMinutes
             and slow > sellFractal > close > fast
-            and 0.5 * fastMomentumMinutes > fastLong
-        )
+            and 0.5 * fastMomentumMinutes > fastLong)
         isEntryShort = (
             ((is_flat or is_long) and isEntryShortSignal)
             or (isExitLongFastMomentum and slow > fast))
