@@ -41,4 +41,4 @@ engine.cash_series = bin['cash_series']
 engine.print_metrics()
 engine.print_trades()
 engine.plot_trades()
-engine.plot_equity()
+engine.plot()

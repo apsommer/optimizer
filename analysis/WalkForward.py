@@ -262,64 +262,66 @@ class WalkForward():
 
     def print_params_of_fittest_composite(self):
 
-        best_fitness = self.best_fitness
-
         for run in range(self.runs):
 
+            # extract fittest engines from in-sample analyzer
             IS_path = self.path + '/' + str(run)
             fittest = unpack('analyzer', IS_path)['fittest']
-            metric = fittest[best_fitness]
+            metric = fittest[self.best_fitness]
 
+            # catch in-sample without profit
             if metric is None:
                 print('\t' + str(run) + ': in-sample not profitable')
                 continue
 
-            engine = unpack(str(metric.id), IS_path)
-            num_trades = next((metric.value for metric in engine['metrics'] if metric.name == 'num_trades'), None)
-            params = engine['params']
+            # get params from fittest engine
+            OS_engine = unpack(str(metric.id), IS_path)
+            num_trades = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'num_trades')
+            params = OS_engine['params']
+
             print('\t' + str(run) + ', [' + str(metric.id) + '], (' + str(num_trades) + '): ' + params.one_line)
 
+    def plot(self):
 
-    def plot_equity(self):
-
-        ax = init_plot(1, 'Equity')
+        ax = init_plot(
+            window = 1,
+            title = 'Equity')
 
         for fitness in Fitness:
 
             # unpack composite engine
-            engine = unpack(fitness.value, self.path)
-            params = engine['params']
-            cash_series = engine['cash_series']
+            composite = unpack(fitness.value, self.path)
+            # params = composite['params']
+            cash_series = composite['cash_series']
 
-            # mask dataset
-            start = cash_series.index[0]
-            end = cash_series.index[-1]
-            comp_data = self.data[start: end]
-            comp_ema = self.emas[start: end]
-            comp_fractals = self.fractals[start: end]
-
-            strategy = LiveStrategy(comp_data, comp_ema, comp_fractals, params)
-            composite = Engine(fitness.value, strategy)
-
-            # deserialize previous result
-            composite.id = engine['id']
-            composite.params = params
-            composite.metrics = engine['metrics']
-            composite.trades = engine['trades']
-            composite.cash_series = cash_series
-            composite.cash = cash_series[-1]
+            # # mask indicators
+            # start = cash_series.index[0]
+            # end = cash_series.index[-1]
+            # composite_data = self.data[start: end]
+            # composite_emas = self.emas[start: end]
+            # composite_fractals = self.fractals[start: end]
+            #
+            # strategy = LiveStrategy(composite_data, composite_emas, composite_fractals, params)
+            # composite = Engine(fitness.value, strategy)
+            #
+            # # deserialize previous result
+            # composite.id = composite['id']
+            # composite.params = params
+            # composite.metrics = composite['metrics']
+            # composite.trades = composite['trades']
+            # composite.cash_series = cash_series
+            # composite.cash = cash_series[-1]
 
             # plot cash series
             fplt.plot(cash_series, color=fitness.color, legend=fitness.pretty, ax=ax)
 
-            # plot selected fitness composite
+            # consider composite with highest profit
             if fitness is self.best_fitness:
+
+                # display engine results
                 composite.print_metrics()
                 composite.print_trades()
                 composite.plot_trades()
-
-            # only calc once
-            if fitness is Fitness.PROFIT:
 
                 # plot initial cash
                 fplt.plot(composite.initial_cash, color=dark_gray, ax=ax)
@@ -335,17 +337,17 @@ class WalkForward():
                 # plot buy and hold
                 fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
-            # superimpose OS windows
-            for run in range(self.runs):
+                # plot out-of-sample window boundaries
+                for run in range(self.runs):
 
-                # isolate samples
-                IS_len = self.IS_len
-                OS_len = self.OS_len
-                IS_start = run * OS_len
-                IS_end = IS_start + IS_len
-                OS_start = IS_end
+                    # isolate samples
+                    IS_len = self.IS_len
+                    OS_len = self.OS_len
+                    IS_start = run * OS_len
+                    IS_end = IS_start + IS_len
+                    OS_start = IS_end
 
-                idx = self.data.index[OS_start]
-                fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_black, ax = ax)
+                    idx = self.data.index[OS_start]
+                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_black, ax = ax)
 
         fplt.show()
