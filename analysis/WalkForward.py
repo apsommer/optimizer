@@ -202,7 +202,7 @@ class WalkForward():
         if metric is None: params = None
         else: params = unpack(str(metric.id), IS_path)['params']
 
-        # mask data to OS sample
+        # mask indicators
         composite_data = self.data.loc[cash_series.index, :]
         composite_emas = self.emas.loc[cash_series.index, :]
         composite_fractals = self.fractals.loc[cash_series.index, :]
@@ -240,6 +240,7 @@ class WalkForward():
                 best_params = engine['params']
                 best_fitness = fitness
 
+        # persist best fitness
         self.best_params = best_params
         self.best_fitness = best_fitness
 
@@ -292,26 +293,7 @@ class WalkForward():
 
             # unpack composite engine
             composite = unpack(fitness.value, self.path)
-            # params = composite['params']
             cash_series = composite['cash_series']
-
-            # # mask indicators
-            # start = cash_series.index[0]
-            # end = cash_series.index[-1]
-            # composite_data = self.data[start: end]
-            # composite_emas = self.emas[start: end]
-            # composite_fractals = self.fractals[start: end]
-            #
-            # strategy = LiveStrategy(composite_data, composite_emas, composite_fractals, params)
-            # composite = Engine(fitness.value, strategy)
-            #
-            # # deserialize previous result
-            # composite.id = composite['id']
-            # composite.params = params
-            # composite.metrics = composite['metrics']
-            # composite.trades = composite['trades']
-            # composite.cash_series = cash_series
-            # composite.cash = cash_series[-1]
 
             # plot cash series
             fplt.plot(cash_series, color=fitness.color, legend=fitness.pretty, ax=ax)
@@ -319,23 +301,39 @@ class WalkForward():
             # consider composite with highest profit
             if fitness is self.best_fitness:
 
-                # display engine results
-                composite.print_metrics()
-                composite.print_trades()
-                composite.plot_trades()
+                # mask indicators
+                start = cash_series.index[0]
+                end = cash_series.index[-1]
+                composite_data = self.data[start: end]
+                composite_emas = self.emas[start: end]
+                composite_fractals = self.fractals[start: end]
+
+                # init engine
+                params = composite['params']
+                strategy = LiveStrategy(composite_data, composite_emas, composite_fractals, params)
+                engine = Engine(fitness.value, strategy)
+
+                # deserialize previous result
+                engine.id = composite['id']
+                engine.metrics = composite['metrics']
+                engine.trades = composite['trades']
+                engine.cash_series = cash_series
+                engine.cash = cash_series[-1]
+
+                # display results
+                engine.print_metrics()
+                engine.print_trades()
+                engine.plot_trades()
 
                 # plot initial cash
-                fplt.plot(composite.initial_cash, color=dark_gray, ax=ax)
-
-                # reference simple buy and hold
-                size = composite.strategy.size
-                point_value = composite.strategy.ticker.point_value
-                # delta_df = composite.data.Close - composite.data.Close.iloc[0]
-                delta_df = self.data.Close - self.data.Close.iloc[0]
-                initial_cash = composite.initial_cash
-                buy_hold = size * point_value * delta_df + initial_cash
+                fplt.plot(engine.initial_cash, color=dark_gray, ax=ax)
 
                 # plot buy and hold
+                size = engine.strategy.size
+                point_value = engine.strategy.ticker.point_value
+                # delta_df = composite.data.Close - composite.data.Close.iloc[0]
+                delta_df = self.data.Close - self.data.Close.iloc[0]
+                buy_hold = size * point_value * delta_df + initial_cash
                 fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
                 # plot out-of-sample window boundaries
@@ -349,6 +347,6 @@ class WalkForward():
                     OS_start = IS_end
 
                     idx = self.data.index[OS_start]
-                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_black, ax = ax)
+                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = white, ax = ax)
 
         fplt.show()
