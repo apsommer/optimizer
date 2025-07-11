@@ -133,7 +133,7 @@ class WalkForward():
                 engine_metrics = engine['metrics']
 
                 # capture in-sample profits for efficiency calculation
-                metric = next(metric for metric in engine_metrics if metric.name == 'profit')
+                metric = next(metric for metric in engine_metrics if metric.name == 'IS_profit')
                 IS_profits.append(metric.value)
 
                 # adjust series to starting balance
@@ -194,8 +194,8 @@ class WalkForward():
         engine.trades = trades
         engine.analyze()
 
-        # todo efficiency
-        print(f'fitness: {fitness}, IS_profits: {IS_profits}')
+        # calculate efficiency
+        self.calculate_efficiency(fitness, IS_path, engine)
 
         # capture number of invalid analyzers
         if len(invalid_runs) > 0:
@@ -203,6 +203,23 @@ class WalkForward():
                 Metric('invalids', str(invalid_runs), None, 'Invalid runs'))
 
         engine.save(self.path, True)
+
+    def calculate_efficiency(self, fitness, IS_profits, engine):
+
+        # in-sample annual return
+        IS_total_profit = sum(IS_profits)
+        IS_cash = IS_total_profit - initial_cash
+        IS_days = self.OS_len * self.runs / 1440
+        IS_annual_return = ((IS_cash / initial_cash) ** (1 / (IS_days / 365)) - 1) * 100
+
+        # composite annual return
+        metric = next(metric for metric in engine.metrics if metric.name == 'annual_return')
+        engine_annual_return = metric.value
+
+        efficiency = (engine_annual_return / IS_annual_return) * 100
+
+        engine.metrics.append(
+            Metric('efficiency', efficiency, '%', 'Efficiency'))
 
     def analyze(self):
 
@@ -327,6 +344,6 @@ class WalkForward():
                     OS_start = IS_end
 
                     idx = self.data.index[OS_start]
-                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = white, ax = ax)
+                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '_', color = light_black, ax = ax)
 
         fplt.show()

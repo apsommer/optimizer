@@ -209,16 +209,16 @@ def init_walk_forward_metrics(wfa):
     # pretty
     candles = '{:,}'.format(candles)
     runs = str(wfa.runs) + ' + 1 last in-sample'
-    in_sample = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
-    out_of_sample = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
+    in_sample_days = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
+    out_of_sample_days = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
 
     return [
         Metric('header', None, None, 'Walk forward:'),
         Metric('months', months, None, 'Months'),
         Metric('percent', wfa.percent, '%', 'Percent'),
         Metric('runs', runs, None, 'Runs'),
-        Metric('in_sample', in_sample, None, 'In-sample days'),
-        Metric('out_of_sample', out_of_sample, None, 'Out-of-sample days'),
+        Metric('in_sample_days', in_sample_days, None, 'In-sample days'),
+        Metric('out_of_sample_days', out_of_sample_days, None, 'Out-of-sample days'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         # Metric('candles', candles, None, 'Candles'),
