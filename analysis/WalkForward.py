@@ -273,7 +273,7 @@ class WalkForward():
 
             # catch in-sample without profit
             if metric is None:
-                print('\t' + str(run) + ': in-sample not profitable')
+                print('\t' + str(run) + ': In-sample not profitable')
                 continue
 
             # get params from fittest engine
@@ -281,6 +281,7 @@ class WalkForward():
             num_trades = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'num_trades')
             params = OS_engine['params']
 
+            # display to console
             print('\t' + str(run) + ', [' + str(metric.id) + '], (' + str(num_trades) + '): ' + params.one_line)
 
     def plot(self):

@@ -4,7 +4,6 @@ import seaborn as sns
 
 from utils.constants import *
 
-
 class Fitness(Enum):
 
     PROFIT = 'profit'

@@ -8,4 +8,10 @@ class Metric():
         self.id = id
 
     def __repr__(self):
-        return f'name: {self.name}, value: {self.value}, unit: {self.unit}, title: {self.title}, formatter: {self.formatter}, id: {self.id}'
+        return (
+            f'name: {self.name}, '
+            f'value: {self.value},'
+            f'unit: {self.unit},'
+            f'title: {self.title},'
+            f'formatter: {self.formatter},'
+            f'id: {self.id}')
