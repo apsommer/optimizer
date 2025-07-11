@@ -81,6 +81,7 @@ class WalkForward():
         fittest = unpack('analyzer', IS_path)['fittest']
 
         # todo skip extra fitness if only analyzing 1 engine
+
         # create and save engine for each fitness
         for fitness in tqdm(
             iterable = fittest,
@@ -90,7 +91,7 @@ class WalkForward():
 
             # catch unprofitable in-sample
             metric = fittest[fitness]
-            if metric is None: return
+            if metric is None: continue
 
             # extract params of fittest engine
             IS_engine = unpack(metric.id, IS_path)
@@ -186,7 +187,7 @@ class WalkForward():
                 engine_trades = []
 
             # cumulative cash series
-            cash_series._append(engine_cash_series)
+            cash_series = pd.concat([cash_series, engine_cash_series], axis = 0)
             trades.extend(engine_trades)
 
         # reindex trades, 1-based for tradingview
