@@ -194,9 +194,11 @@ def init_plot(window, title):
     fplt.candle_bear_body_color = dark_gray
     fplt.cross_hair_color = white
 
+    # font
     plt.rcParams['font.family'] = 'sans-serif'
     plt.rcParams['font.sans-serif'] = ['Ubuntu']
 
+    # adjust timezone to CME exchange
     fplt.display_timezone = pytz.timezone('America/Chicago')
 
     # init finplot

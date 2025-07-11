@@ -14,10 +14,10 @@ class LiveStrategy(BaselineStrategy):
     def ticker(self):
         return Ticker(
             # symbol = 'NQ',
+            # point_value = 20
             symbol = 'MNQ',
+            point_value = 2,
             tick_size = 0.25,
-            # point_value = 20, # NQ = 20
-            point_value = 2, # MNQ = 2
             margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
@@ -31,7 +31,7 @@ class LiveStrategy(BaselineStrategy):
         self.emas = emas
         self.params = params
 
-        # allow blank strategy for walk-forward composite out-of-sample
+        # allow blank strategy for walk-forward composite
         if params is None: return
 
         # unpack params
@@ -87,11 +87,6 @@ class LiveStrategy(BaselineStrategy):
         idx = self.current_idx
         self.bar_index += 1
         bar_index = self.bar_index
-
-        # # todo tradingview limitation ~20k bars
-        # tv_start = pd.Timestamp('2025-05-27T18:00:00', tz='America/Chicago')
-        # if tv_start > idx:
-        #     return
 
         # params
         fastAngle = self.fastAngle
@@ -197,7 +192,6 @@ class LiveStrategy(BaselineStrategy):
 
         # exit, fast crossover after hitting threshold
         if fastCrossover == 0:
-
             isExitLongFastCrossover = False
             isExitShortFastCrossover = False
 
@@ -260,8 +254,8 @@ class LiveStrategy(BaselineStrategy):
             or isExitLongFastMomentum
             or isExitLongTakeProfit
             or self.is_last_bar
-            or isExitLongFlip
-        )
+            or isExitLongFlip)
+
         if isExitLong:
 
             comment = ''
@@ -282,8 +276,8 @@ class LiveStrategy(BaselineStrategy):
             or isExitShortFastMomentum
             or isExitShortTakeProfit
             or self.is_last_bar
-            or isExitShortFlip
-        )
+            or isExitShortFlip)
+
         if isExitShort:
 
             comment = ''
@@ -313,7 +307,7 @@ class LiveStrategy(BaselineStrategy):
             index = data.index,
             dtype = float)
 
-        # fractals
+        # plot fractals
         lastBuyPrice = 0
         lastSellPrice = 0
         for idx in data.index:
@@ -339,36 +333,6 @@ class LiveStrategy(BaselineStrategy):
 
             color = mpl.colors.rgb2hex(ribbon_colors[i % 10])
             fplt.plot(self.emas.loc[:, column], color=color, width=2, ax=ax)
-
-        # # emas
-        # for idx in data.index:
-        #
-        #     fast = self.fast[idx]
-        #     slow = self.slow[idx]
-        #     slowLong = self.slowLongMinutes[idx]
-        #     slowShort = self.slowShortMinutes[idx]
-        #     slowSlope = self.slowSlope[idx]
-        #
-        #     if (
-        #         fast > slow
-        #         and slowSlope > self.slowAngle
-        #         and self.trendStartMinutes < slowLong < self.trendEndMinutes):
-        #
-        #         entities.loc[idx, 'longEnabled'] = slow
-        #
-        #     elif (
-        #         slow > fast
-        #         and -self.slowAngle > slowSlope
-        #         and self.trendStartMinutes < slowShort < self.trendEndMinutes):
-        #
-        #         entities.loc[idx, 'shortEnabled'] = slow
-        #
-        #     else:
-        #         entities.loc[idx, 'disabled'] = slow
-        #
-        # fplt.plot(entities['longEnabled'], style='-', color=blue, ax=ax, width = 10)
-        # fplt.plot(entities['shortEnabled'], style='-', color=aqua, ax=ax, width = 10)
-        # fplt.plot(entities['disabled'], style='-', color=yellow, ax=ax, width = 1)
 
         if shouldShow: fplt.show()
         return ax

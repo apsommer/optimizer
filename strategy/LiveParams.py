@@ -11,8 +11,7 @@ class LiveParams:
         slowAngleFactor,
         coolOffMinutes,
         trendStartHour,
-        trendEndHour,
-    ):
+        trendEndHour):
 
         self.fastMinutes = fastMinutes
         self.disableEntryMinutes = disableEntryMinutes
@@ -39,8 +38,7 @@ class LiveParams:
             * len(self.slowAngleFactor)
             * len(self.coolOffMinutes)
             * len(self.trendStartHour)
-            * len(self.trendEndHour)
-        )
+            * len(self.trendEndHour))
 
     @property
     def one_line(self):
@@ -55,12 +53,7 @@ class LiveParams:
             f'{self.slowAngleFactor}, '
             f'{self.coolOffMinutes}, '
             f'{self.trendStartHour}, '
-            f'{self.trendEndHour}]'
-        )
-
-    @property
-    def default(self):
-        pass
+            f'{self.trendEndHour}]')
 
     def __repr__(self):
         return (
@@ -74,5 +67,4 @@ class LiveParams:
             f'\n\t\tslowAngleFactor: {self.slowAngleFactor}'
             f'\n\t\tcoolOffMinutes: {self.coolOffMinutes}'
             f'\n\t\ttrendStartHour: {self.trendStartHour}'
-            f'\n\t\ttrendEndHour: {self.trendEndHour}'
-        )
+            f'\n\t\ttrendEndHour: {self.trendEndHour}')
