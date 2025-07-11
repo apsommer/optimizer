@@ -1,25 +1,13 @@
-import multiprocessing
-import os
-import random
-import re
 import shutil
-import time
 import warnings
+from multiprocessing import Pool
 
-import pandas as pd
-from tqdm import tqdm
-from multiprocessing import Pool, Process
-
-from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
-
 from model.Fitness import Fitness
-from strategy.FastParams import FastParams
 from strategy.LiveParams import LiveParams
-from strategy.LiveStrategy import LiveStrategy
 from utils import utils
-from utils.utils import *
 from utils.metrics import *
+from utils.utils import *
 
 ''' walk-forward analysis '''
 # INPUT ###########################################################
@@ -38,11 +26,11 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [105],
-    fastMomentumMinutes = [60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125],
+    fastMomentumMinutes = [75], # [60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125],
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.25, .3, .35, .4, .45, .5, .55, .6],
+    takeProfitPercent = [.4], # [.25, .3, .35, .4, .45, .5, .55, .6],
     fastAngleFactor = [0],
-    slowMinutes = [2555, 3555, 4555, 5555],
+    slowMinutes = [2555], # [2555, 3555, 4555, 5555],
     slowAngleFactor = [15],
     coolOffMinutes = [5],
     trendStartHour = [2],

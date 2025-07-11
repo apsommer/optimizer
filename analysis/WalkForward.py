@@ -1,24 +1,11 @@
-import os
-import pickle
-import shutil
-from datetime import timezone
-
-import pandas as pd
-from numpy import linspace
-from tqdm import tqdm
-
-from analysis.Engine import Engine
-from analysis.Analyzer import Analyzer
-from model.Fitness import Fitness
-from rebuild_wfa import best_fitness
-from strategy.FastStrategy import FastStrategy
-from strategy.LiveParams import LiveParams
-from strategy.LiveStrategy import LiveStrategy
-from utils import utils
-from utils.constants import *
-from utils.utils import *
-from utils.metrics import *
 import finplot as fplt
+
+from analysis.Analyzer import Analyzer
+from analysis.Engine import Engine
+from model.Fitness import Fitness
+from strategy.LiveStrategy import LiveStrategy
+from utils.metrics import *
+from utils.utils import *
 
 class WalkForward():
 
@@ -104,16 +91,9 @@ class WalkForward():
                 strategy = strategy)
             engine.run()
 
-            # get annual returns for the pair
-            IS_metrics = IS_engine['metrics']
-            IS_return = next((metric.value for metric in IS_metrics if metric.name == 'annual_return'), None)
-            OS_return = next((metric.value for metric in engine.metrics if metric.name == 'annual_return'), None)
-
-            # catch engine with no trades
-            if OS_return is None: efficiency = np.nan
-            else: efficiency = (OS_return / IS_return) * 100
-
-            metric = Metric('efficiency', efficiency, '%', 'Efficiency', formatter = None, id = run)
+            # capture in-sample profit for efficiency calculation
+            IS_profit = next(metric.value for metric in IS_engine['metrics'] if metric.name == 'profit')
+            metric = Metric('IS_profit', IS_profit, 'USD', 'In-sample profit', formatter = None, id = run)
             engine.metrics.append(metric)
 
             # persist full engine
@@ -124,7 +104,7 @@ class WalkForward():
 
         cash_series = pd.Series()
         trades = []
-        efficiencies = []
+        IS_profits = []
         invalid_runs = []
 
         # stitch OS runs together
@@ -152,9 +132,9 @@ class WalkForward():
                 engine_trades = engine['trades']
                 engine_metrics = engine['metrics']
 
-                # capture efficiency
-                metric = next(metric for metric in engine_metrics if metric.name == 'efficiency')
-                efficiencies.append(metric.value)
+                # capture in-sample profits for efficiency calculation
+                metric = next(metric for metric in engine_metrics if metric.name == 'profit')
+                IS_profits.append(metric.value)
 
                 # adjust series to starting balance
                 engine_cash_series += balance - initial_cash
@@ -215,8 +195,7 @@ class WalkForward():
         engine.analyze()
 
         # todo efficiency
-        # avg_eff = np.mean(effs)
-        # print(f'fitness: {fitness}, avg_eff: {avg_eff}')
+        print(f'fitness: {fitness}, IS_profits: {IS_profits}')
 
         # capture number of invalid analyzers
         if len(invalid_runs) > 0:
