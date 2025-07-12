@@ -21,18 +21,19 @@ shouldBuildEmas = True
 shouldBuildFractals = True
 
 # genetic params
-generations = 100
-mutation_rate = 0.05
+population_size = 50
+generations = 10
+mutation_rate = 0.1
 
 # analyzer
 opt = LiveParams(
-    fastMinutes = [25],
+    fastMinutes = [25, 45, 125],
     disableEntryMinutes = [55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135],
     fastMomentumMinutes = [55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135],
     fastCrossoverPercent = [0],
     takeProfitPercent = [.25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75],
     fastAngleFactor = [0],
-    slowMinutes = [2555],
+    slowMinutes = [1555, 2055, 2555, 3055],
     slowAngleFactor = [0, 5, 10, 15, 20, 25],
     coolOffMinutes = [5],
     trendStartHour = [0, 4, 8, 12],
@@ -66,7 +67,16 @@ fractals = unpack('fractals', parent_path)
 shutil.rmtree(path, ignore_errors=True)
 
 # init genetic analysis
-genetic = Genetic()
+genetic = Genetic(
+    population_size = population_size,
+    generations = generations,
+    mutation_rate = mutation_rate,
+    data = data,
+    emas = emas,
+    fractals = fractals,
+    opt = opt,
+    path = path
+)
 
 # multiprocessing uses all cores
 cores = multiprocessing.cpu_count() # 16 available
