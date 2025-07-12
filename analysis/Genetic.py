@@ -7,7 +7,7 @@ from strategy.LiveStrategy import LiveStrategy
 
 class Genetic:
 
-    def __init__(self, population_size, generations, mutation_rate, data, emas, fractals, opt, path):
+    def __init__(self, population_size, generations, mutation_rate, data, emas, fractals, opt, path, num_cores):
 
         self.population_size = population_size
         self.generations = generations
@@ -17,6 +17,7 @@ class Genetic:
         self.fractals = fractals
         self.opt = opt
         self.path = path
+        self.num_cores = num_cores
 
         # extract optimization params
         self.fastMinutes = self.opt.fastMinutes
@@ -51,12 +52,18 @@ class Genetic:
 
             self.population.append(individual)
 
-    def evaluate(self, generation, population):
+    def evaluate(self, generation, core):
 
-        for individual in population:
+        group_size = self.population_size / self.num_cores
+        start = group_size * core
+        end = start + group_size
+
+        group = self.population[start : end]
+
+        for i, individual in enumerate(group):
 
             # init strategy and engine
-            id = str(generation) + '_' + str(individual)
+            id = str(generation) + '_' + str(i + group_size * core)
             strategy = LiveStrategy(self.data, self.emas, self.fractals, individual)
             engine = Engine(id, strategy)
 
