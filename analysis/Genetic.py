@@ -64,4 +64,11 @@ class Genetic:
             engine.run()
             engine.save(self.path, False)
 
-        
+    def selection(self, population, fitness):
+
+        selected = []
+
+        # unpack engines in population
+        # collect their metrics
+        # sort on fitness
+        # return top slice of N individuals
