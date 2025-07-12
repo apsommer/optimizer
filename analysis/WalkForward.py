@@ -326,20 +326,17 @@ class WalkForward():
                 buy_hold = size * point_value * delta_df + initial_cash
                 fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
-            # plot out-of-sample window boundaries
-            for run in range(self.runs):
+                # plot out-of-sample window boundaries
+                for run in range(self.runs):
 
-                # isolate samples
-                IS_len = self.IS_len
-                OS_len = self.OS_len
-                IS_start = run * OS_len
-                IS_end = IS_start + IS_len
-                OS_start = IS_end
+                    # isolate samples
+                    IS_len = self.IS_len
+                    OS_len = self.OS_len
+                    IS_start = run * OS_len
+                    IS_end = IS_start + IS_len
+                    OS_start = IS_end
 
-                idx = self.data.index[OS_start]
-                fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_gray, ax = ax)
-
-                if run == 9:
-                    pass
+                    idx = self.data.index[OS_start]
+                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_gray, ax = ax)
 
         fplt.show()
