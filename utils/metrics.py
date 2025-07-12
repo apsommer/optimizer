@@ -37,8 +37,7 @@ def get_engine_metrics(engine):
     # check trades exist
     num_trades = len(engine.trades)
     if num_trades == 0:
-        print('Engine has no trades\n')
-        return [ Metric('no_trades', None, None, 'Strategy: No trades') ]
+        return [ Metric('no_trades', None, None, f'Engine {engine.id} has no trades') ]
 
     trades = engine.trades
     cash_series = engine.cash_series
@@ -63,7 +62,7 @@ def get_engine_metrics(engine):
     wins = [ trade.profit for trade in trades if trade.profit > 0 ]
     losses = [ trade.profit for trade in trades if 0 > trade.profit ]
     gross_profit = sum(wins)
-    gross_loss = -sum(losses)
+    gross_loss = sum(losses)
 
     total_return = (profit / initial_cash) * 100
     annual_return = ((abs(cash) / initial_cash) ** (1 / (days / 365)) - 1) * 100
@@ -71,11 +70,11 @@ def get_engine_metrics(engine):
 
     if gross_loss == 0: profit_factor = np.inf
     elif gross_profit == 0: profit_factor = -np.inf
-    else: profit_factor = gross_profit / gross_loss
+    else: profit_factor = gross_profit / abs(gross_loss)
 
+    # calculate maximum drawdown
     initial_price = cash_series.iloc[0]
     roll_max = cash_series.cummax() # series, rolling maximum
-
     daily_drawdown = cash_series / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin() # series, rolling minimum
 
@@ -97,10 +96,31 @@ def get_engine_metrics(engine):
     expectancy = ((win_rate / 100) * average_win) + ((loss_rate / 100) * average_loss)
 
     # percent long, short
-    longs = len([1 for trade in trades if trade.is_long])
-    shorts = len([1 for trade in trades if trade.is_short])
-    long_percent = round((longs / num_trades) * 100)
-    short_percent = round((shorts / num_trades) * 100)
+    longs = [trade for trade in trades if trade.is_long]
+    shorts = [trade for trade in trades if trade.is_short]
+    percent_long = round((len(longs) / num_trades) * 100)
+    percent_short = round((len(shorts) / num_trades) * 100)
+
+    profitable_longs = [trade.profit for trade in longs if trade.profit > 0]
+    losing_longs = [trade.profit for trade in longs if 0 >= trade.profit]
+    profitable_shorts = [trade.profit for trade in shorts if trade.profit > 0]
+    losing_shorts = [trade.profit for trade in shorts if 0 > trade.profit]
+
+    avg_win_longs = np.mean(profitable_longs)
+    avg_loss_longs = np.mean(losing_longs)
+    avg_win_shorts = np.mean(profitable_shorts)
+    avg_loss_shorts = np.mean(losing_shorts)
+
+    if len(longs) == 0: win_rate_long = np.nan
+    else: win_rate_long = (len(profitable_longs) / len(longs)) * 100
+
+    if len(shorts) == 0: win_rate_short = np.nan
+    else: win_rate_short = (len(profitable_shorts) / len(shorts)) * 100
+
+    # catch composite with final in-sample not profitable
+    params = engine.strategy.params
+    if params is None:
+        params = 'Last in-sample analyzer not profitable!'
 
     return [
 
@@ -132,15 +152,26 @@ def get_engine_metrics(engine):
         Metric('average_win', average_win, 'USD', 'Average win'),
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
-        Metric('long_percent', long_percent, '%', 'Long'),
-        Metric('short_percent', short_percent, '%', 'Short')
+
+        Metric('long_percent', percent_long, '%', 'Long'),
+        Metric('short_percent', percent_short, '%', 'Short'),
+        Metric('avg_win_longs', avg_win_longs, 'USD', 'Average win (long)'),
+        Metric('avg_loss_longs', avg_loss_longs, 'USD', 'Average loss (long)'),
+        Metric('avg_win_shorts', avg_win_shorts, 'USD', 'Average win (short)'),
+        Metric('avg_loss_shorts', avg_loss_shorts, 'USD', 'Average loss (short)'),
+        Metric('win_rate_long', win_rate_long, '%', 'Win rate (long)'),
+        Metric('win_rate_short', win_rate_short, '%', 'Win rate (short)'),
+
+        Metric('params', params, None, 'Params'),
     ]
 
 def get_analyzer_metrics(analyzer):
 
     start_date = analyzer.data.index[0]
     end_date = analyzer.data.index[-1]
-    num_engines = len(analyzer.engines)
+    num_engines = analyzer.opt.size
+    num_engines_profitable = len(analyzer.engine_metrics)
+    profitable_engine_percent = (num_engines_profitable / num_engines) * 100
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
     candles = len(analyzer.data.index)
 
@@ -152,6 +183,7 @@ def get_analyzer_metrics(analyzer):
         Metric('header', None, None, 'Analyzer:'),
         Metric('id', analyzer.id, None, 'Id'),
         Metric('num_engines', num_engines, None, 'Engines'),
+        Metric('profitable_engine_percent', profitable_engine_percent, '%', 'Profitable engines'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
@@ -172,23 +204,26 @@ def init_walk_forward_metrics(wfa):
     start_date = format_timestamp(start_date)
     end_date = format_timestamp(end_date)
 
+    opt = wfa.opt
+
     # pretty
     candles = '{:,}'.format(candles)
     runs = str(wfa.runs) + ' + 1 last in-sample'
-    in_sample = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
-    out_of_sample = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
+    in_sample_days = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
+    out_of_sample_days = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
 
     return [
         Metric('header', None, None, 'Walk forward:'),
         Metric('months', months, None, 'Months'),
-        Metric('start_date', start_date, None, 'Start date'),
-        Metric('end_date', end_date, None, 'End date'),
-        Metric('candles', candles, None, 'Candles'),
-        Metric('days', days, None, 'Days'),
         Metric('percent', wfa.percent, '%', 'Percent'),
         Metric('runs', runs, None, 'Runs'),
-        Metric('in_sample', in_sample, None, 'In-sample days'),
-        Metric('out_of_sample', out_of_sample, None, 'Out-of-sample days'),
+        Metric('in_sample_days', in_sample_days, None, 'In-sample days'),
+        Metric('out_of_sample_days', out_of_sample_days, None, 'Out-of-sample days'),
+        Metric('start_date', start_date, None, 'Start date'),
+        Metric('end_date', end_date, None, 'End date'),
+        # Metric('candles', candles, None, 'Candles'),
+        # Metric('days', days, None, 'Days'),
+        Metric('opt', opt, None, 'Optimization'),
     ]
 
 def get_walk_forward_results_metrics(wfa):
@@ -204,7 +239,7 @@ def get_walk_forward_results_metrics(wfa):
 
     return [
         Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
-        Metric('params', str(wfa.best_params), None, 'Params'),
+        Metric('params', wfa.best_params.one_line, None, 'Params'),
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),

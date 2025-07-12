@@ -1,44 +1,41 @@
-import multiprocessing
-import os
-import random
-import re
 import shutil
-import time
 import warnings
+from multiprocessing import Pool
 
-import pandas as pd
-from tqdm import tqdm
-from multiprocessing import Pool, Process
-
-from analysis.Engine import Engine
 from analysis.WalkForward import WalkForward
-
 from model.Fitness import Fitness
-from strategy.LiveStrategy import LiveStrategy
+from strategy.LiveParams import LiveParams
 from utils import utils
-from utils.utils import *
 from utils.metrics import *
+from utils.utils import *
 
-''' execute full walk-forward analysis '''
+''' walk-forward analysis '''
 # INPUT ###########################################################
 
-# data
-num_months = 6
+# data, indicators
+num_months = 12
 isNetwork = False
-
-# indicators
-shouldBuildIndicators = False
+shouldBuildEmas = False
+shouldBuildFractals = False
 
 # walk forward
 percent = 20
 runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 
 # analyzer
-opt = {
-    'takeProfitPercent': np.linspace(0.25, 0.75, 6),
-    'stopLossPercent': np.linspace(0.5, 1.5, 6),
-    'slowAngleFactor': np.linspace(5, 20, 4),
-}
+opt = LiveParams(
+    fastMinutes = [25],
+    disableEntryMinutes = [105],
+    fastMomentumMinutes = [75], # [60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125],
+    fastCrossoverPercent = [0],
+    takeProfitPercent = [.4], # [.25, .3, .35, .4, .45, .5, .55, .6],
+    fastAngleFactor = [0],
+    slowMinutes = [2555], # [2555, 3555, 4555, 5555],
+    slowAngleFactor = [15],
+    coolOffMinutes = [5],
+    trendStartHour = [2],
+    trendEndHour = [48],
+)
 
 ###################################################################
 
@@ -56,9 +53,11 @@ path = parent_path + '/' + str(percent) + '_' + str(runs)
 data = utils.getOhlc(num_months, isNetwork)
 
 # build indicators
-if shouldBuildIndicators: build_indicators(data, parent_path)
+if shouldBuildEmas or shouldBuildFractals:
+    print(f'Indicators:')
+if shouldBuildEmas: build_emas(data, parent_path)
+if shouldBuildFractals: build_fractals(data, parent_path)
 emas = unpack('emas', parent_path)
-slopes = unpack('slopes', parent_path)
 fractals = unpack('fractals', parent_path)
 
 # remove any residual analyses
@@ -71,12 +70,11 @@ wfa = WalkForward(
     runs = runs,
     data = data,
     emas = emas,
-    slopes = slopes,
     fractals = fractals,
     opt = opt,
     path = path)
 
-# multiprocessing use all cores
+# multiprocessing uses all cores
 cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave 1 for basic computer tasks
 fitnesses = [fitness for fitness in Fitness]
@@ -110,7 +108,9 @@ pool.join()
 
 # select composite of interest
 wfa.analyze()
+wfa.save()
 print_metrics(get_walk_forward_results_metrics(wfa))
+wfa.print_params_of_fittest_composite()
 
 # print last in-sample analyzer
 IS_path = wfa.path + '/' + str(runs)
@@ -123,4 +123,4 @@ pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
 
 # plot results
-wfa.plot_equity()
+wfa.plot()

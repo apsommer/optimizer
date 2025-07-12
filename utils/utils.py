@@ -3,12 +3,12 @@ import os
 import pickle
 import re
 import time
-from datetime import timedelta, datetime
-from inspect import trace
+from datetime import timedelta, datetime, timezone
+import matplotlib.pyplot as plt
 
 import databento as db
 import pandas as pd
-from sympy.plotting.textplot import linspace
+import pytz
 from tqdm import tqdm
 
 import local.api_keys as keys
@@ -34,7 +34,7 @@ def getOhlc(num_months, isNetwork):
         print(f'Upload OHLC from {csv_filename}')
         return ohlc
 
-    print('Downloading OHLC from databento, costs $$$')
+    print(f'$$$ Download OHLC from databento as {csv_filename}')
 
     # request network data synchronous
     client = db.Historical(keys.bento_api_key) # $$$
@@ -74,12 +74,57 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
-def build_indicators(data, path):
+def build_emas(data, path):
 
-    print('Indicators:')
+    # window length
+    mins = [25, 2555, 3555, 4555, 5555]
 
-    build_emas(data, path)
-    build_fractals(data, path)
+    # init container
+    emas = pd.DataFrame(index = data.index)
+
+    for min in tqdm(
+        iterable = mins,
+        colour = yellow,
+        bar_format = '        Averages:       {percentage:3.0f}%|{bar:100}{r_bar}'):
+
+        # column names
+        col_ema = 'ema_' + str(min)
+        col_slopes = 'slope_' + str(min)
+        col_long = 'long_' + str(min)
+        col_short = 'short_' + str(min)
+
+        # smooth averages
+        smooth = round(0.2 * min)
+
+        raw = pd.Series(data.Open).ewm(span = min).mean()
+        smoothed = raw.ewm(span = smooth).mean()
+        emas.loc[:, col_ema] = smoothed
+
+        # slope of average
+        slope = get_slope(smoothed)
+        emas.loc[:, col_slopes] = slope
+
+        # build trend counts
+        longMinutes = 0
+        shortMinutes = 0
+        for idx in tqdm(
+            leave = False,
+            position = 1,
+            iterable = data.index,
+            colour = aqua,
+            bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):
+
+            if slope[idx] > 0:
+                longMinutes += 1
+                shortMinutes = 0
+            else:
+                longMinutes = 0
+                shortMinutes += 1
+
+            emas.loc[idx, col_long] = longMinutes
+            emas.loc[idx, col_short] = shortMinutes
+
+    save(emas, 'emas', path)
 
 def build_fractals(data, path):
 
@@ -98,7 +143,7 @@ def build_fractals(data, path):
         colour = yellow,
         bar_format = '        Fractals:       {percentage:3.0f}%|{bar:100}{r_bar}'):
 
-        # skip first 2 bars and last 2 bars
+        # skip first 2 bars and last 2 bars, due to definition -2:+2
         if 2 < i < len(data.index) - 3:
 
             # update prices, if needed
@@ -121,39 +166,6 @@ def build_fractals(data, path):
 
     save(fractals, 'fractals', path)
 
-def build_emas(data, path):
-
-    fastestMinutes = 60
-    slowestMinutes = 2160
-    num = 2
-
-    ###################################################################
-
-    # spread of averages from fastest to slowest
-    mins = np.linspace(fastestMinutes, slowestMinutes, num)
-
-    # init containers
-    emas = pd.DataFrame(index = data.index)
-    slopes = pd.DataFrame(index = data.index)
-
-    for min in tqdm(
-        iterable = mins,
-        colour = yellow,
-        bar_format = '        Averages:       {percentage:3.0f}%|{bar:100}{r_bar}'):
-
-        # smooth averages
-        smooth = round(0.2 * min)
-
-        raw = pd.Series(data.Open).ewm(span = min).mean()
-        smoothed = raw.ewm(span = smooth).mean()
-        slope = get_slope(smoothed)
-
-        emas.loc[:, min] = smoothed
-        slopes.loc[:, min] = slope
-
-    save(emas, 'emas', path)
-    save(slopes, 'slopes', path)
-
 def get_slope(series):
 
     slope = pd.Series(index=series.index)
@@ -166,23 +178,28 @@ def get_slope(series):
 
     return np.rad2deg(np.atan(slope))
 
-def init_plot(pos, title):
+def init_plot(window, title):
 
     # window position, maximized
-    fplt.winx = pos * 3840
+    fplt.winx = window * 3840
     fplt.winy = 0
     fplt.winw = 3840
     fplt.winh = 2160
 
     # background
-    fplt.background = light_black
+    fplt.background = dark_black
     fplt.candle_bull_color = dark_gray
     fplt.candle_bull_body_color = dark_gray
     fplt.candle_bear_color = dark_gray
     fplt.candle_bear_body_color = dark_gray
     fplt.cross_hair_color = white
 
-    # todo font size
+    # font
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Ubuntu']
+
+    # adjust timezone to CME exchange
+    fplt.display_timezone = pytz.timezone('America/Chicago')
 
     # init finplot
     ax = fplt.create_plot(title=title)

@@ -9,31 +9,27 @@ class BaselineStrategy():
         self.orders = []
         self.params = None
 
-    def buy(self, ticker, size, sentiment='long'):
+    def buy(self, ticker, size, comment=''):
         self.orders.append(
             Order(
                 ticker = ticker,
-                sentiment = sentiment,
+                sentiment = 'long',
                 size = size,
                 idx = self.current_idx,
                 bar_index = self.bar_index,
-                price = self.close))
+                price = self.close,
+                comment = comment))
 
-    def sell(self, ticker, size, sentiment='short'):
+    def sell(self, ticker, size, comment=''):
         self.orders.append(
             Order(
                 ticker = ticker,
-                sentiment = sentiment,
+                sentiment = 'short',
                 size = -size,
                 idx = self.current_idx,
                 bar_index = self.bar_index,
-                price = self.close))
-
-    def flat(self, ticker, size, sentiment='flat'):
-        if self.is_long:
-            self.sell(ticker, size, sentiment)
-        if self.is_short:
-            self.buy(ticker, size, sentiment)
+                price = self.close,
+                comment = comment))
 
     @property
     def position_size(self):
@@ -58,6 +54,10 @@ class BaselineStrategy():
     @property
     def close(self):
         return self.data.loc[self.current_idx]['Close']
+
+    @property
+    def is_last_bar(self):
+        return self.current_idx == self.data.index[-1]
 
     """ Override by implementers """
     def on_bar(self):

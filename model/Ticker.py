@@ -6,4 +6,8 @@ class Ticker:
         self.margin = margin
 
     def __repr__(self):
-        return f'\n\t\tsymbol: {self.symbol}\n\t\ttick_size: {self.tick_size}\n\t\tpoint_value: {self.point_value}\n\t\tmargin: {self.margin}'
+        return (
+            f'\n\t\tsymbol: {self.symbol}'
+            f'\n\t\t'f'tick_size: {self.tick_size}'
+            f'\n\t\tpoint_value: {self.point_value}'
+            f'\n\t\tmargin: {self.margin}')
