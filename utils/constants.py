@@ -19,7 +19,7 @@ white = '#ffffff'
 light_gray = '#9e9e9e'
 dark_gray = '#525252'
 dark_black = '#141414'
-light_black = '#2e2e2e'
+light_black = '#5e5e5e'
 
 initial_cash = 10000
 

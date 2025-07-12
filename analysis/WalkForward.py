@@ -153,17 +153,10 @@ class WalkForward():
                 OS_start = IS_end
                 OS_end = OS_start + OS_len
 
-                # init index
-                timestamps = pd.date_range(
-                    start = self.data.index[OS_start],
-                    end = self.data.index[OS_end],
-                    freq = '1min')
+                engine_cash_series = pd.Series(
+                    index = self.data.index[OS_start : OS_end],
+                    data = balance)
 
-                # no trades, or change in cash
-                engine_cash_series = pd.Series()
-                for timestamp in timestamps:
-                    if timestamp not in self.data.index: continue
-                    engine_cash_series[timestamp] = balance
                 engine_trades = []
 
             # cumulative cash series
@@ -195,7 +188,7 @@ class WalkForward():
         engine.analyze()
 
         # calculate efficiency
-        self.calculate_efficiency(fitness, IS_path, engine)
+        self.calculate_efficiency(IS_profits, engine)
 
         # capture number of invalid analyzers
         if len(invalid_runs) > 0:
@@ -204,7 +197,7 @@ class WalkForward():
 
         engine.save(self.path, True)
 
-    def calculate_efficiency(self, fitness, IS_profits, engine):
+    def calculate_efficiency(self, IS_profits, engine):
 
         # in-sample annual return
         IS_total_profit = sum(IS_profits)
@@ -333,17 +326,20 @@ class WalkForward():
                 buy_hold = size * point_value * delta_df + initial_cash
                 fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
-                # plot out-of-sample window boundaries
-                for run in range(self.runs):
+            # plot out-of-sample window boundaries
+            for run in range(self.runs):
 
-                    # isolate samples
-                    IS_len = self.IS_len
-                    OS_len = self.OS_len
-                    IS_start = run * OS_len
-                    IS_end = IS_start + IS_len
-                    OS_start = IS_end
+                # isolate samples
+                IS_len = self.IS_len
+                OS_len = self.OS_len
+                IS_start = run * OS_len
+                IS_end = IS_start + IS_len
+                OS_start = IS_end
 
-                    idx = self.data.index[OS_start]
-                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '_', color = light_black, ax = ax)
+                idx = self.data.index[OS_start]
+                fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_gray, ax = ax)
+
+                if run == 9:
+                    pass
 
         fplt.show()
