@@ -66,6 +66,10 @@ fractals = unpack('fractals', parent_path)
 # remove any residual analyses
 shutil.rmtree(path, ignore_errors=True)
 
+# multiprocessing uses all cores
+cores = multiprocessing.cpu_count() # 16 available
+cores -= 1 # leave 1 for basic computer tasks
+
 # init genetic analysis
 genetic = Genetic(
     population_size = population_size,
@@ -75,13 +79,9 @@ genetic = Genetic(
     emas = emas,
     fractals = fractals,
     opt = opt,
-    path = path
+    path = path,
+    cores = cores
 )
-
-# multiprocessing uses all cores
-cores = multiprocessing.cpu_count() # 16 available
-cores -= 1 # leave 1 for basic computer tasks
-fitnesses = [fitness for fitness in Fitness]
 
 # todo ...
 

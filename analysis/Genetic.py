@@ -7,7 +7,7 @@ from strategy.LiveStrategy import LiveStrategy
 
 class Genetic:
 
-    def __init__(self, population_size, generations, mutation_rate, data, emas, fractals, opt, path, num_cores):
+    def __init__(self, population_size, generations, mutation_rate, data, emas, fractals, opt, path, cores):
 
         self.population_size = population_size
         self.generations = generations
@@ -17,7 +17,7 @@ class Genetic:
         self.fractals = fractals
         self.opt = opt
         self.path = path
-        self.num_cores = num_cores
+        self.cores = cores
 
         # extract optimization params
         self.fastMinutes = self.opt.fastMinutes
@@ -54,7 +54,7 @@ class Genetic:
 
     def evaluate(self, generation, core):
 
-        group_size = self.population_size / self.num_cores
+        group_size = self.population_size / self.cores
         start = group_size * core
         end = start + group_size
 
