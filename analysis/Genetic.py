@@ -3,6 +3,7 @@ import random
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
+from utils.utils import unpack
 
 
 class Genetic:
@@ -60,22 +61,44 @@ class Genetic:
 
         group = self.population[start : end]
 
+        path = self.path + '/' + str(generation)
+
         for i, individual in enumerate(group):
 
             # init strategy and engine
-            id = str(generation) + '_' + str(i + group_size * core)
+            id = i + group_size * core
             strategy = LiveStrategy(self.data, self.emas, self.fractals, individual)
             engine = Engine(id, strategy)
 
             # run and save
             engine.run()
-            engine.save(self.path, False)
+            engine.save(path, False)
 
-    def selection(self, population, fitness):
+    def selection(self, generation, fitness, tournament_size = 3):
 
         selected = []
+        fitnesses = []
+        path = self.path + '/' + str(generation)
 
-        # unpack engines in population
-        # collect their metrics
-        # sort on fitness
-        # return top slice of N individuals
+        # unpack engines in generation
+        for i in range(len(self.population)):
+
+            engine_metrics = unpack(i, path)['metrics']
+            fitness_metric = next(metric for metric in engine_metrics if metric.name == fitness.value)
+            fitnesses.append(fitness_metric)
+
+        # # sort on fitness
+        # fitnesses = sorted(
+        #     fitnesses,
+        #     key = lambda it: it.value,
+        #     reverse = True)
+
+        # todo consider roulette wheel, rank-based, ...
+        # tournament selection
+        for i in range(len(self.population)):
+            group = random.sample(fitnesses, tournament_size)
+            winner = max(group, key = lambda metric: metric.value)
+            selected.append(winner)
+
+        # init next generation
+        self.population = selected

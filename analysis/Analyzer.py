@@ -10,7 +10,7 @@ class Analyzer:
     def __init__(self, id, data, emas, fractals, opt, wfa_path):
 
         self.id = id
-        self.data = data
+        self.data = data # todo perf: unpack these in each thread/process?
         self.emas = emas
         self.fractals = fractals
         self.opt = opt

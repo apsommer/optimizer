@@ -49,8 +49,7 @@ start_time = time.time()
 # organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
 csv_filename = 'data/' + data_name + '.csv'
-parent_path = 'gen/' + data_name
-path = parent_path + '/engines'
+path = 'gen/' + data_name
 
 # get ohlc prices
 data = utils.getOhlc(num_months, isNetwork)
@@ -58,10 +57,10 @@ data = utils.getOhlc(num_months, isNetwork)
 # build indicators
 if shouldBuildEmas or shouldBuildFractals:
     print(f'Indicators:')
-if shouldBuildEmas: build_emas(data, parent_path)
-if shouldBuildFractals: build_fractals(data, parent_path)
-emas = unpack('emas', parent_path)
-fractals = unpack('fractals', parent_path)
+if shouldBuildEmas: build_emas(data, path)
+if shouldBuildFractals: build_fractals(data, path)
+emas = unpack('emas', path)
+fractals = unpack('fractals', path)
 
 # remove any residual analyses
 shutil.rmtree(path, ignore_errors=True)
