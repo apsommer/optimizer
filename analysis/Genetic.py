@@ -1,9 +1,11 @@
 import random
 
+from tqdm import tqdm
+
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
-
+from utils.constants import *
 
 class Genetic:
 
@@ -58,22 +60,29 @@ class Genetic:
 
     def evaluate(self, core):
 
-        group_size = self.population_size / self.cores
-        start = group_size * core
-        end = start + group_size
+        group_size = int(self.population_size / self.cores)
+        start = int(group_size * core)
+        end = int(start + group_size)
 
         group = self.population[start : end]
 
-        for i, individual in enumerate(group):
+        with tqdm(
+            disable = core != 0, # show only 1 core
+            total = group_size,
+            colour = blue,
+            bar_format = '         Evaluate:      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
-            # init strategy and engine
-            id = i + group_size * core
-            strategy = LiveStrategy(self.data, self.emas, self.fractals, individual)
-            engine = Engine(id, strategy)
+            for i, individual in enumerate(group):
 
-            # run and save
-            engine.run()
-            self.engine_metrics.append(engine.metrics)
+                # init strategy and engine
+                id = i + group_size * core
+                strategy = LiveStrategy(self.data, self.emas, self.fractals, individual)
+                engine = Engine(id, strategy)
+
+                # run and save
+                engine.run()
+                self.engine_metrics.append(engine.metrics)
+                pbar.update()
 
         print(self.engine_metrics)
 

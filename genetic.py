@@ -13,11 +13,11 @@ from utils.utils import *
 # data, indicators
 num_months = 6
 isNetwork = False
-shouldBuildEmas = True
-shouldBuildFractals = True
+shouldBuildEmas = False
+shouldBuildFractals = False
 
 # genetic params
-population_size = 140
+population_size = 150
 generations = 10
 mutation_rate = 0.05
 
