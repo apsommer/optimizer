@@ -33,6 +33,10 @@ class Genetic:
         self.trendStartHour = self.opt.trendStartHour
         self.trendEndHour = self.opt.trendEndHour
 
+        # track population through generations
+        self.population = []
+        self.engine_metrics = []
+
         # init first population
         self.population = []
         for _ in range(self.population_size):
@@ -60,7 +64,6 @@ class Genetic:
         end = start + group_size
 
         group = self.population[start : end]
-
         path = self.path + '/' + str(generation)
 
         for i, individual in enumerate(group):
@@ -72,20 +75,17 @@ class Genetic:
 
             # run and save
             engine.run()
-            engine.save(path, False)
+            self.engine_metrics.append(engine.metrics)
 
-    def selection(self, generation, fitness, tournament_size = 3):
+    def selection(self, fitness, tournament_size = 3):
 
         selected = []
         fitnesses = []
-        path = self.path + '/' + str(generation)
 
-        # unpack engines in generation
-        for i in range(len(self.population)):
-
-            engine_metrics = unpack(i, path)['metrics']
-            fitness_metric = next(metric for metric in engine_metrics if metric.name == fitness.value)
-            fitnesses.append(fitness_metric)
+        # isolate fitness of interest
+        for metric in self.engine_metrics:
+            if metric.name == fitness.value:
+                fitnesses.append(metric)
 
         # # sort on fitness
         # fitnesses = sorted(
@@ -103,27 +103,34 @@ class Genetic:
         # init next generation
         self.population = selected
 
-    def crossover(self, mother, father):
+    def crossover(self):
 
-        # init children
-        son = mother
-        daughter = mother
+        next_generation = []
 
-        for chromosome, mother_gene in vars(mother).items():
+        # loop population in parent pairs
+        for i in range(0, len(self.population), 2):
 
-            # get father's gene
-            father_gene = father.chromosome
+            # init family
+            mother = self.population[i]
+            father = self.population[i + 1]
+            son, daughter = mother, father
 
-            # random 0 or 1
-            a = random.randint(0, 1)
-            b = random.randint(0, 1)
+            # random float between 0-1
+            alpha = random.random()
+            for chromosome, mother_gene in vars(mother).items():
 
-            if a == 0: son.chromosome = mother_gene
-            else: son.chromosome = father_gene
+                # get father's gene
+                father_gene = father.chromosome
 
-            if b == 0: daughter.chromosome = mother_gene
-            else: daughter.chromosome = father_gene
+                # blend (crossover) parents to construct children
+                son.chromosome = (alpha * mother_gene) + (1 - alpha) * father_gene
+                daughter.chromosome = (alpha * father_gene) + (1 - alpha) * mother_gene
 
-        return son, daughter
+                next_generation.append(son)
+                next_generation.append(daughter)
+
+        self.population = next_generation
+
+    def mutation(self):
 
 
