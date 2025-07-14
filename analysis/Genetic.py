@@ -3,7 +3,6 @@ import random
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
-from utils.utils import unpack
 
 
 class Genetic:
@@ -57,14 +56,13 @@ class Genetic:
 
             self.population.append(individual)
 
-    def evaluate(self, generation, core):
+    def evaluate(self, core):
 
         group_size = self.population_size / self.cores
         start = group_size * core
         end = start + group_size
 
         group = self.population[start : end]
-        path = self.path + '/' + str(generation)
 
         for i, individual in enumerate(group):
 
@@ -76,6 +74,8 @@ class Genetic:
             # run and save
             engine.run()
             self.engine_metrics.append(engine.metrics)
+
+        print(self.engine_metrics)
 
     def selection(self, fitness, tournament_size = 3):
 
@@ -142,5 +142,5 @@ class Genetic:
 
                     mutated_gene = random.randint(min(self.opt.chromosome), max(self.opt.chromosome))
                     individual.chromosome = mutated_gene
-                    
+
 

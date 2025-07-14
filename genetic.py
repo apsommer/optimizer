@@ -1,14 +1,10 @@
 import shutil
 import warnings
-from email.generator import Generator
 from multiprocessing import Pool
 
 from analysis.Genetic import Genetic
-from analysis.WalkForward import WalkForward
-from model.Fitness import Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
-from utils.metrics import *
 from utils.utils import *
 
 ''' genetic analysis '''
@@ -21,9 +17,9 @@ shouldBuildEmas = True
 shouldBuildFractals = True
 
 # genetic params
-population_size = 50
+population_size = 140
 generations = 10
-mutation_rate = 0.1
+mutation_rate = 0.05
 
 # analyzer
 opt = LiveParams(
@@ -49,7 +45,8 @@ start_time = time.time()
 # organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
 csv_filename = 'data/' + data_name + '.csv'
-path = 'gen/' + data_name
+parent_path = 'gen/' + data_name
+path = parent_path + '/engines'
 
 # get ohlc prices
 data = utils.getOhlc(num_months, isNetwork)
@@ -57,10 +54,10 @@ data = utils.getOhlc(num_months, isNetwork)
 # build indicators
 if shouldBuildEmas or shouldBuildFractals:
     print(f'Indicators:')
-if shouldBuildEmas: build_emas(data, path)
-if shouldBuildFractals: build_fractals(data, path)
-emas = unpack('emas', path)
-fractals = unpack('fractals', path)
+if shouldBuildEmas: build_emas(data, parent_path)
+if shouldBuildFractals: build_fractals(data, parent_path)
+emas = unpack('emas', parent_path)
+fractals = unpack('fractals', parent_path)
 
 # remove any residual analyses
 shutil.rmtree(path, ignore_errors=True)
@@ -82,7 +79,13 @@ genetic = Genetic(
     cores = cores
 )
 
-# todo ...
+#
+pool = Pool(
+    processes = cores,
+    initializer = set_process_name)
+pool.map(genetic.evaluate, range(cores))
+pool.close()
+pool.join()
 
 # print analysis time
 elapsed = time.time() - start_time
