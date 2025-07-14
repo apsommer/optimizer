@@ -1,11 +1,13 @@
 import random
 
+import numpy as np
 from tqdm import tqdm
 
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
 from utils.constants import *
+from utils.utils import *
 
 class Genetic:
 
@@ -60,17 +62,17 @@ class Genetic:
 
     def evaluate(self, core):
 
+        # segregate population into groups for each core process
         group_size = int(self.population_size / self.cores)
         start = int(group_size * core)
         end = int(start + group_size)
-
         group = self.population[start : end]
 
         with tqdm(
             disable = core != 0, # show only 1 core
             total = group_size,
             colour = blue,
-            bar_format = '         Evaluate:      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            bar_format = '        Evaluate:       {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
 
             for i, individual in enumerate(group):
 
@@ -81,33 +83,38 @@ class Genetic:
 
                 # run and save
                 engine.run()
-                self.engine_metrics.append(engine.metrics)
-                pbar.update()
+                engine.save(self.path, False)
 
-        print(self.engine_metrics)
+                pbar.update()
 
     def selection(self, fitness, tournament_size = 3):
 
         selected = []
         fitnesses = []
 
+        # unpack last generation
+        ids = np.arange(0, self.population_size, 1)
+        for id in ids:
+            engine_metrics = unpack(id, self.path)['metrics']
+            self.engine_metrics.extend(engine_metrics)
+
         # isolate fitness of interest
         for metric in self.engine_metrics:
             if metric.name == fitness.value:
                 fitnesses.append(metric)
 
-        # # sort on fitness
-        # fitnesses = sorted(
-        #     fitnesses,
-        #     key = lambda it: it.value,
-        #     reverse = True)
-
         # todo consider roulette wheel, rank-based, ...
         # tournament selection
         for i in range(len(self.population)):
+
+            # random select group of individuals
             group = random.sample(fitnesses, tournament_size)
             winner = max(group, key = lambda metric: metric.value)
-            selected.append(winner)
+
+            individual = next(metric.value for metric in self.engine_metrics
+                if metric.name == 'params' and metric.id == winner.id)
+
+            selected.append(individual)
 
         # init next generation
         self.population = selected

@@ -3,21 +3,23 @@ import warnings
 from multiprocessing import Pool
 
 from analysis.Genetic import Genetic
+from model.Fitness import Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
+from utils.metrics import print_metrics
 from utils.utils import *
 
 ''' genetic analysis '''
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 6
+num_months = 3
 isNetwork = False
 shouldBuildEmas = False
 shouldBuildFractals = False
 
 # genetic params
-population_size = 150
+population_size = 15
 generations = 10
 mutation_rate = 0.05
 
@@ -79,6 +81,8 @@ genetic = Genetic(
     cores = cores
 )
 
+# todo init some header metrics
+
 #
 pool = Pool(
     processes = cores,
@@ -86,6 +90,10 @@ pool = Pool(
 pool.map(genetic.evaluate, range(cores))
 pool.close()
 pool.join()
+
+genetic.selection(Fitness.PROFIT)
+print(genetic.population)
+print(f'size: {len(genetic.population)}')
 
 # print analysis time
 elapsed = time.time() - start_time
