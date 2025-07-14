@@ -102,3 +102,28 @@ class Genetic:
 
         # init next generation
         self.population = selected
+
+    def crossover(self, mother, father):
+
+        # init children
+        son = mother
+        daughter = mother
+
+        for chromosome, mother_gene in vars(mother).items():
+
+            # get father's gene
+            father_gene = father.chromosome
+
+            # random 0 or 1
+            a = random.randint(0, 1)
+            b = random.randint(0, 1)
+
+            if a == 0: son.chromosome = mother_gene
+            else: son.chromosome = father_gene
+
+            if b == 0: daughter.chromosome = mother_gene
+            else: daughter.chromosome = father_gene
+
+        return son, daughter
+
+
