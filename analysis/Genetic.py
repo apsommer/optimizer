@@ -1,4 +1,5 @@
 import random
+import copy
 
 import numpy as np
 from tqdm import tqdm
@@ -62,7 +63,7 @@ class Genetic:
 
     def evaluate(self, core):
 
-        # segregate population into groups for each core process
+        # segregate population into groups for each core process todo int or round? might miss 1?
         group_size = int(self.population_size / self.cores)
         start = int(group_size * core)
         end = int(start + group_size)
@@ -126,24 +127,31 @@ class Genetic:
         # loop population in parent pairs
         for i in range(0, len(self.population), 2):
 
+            # catch odd numbered population
+            if i + 1 == len(self.population):
+                next_generation.append(self.population[i])
+                continue
+
             # init family
             mother = self.population[i]
             father = self.population[i + 1]
-            son, daughter = mother, father
+            son = copy.copy(mother)
+            daughter = copy.copy(father)
 
-            # random float between 0-1
-            alpha = random.random()
             for chromosome, mother_gene in vars(mother).items():
 
+                # random float between 0-1
+                alpha = random.random()
+
                 # get father's gene
-                father_gene = father.chromosome
+                father_gene = getattr(father, chromosome)
 
                 # blend (crossover) parents to construct children
-                son.chromosome = (alpha * mother_gene) + (1 - alpha) * father_gene
-                daughter.chromosome = (alpha * father_gene) + (1 - alpha) * mother_gene
+                setattr(son, chromosome, (alpha * mother_gene) + (1 - alpha) * father_gene)
+                setattr(daughter, chromosome, (alpha * father_gene) + (1 - alpha) * mother_gene)
 
-                next_generation.append(son)
-                next_generation.append(daughter)
+            next_generation.append(son)
+            next_generation.append(daughter)
 
         self.population = next_generation
 

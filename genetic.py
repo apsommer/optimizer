@@ -22,6 +22,7 @@ shouldBuildFractals = False
 population_size = 15
 generations = 10
 mutation_rate = 0.05
+fitness = Fitness.PROFIT
 
 # analyzer
 opt = LiveParams(
@@ -91,9 +92,8 @@ pool.map(genetic.evaluate, range(cores))
 pool.close()
 pool.join()
 
-genetic.selection(Fitness.PROFIT)
-print(genetic.population)
-print(f'size: {len(genetic.population)}')
+genetic.selection(fitness)
+genetic.crossover()
 
 # print analysis time
 elapsed = time.time() - start_time
