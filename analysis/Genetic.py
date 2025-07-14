@@ -133,4 +133,14 @@ class Genetic:
 
     def mutation(self):
 
+        for individual in self.population:
+
+            for chromosome, gene in vars(individual).items():
+
+                alpha = random.random()
+                if alpha < self.mutation_rate:
+
+                    mutated_gene = random.randint(min(self.opt.chromosome), max(self.opt.chromosome))
+                    individual.chromosome = mutated_gene
+                    
 
