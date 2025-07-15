@@ -16,14 +16,14 @@ from utils.utils import *
 # data, indicators
 num_months = 12
 isNetwork = False
-shouldBuildEmas = True
-shouldBuildFractals = True
+shouldBuildEmas = False
+shouldBuildFractals = False
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 10
 mutation_rate = 0.05
-fitness = Fitness.DRAWDOWN_PER_PROFIT
+fitness = Fitness.PROFIT
 
 # analyzer
 opt = LiveParams(
@@ -82,7 +82,7 @@ genetic = Genetic(
     cores = cores)
 
 # todo init some header metrics
-
+print('Genetic:')
 bar_format = '        Generations:    {percentage:3.0f}%|{bar:100}{r_bar}'
 for generation in tqdm(
     iterable = range(generations),
@@ -108,10 +108,12 @@ for generation in tqdm(
     genetic.clean()
 
 # todo summary metrics
+for generation, metric in enumerate(genetic.best_engines):
+    print(f'Generation: {generation}, Engine: {metric.id}, Profit: {metric.value}')
 
 # display results
 winner = unpack(
-    id = genetic.best_engines[-1],
+    id = genetic.best_engines[-1].id,
     path = path + '/' + str(generations - 1))
 print_metrics(winner['metrics'])
 

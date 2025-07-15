@@ -74,7 +74,7 @@ class Genetic:
         end = int(start + group_size)
         group = self.population[start : end]
 
-        bar_format = '               ' + str(generation) + ':       {percentage:3.0f}%|{bar:100}{r_bar}'
+        bar_format = '                  ' + str(generation) + ':    {percentage:3.0f}%|{bar:100}{r_bar}'
         with tqdm(
             disable = core != 0, # show only 1 core
             position = 1,
@@ -122,7 +122,7 @@ class Genetic:
             reverse = True)
 
         # persist best engine in generation
-        self.best_engines.append(fitnesses[0].id)
+        self.best_engines.append(fitnesses[0])
 
         # todo consider roulette wheel, rank-based, ...
         # tournament selection
