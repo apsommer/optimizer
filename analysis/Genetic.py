@@ -158,16 +158,17 @@ class Genetic:
     def mutation(self):
 
         for individual in self.population:
-
             for chromosome, gene in vars(individual).items():
 
                 # random float between 0-1
                 alpha = random.random()
                 if self.mutation_rate > alpha:
 
-                    genes = getattr(self, chromosome)
-                    mutated_gene = random.choice(genes)
+                    # select gene at random
+                    available_genes = getattr(self, chromosome)
+                    mutated_gene = random.choice(available_genes)
 
+                    # mutate gene
                     setattr(individual, chromosome, mutated_gene)
 
 
