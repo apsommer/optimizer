@@ -158,7 +158,7 @@ class Genetic:
     def mutation(self):
 
         for individual in self.population:
-            for chromosome, gene in vars(individual).items():
+            for chromosome in vars(individual).keys():
 
                 # random float between 0-1
                 alpha = random.random()
@@ -171,4 +171,14 @@ class Genetic:
                     # mutate gene
                     setattr(individual, chromosome, mutated_gene)
 
+    def clean(self):
 
+        for individual in self.population:
+            for chromosome, individual_gene in vars(individual).items():
+
+                # align fastMinutes and slowMinutes to existing emas
+                available_genes = getattr(self, chromosome)
+                closest_gene = min(available_genes, key = lambda gene: abs(gene - individual_gene))
+
+                # align gene
+                setattr(individual, chromosome, closest_gene)
