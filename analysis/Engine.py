@@ -42,7 +42,7 @@ class Engine:
         for idx in tqdm(
             disable = not isFirstProcess,
             leave = False,
-            position = 1,
+            position = 2, # todo pass as arg, wfa = 1, genetic = 2
             iterable = self.data.index,
             colour = aqua,
             bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):

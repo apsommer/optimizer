@@ -14,16 +14,16 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 3
+num_months = 12
 isNetwork = False
-shouldBuildEmas = False
-shouldBuildFractals = False
+shouldBuildEmas = True
+shouldBuildFractals = True
 
 # genetic params
-population_size = 150
-generations = 5
+population_size = 15
+generations = 2
 mutation_rate = 0.05
-fitness = Fitness.PROFIT
+fitness = Fitness.DRAWDOWN_PER_PROFIT
 
 # analyzer
 opt = LiveParams(
@@ -83,7 +83,12 @@ genetic = Genetic(
 
 # todo init some header metrics
 
-for generation in range(generations):
+bar_format = '        Generations:    {percentage:3.0f}%|{bar:100}{r_bar}'
+for generation in tqdm(
+    iterable = range(generations),
+    position = 0,
+    colour = green,
+    bar_format = bar_format):
 
     #
     pool = Pool(
@@ -102,8 +107,13 @@ for generation in range(generations):
     genetic.mutation()
     genetic.clean()
 
-print()
-print_metrics(genetic.best_engines)
+# todo summary metrics
+
+# display results
+winner = unpack(
+    id = genetic.best_engines[-1],
+    path = path + '/' + str(generations - 1))
+print_metrics(winner['metrics'])
 
 # print analysis time
 elapsed = time.time() - start_time
