@@ -40,6 +40,7 @@ class Genetic:
         # track population through generations
         self.population = []
         self.engine_metrics = []
+        self.best_engines = []
 
         # init first population
         self.population = []
@@ -103,6 +104,15 @@ class Genetic:
         for metric in self.engine_metrics:
             if metric.name == fitness.value:
                 fitnesses.append(metric)
+
+        # sort by value
+        fitnesses = sorted(
+            fitnesses,
+            key = lambda it: it.value,
+            reverse = True)
+
+        # persist best engine in generation
+        self.best_engines.append(fitnesses[0])
 
         # todo consider roulette wheel, rank-based, ...
         # tournament selection

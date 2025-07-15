@@ -83,22 +83,22 @@ genetic = Genetic(
 
 # todo init some header metrics
 
-#
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
-pool.map(genetic.evaluate, range(cores))
-pool.close()
-pool.join()
+for generations in range(generations):
 
-genetic.selection(fitness)
-print(genetic.population[:2])
-genetic.crossover()
-print(genetic.population[:2])
-genetic.mutation()
-print(genetic.population[:2])
-genetic.clean()
-print(genetic.population[:2])
+    #
+    pool = Pool(
+        processes = cores,
+        initializer = set_process_name)
+    pool.map(genetic.evaluate, range(cores))
+    pool.close()
+    pool.join()
+
+    genetic.selection(fitness)
+    genetic.crossover()
+    genetic.mutation()
+    genetic.clean()
+
+print(genetic.best_engines)
 
 # print analysis time
 elapsed = time.time() - start_time
