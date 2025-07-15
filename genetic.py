@@ -21,7 +21,7 @@ shouldBuildFractals = False
 # genetic params
 population_size = 15
 generations = 10
-mutation_rate = 0.05
+mutation_rate = 0.5
 fitness = Fitness.PROFIT
 
 # analyzer
@@ -93,7 +93,11 @@ pool.close()
 pool.join()
 
 genetic.selection(fitness)
+print(genetic.population[:2])
 genetic.crossover()
+print(genetic.population[:2])
+genetic.mutation()
+print(genetic.population[:2])
 
 # print analysis time
 elapsed = time.time() - start_time

@@ -161,10 +161,13 @@ class Genetic:
 
             for chromosome, gene in vars(individual).items():
 
+                # random float between 0-1
                 alpha = random.random()
-                if alpha < self.mutation_rate:
+                if self.mutation_rate > alpha:
 
-                    mutated_gene = random.randint(min(self.opt.chromosome), max(self.opt.chromosome))
-                    individual.chromosome = mutated_gene
+                    genes = getattr(self, chromosome)
+                    mutated_gene = random.choice(genes)
+
+                    setattr(individual, chromosome, mutated_gene)
 
 
