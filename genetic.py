@@ -1,5 +1,6 @@
 import shutil
 import warnings
+from functools import partial
 from multiprocessing import Pool
 
 from analysis.Genetic import Genetic
@@ -19,25 +20,24 @@ shouldBuildEmas = False
 shouldBuildFractals = False
 
 # genetic params
-population_size = 15
-generations = 10
-mutation_rate = 0.5
+population_size = 150
+generations = 5
+mutation_rate = 0.05
 fitness = Fitness.PROFIT
 
 # analyzer
 opt = LiveParams(
-    fastMinutes = [25, 45, 125],
-    disableEntryMinutes = [55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135],
-    fastMomentumMinutes = [55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135],
+    fastMinutes = [25, 45, 65],
+    disableEntryMinutes = np.linspace(55, 155, 101),
+    fastMomentumMinutes = np.linspace(55, 155, 101),
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75],
+    takeProfitPercent = np.linspace(.25, .75, 51),
     fastAngleFactor = [0],
     slowMinutes = [1555, 2055, 2555, 3055],
-    slowAngleFactor = [0, 5, 10, 15, 20, 25],
+    slowAngleFactor = np.linspace(0, 50, 51),
     coolOffMinutes = [5],
-    trendStartHour = [0, 4, 8, 12],
-    trendEndHour = [24, 36, 48, 60, 72, 84, 96],
-)
+    trendStartHour = np.linspace(0, 24, 25),
+    trendEndHour = np.linspace(24, 124, 101))
 
 ###################################################################
 
@@ -48,8 +48,8 @@ start_time = time.time()
 # organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
 csv_filename = 'data/' + data_name + '.csv'
-parent_path = 'gen/' + data_name
-path = parent_path + '/engines'
+parent_path = 'genetic/' + data_name
+path = parent_path + '/generations'
 
 # get ohlc prices
 data = utils.getOhlc(num_months, isNetwork)
@@ -78,27 +78,32 @@ genetic = Genetic(
     emas = emas,
     fractals = fractals,
     opt = opt,
-    path = path,
+    parent_path = path,
     cores = cores)
 
 # todo init some header metrics
 
-for generations in range(generations):
+for generation in range(generations):
 
     #
     pool = Pool(
         processes = cores,
         initializer = set_process_name)
-    pool.map(genetic.evaluate, range(cores))
+    pool.map(
+        func = partial(
+            genetic.evaluate, generation = generation),
+        iterable = range(cores))
     pool.close()
     pool.join()
 
-    genetic.selection(fitness)
+    # todo cascade from .evaluation and remove extra args
+    genetic.selection(fitness, generation)
     genetic.crossover()
     genetic.mutation()
     genetic.clean()
 
-print(genetic.best_engines)
+print()
+print_metrics(genetic.best_engines)
 
 # print analysis time
 elapsed = time.time() - start_time

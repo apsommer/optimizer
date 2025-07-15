@@ -12,7 +12,7 @@ from utils.utils import *
 
 class Genetic:
 
-    def __init__(self, population_size, generations, mutation_rate, data, emas, fractals, opt, path, cores):
+    def __init__(self, population_size, generations, mutation_rate, data, emas, fractals, opt, parent_path, cores):
 
         self.population_size = population_size
         self.generations = generations
@@ -21,7 +21,7 @@ class Genetic:
         self.emas = emas
         self.fractals = fractals
         self.opt = opt
-        self.path = path
+        self.parent_path = parent_path
         self.cores = cores
 
         # extract optimization params
@@ -38,6 +38,7 @@ class Genetic:
         self.trendEndHour = self.opt.trendEndHour
 
         # track population through generations
+        self.path = self.parent_path
         self.population = []
         self.engine_metrics = []
         self.best_engines = []
@@ -62,7 +63,10 @@ class Genetic:
 
             self.population.append(individual)
 
-    def evaluate(self, core):
+    def evaluate(self, core, generation):
+
+        # organize outputs
+        self.path = self.parent_path + '/' + str(generation)
 
         # segregate population into groups for each core process todo int or round? might miss 1?
         group_size = int(self.population_size / self.cores)
@@ -70,11 +74,13 @@ class Genetic:
         end = int(start + group_size)
         group = self.population[start : end]
 
+        bar_format = '    Generation ' + str(generation) + ':       {percentage:3.0f}%|{bar:100}{r_bar}'
+
         with tqdm(
             disable = core != 0, # show only 1 core
             total = group_size,
             colour = blue,
-            bar_format = '        Evaluate:       {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            bar_format = bar_format) as pbar:
 
             for i, individual in enumerate(group):
 
@@ -89,7 +95,10 @@ class Genetic:
 
                 pbar.update()
 
-    def selection(self, fitness, tournament_size = 3):
+    def selection(self, fitness, generation, tournament_size = 3):
+
+        # organize outputs
+        self.path = self.parent_path + '/' + str(generation)
 
         selected = []
         fitnesses = []
