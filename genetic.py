@@ -18,8 +18,8 @@ num_months = 3
 isNetwork = False
 
 # genetic params
-population_size = 150
-generations = 10
+population_size = 15
+generations = 2
 mutation_rate = 0.05
 fitness = Fitness.PROFIT
 
@@ -115,9 +115,7 @@ for generation in tqdm(
 genetic.analyze()
 
 # display results
-winner = unpack(
-    id = genetic.best_engines[-1].id,
-    path = path + '/' + str(generations - 1))
+
 print_metrics(winner['metrics'])
 
 # print analysis time

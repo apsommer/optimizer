@@ -284,6 +284,11 @@ def get_genetic_results_metrics(genetic):
     for generation, metric in enumerate(genetic.best_engines):
         generation_summary += f'\t{generation}: [{metric.id}], {genetic.fitness.pretty}: {round(metric.value)}\n'
 
-    return [
+    metrics = [
         Metric('generation_summary', generation_summary, None, 'Generation summary'),
     ]
+
+    # append best engine
+    metrics.extend(genetic.winner['metrics'])
+
+    return metrics

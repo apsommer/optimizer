@@ -40,7 +40,7 @@ class Genetic:
         self.population = []
         self.engine_metrics = []
         self.best_engines = []
-        self.best_engine = None
+        self.winner = None
 
         # init first population
         self.population = []
@@ -216,6 +216,11 @@ class Genetic:
         # isolate solution
         best_engine_metric = max(self.best_engines, key = lambda it: it.value)
         best_generation = self.best_engines.index(best_engine_metric)
+
+        # unpack best engine
+        self.winner = unpack(
+            id = best_engine_metric.id,
+            path = self.parent_path + '/' + str(best_generation))
 
         self.metrics += get_genetic_results_metrics(self)
 
