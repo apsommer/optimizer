@@ -4,18 +4,18 @@ import random
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
-from utils.metrics import init_genetic_metrics
+from utils.metrics import init_genetic_metrics, get_genetic_results_metrics
 from utils.utils import *
-
 
 class Genetic:
 
-    def __init__(self, population_size, generations, mutation_rate, data, emas, fractals, opt, parent_path, cores):
+    def __init__(self, population_size, generations, mutation_rate, fitness, data, emas, fractals, opt, parent_path, cores):
 
         self.population_size = population_size
         self.generations = generations
         self.mutation_rate = mutation_rate
         self.data = data
+        self.fitness = fitness
         self.emas = emas
         self.fractals = fractals
         self.opt = opt
@@ -40,6 +40,7 @@ class Genetic:
         self.population = []
         self.engine_metrics = []
         self.best_engines = []
+        self.best_engine = None
 
         # init first population
         self.population = []
@@ -69,7 +70,7 @@ class Genetic:
         # organize outputs
         self.path = self.parent_path + '/' + str(generation)
 
-        # segregate population into groups for each core process todo int or round? might miss 1?
+        # segregate population into groups for each core process
         group_size = int(self.population_size / self.cores)
         start = int(group_size * core)
         end = int(start + group_size)
@@ -97,7 +98,7 @@ class Genetic:
 
                 pbar.update()
 
-    def selection(self, fitness, generation, tournament_size = 3):
+    def selection(self, generation, tournament_size = 3):
 
         # organize outputs
         self.path = self.parent_path + '/' + str(generation)
@@ -113,7 +114,7 @@ class Genetic:
 
         # isolate fitness of interest
         for metric in self.engine_metrics:
-            if metric.name == fitness.value:
+            if metric.name == self.fitness.value:
                 fitnesses.append(metric)
 
         # sort by value
@@ -205,9 +206,16 @@ class Genetic:
         for individual in self.population:
             for chromosome, individual_gene in vars(individual).items():
 
-                # align fastMinutes and slowMinutes to existing emas
+                # align gene to closest available
                 available_genes = getattr(self, chromosome)
                 closest_gene = min(available_genes, key = lambda gene: abs(gene - individual_gene))
-
-                # align gene
                 setattr(individual, chromosome, closest_gene)
+
+    def analyze(self):
+
+        # isolate solution
+        best_engine_metric = max(self.best_engines, key = lambda it: it.value)
+        best_generation = self.best_engines.index(best_engine_metric)
+
+        self.metrics += get_genetic_results_metrics(self)
+

@@ -261,18 +261,29 @@ def init_genetic_metrics(genetic):
     cores = genetic.cores
 
     # format timestamp
-    start = format_timestamp(start)
-    end = format_timestamp(end)
+    start = format_timestamp(start_date)
+    end = format_timestamp(end_date)
 
     return [
         Metric('header', None, None, 'Genetic:'),
         Metric('months', months, None, 'Months'),
-        Metric('start_date', start_date, None, 'Start date'),
-        Metric('end_date', end_date, None, 'End date'),
+        Metric('start', start, None, 'Start'),
+        Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
         Metric('population_size', population_size, None, 'Population size'),
         Metric('generations', generations, None, 'Generations'),
         Metric('mutation_rate', mutation_rate, '%', 'Mutation rate'),
         Metric('cores', cores, None, 'Process cores'),
+    ]
+
+def get_genetic_results_metrics(genetic):
+
+    # summarize each generation
+    generation_summary = ''
+    for generation, metric in enumerate(genetic.best_engines):
+        generation_summary += f'\t{generation}: [{metric.id}], {genetic.fitness.pretty}: {round(metric.value)}\n'
+
+    return [
+        Metric('generation_summary', generation_summary, None, 'Generation summary'),
     ]

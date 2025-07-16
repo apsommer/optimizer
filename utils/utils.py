@@ -83,10 +83,10 @@ def check_indicators(data, opt, path):
 
         emas = unpack('emas', path)
         for fastMinutes in opt.fastMinutes:
-            if str(fastMinutes) not in emas.columns:
+            if 'ema_' + str(fastMinutes) not in emas.columns:
                 shouldBuildEmas = True
         for slowMinutes in opt.slowMinutes:
-            if str(slowMinutes) not in emas.columns:
+            if 'ema_' + str(slowMinutes) not in emas.columns:
                 shouldBuildEmas = True
 
     except FileNotFoundError: shouldBuildEmas = True
@@ -94,16 +94,18 @@ def check_indicators(data, opt, path):
     # build emas, if needed
     if shouldBuildEmas:
         print(f'Indicators:')
-        build_emas(data, path)
+        build_emas(data, opt, path)
 
     # check fractals and build, if needed
-    try: fractals = unpack('fractals', path)
+    try: unpack('fractals', path)
     except FileNotFoundError: build_fractals(data, path)
 
-def build_emas(data, path):
+def build_emas(data, opt, path):
 
-    # window length
-    mins = np.linspace(1555, 2555, 11)
+    # define ema window lengths
+    mins = []
+    mins.extend(opt.fastMinutes)
+    mins.extend(opt.slowMinutes)
 
     # init container
     emas = pd.DataFrame(index = data.index)

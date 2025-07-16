@@ -26,16 +26,17 @@ fitness = Fitness.PROFIT
 # analyzer
 opt = LiveParams(
     fastMinutes = [25],
-    disableEntryMinutes = np.linspace(55, 155, 101),
-    fastMomentumMinutes = np.linspace(55, 155, 101),
-    fastCrossoverPercent = np.linspace(70,100, 31),
-    takeProfitPercent = np.linspace(.25, .75, 51),
+    disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
+    fastCrossoverPercent = np.linspace(70,100, 31, dtype = int),
+    takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
     fastAngleFactor = [0],
-    slowMinutes = np.linspace(1555, 2555, 11),
-    slowAngleFactor = np.linspace(0, 25, 26),
-    coolOffMinutes = np.linspace(0, 60, 61),
-    trendStartHour = np.linspace(0, 24, 25),
-    trendEndHour = np.linspace(24, 124, 101))
+    slowMinutes = np.linspace(1555, 2555, 11, dtype = int),
+    slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
+    coolOffMinutes = np.linspace(0, 60, 61, dtype = int),
+    trendStartHour = np.linspace(0, 24, 25, dtype = int),
+    trendEndHour = np.linspace(24, 124, 101, dtype = int),
+)
 
 ###################################################################
 
@@ -69,6 +70,7 @@ genetic = Genetic(
     population_size = population_size,
     generations = generations,
     mutation_rate = mutation_rate,
+    fitness = fitness,
     data = data,
     emas = emas,
     fractals = fractals,
@@ -87,19 +89,21 @@ for generation in tqdm(
     colour = green,
     bar_format = bar_format):
 
-    #
+    # split population between process cores and evaluate
     pool = Pool(
         processes = cores,
         initializer = set_process_name)
     pool.map(
-        func = partial(
-            genetic.evaluate, generation = generation),
+        func = partial(genetic.evaluate, generation = generation),
         iterable = range(cores))
     pool.close()
     pool.join()
 
     # todo cascade from .evaluation and remove extra args
-    isSolutionConverged = genetic.selection(fitness, generation)
+    isSolutionConverged = genetic.selection(
+        generation = generation,
+        tournament_size = 5)
+
     if isSolutionConverged:
         print('\tSolution converged.')
         break
@@ -108,9 +112,7 @@ for generation in tqdm(
     genetic.mutation()
     genetic.clean()
 
-# todo summary metrics
-for generation, metric in enumerate(genetic.best_engines):
-    print(f'\t{generation}: [{metric.id}], {fitness.pretty}: {round(metric.value)}')
+genetic.analyze()
 
 # display results
 winner = unpack(
