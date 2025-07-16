@@ -1,5 +1,3 @@
-import finplot as fplt
-
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
 from model.Fitness import Fitness

@@ -16,6 +16,7 @@ import numpy as np
 import finplot as fplt
 from utils.constants import *
 
+
 def getOhlc(num_months, isNetwork):
 
     data_name = 'NQ_' + str(num_months) + 'mon'
@@ -74,10 +75,35 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
+def check_indicators(data, opt, path):
+
+    # check emas
+    shouldBuildEmas = False
+    try:
+
+        emas = unpack('emas', path)
+        for fastMinutes in opt.fastMinutes:
+            if str(fastMinutes) not in emas.columns:
+                shouldBuildEmas = True
+        for slowMinutes in opt.slowMinutes:
+            if str(slowMinutes) not in emas.columns:
+                shouldBuildEmas = True
+
+    except FileNotFoundError: shouldBuildEmas = True
+
+    # build emas, if needed
+    if shouldBuildEmas:
+        print(f'Indicators:')
+        build_emas(data, path)
+
+    # check fractals and build, if needed
+    try: fractals = unpack('fractals', path)
+    except FileNotFoundError: build_fractals(data, path)
+
 def build_emas(data, path):
 
     # window length
-    mins = [25, 1855, 1955, 2055, 2155, 2355, 2455, 2555]
+    mins = np.linspace(1555, 2555, 11)
 
     # init container
     emas = pd.DataFrame(index = data.index)

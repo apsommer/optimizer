@@ -1,15 +1,12 @@
-import random
 import copy
-
-import numpy as np
-from tqdm import tqdm
+import random
 
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
-from utils.constants import *
 from utils.metrics import init_genetic_metrics
 from utils.utils import *
+
 
 class Genetic:
 

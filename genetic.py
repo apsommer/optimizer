@@ -7,7 +7,7 @@ from analysis.Genetic import Genetic
 from model.Fitness import Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
-from utils.metrics import print_metrics, init_genetic_metrics
+from utils.metrics import print_metrics
 from utils.utils import *
 
 ''' genetic analysis '''
@@ -16,8 +16,6 @@ from utils.utils import *
 # data, indicators
 num_months = 3
 isNetwork = False
-shouldBuildEmas = False
-shouldBuildFractals = False
 
 # genetic params
 population_size = 150
@@ -33,7 +31,7 @@ opt = LiveParams(
     fastCrossoverPercent = np.linspace(70,100, 31),
     takeProfitPercent = np.linspace(.25, .75, 51),
     fastAngleFactor = [0],
-    slowMinutes = [1855, 1955, 2055, 2155, 2355, 2455, 2555],
+    slowMinutes = np.linspace(1555, 2555, 11),
     slowAngleFactor = np.linspace(0, 25, 26),
     coolOffMinutes = np.linspace(0, 60, 61),
     trendStartHour = np.linspace(0, 24, 25),
@@ -54,11 +52,8 @@ path = parent_path + '/generations'
 # get ohlc prices
 data = utils.getOhlc(num_months, isNetwork)
 
-# build indicators
-if shouldBuildEmas or shouldBuildFractals:
-    print(f'Indicators:')
-if shouldBuildEmas: build_emas(data, parent_path)
-if shouldBuildFractals: build_fractals(data, parent_path)
+# get indicators
+check_indicators(data, opt, parent_path)
 emas = unpack('emas', parent_path)
 fractals = unpack('fractals', parent_path)
 

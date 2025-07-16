@@ -1,16 +1,5 @@
-import multiprocessing
-import os
-import pickle
-
-from tqdm import tqdm
-
-from model.Fitness import Fitness
-from utils.constants import *
-from utils.metrics import *
 from model.Trade import Trade
-import pandas as pd
-import finplot as fplt
-
+from utils.metrics import *
 from utils.utils import *
 
 class Engine:

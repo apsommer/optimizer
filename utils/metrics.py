@@ -260,6 +260,10 @@ def init_genetic_metrics(genetic):
     mutation_rate = genetic.mutation_rate * 100
     cores = genetic.cores
 
+    # format timestamp
+    start = format_timestamp(start)
+    end = format_timestamp(end)
+
     return [
         Metric('header', None, None, 'Genetic:'),
         Metric('months', months, None, 'Months'),
