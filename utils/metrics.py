@@ -1,9 +1,10 @@
 from datetime import timedelta
 
 import numpy as np
-import pandas as pd
 
 from model.Metric import Metric
+from utils.utils import format_timestamp
+
 
 def print_metrics(metrics):
 
@@ -246,5 +247,28 @@ def get_walk_forward_results_metrics(wfa):
         Metric('days', days, None, 'Days'),
     ]
 
-def format_timestamp(idx):
-    return idx.strftime('%b %d, %Y, %H:%M')
+def init_genetic_metrics(genetic):
+
+    start_date = genetic.data.index[0]
+    end_date = genetic.data.index[-1]
+    candles = len(genetic.data.index)
+    days = (end_date - start_date).days
+    months = round(days / 30.437)
+
+    population_size = genetic.population_size
+    generations = genetic.generations
+    mutation_rate = genetic.mutation_rate * 100
+    cores = genetic.cores
+
+    return [
+        Metric('header', None, None, 'Genetic:'),
+        Metric('months', months, None, 'Months'),
+        Metric('start_date', start_date, None, 'Start date'),
+        Metric('end_date', end_date, None, 'End date'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Days'),
+        Metric('population_size', population_size, None, 'Population size'),
+        Metric('generations', generations, None, 'Generations'),
+        Metric('mutation_rate', mutation_rate, '%', 'Mutation rate'),
+        Metric('cores', cores, None, 'Process cores'),
+    ]

@@ -8,6 +8,7 @@ from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
 from utils.constants import *
+from utils.metrics import init_genetic_metrics
 from utils.utils import *
 
 class Genetic:
@@ -62,6 +63,9 @@ class Genetic:
             )
 
             self.population.append(individual)
+
+        # init metrics
+        self.metrics = init_genetic_metrics(self)
 
     def evaluate(self, core, generation):
 

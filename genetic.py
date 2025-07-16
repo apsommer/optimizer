@@ -7,7 +7,7 @@ from analysis.Genetic import Genetic
 from model.Fitness import Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
-from utils.metrics import print_metrics
+from utils.metrics import print_metrics, init_genetic_metrics
 from utils.utils import *
 
 ''' genetic analysis '''
@@ -20,22 +20,22 @@ shouldBuildEmas = False
 shouldBuildFractals = False
 
 # genetic params
-population_size = 15
-generations = 5
+population_size = 150
+generations = 10
 mutation_rate = 0.05
 fitness = Fitness.PROFIT
 
 # analyzer
 opt = LiveParams(
-    fastMinutes = [25, 45, 65],
+    fastMinutes = [25],
     disableEntryMinutes = np.linspace(55, 155, 101),
     fastMomentumMinutes = np.linspace(55, 155, 101),
-    fastCrossoverPercent = [0],
+    fastCrossoverPercent = np.linspace(70,100, 31),
     takeProfitPercent = np.linspace(.25, .75, 51),
     fastAngleFactor = [0],
-    slowMinutes = [1555, 2055, 2555, 3055],
-    slowAngleFactor = np.linspace(0, 50, 51),
-    coolOffMinutes = [5],
+    slowMinutes = [1855, 1955, 2055, 2155, 2355, 2455, 2555],
+    slowAngleFactor = np.linspace(0, 25, 26),
+    coolOffMinutes = np.linspace(0, 60, 61),
     trendStartHour = np.linspace(0, 24, 25),
     trendEndHour = np.linspace(24, 124, 101))
 
@@ -81,8 +81,10 @@ genetic = Genetic(
     parent_path = path,
     cores = cores)
 
-# todo init some header metrics
-print('Genetic:')
+# init header metrics
+print_metrics(genetic.metrics)
+
+# execute genetic algorithm
 bar_format = '        Generations:    {percentage:3.0f}%|{bar:100}{r_bar}'
 for generation in tqdm(
     iterable = range(generations),
@@ -113,7 +115,7 @@ for generation in tqdm(
 
 # todo summary metrics
 for generation, metric in enumerate(genetic.best_engines):
-    print(f'\tGeneration: {generation}, Engine: {metric.id}, Profit: {metric.value}')
+    print(f'\t{generation}: [{metric.id}], {fitness.pretty}: {round(metric.value)}')
 
 # display results
 winner = unpack(

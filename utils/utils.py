@@ -77,7 +77,7 @@ def set_process_name():
 def build_emas(data, path):
 
     # window length
-    mins = [25, 45, 65, 1555, 2055, 2555, 3055]
+    mins = [25, 1855, 1955, 2055, 2155, 2355, 2455, 2555]
 
     # init container
     emas = pd.DataFrame(index = data.index)
@@ -247,3 +247,6 @@ def unpack(id, path):
     except FileNotFoundError:
         print(f'\n{path_filename} not found')
         exit()
+
+def format_timestamp(idx):
+    return idx.strftime('%b %d, %Y, %H:%M')

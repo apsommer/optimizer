@@ -1,4 +1,5 @@
-from utils.metrics import format_timestamp
+from utils.utils import format_timestamp
+
 
 class Order:
     def __init__(self, ticker, size, sentiment, idx, bar_index, price, comment):
