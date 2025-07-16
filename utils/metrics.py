@@ -238,6 +238,9 @@ def get_walk_forward_results_metrics(wfa):
     start = format_timestamp(start)
     end = format_timestamp(end)
 
+    # pretty
+    candles = '{:,}'.format(candles)
+
     return [
         Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
         Metric('params', wfa.best_params.one_line, None, 'Params'),
@@ -258,11 +261,15 @@ def init_genetic_metrics(genetic):
     population_size = genetic.population_size
     generations = genetic.generations
     mutation_rate = genetic.mutation_rate * 100
+    fitness = genetic.fitness
     cores = genetic.cores
 
     # format timestamp
     start = format_timestamp(start_date)
     end = format_timestamp(end_date)
+
+    # pretty
+    candles = '{:,}'.format(candles)
 
     return [
         Metric('header', None, None, 'Genetic:'),
@@ -274,6 +281,7 @@ def init_genetic_metrics(genetic):
         Metric('population_size', population_size, None, 'Population size'),
         Metric('generations', generations, None, 'Generations'),
         Metric('mutation_rate', mutation_rate, '%', 'Mutation rate'),
+        Metric('fitness', fitness.pretty, None, 'Fitness'),
         Metric('cores', cores, None, 'Process cores'),
     ]
 
@@ -282,13 +290,8 @@ def get_genetic_results_metrics(genetic):
     # summarize each generation
     generation_summary = ''
     for generation, metric in enumerate(genetic.best_engines):
-        generation_summary += f'\t{generation}: [{metric.id}], {genetic.fitness.pretty}: {round(metric.value)}\n'
+        generation_summary += f'\n\t\t{generation}: [{metric.id}], {genetic.fitness.pretty}: {round(metric.value)}'
 
-    metrics = [
-        Metric('generation_summary', generation_summary, None, 'Generation summary'),
+    return [
+        Metric('generation_summary', generation_summary, None, 'Best engines'),
     ]
-
-    # append best engine
-    metrics.extend(genetic.winner['metrics'])
-
-    return metrics

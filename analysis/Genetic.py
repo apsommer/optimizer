@@ -222,5 +222,27 @@ class Genetic:
             id = best_engine_metric.id,
             path = self.parent_path + '/' + str(best_generation))
 
+        # tag best engine
+        self.winner['tag'] = 'winner_' + str(best_generation) + '_' + str(best_engine_metric.id)
+
         self.metrics += get_genetic_results_metrics(self)
 
+    ####################################################################################################################
+
+    def plot(self):
+
+        # init winning strategy and engine
+        id = self.winner['tag']
+        params = self.winner['params']
+        strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
+        engine = Engine(id, strategy)
+
+        # run and save
+        engine.run()
+        engine.save(self.parent_path, True)
+
+        # display results
+        engine.print_metrics()
+        engine.print_trades()
+        engine.plot_trades()
+        engine.plot_equity()

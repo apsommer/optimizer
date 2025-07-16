@@ -7,7 +7,7 @@ from analysis.Genetic import Genetic
 from model.Fitness import Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
-from utils.metrics import print_metrics
+from utils.metrics import print_metrics, get_genetic_results_metrics
 from utils.utils import *
 
 ''' genetic analysis '''
@@ -99,7 +99,7 @@ for generation in tqdm(
     pool.close()
     pool.join()
 
-    # todo cascade from .evaluation and remove extra args
+    # check for convergence
     isSolutionConverged = genetic.selection(
         generation = generation,
         tournament_size = 5)
@@ -113,10 +113,8 @@ for generation in tqdm(
     genetic.clean()
 
 genetic.analyze()
-
-# display results
-
-print_metrics(winner['metrics'])
+print_metrics(get_genetic_results_metrics(genetic))
+genetic.plot()
 
 # print analysis time
 elapsed = time.time() - start_time
