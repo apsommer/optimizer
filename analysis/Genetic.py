@@ -105,7 +105,7 @@ class Genetic:
         fitnesses = []
 
         # unpack last generation
-        ids = np.arange(0, self.population_size, 1)
+        ids = range(self.population_size)
         for id in ids:
             engine_metrics = unpack(id, self.path)['metrics']
             self.engine_metrics.extend(engine_metrics)
@@ -126,7 +126,7 @@ class Genetic:
 
         # todo consider roulette wheel, rank-based, ...
         # tournament selection
-        for i in range(len(self.population)):
+        for i in range(self.population_size):
 
             # random select group of individuals
             group = random.sample(fitnesses, tournament_size)
@@ -139,16 +139,17 @@ class Genetic:
 
         # init next generation
         self.population = selected
+        self.engine_metrics = []
 
     def crossover(self):
 
         next_generation = []
 
         # loop population in parent pairs
-        for i in range(0, len(self.population), 2):
+        for i in range(0, self.population_size, 2):
 
             # catch odd numbered population
-            if i + 1 == len(self.population):
+            if i + 1 == self.population_size:
                 next_generation.append(self.population[i])
                 continue
 
