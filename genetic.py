@@ -102,7 +102,11 @@ for generation in tqdm(
     pool.join()
 
     # todo cascade from .evaluation and remove extra args
-    genetic.selection(fitness, generation)
+    isSolutionConverged = genetic.selection(fitness, generation)
+    if isSolutionConverged:
+        print('\tSolution converged.')
+        break
+
     genetic.crossover()
     genetic.mutation()
     genetic.clean()

@@ -124,6 +124,10 @@ class Genetic:
         # persist best engine in generation
         self.best_engines.append(fitnesses[0])
 
+        # check if solution has converged
+        if generation > 2 and self.best_engines[-3] == self.best_engines[-2] == self.best_engines[-1]:
+            return True
+
         # todo consider roulette wheel, rank-based, ...
         # tournament selection
         for i in range(self.population_size):
@@ -140,6 +144,9 @@ class Genetic:
         # init next generation
         self.population = selected
         self.engine_metrics = []
+
+        # solution has not yet converged
+        return False
 
     def crossover(self):
 
