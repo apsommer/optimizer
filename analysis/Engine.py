@@ -182,7 +182,7 @@ class Engine:
 
             # trade line
             color = blue
-            if trade.is_long: color = aqua
+            if trade.is_short: color = aqua
 
             fplt.add_line(
                 p0 = (entry_idx, entry_price),

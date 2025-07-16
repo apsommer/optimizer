@@ -14,12 +14,12 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 3
+num_months = 12
 isNetwork = False
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 10
 mutation_rate = 0.05
 fitness = Fitness.PROFIT
 
@@ -31,7 +31,7 @@ opt = LiveParams(
     fastCrossoverPercent = np.linspace(70,100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
     fastAngleFactor = [0],
-    slowMinutes = np.linspace(1555, 2555, 11, dtype = int),
+    slowMinutes = np.linspace(1555, 3555, 9, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
     coolOffMinutes = np.linspace(0, 60, 61, dtype = int),
     trendStartHour = np.linspace(0, 24, 25, dtype = int),
