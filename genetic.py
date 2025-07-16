@@ -109,7 +109,7 @@ for generation in tqdm(
 
 # todo summary metrics
 for generation, metric in enumerate(genetic.best_engines):
-    print(f'Generation: {generation}, Engine: {metric.id}, Profit: {metric.value}')
+    print(f'\tGeneration: {generation}, Engine: {metric.id}, Profit: {metric.value}')
 
 # display results
 winner = unpack(

@@ -1,6 +1,4 @@
 from analysis.Engine import Engine
-from strategy.FastParams import FastParams
-from strategy.FastStrategy import FastStrategy
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
 from utils.utils import getOhlc, unpack
