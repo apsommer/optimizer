@@ -191,7 +191,7 @@ class Engine:
 
         if shouldShow: fplt.show()
 
-    def plot_equity(self):
+    def plot_equity(self, shouldShow = True):
 
         ax = init_plot(
             window = 1,
@@ -213,4 +213,6 @@ class Engine:
 
         # equity
         fplt.plot(self.cash_series, ax = ax)
-        fplt.show()
+
+        if shouldShow: fplt.show()
+        return ax

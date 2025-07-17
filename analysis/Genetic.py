@@ -243,9 +243,11 @@ class Genetic:
 
     def plot(self):
 
-        ax = init_plot(
-            window = 1,
-            title = 'Equity')
+        # display winner
+        self.winner.print_metrics()
+        self.winner.print_trades()
+        self.winner.plot_trades()
+        ax = self.winner.plot_equity(shouldShow = False)
 
         # plot equity of best engines
         for generation, metric in enumerate(self.best_engines):
@@ -258,12 +260,7 @@ class Genetic:
                 engine['cash_series'],
                 color = get_ribbon_color(generation),
                 width = generation,
-                legend = str(generation),
+                legend = id,
                 ax = ax)
-
-        # display winner
-        self.winner.print_metrics()
-        self.winner.print_trades()
-        self.winner.plot_trades()
 
         fplt.show()
