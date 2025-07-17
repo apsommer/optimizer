@@ -288,10 +288,17 @@ def init_genetic_metrics(genetic):
 def get_genetic_results_metrics(genetic):
 
     # summarize each generation
-    generation_summary = ''
+    metrics = []
     for generation, metric in enumerate(genetic.best_engines):
-        generation_summary += f'\n\t\t{generation}: [{metric.id}], {round(metric.value)}'
 
-    return [
-        Metric('generation_summary', generation_summary, None, 'Best engines'),
-    ]
+        population_size = genetic.population_size
+        unprofitable = genetic.unprofitable_engines[generation]
+        win_rate = round(((population_size - unprofitable) / population_size) * 100)
+
+        name = 'generation_' + str(generation)
+        title = f'\t{generation}, {metric.id}'
+        value = f'{genetic.fitness.pretty}: {round(metric.value)}, Win rate: {win_rate}%'
+
+        metrics.append(Metric(name, value, None, title))
+
+    return metrics

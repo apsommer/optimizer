@@ -39,6 +39,7 @@ class Genetic:
         self.population = []
         self.engine_metrics = []
         self.best_engines = []
+        self.unprofitable_engines = []
         self.winner = None
 
         # init first population
@@ -97,7 +98,7 @@ class Genetic:
 
                 pbar.update()
 
-    def selection(self, generation, tournament_size = 3):
+    def selection(self, generation, tournament_size):
 
         # organize outputs
         path = self.parent_path + '/' + str(generation)
@@ -105,11 +106,28 @@ class Genetic:
         selected = []
         fitnesses = []
 
-        # unpack last generation
+        # collect engine metrics from last generation
         ids = range(self.population_size)
+        unprofitable = 0
         for id in ids:
+
             engine_metrics = unpack(id, path)['metrics']
+
+            # filter out engines with loss
+            profit = next(metric.value for metric in engine_metrics if metric.name == 'profit')
+            if 0 > profit:
+                unprofitable += 1
+                continue
+
             self.engine_metrics.extend(engine_metrics)
+
+        # track unprofitable engines
+        self.unprofitable_engines.append(unprofitable)
+
+        # catch entire generation unprofitable
+        if len(self.engine_metrics) == 0:
+            print(f'{generation}: Entire generation unprofitable')
+            exit()
 
         # isolate fitness of interest
         for metric in self.engine_metrics:
@@ -129,8 +147,11 @@ class Genetic:
         if generation > 2 and self.best_engines[-3] == self.best_engines[-2] == self.best_engines[-1]:
             return True
 
-        # todo consider roulette wheel, rank-based, ...
-        # tournament selection
+        # catch small population in initial generations
+        if tournament_size > len(fitnesses):
+            tournament_size = len(fitnesses)
+
+        # tournament selection # todo consider roulette wheel, rank-based, ...
         for i in range(self.population_size):
 
             # random select group of individuals
@@ -260,7 +281,7 @@ class Genetic:
                 engine['cash_series'],
                 color = get_ribbon_color(generation),
                 width = generation,
-                legend = id,
+                legend = id, # todo clean up legend style
                 ax = ax)
 
         fplt.show()

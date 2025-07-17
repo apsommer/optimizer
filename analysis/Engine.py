@@ -202,7 +202,7 @@ class Engine:
         point_value = self.strategy.ticker.point_value
         delta_df = self.data.Close - self.data.Close.iloc[0]
         buy_hold = size * point_value * delta_df + self.initial_cash
-        fplt.plot(buy_hold, color=dark_gray, ax=ax)
+        fplt.plot(buy_hold, color = dark_gray, ax = ax)
 
         # initial cash
         fplt.add_line(
