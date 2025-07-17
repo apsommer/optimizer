@@ -14,14 +14,14 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 3
+num_months = 12
 isNetwork = False
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 7
 mutation_rate = 0.05
-fitness = Fitness.PROFIT
+fitness = Fitness.DRAWDOWN_PER_PROFIT
 
 # analyzer
 opt = LiveParams(
@@ -102,7 +102,7 @@ for generation in tqdm(
     # check for convergence
     isSolutionConverged = genetic.selection(
         generation = generation,
-        tournament_size = 5)
+        tournament_size = 3)
 
     if isSolutionConverged:
         print('\tSolution converged.')

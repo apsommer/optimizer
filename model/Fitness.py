@@ -1,5 +1,7 @@
 import random
 from enum import Enum
+from unittest import case
+
 import seaborn as sns
 
 from utils.constants import *
@@ -16,20 +18,28 @@ class Fitness(Enum):
     DRAWDOWN_PER_PROFIT = 'drawdown_per_profit'
 
     @property
-    def pretty(self):
-
-        title = ''
+    def unit(self):
         match self:
-            case Fitness.PROFIT: title = 'Profit'
-            case Fitness.PROFIT_FACTOR: title = 'Profit Factor'
-            case Fitness.EXPECTANCY: title = 'Expectancy'
-            case Fitness.WIN_RATE: title = 'Win rate'
-            case Fitness.AVERAGE_WIN: title = 'Average win'
-            case Fitness.AVERAGE_LOSS: title = 'Average loss'
-            case Fitness.DRAWDOWN: title = 'Drawdown'
-            case Fitness.DRAWDOWN_PER_PROFIT: title = 'Drawdown per profit'
+            case Fitness.PROFIT: return 'USD'
+            case Fitness.PROFIT_FACTOR: return None
+            case Fitness.EXPECTANCY: return 'USD'
+            case Fitness.WIN_RATE: return '%'
+            case Fitness.AVERAGE_WIN: return 'USD'
+            case Fitness.AVERAGE_LOSS: return 'USD'
+            case Fitness.DRAWDOWN: return 'USD'
+            case Fitness.DRAWDOWN_PER_PROFIT: return 'USD'
 
-        return title
+    @property
+    def pretty(self):
+        match self:
+            case Fitness.PROFIT: return 'Profit'
+            case Fitness.PROFIT_FACTOR: return 'Profit Factor'
+            case Fitness.EXPECTANCY: return 'Expectancy'
+            case Fitness.WIN_RATE: return 'Win rate'
+            case Fitness.AVERAGE_WIN: return 'Average win'
+            case Fitness.AVERAGE_LOSS: return 'Average loss'
+            case Fitness.DRAWDOWN: return 'Drawdown'
+            case Fitness.DRAWDOWN_PER_PROFIT: return 'Drawdown per profit'
 
     @property
     def color(self):

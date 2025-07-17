@@ -293,11 +293,11 @@ def get_genetic_results_metrics(genetic):
 
         population_size = genetic.population_size
         unprofitable = genetic.unprofitable_engines[generation]
-        win_rate = round(((population_size - unprofitable) / population_size) * 100)
+        profitable_percent = round(((population_size - unprofitable) / population_size) * 100)
 
         name = 'generation_' + str(generation)
         title = f'\t{generation}, {metric.id}'
-        value = f'{genetic.fitness.pretty}: {round(metric.value)}, Win rate: {win_rate}%'
+        value = f'{genetic.fitness.pretty}: {round(metric.value)}, Profitable: {profitable_percent}%'
 
         metrics.append(Metric(name, value, None, title))
 
