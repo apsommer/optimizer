@@ -297,8 +297,10 @@ def get_genetic_results_metrics(genetic):
 
         name = 'generation_' + str(generation)
         title = f'\t{generation}, {metric.id}'
-        value = f'{genetic.fitness.pretty}: {round(metric.value)}, Profitable: {profitable_percent}%'
+        value = (f'\t{genetic.fitness.pretty}: {round(metric.value)} [{genetic.fitness.unit}],'
+                 f'\tProfitable: {profitable_percent} [%]')
 
-        metrics.append(Metric(name, value, None, title))
+        metrics.append(
+            Metric(name, value, None, title))
 
     return metrics

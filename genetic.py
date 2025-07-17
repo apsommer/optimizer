@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 12
+num_months = 28
 isNetwork = False
 
 # genetic params
