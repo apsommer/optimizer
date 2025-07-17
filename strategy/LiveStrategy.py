@@ -1,12 +1,11 @@
-import numpy as np
+import finplot as fplt
 import pandas as pd
-from strategy.BaseStrategy import BaselineStrategy
+
 from model.Ticker import Ticker
+from strategy.BaseStrategy import BaselineStrategy
 from utils.constants import *
 from utils.utils import init_plot
-import finplot as fplt
-import seaborn as sns
-import matplotlib as mpl
+
 
 class LiveStrategy(BaselineStrategy):
 
@@ -323,16 +322,15 @@ class LiveStrategy(BaselineStrategy):
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
 
-        # color ribbon
-        crest = sns.color_palette("crest", as_cmap=True)
-        ribbon_colors = crest(np.linspace(0, 1, 10))
-
         # plot ribbon
         ema_columns = [ column for column in self.emas.columns if 'ema' in column ]
         for i, column in enumerate(ema_columns):
 
-            color = mpl.colors.rgb2hex(ribbon_colors[i % 10])
-            fplt.plot(self.emas.loc[:, column], color=color, width=2, ax=ax)
+            fplt.plot(
+                self.emas.loc[:, column],
+                color = get_ribbon_color(i),
+                width = i,
+                ax = ax)
 
         if shouldShow: fplt.show()
         return ax

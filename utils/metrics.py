@@ -290,7 +290,7 @@ def get_genetic_results_metrics(genetic):
     # summarize each generation
     generation_summary = ''
     for generation, metric in enumerate(genetic.best_engines):
-        generation_summary += f'\n\t\t{generation}: [{metric.id}],\t{genetic.fitness.pretty}: {round(metric.value)}'
+        generation_summary += f'\n\t\t{generation}: [{metric.id}], {round(metric.value)}'
 
     return [
         Metric('generation_summary', generation_summary, None, 'Best engines'),

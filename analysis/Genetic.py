@@ -254,8 +254,12 @@ class Genetic:
             id = 'g' + str(generation) + 'e' + str(metric.id)
             engine = unpack(id, self.parent_path)
 
-            cash_series = engine['cash_series']
-            fplt.plot(cash_series, color = self.fitness.color, legend = str(generation), ax = ax)
+            fplt.plot(
+                engine['cash_series'],
+                color = get_ribbon_color(generation),
+                width = generation,
+                legend = str(generation),
+                ax = ax)
 
         # display winner
         self.winner.print_metrics()
