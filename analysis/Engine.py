@@ -13,13 +13,7 @@ class Engine:
         self.current_idx = -1
         self.trades = []
         self.metrics = []
-        self.cash_series = pd.Series(index=self.data.index)
-
-        # todo init equity account?
-        # margin = self.strategy.ticker.margin
-        # size = self.strategy.size
-        # initial_cash = margin * self.data.Close.iloc[0] * size
-        # self.initial_cash = round(initial_cash, -3)
+        self.cash_series = pd.Series(index = self.data.index)
         self.initial_cash = initial_cash
         self.cash = self.initial_cash
 

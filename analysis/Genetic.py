@@ -36,7 +36,6 @@ class Genetic:
         self.trendEndHour = self.opt.trendEndHour
 
         # track population through generations
-        self.path = self.parent_path
         self.population = []
         self.engine_metrics = []
         self.best_engines = []
@@ -68,7 +67,7 @@ class Genetic:
     def evaluate(self, core, generation):
 
         # organize outputs
-        self.path = self.parent_path + '/' + str(generation)
+        path = self.parent_path + '/' + str(generation)
 
         # segregate population into groups for each core process
         group_size = int(self.population_size / self.cores)
@@ -94,14 +93,14 @@ class Genetic:
 
                 # run and save
                 engine.run()
-                engine.save(self.path, False)
+                engine.save(path, False)
 
                 pbar.update()
 
     def selection(self, generation, tournament_size = 3):
 
         # organize outputs
-        self.path = self.parent_path + '/' + str(generation)
+        path = self.parent_path + '/' + str(generation)
 
         selected = []
         fitnesses = []
@@ -109,7 +108,7 @@ class Genetic:
         # unpack last generation
         ids = range(self.population_size)
         for id in ids:
-            engine_metrics = unpack(id, self.path)['metrics']
+            engine_metrics = unpack(id, path)['metrics']
             self.engine_metrics.extend(engine_metrics)
 
         # isolate fitness of interest
@@ -214,16 +213,29 @@ class Genetic:
     def analyze(self):
 
         # isolate solution
-        best_engine_metric = max(self.best_engines, key = lambda it: it.value)
-        best_generation = self.best_engines.index(best_engine_metric)
+        winner_metric = max(self.best_engines, key = lambda it: it.value)
+        winner_generation = self.best_engines.index(winner_metric)
 
-        # unpack best engine
-        self.winner = unpack(
-            id = best_engine_metric.id,
-            path = self.parent_path + '/' + str(best_generation))
+        # run and save best engine in each generation
+        for generation, metric in enumerate(self.best_engines):
 
-        # tag best engine
-        self.winner['tag'] = 'winner_' + str(best_generation) + '_' + str(best_engine_metric.id)
+            # unpack partial results
+            path = self.parent_path + '/' + str(generation)
+            engine = unpack(metric.id, path)
+
+            # init strategy and engine
+            id = 'g' + str(generation) + 'e' + str(metric.id)
+            params = next(metric.value for metric in engine['metrics'] if metric.name == 'params')
+            strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
+            engine = Engine(id, strategy)
+
+            # run and save
+            engine.run()
+            engine.save(self.parent_path, True)
+
+            # persist solution
+            if generation == winner_generation:
+                self.winner = copy.copy(engine)
 
         self.metrics += get_genetic_results_metrics(self)
 
@@ -231,18 +243,23 @@ class Genetic:
 
     def plot(self):
 
-        # init winning strategy and engine
-        id = self.winner['tag']
-        params = self.winner['params']
-        strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
-        engine = Engine(id, strategy)
+        ax = init_plot(
+            window = 1,
+            title = 'Equity')
 
-        # run and save
-        engine.run()
-        engine.save(self.parent_path, True)
+        # plot equity of best engines
+        for generation, metric in enumerate(self.best_engines):
 
-        # display results
-        engine.print_metrics()
-        engine.print_trades()
-        engine.plot_trades()
-        engine.plot_equity()
+            # unpack full results
+            id = 'g' + str(generation) + 'e' + str(metric.id)
+            engine = unpack(id, self.parent_path)
+
+            cash_series = engine['cash_series']
+            fplt.plot(cash_series, color = self.fitness.color, legend = str(generation), ax = ax)
+
+        # display winner
+        self.winner.print_metrics()
+        self.winner.print_trades()
+        self.winner.plot_trades()
+
+        fplt.show()
