@@ -108,7 +108,6 @@ pool.join()
 
 # select composite of interest
 wfa.analyze()
-wfa.save()
 print_metrics(get_walk_forward_results_metrics(wfa))
 wfa.print_params_of_fittest_composite()
 

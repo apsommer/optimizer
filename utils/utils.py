@@ -93,7 +93,7 @@ def check_indicators(data, opt, path):
 
     # build emas, if needed
     if shouldBuildEmas:
-        print(f'Indicators:')
+        print(f'\nIndicators:')
         build_emas(data, opt, path)
 
     # check fractals and build, if needed

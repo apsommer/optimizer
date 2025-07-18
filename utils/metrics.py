@@ -271,6 +271,8 @@ def init_genetic_metrics(genetic):
     # pretty
     candles = '{:,}'.format(candles)
 
+    opt = genetic.opt
+
     return [
         Metric('header', None, None, 'Genetic:'),
         Metric('months', months, None, 'Months'),
@@ -283,6 +285,7 @@ def init_genetic_metrics(genetic):
         Metric('mutation_rate', mutation_rate, '%', 'Mutation rate'),
         Metric('fitness', fitness.pretty, None, 'Fitness'),
         Metric('cores', cores, None, 'Process cores'),
+        Metric('opt', opt, None, 'Optimization'),
     ]
 
 def get_genetic_results_metrics(genetic):

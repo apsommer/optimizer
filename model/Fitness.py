@@ -1,9 +1,4 @@
-import random
 from enum import Enum
-from unittest import case
-
-import seaborn as sns
-
 from utils.constants import *
 
 class Fitness(Enum):

@@ -227,11 +227,11 @@ class WalkForward():
                 best_params = engine['params']
                 best_fitness = fitness
 
-        # persist best fitness
+        # persist results
         self.best_params = best_params
         self.best_fitness = best_fitness
-
         self.metrics += get_walk_forward_results_metrics(self)
+        self.save()
 
     ''' serialize '''
     def save(self):

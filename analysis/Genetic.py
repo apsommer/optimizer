@@ -167,7 +167,7 @@ class Genetic:
         self.population = selected
         self.engine_metrics = []
 
-        # solution has not yet converged
+        # solution not yet converged
         return False
 
     def crossover(self):
@@ -258,7 +258,22 @@ class Genetic:
             if generation == winner_generation:
                 self.winner = copy.copy(engine)
 
+        # persist results
         self.metrics += get_genetic_results_metrics(self)
+        self.save()
+
+    ''' serialize '''
+    def save(self):
+
+        bundle = {
+            'winner': self.winner,
+            'metrics': self.metrics
+        }
+
+        save(
+            bundle = bundle,
+            filename = 'analysis',
+            path = self.parent_path)
 
     ####################################################################################################################
 
