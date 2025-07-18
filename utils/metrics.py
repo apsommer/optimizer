@@ -272,6 +272,9 @@ def init_genetic_metrics(genetic):
     candles = '{:,}'.format(candles)
 
     opt = genetic.opt
+    # opt = ''
+    # for chromosome, genes in vars(genetic.opt).items():
+    #     opt += np.array2string(np.array(genes), separator=',') + '\n'
 
     return [
         Metric('header', None, None, 'Genetic:'),

@@ -278,3 +278,11 @@ def unpack(id, path):
 
 def format_timestamp(idx):
     return idx.strftime('%b %d, %Y, %H:%M')
+
+def pretty_list(list):
+    return (
+        np.array2string(
+            a = np.array(list),
+            separator = ',')
+        .replace(' ', '')
+        .replace(',', ', '))
