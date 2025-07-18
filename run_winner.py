@@ -1,7 +1,6 @@
 import warnings
 
 from analysis.Engine import Engine
-from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
 from utils.utils import *
 
@@ -27,12 +26,10 @@ fractals = unpack('fractals', parent_path)
 
 # unpack winner
 analysis = unpack('analysis', parent_path)
-# params = analysis['winner']['params']
-params = analysis['params']
+params = analysis['winner']['params']
 
 # init strategy and engine
-# id = analysis['winner']['id']
-id = analysis['id']
+id = analysis['winner']['id']
 strategy = LiveStrategy(data, emas, fractals, params)
 engine = Engine(id, strategy)
 

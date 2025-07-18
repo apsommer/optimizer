@@ -14,12 +14,12 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 3
+num_months = 20
 isNetwork = False
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 5
 mutation_rate = 0.05
 fitness = Fitness.DRAWDOWN_PER_PROFIT
 
