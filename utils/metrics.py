@@ -263,6 +263,7 @@ def init_genetic_metrics(genetic):
     mutation_rate = genetic.mutation_rate * 100
     fitness = genetic.fitness
     cores = genetic.cores
+    opt = genetic.opt
 
     # format timestamp
     start = format_timestamp(start_date)
@@ -270,11 +271,6 @@ def init_genetic_metrics(genetic):
 
     # pretty
     candles = '{:,}'.format(candles)
-
-    opt = genetic.opt
-    # opt = ''
-    # for chromosome, genes in vars(genetic.opt).items():
-    #     opt += np.array2string(np.array(genes), separator=',') + '\n'
 
     return [
         Metric('header', None, None, 'Genetic:'),
@@ -305,6 +301,10 @@ def get_genetic_results_metrics(genetic):
         title = f'\t{generation}, {metric.id}'
         value = (f'\t{genetic.fitness.pretty}: {round(metric.value)} [{genetic.fitness.unit}],'
                  f'\tProfitable: {profitable_percent} [%]')
+
+        # align console output for large populations
+        if genetic.population_size > 99:
+            value = f'\t' + value
 
         metrics.append(
             Metric(name, value, None, title))

@@ -89,8 +89,7 @@ def check_indicators(data, opt, path):
             if 'ema_' + str(slowMinutes) not in emas.columns:
                 shouldBuildEmas = True
 
-    except FileNotFoundError:
-        shouldBuildEmas = True
+    except FileNotFoundError: shouldBuildEmas = True
 
     # build emas, if needed
     if shouldBuildEmas:
@@ -260,7 +259,6 @@ def save(bundle, filename, path):
 
     # create new binary
     path_filename = path + '/' + filename + '.bin'
-
     filehandler = open(path_filename, 'wb')
     pickle.dump(bundle, filehandler)
 

@@ -20,20 +20,20 @@ isNetwork = False
 # genetic params
 population_size = 150
 generations = 5
-mutation_rate = 0.05
-fitness = Fitness.DRAWDOWN_PER_PROFIT
+mutation_rate = 0.1
+fitness = Fitness.EXPECTANCY
 
 # analyzer
 opt = LiveParams(
-    fastMinutes = [25],
+    fastMinutes = [15, 25, 35, 45],
     disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
-    fastCrossoverPercent = np.linspace(70,100, 31, dtype = int),
+    fastCrossoverPercent = [0], # np.linspace(70,100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
     fastAngleFactor = [0],
-    slowMinutes = np.linspace(1555, 3555, 9, dtype = int),
+    slowMinutes = np.linspace(2005, 3005, 11, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
-    coolOffMinutes = np.linspace(0, 60, 61, dtype = int),
+    coolOffMinutes = np.linspace(5, 55, 11, dtype = int),
     trendStartHour = np.linspace(0, 24, 25, dtype = int),
     trendEndHour = np.linspace(24, 124, 101, dtype = int),
 )
@@ -59,7 +59,7 @@ check_indicators(data, opt, parent_path)
 emas = unpack('emas', parent_path)
 fractals = unpack('fractals', parent_path)
 
-# remove any residual analyses
+# remove residual analyses
 shutil.rmtree(path, ignore_errors=True)
 
 # multiprocessing uses all cores
