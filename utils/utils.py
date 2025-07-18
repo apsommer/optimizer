@@ -89,7 +89,8 @@ def check_indicators(data, opt, path):
             if 'ema_' + str(slowMinutes) not in emas.columns:
                 shouldBuildEmas = True
 
-    except FileNotFoundError: shouldBuildEmas = True
+    except FileNotFoundError:
+        shouldBuildEmas = True
 
     # build emas, if needed
     if shouldBuildEmas:
@@ -269,12 +270,8 @@ def unpack(id, path):
     filename = str(id) + '.bin'
     path_filename = path + '/' + filename
 
-    try:
-        filehandler = open(path_filename, 'rb')
-        return pickle.load(filehandler)
-    except FileNotFoundError:
-        print(f'\n{path_filename} not found')
-        exit()
+    filehandler = open(path_filename, 'rb')
+    return pickle.load(filehandler)
 
 def format_timestamp(idx):
     return idx.strftime('%b %d, %Y, %H:%M')
