@@ -45,7 +45,6 @@ start_time = time.time()
 
 # organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
-csv_filename = 'data/' + data_name + '.csv'
 parent_path = 'wfa/' + data_name
 path = parent_path + '/' + str(percent) + '_' + str(runs)
 
