@@ -197,7 +197,7 @@ class LiveStrategy(BaselineStrategy):
         else:
 
             longFastCrossoverExit = np.nan
-            if isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * fast
+            if isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * open
             elif is_long: longFastCrossoverExit = self.longFastCrossoverExit
             self.longFastCrossoverExit = longFastCrossoverExit
 
@@ -212,7 +212,7 @@ class LiveStrategy(BaselineStrategy):
 
             # exit, short crossover fast
             shortFastCrossoverExit = np.nan
-            if isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * fast
+            if isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * open
             elif is_short: shortFastCrossoverExit = self.shortFastCrossoverExit
             self.shortFastCrossoverExit = shortFastCrossoverExit
 
@@ -232,13 +232,13 @@ class LiveStrategy(BaselineStrategy):
 
         else:
 
-            if isEntryLong: longTakeProfit = (1 + takeProfit) * fast
+            if isEntryLong: longTakeProfit = (1 + takeProfit) * open
             elif not is_long: longTakeProfit = np.nan
             self.longTakeProfit = longTakeProfit
             isExitLongTakeProfit = high > longTakeProfit
 
             # exit, short take profit:
-            if isEntryShort: shortTakeProfit = (1 - takeProfit) * fast
+            if isEntryShort: shortTakeProfit = (1 - takeProfit) * open
             elif not is_short: shortTakeProfit = np.nan
             self.shortTakeProfit = shortTakeProfit
             isExitShortTakeProfit = shortTakeProfit > low

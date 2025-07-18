@@ -39,7 +39,7 @@ engine = Engine(id, strategy)
 # display results
 engine.run()
 engine.print_metrics()
-engine.print_trades()
+engine.print_trades(show_last = 1000)
 engine.plot_trades()
 engine.plot_equity()
 
