@@ -37,7 +37,7 @@ class Fitness(Enum):
             case Fitness.AVERAGE_LOSS: return 'Average loss'
             case Fitness.DRAWDOWN: return 'Drawdown'
             case Fitness.DRAWDOWN_PER_PROFIT: return 'Drawdown per profit'
-            case Fitness.CORRELATION: return 'Correlation'
+            case Fitness.CORRELATION: return 'Linear correlation'
 
     @property
     def color(self):

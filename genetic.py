@@ -14,14 +14,14 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 20
+num_months = 3
 isNetwork = False
 
 # genetic params
 population_size = 15
 generations = 2
 mutation_rate = 0.1
-fitness = Fitness.EXPECTANCY
+fitness = Fitness.CORRELATION
 
 # analyzer
 opt = LiveParams(
@@ -32,7 +32,7 @@ opt = LiveParams(
     takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
     stopLossPercent = np.around(np.linspace(.25, .75, 51), 2),
     fastAngleFactor = [0],
-    slowMinutes = np.linspace(2005, 3005, 11, dtype = int),
+    slowMinutes = [2005, 2255, 2555, 2755, 3005], # np.linspace(2005, 3005, 11, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
     coolOffMinutes = np.linspace(5, 55, 11, dtype = int),
     trendStartHour = np.linspace(0, 24, 25, dtype = int),

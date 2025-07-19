@@ -1,10 +1,9 @@
 from datetime import timedelta
 
 import numpy as np
-
+import scipy as scipy
 from model.Metric import Metric
 from utils.utils import format_timestamp
-
 
 def print_metrics(metrics):
 
@@ -118,13 +117,18 @@ def get_engine_metrics(engine):
     if len(shorts) == 0: win_rate_short = np.nan
     else: win_rate_short = (len(profitable_shorts) / len(shorts)) * 100
 
-    # pretty
-    candles = '{:,}'.format(candles)
-
     # catch composite with final in-sample not profitable
     params = engine.strategy.params
     if params is None:
         params = 'Last in-sample analyzer not profitable!'
+
+    # calculate linear correlation
+    _, _, correlation, _, _ = scipy.stats.linregress(
+        x = range(len(cash_series)),
+        y = cash_series)
+
+    # pretty
+    candles = '{:,}'.format(candles)
 
     return [
 
@@ -156,6 +160,7 @@ def get_engine_metrics(engine):
         Metric('average_win', average_win, 'USD', 'Average win'),
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
+        Metric('correlation', correlation, None, 'Linear correlation', '.3f'),
 
         Metric('long_percent', percent_long, '%', 'Long'),
         Metric('short_percent', percent_short, '%', 'Short'),
@@ -228,8 +233,8 @@ def init_walk_forward_metrics(wfa):
         Metric('out_of_sample_days', out_of_sample_days, None, 'Out-of-sample days'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
-        # Metric('candles', candles, None, 'Candles'),
-        # Metric('days', days, None, 'Days'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Days'),
         Metric('opt', opt, None, 'Optimization'),
     ]
 
@@ -305,7 +310,8 @@ def get_genetic_results_metrics(genetic):
 
         name = 'generation_' + str(generation)
         title = f'\t{generation}, {metric.id}'
-        value = (f'\t{genetic.fitness.pretty}: {round(metric.value)} [{genetic.fitness.unit}],'
+        # value = (f'\t{genetic.fitness.pretty}: {round(metric.value)} [{genetic.fitness.unit}],'
+        value = (f'\t{genetic.fitness.pretty}: {round(metric.value, 3)},'
                  f'\tProfitable: {profitable_percent} [%]')
 
         # align console output for large populations
