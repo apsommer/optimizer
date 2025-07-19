@@ -18,8 +18,8 @@ num_months = 20
 isNetwork = False
 
 # genetic params
-population_size = 150
-generations = 5
+population_size = 15
+generations = 2
 mutation_rate = 0.1
 fitness = Fitness.EXPECTANCY
 
@@ -30,6 +30,7 @@ opt = LiveParams(
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70,100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
+    stopLossPercent = np.around(np.linspace(.25, .75, 51), 2),
     fastAngleFactor = [0],
     slowMinutes = np.linspace(2005, 3005, 11, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
