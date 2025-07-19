@@ -129,7 +129,7 @@ def get_engine_metrics(engine):
     bar_indices = np.arange(len(cash_series)).reshape(-1, 1)
     adjusted_cash_series = np.array(cash_series - initial_cash)
 
-    # calculate linear correlation
+    # todo calculate linear correlation
     regression = (LinearRegression(
         fit_intercept = False).fit(
             X = bar_indices,

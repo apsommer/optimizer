@@ -61,7 +61,7 @@ emas = unpack('emas', parent_path)
 fractals = unpack('fractals', parent_path)
 
 # remove residual analyses
-shutil.rmtree(path, ignore_errors=True)
+shutil.rmtree(path, ignore_errors = True)
 
 # multiprocessing uses all cores
 cores = multiprocessing.cpu_count() # 16 available
@@ -77,7 +77,7 @@ genetic = Genetic(
     emas = emas,
     fractals = fractals,
     opt = opt,
-    parent_path = path,
+    parent_path = parent_path,
     cores = cores)
 
 # init header metrics

@@ -22,6 +22,8 @@ class Genetic:
         self.parent_path = parent_path
         self.cores = cores
 
+        self.path = parent_path + '/generations'
+
         # extract optimization params
         self.fastMinutes = self.opt.fastMinutes
         self.disableEntryMinutes = self.opt.disableEntryMinutes
@@ -70,7 +72,7 @@ class Genetic:
     def evaluate(self, core, generation):
 
         # organize outputs
-        path = self.parent_path + '/' + str(generation)
+        path = self.path + '/' + str(generation)
 
         # segregate population into groups for each core process
         group_size = int(self.population_size / self.cores)
@@ -103,7 +105,7 @@ class Genetic:
     def selection(self, generation, tournament_size):
 
         # organize outputs
-        path = self.parent_path + '/' + str(generation)
+        path = self.path + '/' + str(generation)
 
         selected = []
         fitnesses = []
@@ -248,7 +250,7 @@ class Genetic:
         for generation, metric in enumerate(self.best_engines):
 
             # unpack partial results
-            path = self.parent_path + '/' + str(generation)
+            path = self.path + '/' + str(generation)
             engine = unpack(metric.id, path)
 
             # init strategy and engine
@@ -259,7 +261,7 @@ class Genetic:
 
             # run and save
             engine.run()
-            engine.save(self.parent_path, True)
+            engine.save(self.path, True)
 
             # persist solution
             if generation == winner_generation:
@@ -280,11 +282,11 @@ class Genetic:
         # timestamp filename
         timestamp = format_timestamp(
             idx = datetime.now(),
-            type='local')
+            type = 'local')
 
         save(
             bundle = bundle,
-            filename = 'analysis_' + timestamp,
+            filename = timestamp,
             path = self.parent_path)
 
     ####################################################################################################################
@@ -302,7 +304,7 @@ class Genetic:
 
             # unpack full results
             id = 'g' + str(generation) + 'e' + str(metric.id)
-            engine = unpack(id, self.parent_path)
+            engine = unpack(id, self.path)
 
             fplt.plot(
                 engine['cash_series'],
