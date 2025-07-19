@@ -88,6 +88,7 @@ bar_format = '        Generations:    {percentage:3.0f}%|{bar:100}{r_bar}'
 for generation in tqdm(
     iterable = range(generations),
     position = 0,
+    leave = False,
     colour = green,
     bar_format = bar_format):
 

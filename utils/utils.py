@@ -271,8 +271,12 @@ def unpack(id, path):
     filehandler = open(path_filename, 'rb')
     return pickle.load(filehandler)
 
-def format_timestamp(idx):
-    return idx.strftime('%b %d, %Y, %H:%M')
+def format_timestamp(idx, type = 'tradingview'):
+
+    formatter = '%b %d, %Y, %H:%M'
+    if type != 'tradingview': formatter = '%Y%m%d_%H%M%S'
+
+    return idx.strftime(formatter)
 
 def pretty_list(list):
     return (

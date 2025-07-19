@@ -145,10 +145,14 @@ class Genetic:
         # persist best engine in generation
         self.best_engines.append(fitnesses[0])
 
-
         # check if solution has converged
-        if generation > 2 and self.best_engines[-3] == self.best_engines[-2] == self.best_engines[-1]:
-            return True
+        if generation > 2:
+
+            current_winner = max(self.best_engines, key = lambda metric: metric.value)
+            prev_winner = max(self.best_engines[:-1], key = lambda metric: metric.value)
+            prev_prev_winner = max(self.best_engines[:-2], key = lambda metric: metric.value)
+
+            if current_winner == prev_winner == prev_prev_winner: return True
 
         # catch small population in initial generations
         if tournament_size > len(fitnesses):
@@ -273,9 +277,14 @@ class Genetic:
             'metrics': self.metrics
         }
 
+        # timestamp filename
+        timestamp = format_timestamp(
+            idx = datetime.now(),
+            type='local')
+
         save(
             bundle = bundle,
-            filename = 'analysis',
+            filename = 'analysis_' + timestamp,
             path = self.parent_path)
 
     ####################################################################################################################

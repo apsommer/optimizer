@@ -118,6 +118,9 @@ def get_engine_metrics(engine):
     if len(shorts) == 0: win_rate_short = np.nan
     else: win_rate_short = (len(profitable_shorts) / len(shorts)) * 100
 
+    # pretty
+    candles = '{:,}'.format(candles)
+
     # catch composite with final in-sample not profitable
     params = engine.strategy.params
     if params is None:
@@ -179,6 +182,9 @@ def get_analyzer_metrics(analyzer):
     # format timestamp
     start_date = format_timestamp(start_date)
     end_date = format_timestamp(end_date)
+
+    # pretty
+    candles = '{:,}'.format(candles)
 
     return [
         Metric('header', None, None, 'Analyzer:'),
@@ -290,7 +296,7 @@ def init_genetic_metrics(genetic):
 def get_genetic_results_metrics(genetic):
 
     # summarize each generation
-    metrics = []
+    metrics = [ Metric('header', None, None, 'Generations:') ]
     for generation, metric in enumerate(genetic.best_engines):
 
         population_size = genetic.population_size
