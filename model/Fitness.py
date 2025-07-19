@@ -11,6 +11,7 @@ class Fitness(Enum):
     AVERAGE_LOSS = 'average_loss'
     DRAWDOWN = 'drawdown'
     DRAWDOWN_PER_PROFIT = 'drawdown_per_profit'
+    CORRELATION = 'correlation'
 
     @property
     def unit(self):
@@ -23,6 +24,7 @@ class Fitness(Enum):
             case Fitness.AVERAGE_LOSS: return 'USD'
             case Fitness.DRAWDOWN: return 'USD'
             case Fitness.DRAWDOWN_PER_PROFIT: return 'USD'
+            case Fitness.CORRELATION: return None
 
     @property
     def pretty(self):
@@ -35,6 +37,7 @@ class Fitness(Enum):
             case Fitness.AVERAGE_LOSS: return 'Average loss'
             case Fitness.DRAWDOWN: return 'Drawdown'
             case Fitness.DRAWDOWN_PER_PROFIT: return 'Drawdown per profit'
+            case Fitness.CORRELATION: return 'Correlation'
 
     @property
     def color(self):
@@ -47,3 +50,4 @@ class Fitness(Enum):
             case Fitness.AVERAGE_LOSS: return purple
             case Fitness.DRAWDOWN: return brown
             case Fitness.DRAWDOWN_PER_PROFIT: return pink
+            case Fitness.CORRELATION: return gray
