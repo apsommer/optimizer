@@ -303,7 +303,7 @@ def get_genetic_results_metrics(genetic):
                  f'\tProfitable: {profitable_percent} [%]')
 
         # align console output for large populations
-        if genetic.population_size > 99:
+        if 100 > genetic.population_size:
             value = f'\t' + value
 
         metrics.append(

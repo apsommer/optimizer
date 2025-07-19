@@ -243,6 +243,8 @@ class LiveStrategy(BaselineStrategy):
             self.shortTakeProfit = shortTakeProfit
             isExitShortTakeProfit = shortTakeProfit > low
 
+
+
         # flip
         isExitLongFlip = (is_long and isEntryShortSignal) or (isExitLongFastMomentum and slow > fast)
         isExitShortFlip = (is_short and isEntryLongSignal) or (isExitShortFastMomentum and fast > slow)

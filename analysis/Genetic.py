@@ -143,6 +143,7 @@ class Genetic:
         # persist best engine in generation
         self.best_engines.append(fitnesses[0])
 
+
         # check if solution has converged
         if generation > 2 and self.best_engines[-3] == self.best_engines[-2] == self.best_engines[-1]:
             return True
