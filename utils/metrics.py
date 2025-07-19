@@ -1,5 +1,9 @@
 from datetime import timedelta
 
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
 import numpy as np
 import scipy as scipy
 from model.Metric import Metric
@@ -122,10 +126,27 @@ def get_engine_metrics(engine):
     if params is None:
         params = 'Last in-sample analyzer not profitable!'
 
+    bar_indices = np.arange(len(cash_series)).reshape(-1, 1)
+    adjusted_cash_series = np.array(cash_series - initial_cash)
+
     # calculate linear correlation
-    _, _, correlation, _, _ = scipy.stats.linregress(
-        x = range(len(cash_series)),
-        y = cash_series)
+    regression = (LinearRegression(
+        fit_intercept = False).fit(
+            X = bar_indices,
+            y = adjusted_cash_series))
+
+    # coefficients = regression.coef_
+    # intercept = regression.intercept_
+    # y0 = (cash_series - initial_cash).iloc[0]
+    # print(f'coefficients: {coefficients}, intercept: {intercept}, y0: {y0}')
+
+    y_true = adjusted_cash_series
+    y_pred = regression.predict(bar_indices)
+    # mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    negative_mse = -mse
+    correlation = negative_mse
+    # print(f'mae: {mae}, mse: {mse}, negative_mse: {negative_mse}')
 
     # pretty
     candles = '{:,}'.format(candles)
