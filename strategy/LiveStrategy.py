@@ -72,6 +72,10 @@ class LiveStrategy(BaselineStrategy):
         elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # tp off, fc only
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
+        # todo temp, best place for this correction?
+        if self.stopLoss > self.takeProfit:
+            self.stopLoss = self.takeProfit
+
         # strategy
         self.longExitBarIndex = -1
         self.shortExitBarIndex = -1
@@ -259,7 +263,7 @@ class LiveStrategy(BaselineStrategy):
             if isEntryLong: longStopLoss = (1 - stopLoss) * open
             elif not is_long: longStopLoss = np.nan
             self.longStopLoss = longStopLoss
-            isExitLongStopLoss = low > longStopLoss
+            isExitLongStopLoss = longStopLoss > low
 
             if isEntryShort: shortStopLoss = (1 + stopLoss) * open
             elif not is_short: shortStopLoss = np.nan
