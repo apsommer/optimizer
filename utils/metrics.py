@@ -126,7 +126,7 @@ def get_engine_metrics(engine):
     if params is None:
         params = 'Last in-sample analyzer not profitable!'
 
-    # todo calculate linear correlation
+    # calculate linear correlation
     bar_indices = np.arange(len(cash_series)).reshape(-1, 1)
     adjusted_cash_series = np.array(cash_series - initial_cash)
 

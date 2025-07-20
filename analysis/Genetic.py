@@ -7,7 +7,7 @@ from analysis.Engine import Engine
 from model.Metric import Metric
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
-from utils.metrics import init_genetic_metrics, get_genetic_results_metrics
+from utils.metrics import init_genetic_metrics, get_genetic_results_metrics, print_metrics
 from utils.utils import *
 
 class Genetic:
@@ -118,10 +118,15 @@ class Genetic:
             engine_metrics = unpack(id, path)['metrics']
 
             # filter out engines with loss
-            profit = next(metric.value for metric in engine_metrics if metric.name == 'profit')
-            if 0 > profit:
-                unprofitable += 1
-                continue
+            try:
+                profit = next(metric.value for metric in engine_metrics if metric.name == 'profit')
+                if 0 > profit:
+                    unprofitable += 1
+                    continue
+
+            except StopIteration:
+                print(f'id: {id}')
+                print_metrics(engine_metrics)
 
             self.engine_metrics.extend(engine_metrics)
 

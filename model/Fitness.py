@@ -1,4 +1,6 @@
 from enum import Enum
+
+from model.Metric import Metric
 from utils.constants import *
 
 class Fitness(Enum):
@@ -12,6 +14,7 @@ class Fitness(Enum):
     DRAWDOWN = 'drawdown'
     DRAWDOWN_PER_PROFIT = 'drawdown_per_profit'
     CORRELATION = 'correlation'
+    NUM_TRADES = 'num_trades'
 
     @property
     def unit(self):
@@ -25,6 +28,7 @@ class Fitness(Enum):
             case Fitness.DRAWDOWN: return 'USD'
             case Fitness.DRAWDOWN_PER_PROFIT: return 'USD'
             case Fitness.CORRELATION: return None
+            case Fitness.NUM_TRADES: return None
 
     @property
     def pretty(self):
@@ -38,6 +42,7 @@ class Fitness(Enum):
             case Fitness.DRAWDOWN: return 'Drawdown'
             case Fitness.DRAWDOWN_PER_PROFIT: return 'Drawdown per profit'
             case Fitness.CORRELATION: return 'Linear correlation'
+            case Fitness.NUM_TRADES: return 'Number of trades'
 
     @property
     def color(self):
@@ -51,3 +56,4 @@ class Fitness(Enum):
             case Fitness.DRAWDOWN: return brown
             case Fitness.DRAWDOWN_PER_PROFIT: return pink
             case Fitness.CORRELATION: return gray
+            case Fitness.NUM_TRADES: return yellow

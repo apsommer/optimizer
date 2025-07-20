@@ -21,9 +21,13 @@ isNetwork = False
 population_size = 150
 generations = 5
 mutation_rate = 0.05
+
+# todo encapsulate to class, extract commons for wfa use
 fitness = [
-    (Fitness.PROFIT, 50),
-    (Fitness.CORRELATION, 50)] # todo encapsulate to class, extract commons for wfa use
+    (Fitness.PROFIT, 33),
+    (Fitness.CORRELATION, 33),
+    (Fitness.NUM_TRADES, 33)
+]
 
 # optimization
 opt = LiveParams(
