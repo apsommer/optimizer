@@ -126,27 +126,18 @@ def get_engine_metrics(engine):
     if params is None:
         params = 'Last in-sample analyzer not profitable!'
 
+    # todo calculate linear correlation
     bar_indices = np.arange(len(cash_series)).reshape(-1, 1)
     adjusted_cash_series = np.array(cash_series - initial_cash)
 
-    # todo calculate linear correlation
-    regression = (LinearRegression(
-        fit_intercept = False).fit(
-            X = bar_indices,
+    regression = (
+        LinearRegression(fit_intercept = False).fit(
+            X = bar_indices, # todo simplify as cash_series.index?
             y = adjusted_cash_series))
 
-    # coefficients = regression.coef_
-    # intercept = regression.intercept_
-    # y0 = (cash_series - initial_cash).iloc[0]
-    # print(f'coefficients: {coefficients}, intercept: {intercept}, y0: {y0}')
-
-    y_true = adjusted_cash_series
-    y_pred = regression.predict(bar_indices)
-    # mae = mean_absolute_error(y_true, y_pred)
-    mse = mean_squared_error(y_true, y_pred)
-    negative_mse = -mse
-    correlation = negative_mse
-    # print(f'mae: {mae}, mse: {mse}, negative_mse: {negative_mse}')
+    line = regression.predict(bar_indices)
+    mse = mean_squared_error(adjusted_cash_series, line)
+    correlation = -round(mse)
 
     # pretty
     candles = '{:,}'.format(candles)
@@ -181,7 +172,7 @@ def get_engine_metrics(engine):
         Metric('average_win', average_win, 'USD', 'Average win'),
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
-        Metric('correlation', correlation, None, 'Linear correlation', '.3f'),
+        Metric('correlation', correlation, None, 'Linear correlation'),
 
         Metric('long_percent', percent_long, '%', 'Long'),
         Metric('short_percent', percent_short, '%', 'Short'),
@@ -332,7 +323,7 @@ def get_genetic_results_metrics(genetic):
         name = 'generation_' + str(generation)
         title = f'\t{generation}, {metric.id}'
         # value = (f'\t{genetic.fitness.pretty}: {round(metric.value)} [{genetic.fitness.unit}],'
-        value = (f'\t{genetic.fitness.pretty}: {round(metric.value, 3)},'
+        value = (f'\t{genetic.fitness.pretty}: {round(metric.value)},'
                  f'\tProfitable: {profitable_percent} [%]')
 
         # align console output for large populations

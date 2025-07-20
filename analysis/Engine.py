@@ -4,10 +4,11 @@ from utils.utils import *
 
 class Engine:
 
-    def __init__(self, id, strategy):
+    def __init__(self, id, strategy, fitness):
 
         self.id = id
         self.strategy = strategy
+        self.fitness = fitness
 
         self.data = strategy.data
         self.current_idx = -1

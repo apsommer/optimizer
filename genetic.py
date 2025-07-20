@@ -20,10 +20,12 @@ isNetwork = False
 # genetic params
 population_size = 15
 generations = 2
-mutation_rate = 0.1
-fitness = Fitness.CORRELATION
+mutation_rate = 0.05
+fitness = [
+    (Fitness.PROFIT, 50),
+    (Fitness.CORRELATION, 50)]
 
-# analyzer
+# optimization
 opt = LiveParams(
     fastMinutes = [15, 25, 35, 45],
     disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),

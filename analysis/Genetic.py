@@ -94,7 +94,7 @@ class Genetic:
                 # init strategy and engine
                 id = i + group_size * core
                 strategy = LiveStrategy(self.data, self.emas, self.fractals, individual)
-                engine = Engine(id, strategy)
+                engine = Engine(id, strategy, self.fitness)
 
                 # run and save
                 engine.run()
@@ -130,7 +130,7 @@ class Genetic:
 
         # catch entire generation unprofitable
         if len(self.engine_metrics) == 0:
-            print(f'{generation}: Entire generation unprofitable')
+            print(f'{generation}: Entire generation unprofitable.')
             exit()
 
         # isolate fitness of interest
@@ -163,7 +163,7 @@ class Genetic:
         # tournament selection # todo consider roulette wheel, rank-based, ...
         for i in range(self.population_size):
 
-            # random select group of individuals
+            # define random group of individuals
             group = random.sample(fitnesses, tournament_size)
             winner = max(group, key = lambda metric: metric.value)
 

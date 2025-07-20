@@ -77,8 +77,7 @@ class LiveParams:
                 f'\n\t\tslowAngleFactor: {pretty_list(self.slowAngleFactor)}'
                 f'\n\t\tcoolOffMinutes: {pretty_list(self.coolOffMinutes)}'
                 f'\n\t\ttrendStartHour: {pretty_list(self.trendStartHour)}'
-                f'\n\t\ttrendEndHour: {pretty_list(self.trendEndHour)}'
-            )
+                f'\n\t\ttrendEndHour: {pretty_list(self.trendEndHour)}')
 
         return (
             f'\n\t\tfastMinutes: {self.fastMinutes}'
@@ -92,5 +91,4 @@ class LiveParams:
             f'\n\t\tslowAngleFactor: {self.slowAngleFactor}'
             f'\n\t\tcoolOffMinutes: {self.coolOffMinutes}'
             f'\n\t\ttrendStartHour: {self.trendStartHour}'
-            f'\n\t\ttrendEndHour: {self.trendEndHour}'
-        )
+            f'\n\t\ttrendEndHour: {self.trendEndHour}')
