@@ -137,7 +137,7 @@ def get_engine_metrics(engine):
 
     line = regression.predict(bar_indices)
     mse = mean_squared_error(adjusted_cash_series, line)
-    correlation = -round(mse)
+    correlation = initial_cash / mse
 
     # pretty
     candles = '{:,}'.format(candles)
@@ -172,7 +172,7 @@ def get_engine_metrics(engine):
         Metric('average_win', average_win, 'USD', 'Average win'),
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
-        Metric('correlation', correlation, None, 'Linear correlation'),
+        Metric('correlation', correlation, None, 'Linear correlation', '.3f'),
 
         Metric('long_percent', percent_long, '%', 'Long'),
         Metric('short_percent', percent_short, '%', 'Short'),
@@ -284,7 +284,7 @@ def init_genetic_metrics(genetic):
     population_size = genetic.population_size
     generations = genetic.generations
     mutation_rate = genetic.mutation_rate * 100
-    fitness = genetic.fitness
+    # fitness = genetic.fitness
     cores = genetic.cores
     opt = genetic.opt
 
@@ -305,7 +305,7 @@ def init_genetic_metrics(genetic):
         Metric('population_size', population_size, None, 'Population size'),
         Metric('generations', generations, None, 'Generations'),
         Metric('mutation_rate', mutation_rate, '%', 'Mutation rate'),
-        Metric('fitness', fitness.pretty, None, 'Fitness'),
+        # Metric('fitness', fitness.pretty, None, 'Fitness'),
         Metric('cores', cores, None, 'Process cores'),
         Metric('opt', opt, None, 'Optimization'),
     ]
@@ -313,7 +313,7 @@ def init_genetic_metrics(genetic):
 def get_genetic_results_metrics(genetic):
 
     # summarize each generation
-    metrics = [ Metric('header', None, None, 'Generations:') ]
+    metrics = [ Metric('header', None, None, '\tGenerations:') ]
     for generation, metric in enumerate(genetic.best_engines):
 
         population_size = genetic.population_size
@@ -327,8 +327,7 @@ def get_genetic_results_metrics(genetic):
                  f'\tProfitable: {profitable_percent} [%]')
 
         # align console output for large populations
-        if 100 > genetic.population_size:
-            value = f'\t' + value
+        if 100 > metric.id: value = f'\t' + value
 
         metrics.append(
             Metric(name, value, None, title))

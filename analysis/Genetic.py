@@ -1,6 +1,8 @@
 import copy
 import random
 
+import pandas as pd
+
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
@@ -94,7 +96,7 @@ class Genetic:
                 # init strategy and engine
                 id = i + group_size * core
                 strategy = LiveStrategy(self.data, self.emas, self.fractals, individual)
-                engine = Engine(id, strategy, self.fitness)
+                engine = Engine(id, strategy)
 
                 # run and save
                 engine.run()
@@ -108,7 +110,6 @@ class Genetic:
         path = self.path + '/' + str(generation)
 
         selected = []
-        fitnesses = []
 
         # collect engine metrics from last generation
         ids = range(self.population_size)
@@ -133,12 +134,32 @@ class Genetic:
             print(f'{generation}: Entire generation unprofitable.')
             exit()
 
-        # isolate fitness of interest
-        for metric in self.engine_metrics:
-            if metric.name == self.fitness.value:
-                fitnesses.append(metric)
+        # todo calculate blended fitness
+        fitness_df = pd.DataFrame(
+            index = range(self.population_size)
+        )
+        for pair in self.fitness:
 
-        # sort by value
+            # extract tuple
+            fitness, percent = pair
+            fitness_df[fitness.value] = np.nan
+
+            # isolate fitness of interest
+            fitnesses = []
+            for metric in self.engine_metrics:
+                if metric.name == fitness.value:
+                    fitnesses.append(metric)
+
+            # normalize and scale
+            best = max(fitnesses, key = lambda metric: metric.value)
+            for i, metric in enumerate(fitnesses):
+                scaled = (metric.value / best.value) * (percent / 100)
+                fitness_df.iloc[metric.id][fitness.value] = scaled
+
+        # combine scaled fitness values
+        pass
+
+                # sort by value
         fitnesses = sorted(
             fitnesses,
             key = lambda it: it.value,
