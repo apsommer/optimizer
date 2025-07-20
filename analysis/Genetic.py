@@ -4,6 +4,7 @@ import random
 import pandas as pd
 
 from analysis.Engine import Engine
+from model.Metric import Metric
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import init_genetic_metrics, get_genetic_results_metrics
@@ -109,8 +110,6 @@ class Genetic:
         # organize outputs
         path = self.path + '/' + str(generation)
 
-        selected = []
-
         # collect engine metrics from last generation
         ids = range(self.population_size)
         unprofitable = 0
@@ -136,13 +135,12 @@ class Genetic:
 
         # todo calculate blended fitness
         fitness_df = pd.DataFrame(
-            index = range(self.population_size)
-        )
+            index = range(self.population_size))
+
         for pair in self.fitness:
 
             # extract tuple
             fitness, percent = pair
-            fitness_df[fitness.value] = np.nan
 
             # isolate fitness of interest
             fitnesses = []
@@ -152,21 +150,19 @@ class Genetic:
 
             # normalize and scale
             best = max(fitnesses, key = lambda metric: metric.value)
-            for i, metric in enumerate(fitnesses):
-                scaled = (metric.value / best.value) * (percent / 100)
-                fitness_df.iloc[metric.id][fitness.value] = scaled
+            for metric in fitnesses:
+                normalized = metric.value / best.value
+                scaled = normalized * percent
+                fitness_df.loc[metric.id, fitness.value] = scaled
 
-        # combine scaled fitness values
-        pass
-
-                # sort by value
-        fitnesses = sorted(
-            fitnesses,
-            key = lambda it: it.value,
-            reverse = True)
+        # blend fitnesses
+        fitnesses = fitness_df.sum(axis = 1, skipna = False)
+        best_id = fitnesses.idxmax()
+        best_value = fitnesses[best_id]
+        blend_metric = Metric('fitness_blend', best_value, '%', 'Fitness blend', id = best_id)
 
         # persist best engine in generation
-        self.best_engines.append(fitnesses[0])
+        self.best_engines.append(blend_metric)
 
         # check if solution has converged
         if generation > 2:
@@ -182,14 +178,15 @@ class Genetic:
             tournament_size = len(fitnesses)
 
         # tournament selection # todo consider roulette wheel, rank-based, ...
+        selected = []
         for i in range(self.population_size):
 
-            # define random group of individuals
-            group = random.sample(fitnesses, tournament_size)
-            winner = max(group, key = lambda metric: metric.value)
+            # collect random sample of blended fitness values
+            group = random.sample(list(fitnesses), tournament_size)
+            winner_id = group.index(max(group))
 
             individual = next(metric.value for metric in self.engine_metrics
-                if metric.name == 'params' and metric.id == winner.id)
+                if metric.name == 'params' and metric.id == winner_id)
 
             selected.append(individual)
 

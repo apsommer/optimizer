@@ -323,7 +323,7 @@ def get_genetic_results_metrics(genetic):
         name = 'generation_' + str(generation)
         title = f'\t{generation}, {metric.id}'
         # value = (f'\t{genetic.fitness.pretty}: {round(metric.value)} [{genetic.fitness.unit}],'
-        value = (f'\t{genetic.fitness.pretty}: {round(metric.value)},'
+        value = (f'\tBlended fitness: {round(metric.value)},'
                  f'\tProfitable: {profitable_percent} [%]')
 
         # align console output for large populations
