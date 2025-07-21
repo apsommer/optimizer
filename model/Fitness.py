@@ -1,10 +1,11 @@
+import random
 from enum import Enum
-
 from model.Metric import Metric
 from utils.constants import *
 
 class Fitness(Enum):
 
+    # key is name of engine metric
     PROFIT = 'profit'
     PROFIT_FACTOR = 'profit_factor'
     EXPECTANCY = 'expectancy'
@@ -15,20 +16,6 @@ class Fitness(Enum):
     DRAWDOWN_PER_PROFIT = 'drawdown_per_profit'
     CORRELATION = 'correlation'
     NUM_TRADES = 'num_trades'
-
-    @property
-    def unit(self):
-        match self:
-            case Fitness.PROFIT: return 'USD'
-            case Fitness.PROFIT_FACTOR: return None
-            case Fitness.EXPECTANCY: return 'USD'
-            case Fitness.WIN_RATE: return '%'
-            case Fitness.AVERAGE_WIN: return 'USD'
-            case Fitness.AVERAGE_LOSS: return 'USD'
-            case Fitness.DRAWDOWN: return 'USD'
-            case Fitness.DRAWDOWN_PER_PROFIT: return 'USD'
-            case Fitness.CORRELATION: return None
-            case Fitness.NUM_TRADES: return None
 
     @property
     def pretty(self):
@@ -46,14 +33,5 @@ class Fitness(Enum):
 
     @property
     def color(self):
-        match self:
-            case Fitness.PROFIT: return blue
-            case Fitness.PROFIT_FACTOR: return yellow
-            case Fitness.EXPECTANCY: return orange
-            case Fitness.WIN_RATE: return green
-            case Fitness.AVERAGE_WIN: return red
-            case Fitness.AVERAGE_LOSS: return purple
-            case Fitness.DRAWDOWN: return brown
-            case Fitness.DRAWDOWN_PER_PROFIT: return pink
-            case Fitness.CORRELATION: return gray
-            case Fitness.NUM_TRADES: return yellow
+        i = random.randint(0, len(colors) - 1)
+        return colors[i]
