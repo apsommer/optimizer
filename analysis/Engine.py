@@ -17,15 +17,12 @@ class Engine:
         self.initial_cash = initial_cash
         self.cash = self.initial_cash
 
-    def run(self):
-
-        # progress bar attributes
-        isFirstProcess = '0' == multiprocessing.current_process().name
+    def run(self, pbar_position = 1, pbar_disable = True):
 
         for idx in tqdm(
-            disable = not isFirstProcess,
+            position = pbar_position,
+            disable = pbar_disable,
             leave = False,
-            position = 2, # todo pass as arg, wfa = 1, genetic = 2
             iterable = self.data.index,
             colour = aqua,
             bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):

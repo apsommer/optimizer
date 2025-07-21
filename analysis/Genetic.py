@@ -100,9 +100,10 @@ class Genetic:
                 engine = Engine(id, strategy)
 
                 # run and save
-                engine.run()
+                engine.run(
+                    pbar_position = 2,
+                    pbar_disable = core != 0)
                 engine.save(path, False)
-
                 pbar.update()
 
     def selection(self, generation, tournament_size):
@@ -258,25 +259,35 @@ class Genetic:
         winner_generation = self.best_engines.index(winner_metric)
 
         # run and save best engine in each generation
-        for generation, metric in enumerate(self.best_engines):
+        bar_format = '        Analyze:        {percentage:3.0f}%|{bar:100}{r_bar}'
+        with tqdm(
+            position = 0,
+            leave = False,
+            total = len(self.best_engines),
+            colour = green,
+            bar_format = bar_format) as pbar:
 
-            # unpack partial results
-            path = self.path + '/' + str(generation)
-            engine = unpack(metric.id, path)
+            for generation, metric in enumerate(self.best_engines):
 
-            # init strategy and engine
-            id = 'g' + str(generation) + 'e' + str(metric.id)
-            params = next(metric.value for metric in engine['metrics'] if metric.name == 'params')
-            strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
-            engine = Engine(id, strategy)
+                # unpack partial results
+                path = self.path + '/' + str(generation)
+                engine = unpack(metric.id, path)
 
-            # run and save
-            engine.run()
-            engine.save(self.path, True)
+                # init strategy and engine
+                id = 'g' + str(generation) + 'e' + str(metric.id)
+                params = next(metric.value for metric in engine['metrics'] if metric.name == 'params')
+                strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
+                engine = Engine(id, strategy)
 
-            # persist solution
-            if generation == winner_generation:
-                self.winner = copy.copy(engine)
+                # run and save
+                engine.run(pbar_disable = False)
+                engine.save(self.path, True)
+
+                # persist solution
+                if generation == winner_generation:
+                    self.winner = copy.copy(engine)
+
+                pbar.update()
 
         # persist results
         self.metrics += get_genetic_results_metrics(self)

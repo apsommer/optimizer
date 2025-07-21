@@ -289,7 +289,6 @@ class LiveStrategy(BaselineStrategy):
             if isExitLongFastCrossover: comment = 'fastCrossover'
             elif isExitLongTakeProfit: comment = 'takeProfit'
             elif self.is_last_bar: comment = 'lastBar'
-
             elif isExitLongFastMomentum and slow > fast: comment = 'flip fastMomentum'
             elif is_long and isEntryShortSignal: comment = 'flip shortSignal'
             elif isExitLongFastMomentum: comment = 'fastMomentum'

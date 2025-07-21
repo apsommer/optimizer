@@ -20,7 +20,7 @@ isNetwork = False
 
 # genetic params
 population_size = 15
-generations = 5
+generations = 2
 mutation_rate = 0.05
 
 # todo encapsulate to class, extract commons for wfa use
@@ -115,7 +115,7 @@ for generation in tqdm(
         tournament_size = 3)
 
     if isSolutionConverged:
-        print('\n\n\tSolution has converged.\n')
+        print('\n\n\tSolution has converged.')
         break
 
     genetic.crossover()
