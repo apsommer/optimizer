@@ -12,13 +12,13 @@ from utils.utils import *
 
 class Genetic:
 
-    def __init__(self, population_size, generations, mutation_rate, fitness, data, emas, fractals, opt, parent_path, cores):
+    def __init__(self, population_size, generations, mutation_rate, blended_fitness, data, emas, fractals, opt, parent_path, cores):
 
         self.population_size = population_size
         self.generations = generations
         self.mutation_rate = mutation_rate
         self.data = data
-        self.fitness = fitness
+        self.blended_fitness = blended_fitness
         self.emas = emas
         self.fractals = fractals
         self.opt = opt
@@ -131,32 +131,7 @@ class Genetic:
             print(f'{generation}: Entire generation unprofitable.')
             exit()
 
-        # calculate blended fitness todo extract for wfa
-        fitness_df = pd.DataFrame(index = range(self.population_size))
-        for pair in self.fitness:
-
-            # extract tuple
-            fitness, percent = pair
-
-            # isolate fitness of interest
-            fitnesses = []
-            for metric in self.engine_metrics:
-                if metric.name == fitness.value:
-                    fitnesses.append(metric)
-
-            # normalize and scale
-            best = max(fitnesses, key = lambda metric: metric.value)
-            for metric in fitnesses:
-                normalized = metric.value / best.value
-                scaled = normalized * percent
-                fitness_df.loc[metric.id, fitness.value] = scaled
-
-        # blend scaled fitnesses
-        blended_values, blended_metrics = fitness_df.sum(axis = 1, skipna = False), []
-        for id, blended_value in enumerate(blended_values):
-            if np.isnan(blended_value): continue
-            blended_metrics.append(
-                Metric('blended_fitness', blended_value, '%', 'Fitness blend', id = id))
+        blended_metrics = self.blended_fitness.blend(self.engine_metrics)
 
         # persist best engine in generation
         self.best_engines.append(

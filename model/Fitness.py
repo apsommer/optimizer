@@ -1,7 +1,49 @@
 import random
 from enum import Enum
+
+import numpy as np
+import pandas as pd
+
 from model.Metric import Metric
 from utils.constants import *
+
+class BlendedFitness:
+
+    def __init__(self, tuples):
+        self.tuples = tuples
+
+    def blend(self, engine_metrics):
+
+        # init
+        fitness_df = pd.DataFrame(
+            index = range(len(engine_metrics)))
+
+        for pair in self.tuples:
+
+            # extract tuple
+            fitness, percent = pair
+
+            # isolate fitness of interest
+            fitnesses = []
+            for metric in engine_metrics:
+                if metric.name == fitness.value:
+                    fitnesses.append(metric)
+
+            # normalize and scale
+            best = max(fitnesses, key = lambda metric: metric.value)
+            for metric in fitnesses:
+                normalized = metric.value / best.value
+                scaled = normalized * percent
+                fitness_df.loc[metric.id, fitness.value] = scaled
+
+        # blend scaled fitnesses
+        blended_values, blended_metrics = fitness_df.sum(axis = 1, skipna = False), []
+        for id, blended_value in enumerate(blended_values):
+            if np.isnan(blended_value): continue
+            blended_metrics.append(
+                Metric('blended_fitness', blended_value, '%', 'Fitness blend', id = id))
+
+        return blended_metrics
 
 class Fitness(Enum):
 

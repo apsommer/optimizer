@@ -5,7 +5,7 @@ from functools import partial
 from multiprocessing import Pool
 
 from analysis.Genetic import Genetic
-from model.Fitness import Fitness
+from model.Fitness import Fitness, BlendedFitness
 from strategy.LiveParams import LiveParams
 from utils import utils
 from utils.metrics import print_metrics, get_genetic_results_metrics
@@ -15,20 +15,20 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 20
+num_months = 3
 isNetwork = False
 
 # genetic params
-population_size = 150
-generations = 7
+population_size = 15
+generations = 2
 mutation_rate = 0.05
 
 # todo encapsulate to class, extract commons for wfa use
-fitness = [
-    (Fitness.PROFIT, 50),
-    (Fitness.CORRELATION, 25),
-    (Fitness.NUM_TRADES, 25)
-]
+blended_fitness = BlendedFitness(
+    tuples = [
+        (Fitness.PROFIT, 50),
+        (Fitness.CORRELATION, 25),
+        (Fitness.NUM_TRADES, 25)])
 
 # optimization
 opt = LiveParams(
@@ -79,7 +79,7 @@ genetic = Genetic(
     population_size = population_size,
     generations = generations,
     mutation_rate = mutation_rate,
-    fitness = fitness,
+    blended_fitness= blended_fitness,
     data = data,
     emas = emas,
     fractals = fractals,
