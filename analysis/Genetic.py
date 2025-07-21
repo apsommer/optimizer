@@ -1,24 +1,32 @@
 import copy
 import random
 
-import pandas as pd
-
 from analysis.Engine import Engine
-from model.Metric import Metric
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
-from utils.metrics import init_genetic_metrics, get_genetic_results_metrics, print_metrics
+from utils.metrics import init_genetic_metrics, get_genetic_results_metrics
 from utils.utils import *
 
 class Genetic:
 
-    def __init__(self, population_size, generations, mutation_rate, blended_fitness, data, emas, fractals, opt, parent_path, cores):
+    def __init__(
+        self,
+        population_size,
+        generations,
+        mutation_rate,
+        fitness,
+        data,
+        emas,
+        fractals,
+        opt,
+        parent_path,
+        cores):
 
         self.population_size = population_size
         self.generations = generations
         self.mutation_rate = mutation_rate
         self.data = data
-        self.blended_fitness = blended_fitness
+        self.fitness = fitness
         self.emas = emas
         self.fractals = fractals
         self.opt = opt
@@ -131,7 +139,7 @@ class Genetic:
             print(f'{generation}: Entire generation unprofitable.')
             exit()
 
-        blended_metrics = self.blended_fitness.blend(self.engine_metrics)
+        blended_metrics = self.fitness.blend(self.engine_metrics)
 
         # persist best engine in generation
         self.best_engines.append(

@@ -5,7 +5,7 @@ from functools import partial
 from multiprocessing import Pool
 
 from analysis.Genetic import Genetic
-from model.Fitness import Fitness, BlendedFitness
+from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
 from utils.metrics import print_metrics, get_genetic_results_metrics
@@ -15,31 +15,30 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 3
+num_months = 6
 isNetwork = False
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 7
 mutation_rate = 0.05
 
 # todo encapsulate to class, extract commons for wfa use
-blended_fitness = BlendedFitness(
-    tuples = [
-        (Fitness.PROFIT, 50),
-        (Fitness.CORRELATION, 25),
-        (Fitness.NUM_TRADES, 25)])
+fitness = Fitness(
+    fits= [
+        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        (Fit.CORRELATION, 50)])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [25],
+    fastMinutes = [15, 20, 25],
     disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70,100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
-    stopLossPercent = [0], # np.around(np.linspace(.25, .75, 51), 2),
+    stopLossPercent = np.around(np.linspace(.25, 1.25, 101), 2),
     fastAngleFactor = [0],
-    slowMinutes = [2005, 2255, 2555], # np.linspace(2005, 3005, 11, dtype = int),
+    slowMinutes = [2005, 2255, 2555, 2755], # np.linspace(2005, 3005, 11, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
     coolOffMinutes = np.linspace(5, 55, 11, dtype = int),
     trendStartHour = np.linspace(0, 24, 25, dtype = int),
@@ -79,7 +78,7 @@ genetic = Genetic(
     population_size = population_size,
     generations = generations,
     mutation_rate = mutation_rate,
-    blended_fitness= blended_fitness,
+    fitness= fitness,
     data = data,
     emas = emas,
     fractals = fractals,

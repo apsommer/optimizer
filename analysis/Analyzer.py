@@ -1,5 +1,5 @@
 from analysis.Engine import Engine
-from model.Fitness import Fitness
+from model.Fitness import Fit
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 from utils.metrics import *
@@ -108,7 +108,7 @@ class Analyzer:
         self.metrics = get_analyzer_metrics(self)
 
         # collect fittest engines
-        for fitness in Fitness:
+        for fitness in Fit:
 
             # get fittest engine
             metric = self.get_fittest_metric(fitness)

@@ -1,6 +1,6 @@
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
-from model.Fitness import Fitness
+from model.Fitness import Fit
 from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import *
 from utils.utils import *
@@ -108,7 +108,7 @@ class WalkForward():
         # stitch OS runs together
         for run in tqdm(
             iterable = range(self.runs),
-            disable = fitness is not Fitness.PROFIT, # show only 1 core
+            disable =fitness is not Fit.PROFIT, # show only 1 core
             colour = blue,
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
@@ -216,7 +216,7 @@ class WalkForward():
 
         # isolate composite with highest profit
         highest_profit = -np.inf
-        for fitness in Fitness:
+        for fitness in Fit:
 
             engine = unpack(fitness.value, self.path)
             cash_series = engine['cash_series']
@@ -277,7 +277,7 @@ class WalkForward():
             window = 1,
             title = 'Equity')
 
-        for fitness in Fitness:
+        for fitness in Fit:
 
             # unpack composite engine
             composite = unpack(fitness.value, self.path)

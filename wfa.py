@@ -3,7 +3,7 @@ import warnings
 from multiprocessing import Pool
 
 from analysis.WalkForward import WalkForward
-from model.Fitness import Fitness
+from model.Fitness import Fit
 from strategy.LiveParams import LiveParams
 from utils import utils
 from utils.metrics import *
@@ -76,7 +76,7 @@ wfa = WalkForward(
 # multiprocessing uses all cores
 cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave 1 for basic computer tasks
-fitnesses = [fitness for fitness in Fitness]
+fitnesses = [fitness for fitness in Fit]
 
 # print header metrics
 print_metrics(wfa.metrics)

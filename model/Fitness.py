@@ -7,10 +7,10 @@ import pandas as pd
 from model.Metric import Metric
 from utils.constants import *
 
-class BlendedFitness:
+class Fitness:
 
-    def __init__(self, tuples):
-        self.tuples = tuples
+    def __init__(self, fits):
+        self.fits = fits
 
     def blend(self, engine_metrics):
 
@@ -18,15 +18,15 @@ class BlendedFitness:
         fitness_df = pd.DataFrame(
             index = range(len(engine_metrics)))
 
-        for pair in self.tuples:
+        for pair in self.fits:
 
             # extract tuple
-            fitness, percent = pair
+            fit, percent = pair
 
             # isolate fitness of interest
             fitnesses = []
             for metric in engine_metrics:
-                if metric.name == fitness.value:
+                if metric.name == fit.value:
                     fitnesses.append(metric)
 
             # normalize and scale
@@ -34,18 +34,28 @@ class BlendedFitness:
             for metric in fitnesses:
                 normalized = metric.value / best.value
                 scaled = normalized * percent
-                fitness_df.loc[metric.id, fitness.value] = scaled
+                fitness_df.loc[metric.id, fit.value] = scaled
 
         # blend scaled fitnesses
-        blended_values, blended_metrics = fitness_df.sum(axis = 1, skipna = False), []
-        for id, blended_value in enumerate(blended_values):
-            if np.isnan(blended_value): continue
-            blended_metrics.append(
-                Metric('blended_fitness', blended_value, '%', 'Fitness blend', id = id))
+        values, metrics = fitness_df.sum(axis = 1, skipna = False), []
+        for id, value in enumerate(values):
+            if np.isnan(value): continue
+            metrics.append(
+                Metric('fitness', value, '%', 'Fitness', id = id))
 
-        return blended_metrics
+        return metrics
 
-class Fitness(Enum):
+    def pretty(self):
+
+        pretty = ''
+        for pair in self.fits:
+
+            fit, percent = pair
+            pretty += fit.pretty + ' ' + str(percent) + ' [%], '
+
+        return pretty[:-2]
+
+class Fit(Enum):
 
     # key is name of engine metric
     PROFIT = 'profit'
@@ -62,16 +72,16 @@ class Fitness(Enum):
     @property
     def pretty(self):
         match self:
-            case Fitness.PROFIT: return 'Profit'
-            case Fitness.PROFIT_FACTOR: return 'Profit Factor'
-            case Fitness.EXPECTANCY: return 'Expectancy'
-            case Fitness.WIN_RATE: return 'Win rate'
-            case Fitness.AVERAGE_WIN: return 'Average win'
-            case Fitness.AVERAGE_LOSS: return 'Average loss'
-            case Fitness.DRAWDOWN: return 'Drawdown'
-            case Fitness.DRAWDOWN_PER_PROFIT: return 'Drawdown per profit'
-            case Fitness.CORRELATION: return 'Linear correlation'
-            case Fitness.NUM_TRADES: return 'Number of trades'
+            case Fit.PROFIT: return 'Profit'
+            case Fit.PROFIT_FACTOR: return 'Profit Factor'
+            case Fit.EXPECTANCY: return 'Expectancy'
+            case Fit.WIN_RATE: return 'Win rate'
+            case Fit.AVERAGE_WIN: return 'Average win'
+            case Fit.AVERAGE_LOSS: return 'Average loss'
+            case Fit.DRAWDOWN: return 'Drawdown'
+            case Fit.DRAWDOWN_PER_PROFIT: return 'Drawdown per profit'
+            case Fit.CORRELATION: return 'Linear correlation'
+            case Fit.NUM_TRADES: return 'Number of trades'
 
     @property
     def color(self):

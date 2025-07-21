@@ -284,7 +284,7 @@ def init_genetic_metrics(genetic):
     population_size = genetic.population_size
     generations = genetic.generations
     mutation_rate = genetic.mutation_rate * 100
-    # fitness = genetic.fitness
+    fitness = genetic.fitness.pretty
     cores = genetic.cores
     opt = genetic.opt
 
@@ -305,7 +305,7 @@ def init_genetic_metrics(genetic):
         Metric('population_size', population_size, None, 'Population size'),
         Metric('generations', generations, None, 'Generations'),
         Metric('mutation_rate', mutation_rate, '%', 'Mutation rate'),
-        # Metric('fitness', fitness.pretty, None, 'Fitness'),
+        Metric('fitness', fitness.pretty, None, 'Fitness'),
         Metric('cores', cores, None, 'Process cores'),
         Metric('opt', opt, None, 'Optimization'),
     ]
