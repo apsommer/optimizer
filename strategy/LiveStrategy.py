@@ -292,6 +292,7 @@ class LiveStrategy(BaselineStrategy):
             elif isExitLongFastMomentum and slow > fast: comment = 'flip fastMomentum'
             elif is_long and isEntryShortSignal: comment = 'flip shortSignal'
             elif isExitLongFastMomentum: comment = 'fastMomentum'
+            elif isExitLongStopLoss: comment = 'stopLoss'
 
             self.longExitBarIndex = bar_index
             self.sell(ticker, size, comment)
@@ -311,10 +312,10 @@ class LiveStrategy(BaselineStrategy):
             if isExitShortFastCrossover: comment = 'fastCrossover'
             elif isExitShortTakeProfit: comment = 'takeProfit'
             elif self.is_last_bar: comment = 'lastBar'
-
             elif isExitShortFastMomentum and fast > slow: comment = 'flip fastMomentum'
             elif is_short and isEntryLongSignal: comment = 'flip longSignal'
             elif isExitShortFastMomentum: comment = 'fastMomentum'
+            elif isExitShortStopLoss: comment = 'stopLoss'
 
             self.shortExitBarIndex = bar_index
             self.buy(ticker, size, comment)

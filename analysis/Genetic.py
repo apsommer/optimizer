@@ -259,12 +259,12 @@ class Genetic:
         winner_generation = self.best_engines.index(winner_metric)
 
         # run and save best engine in each generation
-        bar_format = '        Analyze:        {percentage:3.0f}%|{bar:100}{r_bar}'
+        bar_format = '        Plot:           {percentage:3.0f}%|{bar:100}{r_bar}'
         with tqdm(
             position = 0,
             leave = False,
             total = len(self.best_engines),
-            colour = green,
+            colour = purple,
             bar_format = bar_format) as pbar:
 
             for generation, metric in enumerate(self.best_engines):

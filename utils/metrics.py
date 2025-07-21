@@ -313,7 +313,7 @@ def init_genetic_metrics(genetic):
 def get_genetic_results_metrics(genetic):
 
     # summarize each generation
-    metrics = [ Metric('header', None, None, '\tGenerations:') ]
+    metrics = [ Metric('header', None, None, 'Generations:') ]
     for generation, metric in enumerate(genetic.best_engines):
 
         population_size = genetic.population_size
