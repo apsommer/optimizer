@@ -1,4 +1,5 @@
 import shutil
+import time
 import warnings
 from functools import partial
 from multiprocessing import Pool
@@ -14,11 +15,11 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 12
+num_months = 3
 isNetwork = False
 
 # genetic params
-population_size = 150
+population_size = 15
 generations = 5
 mutation_rate = 0.05
 
@@ -114,7 +115,7 @@ for generation in tqdm(
         tournament_size = 3)
 
     if isSolutionConverged:
-        print('\tSolution converged.')
+        print('\n\n\tSolution has converged.\n')
         break
 
     genetic.crossover()

@@ -111,37 +111,27 @@ class Genetic:
         path = self.path + '/' + str(generation)
 
         # collect engine metrics from last generation
-        ids = range(self.population_size)
-        unprofitable = 0
+        ids, unprofitable = range(self.population_size), 0
         for id in ids:
 
             engine_metrics = unpack(id, path)['metrics']
 
             # filter out engines with loss
-            try:
-                profit = next(metric.value for metric in engine_metrics if metric.name == 'profit')
-                if 0 > profit:
-                    unprofitable += 1
-                    continue
-
-            except StopIteration:
-                print(f'id: {id}')
-                print_metrics(engine_metrics)
+            profit = next(metric.value for metric in engine_metrics if metric.name == 'profit')
+            if 0 > profit:
+                unprofitable += 1
+                continue
 
             self.engine_metrics.extend(engine_metrics)
 
         # track unprofitable engines
         self.unprofitable_engines.append(unprofitable)
-
-        # catch entire generation unprofitable
         if len(self.engine_metrics) == 0:
             print(f'{generation}: Entire generation unprofitable.')
             exit()
 
-        # todo calculate blended fitness
-        fitness_df = pd.DataFrame(
-            index = range(self.population_size))
-
+        # calculate blended fitness todo extract for wfa
+        fitness_df = pd.DataFrame(index = range(self.population_size))
         for pair in self.fitness:
 
             # extract tuple
@@ -160,38 +150,36 @@ class Genetic:
                 scaled = normalized * percent
                 fitness_df.loc[metric.id, fitness.value] = scaled
 
-        # blend fitnesses
-        fitnesses = fitness_df.sum(axis = 1, skipna = False)
-        best_id = fitnesses.idxmax()
-        best_value = fitnesses[best_id]
-        blend_metric = Metric('fitness_blend', best_value, '%', 'Fitness blend', id = best_id)
+        # blend scaled fitnesses
+        blended_values, blended_metrics = fitness_df.sum(axis = 1, skipna = False), []
+        for id, blended_value in enumerate(blended_values):
+            if np.isnan(blended_value): continue
+            blended_metrics.append(
+                Metric('blended_fitness', blended_value, '%', 'Fitness blend', id = id))
 
         # persist best engine in generation
-        self.best_engines.append(blend_metric)
+        self.best_engines.append(
+            max(blended_metrics, key = lambda metric: metric.value))
 
-        # check if solution has converged
+        # check for solution convergence
         if generation > 2:
-
             current_winner = max(self.best_engines, key = lambda metric: metric.value)
             prev_winner = max(self.best_engines[:-1], key = lambda metric: metric.value)
             prev_prev_winner = max(self.best_engines[:-2], key = lambda metric: metric.value)
-
             if current_winner == prev_winner == prev_prev_winner: return True
 
         # catch small population in initial generations
-        if tournament_size > len(fitnesses):
-            tournament_size = len(fitnesses)
+        if tournament_size > len(blended_metrics): tournament_size = len(blended_metrics)
 
         # tournament selection # todo consider roulette wheel, rank-based, ...
         selected = []
         for i in range(self.population_size):
 
-            # collect random sample of blended fitness values
-            group = random.sample(list(fitnesses), tournament_size)
-            winner_id = group.index(max(group))
-
+            # collect random sample of blended fitness metrics
+            group = random.sample(blended_metrics, tournament_size)
+            winner = max(group, key = lambda metric: metric.value)
             individual = next(metric.value for metric in self.engine_metrics
-                if metric.name == 'params' and metric.id == winner_id)
+                if metric.name == 'params' and metric.id == winner.id)
 
             selected.append(individual)
 
@@ -199,7 +187,7 @@ class Genetic:
         self.population = selected
         self.engine_metrics = []
 
-        # solution not yet converged
+        # solution has not converged
         return False
 
     def crossover(self):

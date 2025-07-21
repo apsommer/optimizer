@@ -1,4 +1,5 @@
-from utils.utils import pretty_list
+import numpy
+import numpy as np
 
 
 class LiveParams:
@@ -92,3 +93,11 @@ class LiveParams:
             f'\n\t\tcoolOffMinutes: {self.coolOffMinutes}'
             f'\n\t\ttrendStartHour: {self.trendStartHour}'
             f'\n\t\ttrendEndHour: {self.trendEndHour}')
+
+def pretty_list(list):
+    return (
+        np.array2string(
+            a = np.array(list),
+            separator = ',')
+        .replace(' ', '')
+        .replace(',', ', '))

@@ -2,8 +2,7 @@ import multiprocessing
 import os
 import pickle
 import re
-import time
-from datetime import timedelta, datetime, timezone
+from datetime import timedelta, datetime
 import matplotlib.pyplot as plt
 
 import databento as db
@@ -12,7 +11,6 @@ import pytz
 from tqdm import tqdm
 
 import local.api_keys as keys
-import numpy as np
 import finplot as fplt
 from utils.constants import *
 
@@ -277,11 +275,3 @@ def format_timestamp(idx, type = 'tradingview'):
     if type != 'tradingview': formatter = '%Y%m%d_%H%M%S'
 
     return idx.strftime(formatter)
-
-def pretty_list(list):
-    return (
-        np.array2string(
-            a = np.array(list),
-            separator = ',')
-        .replace(' ', '')
-        .replace(',', ', '))
