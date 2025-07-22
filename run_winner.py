@@ -1,13 +1,15 @@
+import time
 import warnings
 
-from analysis.Engine import Engine
+from genetic.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
 from utils.utils import *
 
 ''' run winner from genetic analysis '''
 # INPUT ###########################################################
 
-num_months = 28
+num_months = 20
+id = '20250721_230859'
 
 ###################################################################
 
@@ -25,16 +27,16 @@ emas = unpack('emas', parent_path)
 fractals = unpack('fractals', parent_path)
 
 # unpack winner
-analysis = unpack('analysis', parent_path)
-params = analysis['winner']['params']
+genetic = unpack(id, parent_path)
+params = genetic['winner']['params']
 
 # init strategy and engine
-id = analysis['winner']['id']
+id = genetic['winner']['id']
 strategy = LiveStrategy(data, emas, fractals, params)
 engine = Engine(id, strategy)
+engine.run()
 
 # display results
-engine.run()
 engine.print_metrics()
 engine.print_trades(show_last = 1000)
 engine.plot_trades()

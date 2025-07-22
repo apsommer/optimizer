@@ -15,20 +15,19 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 3
+num_months = 20
 isNetwork = False
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 7
 mutation_rate = 0.05
 
 # todo encapsulate to class, extract commons for wfa use
 fitness = Fitness(
     fits= [
         (Fit.PROFIT, 50),
-        (Fit.CORRELATION, 25),
-        (Fit.NUM_TRADES, 25),
+        (Fit.CORRELATION, 50),
     ])
 
 # optimization
@@ -97,7 +96,7 @@ for generation in tqdm(
     iterable = range(generations),
     position = 0,
     leave = False,
-    colour = green,
+    colour = purple,
     bar_format = bar_format):
 
     # split population between process cores and evaluate

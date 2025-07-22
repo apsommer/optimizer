@@ -236,6 +236,9 @@ class Genetic:
 
     def analyze(self, generation):
 
+        # catch converged solution
+        if generation > len(self.engine_metrics) - 1: return
+
         # extract best engine in generation
         metric = self.best_engines[generation]
 
@@ -264,7 +267,8 @@ class Genetic:
         self.metrics += get_genetic_results_metrics(self)
 
         bundle = {
-            'metrics': self.metrics
+            'metrics': self.metrics,
+            'best_engines': self.best_engines
         }
 
         # timestamp filename
