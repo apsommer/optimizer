@@ -15,30 +15,32 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 6
+num_months = 12
 isNetwork = False
 
 # genetic params
 population_size = 150
-generations = 7
+generations = 2
 mutation_rate = 0.05
 
 # todo encapsulate to class, extract commons for wfa use
 fitness = Fitness(
     fits= [
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.CORRELATION, 50)])
+        (Fit.PROFIT, 50),
+        (Fit.CORRELATION, 25),
+        (Fit.NUM_TRADES, 25),
+    ])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [15, 20, 25],
+    fastMinutes = [20],
     disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70,100, 31, dtype = int),
-    takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
-    stopLossPercent = np.around(np.linspace(.25, 1.25, 101), 2),
+    takeProfitPercent = np.around(np.linspace(.1, .75, 66), 2),
+    stopLossPercent = np.around(np.linspace(.1, .75, 66), 2),
     fastAngleFactor = [0],
-    slowMinutes = [2005, 2255, 2555, 2755], # np.linspace(2005, 3005, 11, dtype = int),
+    slowMinutes = [2255], # np.linspace(2005, 3005, 11, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
     coolOffMinutes = np.linspace(5, 55, 11, dtype = int),
     trendStartHour = np.linspace(0, 24, 25, dtype = int),
@@ -114,7 +116,7 @@ for generation in tqdm(
         tournament_size = 3)
 
     if isSolutionConverged:
-        print('\n\n\tSolution has converged.')
+        print('\n\n\tSolution converged.')
         break
 
     genetic.crossover()

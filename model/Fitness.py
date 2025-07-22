@@ -45,6 +45,7 @@ class Fitness:
 
         return metrics
 
+    @property
     def pretty(self):
 
         pretty = ''

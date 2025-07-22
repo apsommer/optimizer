@@ -1,11 +1,10 @@
+import math
 from datetime import timedelta
 
-import pandas as pd
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_squared_error
 
 import numpy as np
-import scipy as scipy
 from model.Metric import Metric
 from utils.utils import format_timestamp
 
@@ -137,7 +136,7 @@ def get_engine_metrics(engine):
 
     line = regression.predict(bar_indices)
     mse = mean_squared_error(adjusted_cash_series, line)
-    correlation = initial_cash / mse
+    correlation = math.sqrt(mse)
 
     # pretty
     candles = '{:,}'.format(candles)
@@ -305,7 +304,7 @@ def init_genetic_metrics(genetic):
         Metric('population_size', population_size, None, 'Population size'),
         Metric('generations', generations, None, 'Generations'),
         Metric('mutation_rate', mutation_rate, '%', 'Mutation rate'),
-        Metric('fitness', fitness.pretty, None, 'Fitness'),
+        Metric('fitness', fitness, None, 'Fitness'),
         Metric('cores', cores, None, 'Process cores'),
         Metric('opt', opt, None, 'Optimization'),
     ]
@@ -323,8 +322,7 @@ def get_genetic_results_metrics(genetic):
         name = 'generation_' + str(generation)
         title = f'\t{generation}, {metric.id}'
         # value = (f'\t{genetic.fitness.pretty}: {round(metric.value)} [{genetic.fitness.unit}],'
-        value = (f'\tBlended fitness: {round(metric.value)},'
-                 f'\tProfitable: {profitable_percent} [%]')
+        value = f'\tFitness: {round(metric.value)} [%], Profitable: {profitable_percent} [%]'
 
         # align console output for large populations
         if 100 > metric.id: value = f'\t' + value
