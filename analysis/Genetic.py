@@ -4,7 +4,7 @@ import random
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import LiveStrategy
-from utils.metrics import init_genetic_metrics, get_genetic_results_metrics
+from utils.metrics import init_genetic_metrics, get_genetic_results_metrics, print_metrics
 from utils.utils import *
 
 class Genetic:
@@ -54,7 +54,6 @@ class Genetic:
         self.engine_metrics = []
         self.best_engines = []
         self.unprofitable_engines = []
-        self.winner = None
 
         # init first population
         self.population = []
@@ -109,8 +108,8 @@ class Genetic:
 
                 # run and save
                 engine.run(
-                    pbar_position = 2,
-                    pbar_disable = core != 0)
+                    position= 2,
+                    disable=core != 0)
                 engine.save(path, False)
                 pbar.update()
 
@@ -235,52 +234,36 @@ class Genetic:
                 closest_gene = min(available_genes, key = lambda gene: abs(gene - individual_gene))
                 setattr(individual, chromosome, closest_gene)
 
-    def analyze(self):
+    def analyze(self, generation):
 
-        # isolate solution
-        winner_metric = max(self.best_engines, key = lambda it: it.value)
-        winner_generation = self.best_engines.index(winner_metric)
+        # extract best engine in generation
+        metric = self.best_engines[generation]
 
-        # run and save best engine in each generation
-        bar_format = '        Analyze/Plot:   {percentage:3.0f}%|{bar:100}{r_bar}'
-        with tqdm(
+        # unpack partial results
+        path = self.path + '/' + str(generation)
+        engine = unpack(metric.id, path)
+
+        # init strategy and engine
+        id = 'g' + str(generation) + 'e' + str(metric.id)
+        params = next(metric.value for metric in engine['metrics'] if metric.name == 'params')
+        strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
+        engine = Engine(id, strategy)
+
+        # run and save
+        bar_format = '        Plot:           {percentage:3.0f}%|{bar:100}{r_bar}'
+        engine.run(
             position = 0,
-            leave = False,
-            total = len(self.best_engines),
-            colour = purple,
-            bar_format = bar_format) as pbar:
-
-            for generation, metric in enumerate(self.best_engines):
-
-                # unpack partial results
-                path = self.path + '/' + str(generation)
-                engine = unpack(metric.id, path)
-
-                # init strategy and engine
-                id = 'g' + str(generation) + 'e' + str(metric.id)
-                params = next(metric.value for metric in engine['metrics'] if metric.name == 'params')
-                strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
-                engine = Engine(id, strategy)
-
-                # run and save
-                engine.run(pbar_disable = False)
-                engine.save(self.path, True)
-
-                # persist solution
-                if generation == winner_generation:
-                    self.winner = copy.copy(engine)
-
-                pbar.update()
-
-        # persist results
-        self.metrics += get_genetic_results_metrics(self)
-        self.save()
+            disable = generation != 0,
+            bar_format = bar_format)
+        engine.save(self.path, True)
 
     ''' serialize '''
     def save(self):
 
+        # persist results
+        self.metrics += get_genetic_results_metrics(self)
+
         bundle = {
-            'winner': self.winner,
             'metrics': self.metrics
         }
 
@@ -296,13 +279,32 @@ class Genetic:
 
     ####################################################################################################################
 
+    def print_metrics(self):
+        print_metrics(self.metrics)
+
     def plot(self):
 
+        # unpack winning solution
+        winner_metric = max(self.best_engines, key = lambda it: it.value)
+        winner_generation = self.best_engines.index(winner_metric)
+        winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
+        winner = unpack(winner_id, self.path)
+        params = winner['params']
+        cash_series = winner['cash_series']
+        trades = winner['trades']
+
+        # build winning engine, but don't run!
+        strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
+        engine = Engine(winner_id, strategy)
+        engine.cash_series = cash_series
+        engine.trades = trades
+        engine.analyze()
+
         # display winner
-        self.winner.print_metrics()
-        self.winner.print_trades()
-        self.winner.plot_trades()
-        ax = self.winner.plot_equity(shouldShow = False)
+        engine.print_metrics()
+        engine.print_trades()
+        engine.plot_trades()
+        ax = engine.plot_equity(shouldShow = False)
 
         # plot equity of best engines
         for generation, metric in enumerate(self.best_engines):

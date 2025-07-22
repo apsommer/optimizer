@@ -78,7 +78,7 @@ class Analyzer:
                                                         engine = Engine(id, strategy)
 
                                                         # run and save
-                                                        engine.run(pbar_disable = not isFirstProcess)
+                                                        engine.run(disable = not isFirstProcess)
                                                         engine.save(self.path, False)
 
                                                         id += 1

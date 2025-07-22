@@ -17,15 +17,16 @@ class Engine:
         self.initial_cash = initial_cash
         self.cash = self.initial_cash
 
-    def run(self, pbar_position = 1, pbar_disable = True):
+    def run(self, position = 1, disable = True, bar_format = None):
 
+        if bar_format is None: bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'
         for idx in tqdm(
-            position = pbar_position,
-            disable = pbar_disable,
+            position = position,
+            disable = disable,
             leave = False,
             iterable = self.data.index,
             colour = aqua,
-            bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):
+            bar_format = bar_format):
 
             # set index
             self.current_idx = idx

@@ -15,11 +15,11 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 12
+num_months = 3
 isNetwork = False
 
 # genetic params
-population_size = 150
+population_size = 15
 generations = 2
 mutation_rate = 0.05
 
@@ -123,8 +123,19 @@ for generation in tqdm(
     genetic.mutation()
     genetic.clean()
 
-genetic.analyze()
-print_metrics(get_genetic_results_metrics(genetic))
+# run and save best engines
+pool = Pool(
+    processes = cores,
+    initializer = set_process_name)
+pool.map(
+    func = genetic.analyze,
+    iterable = range(generations))
+pool.close()
+pool.join()
+genetic.save()
+
+# display results
+genetic.print_metrics()
 genetic.plot()
 
 # print analysis time
