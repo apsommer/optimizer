@@ -15,12 +15,12 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 12
+num_months = 3
 isNetwork = False
 
 # genetic params
-population_size = 150
-generations = 7
+population_size = 15
+generations = 2
 mutation_rate = 0.05
 
 # todo encapsulate to class, extract commons for wfa use
@@ -93,35 +93,42 @@ print_metrics(genetic.metrics)
 
 # execute genetic algorithm
 bar_format = '        Generations:    {percentage:3.0f}%|{bar:100}{r_bar}'
-for generation in tqdm(
-    iterable = range(generations),
+with tqdm(
     position = 0,
     leave = False,
+    total = generations,
     colour = purple,
-    bar_format = bar_format):
+    bar_format = bar_format) as pbar:
 
-    # split population between process cores and evaluate
-    pool = Pool(
-        processes = cores,
-        initializer = set_process_name)
-    pool.map(
-        func = partial(genetic.evaluate, generation = generation),
-        iterable = range(cores))
-    pool.close()
-    pool.join()
+    for generation in range(generations):
 
-    # check for convergence
-    isSolutionConverged = genetic.selection(
-        generation = generation,
-        tournament_size = 3)
+        # split population between process cores and evaluate
+        pool = Pool(
+            processes = cores,
+            initializer = set_process_name)
+        pool.map(
+            func = partial(genetic.evaluate, generation = generation),
+            iterable = range(cores))
+        pool.close()
+        pool.join()
 
-    if isSolutionConverged:
-        print('\n\n\tSolution converged.')
-        break
+        # check for convergence
+        isSolutionConverged = genetic.selection(
+            generation = generation,
+            tournament_size = 3)
 
-    genetic.crossover()
-    genetic.mutation()
-    genetic.clean()
+        if isSolutionConverged:
+            print('\n\n\tSolution converged.')
+            break
+
+        genetic.crossover()
+        genetic.mutation()
+        genetic.clean()
+
+        # add comment progress bar
+        best = genetic.best_engines[generation]
+        pbar.set_postfix_str(f'{round(best.value)}%')
+        pbar.update()
 
 # run and save best engines
 pool = Pool(
