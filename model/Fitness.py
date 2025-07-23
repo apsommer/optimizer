@@ -29,6 +29,11 @@ class Fitness:
                 if metric.name == fit.value:
                     fitnesses.append(metric)
 
+            # invert value for negative fitness (drawdown, ...)
+            if 0 > fitnesses[0].value:
+                for metric in fitnesses:
+                    metric.value = -1 / metric.value
+
             # normalize and scale
             best = max(fitnesses, key = lambda metric: metric.value)
             for metric in fitnesses:
@@ -41,7 +46,7 @@ class Fitness:
         for id, value in enumerate(values):
             if np.isnan(value): continue
             metrics.append(
-                Metric('fitness', value, '%', 'Fitness', id = id))
+                Metric('blend', value, '%', 'Blend', id = id))
 
         return metrics
 

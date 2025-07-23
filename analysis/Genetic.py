@@ -321,7 +321,7 @@ class Genetic:
             fplt.plot(
                 engine['cash_series'],
                 color = get_random_color(),
-                width = generation,
+                width = 2,
                 legend = id, # todo clean up legend style
                 ax = ax)
 

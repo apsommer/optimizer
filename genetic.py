@@ -26,8 +26,8 @@ mutation_rate = 0.05
 # todo encapsulate to class, extract commons for wfa use
 fitness = Fitness(
     fits= [
-        (Fit.PROFIT, 50),
-        (Fit.NUM_WINS, 25),
+        # (Fit.PROFIT, 50),
+        (Fit.NUM_WINS, 50),
         (Fit.CORRELATION, 50),
     ])
 
