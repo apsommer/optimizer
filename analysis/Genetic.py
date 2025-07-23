@@ -33,7 +33,10 @@ class Genetic:
         self.parent_path = parent_path
         self.cores = cores
 
-        self.path = parent_path + '/generations'
+        # organize outputs
+        self.generations_path = parent_path + '/generations'
+        self.analysis_path = parent_path + '/' + format_timestamp(datetime.now(), 'local')
+        os.makedirs(self.analysis_path)
 
         # extract optimization params
         self.fastMinutes = self.opt.fastMinutes
@@ -82,7 +85,7 @@ class Genetic:
     def evaluate(self, core, generation):
 
         # organize outputs
-        path = self.path + '/' + str(generation)
+        path = self.generations_path + '/' + str(generation)
 
         # segregate population into groups for each core process
         group_size = int(self.population_size / self.cores)
@@ -116,7 +119,7 @@ class Genetic:
     def selection(self, generation, tournament_size):
 
         # organize outputs
-        path = self.path + '/' + str(generation)
+        path = self.generations_path + '/' + str(generation)
 
         # collect engine metrics from last generation
         ids, unprofitable = range(self.population_size), 0
@@ -237,13 +240,13 @@ class Genetic:
     def analyze(self, generation):
 
         # catch converged solution
-        if generation > len(self.engine_metrics) - 1: return
+        if generation > len(self.best_engines) - 1: return
 
         # extract best engine in generation
         metric = self.best_engines[generation]
 
         # unpack partial results
-        path = self.path + '/' + str(generation)
+        path = self.generations_path + '/' + str(generation)
         engine = unpack(metric.id, path)
 
         # init strategy and engine
@@ -258,7 +261,9 @@ class Genetic:
             position = 0,
             disable = generation != 0,
             bar_format = bar_format)
-        engine.save(self.path, True)
+
+        # make directory
+        engine.save(self.analysis_path, True)
 
     ''' serialize '''
     def save(self):
@@ -271,15 +276,11 @@ class Genetic:
             'best_engines': self.best_engines
         }
 
-        # timestamp filename
-        timestamp = format_timestamp(
-            idx = datetime.now(),
-            type = 'local')
-
+        # save analysis to timestamp directory
         save(
             bundle = bundle,
-            filename = timestamp,
-            path = self.parent_path)
+            filename = 'analysis',
+            path = self.analysis_path)
 
     ####################################################################################################################
 
@@ -292,7 +293,7 @@ class Genetic:
         winner_metric = max(self.best_engines, key = lambda it: it.value)
         winner_generation = self.best_engines.index(winner_metric)
         winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
-        winner = unpack(winner_id, self.path)
+        winner = unpack(winner_id, self.analysis_path)
         params = winner['params']
         cash_series = winner['cash_series']
         trades = winner['trades']
@@ -315,7 +316,7 @@ class Genetic:
 
             # unpack full results
             id = 'g' + str(generation) + 'e' + str(metric.id)
-            engine = unpack(id, self.path)
+            engine = unpack(id, self.analysis_path)
 
             fplt.plot(
                 engine['cash_series'],
