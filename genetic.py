@@ -15,20 +15,20 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 3
+num_months = 12
 isNetwork = False
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 7
 mutation_rate = 0.05
 
 # todo encapsulate to class, extract commons for wfa use
 fitness = Fitness(
     fits= [
         (Fit.PROFIT, 50),
-        (Fit.NUM_TRADES, 25),
-        (Fit.CORRELATION, 25),
+        (Fit.NUM_WINS, 25),
+        (Fit.CORRELATION, 50),
     ])
 
 # optimization
@@ -38,11 +38,11 @@ opt = LiveParams(
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70,100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(.1, .75, 66), 2),
-    stopLossPercent = np.around(np.linspace(.1, .75, 66), 2),
+    stopLossPercent = [1],
     fastAngleFactor = [0],
     slowMinutes = [2255], # np.linspace(2005, 3005, 11, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
-    coolOffMinutes = np.linspace(5, 55, 11, dtype = int),
+    coolOffMinutes = [5],
     trendStartHour = np.linspace(0, 24, 25, dtype = int),
     trendEndHour = np.linspace(24, 124, 101, dtype = int),
 )

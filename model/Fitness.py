@@ -69,6 +69,7 @@ class Fit(Enum):
     DRAWDOWN_PER_PROFIT = 'drawdown_per_profit'
     CORRELATION = 'correlation'
     NUM_TRADES = 'num_trades'
+    NUM_WINS = 'num_wins'
 
     @property
     def pretty(self):
@@ -83,8 +84,8 @@ class Fit(Enum):
             case Fit.DRAWDOWN_PER_PROFIT: return 'Drawdown per profit'
             case Fit.CORRELATION: return 'Linear correlation'
             case Fit.NUM_TRADES: return 'Number of trades'
+            case Fit.NUM_WINS: return 'Number of wins'
 
     @property
     def color(self):
-        i = random.randint(0, len(colors) - 1)
-        return colors[i]
+        return get_random_color()

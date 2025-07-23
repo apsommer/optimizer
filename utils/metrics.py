@@ -104,6 +104,7 @@ def get_engine_metrics(engine):
     percent_long = round((len(longs) / num_trades) * 100)
     percent_short = round((len(shorts) / num_trades) * 100)
 
+    # split trades in winners and losers
     profitable_longs = [trade.profit for trade in longs if trade.profit > 0]
     losing_longs = [trade.profit for trade in longs if 0 >= trade.profit]
     profitable_shorts = [trade.profit for trade in shorts if trade.profit > 0]
@@ -166,12 +167,13 @@ def get_engine_metrics(engine):
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annual_return', annual_return, '%', 'Annualized return'),
         Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown per profit'),
+        Metric('num_wins', num_wins, None, 'Number of wins'),
         Metric('win_rate', win_rate, '%', 'Win rate'),
         Metric('loss_rate', loss_rate, '%', 'Loss rate'),
         Metric('average_win', average_win, 'USD', 'Average win'),
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
-        Metric('correlation', correlation, None, 'Linear correlation', '.3f'),
+        Metric('correlation', correlation, 'USD', 'Linear correlation'),
 
         Metric('long_percent', percent_long, '%', 'Long'),
         Metric('short_percent', percent_short, '%', 'Short'),
