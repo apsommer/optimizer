@@ -241,7 +241,7 @@ def init_plot(window, title):
     bottom.setTextPen(axis_pen)
     bottom.setTickPen(axis_pen)
 
-    # todo font
+    # set font
     font = QFont('Ubuntu', 16)
     right.setTickFont(font)
     bottom.setTickFont(font)
@@ -255,7 +255,7 @@ def init_plot(window, title):
 
     # legend
     fplt.legend_fill_color = dark_black
-    fplt.legend_border_color = gray
+    fplt.legend_border_color = None # dark_gray
 
     return ax
 
