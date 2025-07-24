@@ -15,8 +15,8 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 12
-isNetwork = False
+num_months = 9 # trump elected 051124
+isNetwork = True
 
 # genetic params
 population_size = 150
@@ -25,21 +25,21 @@ mutation_rate = 0.05
 
 # todo encapsulate to class, extract commons for wfa use
 fitness = Fitness(
-    fits= [
+    fits = [
         (Fit.DRAWDOWN_PER_PROFIT, 75),
         (Fit.NUM_WINS, 25),
     ])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [20],
+    fastMinutes = [15, 20, 25, 30],
     disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = np.linspace(70,100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(.1, .75, 66), 2),
     stopLossPercent = np.around(np.linspace(.5, 1, 51), 2),
     fastAngleFactor = [0],
-    slowMinutes = [2255], # np.linspace(2005, 3005, 11, dtype = int),
+    slowMinutes = np.linspace(2005, 3005, 11, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
     coolOffMinutes = [5, 10, 15],
     trendStartHour = np.linspace(0, 24, 25, dtype = int),

@@ -14,6 +14,22 @@ class Fitness:
 
     def blend(self, engine_metrics):
 
+        # catch single fitness, no blend required
+        if len(self.fits) == 0:
+
+            # extract tuple
+            fit, percent = self.fits[0]
+
+            # todo invert if negative ... drawdown, etc
+
+            # isolate fitness of interest
+            metrics = []
+            for metric in engine_metrics:
+                if metric.name == fit.value:
+                    metrics.append(metric)
+
+            return metrics
+
         # init
         fitness_df = pd.DataFrame(
             index = range(len(engine_metrics)))

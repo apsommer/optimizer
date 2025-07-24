@@ -322,7 +322,11 @@ class Genetic:
                 engine['cash_series'],
                 color = colors[generation],
                 width = 2,
-                legend = id, # todo clean up legend style
                 ax = ax)
+
+            # format legend
+            legend = '<span style="font-size:16pt">' + id + '</span>'
+            fplt.legend_text_color = colors[generation]
+            fplt.add_legend(legend, ax)
 
         fplt.show()
