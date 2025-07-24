@@ -26,9 +26,8 @@ mutation_rate = 0.05
 # todo encapsulate to class, extract commons for wfa use
 fitness = Fitness(
     fits= [
-        # (Fit.PROFIT, 50),
-        (Fit.NUM_WINS, 50),
-        (Fit.CORRELATION, 50),
+        (Fit.DRAWDOWN_PER_PROFIT, 75),
+        (Fit.CORRELATION, 25),
     ])
 
 # optimization
@@ -125,7 +124,7 @@ with tqdm(
         genetic.mutation()
         genetic.clean()
 
-        # add comment progress bar
+        # add comment to progress bar
         best = genetic.best_engines[generation]
         pbar.set_postfix_str(f'{round(best.value)}%')
         pbar.update()

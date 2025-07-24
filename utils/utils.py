@@ -2,18 +2,19 @@ import multiprocessing
 import os
 import pickle
 import re
+import sys
 from datetime import timedelta, datetime
-import matplotlib.pyplot as plt
+from PyQt6.QtGui import QFont
 
 import databento as db
 import pandas as pd
 import pytz
+from PyQt6.QtWidgets import QApplication
 from tqdm import tqdm
 
 import local.api_keys as keys
 import finplot as fplt
 from utils.constants import *
-
 
 def getOhlc(num_months, isNetwork):
 
@@ -220,24 +221,30 @@ def init_plot(window, title):
     fplt.candle_bear_body_color = dark_gray
     fplt.cross_hair_color = white
 
-    # font
-    plt.rcParams['font.family'] = 'sans-serif'
-    plt.rcParams['font.sans-serif'] = ['Ubuntu']
-
     # adjust timezone to CME exchange
     fplt.display_timezone = pytz.timezone('America/Chicago')
 
     # init finplot
     ax = fplt.create_plot(title=title)
 
-    # axis
+    # get axis
     axis_pen = fplt._makepen(color = gray)
-    ax.axes['right']['item'].setPen(axis_pen)
-    ax.axes['right']['item'].setTextPen(axis_pen)
-    ax.axes['right']['item'].setTickPen(axis_pen)
-    ax.axes['bottom']['item'].setPen(axis_pen)
-    ax.axes['bottom']['item'].setTextPen(axis_pen)
-    ax.axes['bottom']['item'].setTickPen(axis_pen)
+    right = ax.axes['right']['item']
+    bottom = ax.axes['bottom']['item']
+
+    # set axis
+    right.setPen(axis_pen)
+    right.setTextPen(axis_pen)
+    right.setTickPen(axis_pen)
+
+    bottom.setPen(axis_pen)
+    bottom.setTextPen(axis_pen)
+    bottom.setTickPen(axis_pen)
+
+    # todo font
+    font = QFont('Ubuntu', 16)
+    right.setTickFont(font)
+    bottom.setTickFont(font)
 
     # gridlines
     ax.set_visible(xgrid = True, ygrid = True)
@@ -245,6 +252,10 @@ def init_plot(window, title):
     # crosshair
     ax.crosshair.vline.setPen(axis_pen)
     ax.crosshair.hline.setPen(axis_pen)
+
+    # legend
+    fplt.legend_fill_color = dark_black
+    fplt.legend_border_color = gray
 
     return ax
 
