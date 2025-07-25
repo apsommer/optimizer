@@ -14,22 +14,6 @@ class Fitness:
 
     def blend(self, engine_metrics):
 
-        # catch single fitness, no blend required
-        if len(self.fits) == 0:
-
-            # extract tuple
-            fit, percent = self.fits[0]
-
-            # todo invert if negative ... drawdown, etc
-
-            # isolate fitness of interest
-            metrics = []
-            for metric in engine_metrics:
-                if metric.name == fit.value:
-                    metrics.append(metric)
-
-            return metrics
-
         # init
         fitness_df = pd.DataFrame(
             index = range(len(engine_metrics)))
@@ -44,6 +28,10 @@ class Fitness:
             for metric in engine_metrics:
                 if metric.name == fit.value:
                     fitnesses.append(metric)
+
+            # catch single fitness, no blend required
+            if len(self.fits) == 1:
+                return fitnesses
 
             # invert value for negative fitness (drawdown, ...)
             if 0 > fitnesses[0].value:
@@ -73,6 +61,11 @@ class Fitness:
         for pair in self.fits:
 
             fit, percent = pair
+
+            # catch unblended single fitness
+            if len(self.fits) == 1:
+                return fit.pretty
+
             pretty += fit.pretty + ' ' + str(percent) + ' [%], '
 
         return pretty[:-2]
@@ -110,3 +103,18 @@ class Fit(Enum):
     @property
     def color(self):
         return get_random_color()
+
+    @property
+    def unit(self):
+        match self:
+            case Fit.PROFIT: return 'USD'
+            case Fit.PROFIT_FACTOR: return None
+            case Fit.EXPECTANCY: return 'USD'
+            case Fit.WIN_RATE: return '%'
+            case Fit.AVERAGE_WIN: return 'USD'
+            case Fit.AVERAGE_LOSS: return 'USD'
+            case Fit.DRAWDOWN: return 'USD'
+            case Fit.DRAWDOWN_PER_PROFIT: return 'USD'
+            case Fit.CORRELATION: return None
+            case Fit.NUM_TRADES: return None
+            case Fit.NUM_WINS: return None

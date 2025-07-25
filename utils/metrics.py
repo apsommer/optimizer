@@ -322,9 +322,21 @@ def get_genetic_results_metrics(genetic):
         profitable_percent = round(((population_size - unprofitable) / population_size) * 100)
 
         name = 'generation_' + str(generation)
-        title = f'\t{generation}, {metric.id}'
-        # value = (f'\t{genetic.fitness.pretty}: {round(metric.value)} [{genetic.fitness.unit}],'
-        value = f'\tFitness: {round(metric.value)} [%], Profitable: {profitable_percent} [%]'
+        title = f'{generation}, {metric.id}'
+
+        # catch unblended single fitness
+        if len(genetic.fitness.fits) == 1:
+
+            # extract pair
+            fit, percent = genetic.fitness.fits[0]
+
+            # format value
+            value = f'\t{fit.pretty}: {round(metric.value)}'
+            if fit.unit is not None: value += f' [{fit.unit}]'
+            value += f', Profitable: {profitable_percent} [%]'
+
+        else:
+            value = f'\tFitness: {round(metric.value)} [%], Profitable: {profitable_percent} [%]'
 
         # align console output for large populations
         if 100 > metric.id: value = f'\t' + value

@@ -141,11 +141,11 @@ class Genetic:
             print(f'{generation}: Entire generation unprofitable.')
             exit()
 
-        blended_metrics = self.fitness.blend(self.engine_metrics)
+        fitnesses = self.fitness.blend(self.engine_metrics)
 
         # persist best engine in generation
         self.best_engines.append(
-            max(blended_metrics, key = lambda metric: metric.value))
+            max(fitnesses, key = lambda metric: metric.value))
 
         # check for solution convergence
         if generation > 2:
@@ -155,14 +155,15 @@ class Genetic:
             if current_winner == prev_winner == prev_prev_winner: return True
 
         # catch small population in initial generations
-        if tournament_size > len(blended_metrics): tournament_size = len(blended_metrics)
+        if tournament_size > len(fitnesses):
+            tournament_size = len(fitnesses)
 
         # tournament selection # todo consider roulette wheel, rank-based, ...
         selected = []
         for i in range(self.population_size):
 
             # collect random sample of blended fitness metrics
-            group = random.sample(blended_metrics, tournament_size)
+            group = random.sample(fitnesses, tournament_size)
             winner = max(group, key = lambda metric: metric.value)
             individual = next(metric.value for metric in self.engine_metrics
                 if metric.name == 'params' and metric.id == winner.id)

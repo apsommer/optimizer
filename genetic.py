@@ -16,7 +16,7 @@ from utils.utils import *
 
 # data, indicators
 num_months = 9 # trump elected 051124
-isNetwork = True
+isNetwork = False
 
 # genetic params
 population_size = 150
@@ -26,8 +26,9 @@ mutation_rate = 0.05
 # todo encapsulate to class, extract commons for wfa use
 fitness = Fitness(
     fits = [
-        (Fit.DRAWDOWN_PER_PROFIT, 75),
-        (Fit.NUM_WINS, 25),
+        # (Fit.PROFIT, 100),
+        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        (Fit.NUM_WINS, 50),
     ])
 
 # optimization
