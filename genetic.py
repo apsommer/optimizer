@@ -20,30 +20,30 @@ isNetwork = False
 
 # genetic params
 population_size = 150
-generations = 7
+generations = 10
 mutation_rate = 0.05
 
 fitness = Fitness(
     fits = [
         # (Fit.PROFIT, 100),
         (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.NUM_WINS, 50),
+        (Fit.EXPECTANCY, 50),
     ])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [15, 20, 25, 30],
+    fastMinutes = [25],
     disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
-    fastCrossoverPercent = np.linspace(70,100, 31, dtype = int),
-    takeProfitPercent = np.around(np.linspace(.1, .75, 66), 2),
-    stopLossPercent = np.around(np.linspace(.5, 1, 51), 2),
+    fastCrossoverPercent = [0],
+    takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
+    stopLossPercent = np.around(np.linspace(.25, 1, 76), 2),
     fastAngleFactor = [0],
-    slowMinutes = np.linspace(2005, 3005, 11, dtype = int),
-    slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
-    coolOffMinutes = np.linspace(0, 60, 61, dtype = int),
-    trendStartHour = np.linspace(0, 24, 25, dtype = int),
-    trendEndHour = np.linspace(24, 124, 101, dtype = int),
+    slowMinutes = np.linspace(2005, 3005, 6, dtype = int),
+    slowAngleFactor = np.linspace(0, 25, 6, dtype = int),
+    coolOffMinutes = [25],
+    trendStartHour = [4],
+    trendEndHour = np.linspace(12, 124, 101, dtype = int),
 )
 
 ###################################################################
