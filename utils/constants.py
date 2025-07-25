@@ -40,7 +40,7 @@ def get_ribbon_color(i):
 
 initial_cash = 10000
 
-# # todo tradingview limitation ~20k bars
+# tradingview limitation ~20k bars
 # tv_start = pd.Timestamp('2025-05-27T18:00:00', tz='America/Chicago')
 # if tv_start > idx:
 #     return

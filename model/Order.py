@@ -4,7 +4,7 @@ class Order:
 
     def __init__(self, ticker, size, sentiment, idx, bar_index, price, comment):
         self.ticker = ticker
-        self.sentiment = sentiment # long, short, flat todo refactor to enum
+        self.sentiment = sentiment # long, short, flat
         self.size = size
         self.idx = idx
         self.bar_index = bar_index

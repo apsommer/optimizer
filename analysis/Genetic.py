@@ -158,7 +158,7 @@ class Genetic:
         if tournament_size > len(fitnesses):
             tournament_size = len(fitnesses)
 
-        # tournament selection # todo consider roulette wheel, rank-based, ...
+        # tournament selection
         selected = []
         for i in range(self.population_size):
 

@@ -8,7 +8,7 @@ from analysis.Genetic import Genetic
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
-from utils.metrics import print_metrics, get_genetic_results_metrics
+from utils.metrics import print_metrics
 from utils.utils import *
 
 ''' genetic analysis '''
@@ -23,7 +23,6 @@ population_size = 150
 generations = 7
 mutation_rate = 0.05
 
-# todo encapsulate to class, extract commons for wfa use
 fitness = Fitness(
     fits = [
         # (Fit.PROFIT, 100),
@@ -42,7 +41,7 @@ opt = LiveParams(
     fastAngleFactor = [0],
     slowMinutes = np.linspace(2005, 3005, 11, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
-    coolOffMinutes = [5, 10, 15],
+    coolOffMinutes = np.linspace(0, 60, 61, dtype = int),
     trendStartHour = np.linspace(0, 24, 25, dtype = int),
     trendEndHour = np.linspace(24, 124, 101, dtype = int),
 )

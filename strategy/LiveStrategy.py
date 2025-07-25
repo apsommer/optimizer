@@ -72,7 +72,7 @@ class LiveStrategy(BaselineStrategy):
         elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # tp off, fc only
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
-        # todo temp, best place for this correction?
+        # restrict stop loss magnitude to take profit
         # if self.stopLoss > self.takeProfit:
         #     self.stopLoss = self.takeProfit
 
