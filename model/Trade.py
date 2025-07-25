@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils.metrics import format_timestamp
+from utils.utils import format_timestamp
 
 class Trade:
     def __init__(self, id, side, size, entry_order, exit_order):

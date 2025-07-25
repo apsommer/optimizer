@@ -1,16 +1,5 @@
-import multiprocessing
-import os
-import pickle
-
-from tqdm import tqdm
-
-from model.Fitness import Fitness
-from utils.constants import *
-from utils.metrics import *
 from model.Trade import Trade
-import pandas as pd
-import finplot as fplt
-
+from utils.metrics import *
 from utils.utils import *
 
 class Engine:
@@ -24,28 +13,20 @@ class Engine:
         self.current_idx = -1
         self.trades = []
         self.metrics = []
-        self.cash_series = pd.Series(index=self.data.index)
-
-        # todo init equity account?
-        # margin = self.strategy.ticker.margin
-        # size = self.strategy.size
-        # initial_cash = margin * self.data.Close.iloc[0] * size
-        # self.initial_cash = round(initial_cash, -3)
+        self.cash_series = pd.Series(index = self.data.index)
         self.initial_cash = initial_cash
         self.cash = self.initial_cash
 
-    def run(self):
+    def run(self, position = 1, disable = True, bar_format = None):
 
-        # progress bar attributes
-        isFirstProcess = '0' == multiprocessing.current_process().name
-
+        if bar_format is None: bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'
         for idx in tqdm(
-            disable = not isFirstProcess,
+            position = position,
+            disable = disable,
             leave = False,
-            position = 1,
             iterable = self.data.index,
             colour = aqua,
-            bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):
+            bar_format = bar_format):
 
             # set index
             self.current_idx = idx
@@ -135,9 +116,8 @@ class Engine:
     def print_metrics(self):
         print_metrics(self.metrics)
 
-    def print_trades(self):
+    def print_trades(self, show_last = 3):
 
-        show_last = 3
         trades = self.trades
 
         # header
@@ -193,7 +173,7 @@ class Engine:
 
             # trade line
             color = blue
-            if trade.is_long: color = aqua
+            if trade.is_short: color = aqua
 
             fplt.add_line(
                 p0 = (entry_idx, entry_price),
@@ -208,7 +188,7 @@ class Engine:
 
         if shouldShow: fplt.show()
 
-    def plot_equity(self):
+    def plot_equity(self, shouldShow = True):
 
         ax = init_plot(
             window = 1,
@@ -219,7 +199,7 @@ class Engine:
         point_value = self.strategy.ticker.point_value
         delta_df = self.data.Close - self.data.Close.iloc[0]
         buy_hold = size * point_value * delta_df + self.initial_cash
-        fplt.plot(buy_hold, color=dark_gray, ax=ax)
+        fplt.plot(buy_hold, color = dark_gray, ax = ax)
 
         # initial cash
         fplt.add_line(
@@ -230,4 +210,6 @@ class Engine:
 
         # equity
         fplt.plot(self.cash_series, ax = ax)
-        fplt.show()
+
+        if shouldShow: fplt.show()
+        return ax

@@ -1,11 +1,78 @@
 import random
 from enum import Enum
-import seaborn as sns
 
+import numpy as np
+import pandas as pd
+
+from model.Metric import Metric
 from utils.constants import *
 
-class Fitness(Enum):
+class Fitness:
 
+    def __init__(self, fits):
+        self.fits = fits
+
+    def blend(self, engine_metrics):
+
+        # init
+        fitness_df = pd.DataFrame(
+            index = range(len(engine_metrics)))
+
+        for pair in self.fits:
+
+            # extract tuple
+            fit, percent = pair
+
+            # isolate fitness of interest
+            fitnesses = []
+            for metric in engine_metrics:
+                if metric.name == fit.value:
+                    fitnesses.append(metric)
+
+            # catch single fitness, no blend required
+            if len(self.fits) == 1:
+                return fitnesses
+
+            # invert value for negative fitness (drawdown, ...)
+            if 0 > fitnesses[0].value:
+                for metric in fitnesses:
+                    metric.value = -1 / metric.value
+
+            # normalize and scale
+            best = max(fitnesses, key = lambda metric: metric.value)
+            for metric in fitnesses:
+                normalized = metric.value / best.value
+                scaled = normalized * percent
+                fitness_df.loc[metric.id, fit.value] = scaled
+
+        # blend scaled fitnesses
+        values, metrics = fitness_df.sum(axis = 1, skipna = False), []
+        for id, value in enumerate(values):
+            if np.isnan(value): continue
+            metrics.append(
+                Metric('blend', value, '%', 'Blend', id = id))
+
+        return metrics
+
+    @property
+    def pretty(self):
+
+        pretty = ''
+        for pair in self.fits:
+
+            fit, percent = pair
+
+            # catch unblended single fitness
+            if len(self.fits) == 1:
+                return fit.pretty
+
+            pretty += fit.pretty + ' ' + str(percent) + ' [%], '
+
+        return pretty[:-2]
+
+class Fit(Enum):
+
+    # key is name of engine metric
     PROFIT = 'profit'
     PROFIT_FACTOR = 'profit_factor'
     EXPECTANCY = 'expectancy'
@@ -14,31 +81,40 @@ class Fitness(Enum):
     AVERAGE_LOSS = 'average_loss'
     DRAWDOWN = 'drawdown'
     DRAWDOWN_PER_PROFIT = 'drawdown_per_profit'
+    CORRELATION = 'correlation'
+    NUM_TRADES = 'num_trades'
+    NUM_WINS = 'num_wins'
 
     @property
     def pretty(self):
-
-        title = ''
         match self:
-            case Fitness.PROFIT: title = 'Profit'
-            case Fitness.PROFIT_FACTOR: title = 'Profit Factor'
-            case Fitness.EXPECTANCY: title = 'Expectancy'
-            case Fitness.WIN_RATE: title = 'Win rate'
-            case Fitness.AVERAGE_WIN: title = 'Average win'
-            case Fitness.AVERAGE_LOSS: title = 'Average loss'
-            case Fitness.DRAWDOWN: title = 'Drawdown'
-            case Fitness.DRAWDOWN_PER_PROFIT: title = 'Drawdown per profit'
-
-        return title
+            case Fit.PROFIT: return 'Profit'
+            case Fit.PROFIT_FACTOR: return 'Profit Factor'
+            case Fit.EXPECTANCY: return 'Expectancy'
+            case Fit.WIN_RATE: return 'Win rate'
+            case Fit.AVERAGE_WIN: return 'Average win'
+            case Fit.AVERAGE_LOSS: return 'Average loss'
+            case Fit.DRAWDOWN: return 'Drawdown'
+            case Fit.DRAWDOWN_PER_PROFIT: return 'Drawdown per profit'
+            case Fit.CORRELATION: return 'Linear correlation'
+            case Fit.NUM_TRADES: return 'Number of trades'
+            case Fit.NUM_WINS: return 'Number of wins'
 
     @property
     def color(self):
+        return get_random_color()
+
+    @property
+    def unit(self):
         match self:
-            case Fitness.PROFIT: return blue
-            case Fitness.PROFIT_FACTOR: return yellow
-            case Fitness.EXPECTANCY: return orange
-            case Fitness.WIN_RATE: return green
-            case Fitness.AVERAGE_WIN: return red
-            case Fitness.AVERAGE_LOSS: return purple
-            case Fitness.DRAWDOWN: return brown
-            case Fitness.DRAWDOWN_PER_PROFIT: return pink
+            case Fit.PROFIT: return 'USD'
+            case Fit.PROFIT_FACTOR: return None
+            case Fit.EXPECTANCY: return 'USD'
+            case Fit.WIN_RATE: return '%'
+            case Fit.AVERAGE_WIN: return 'USD'
+            case Fit.AVERAGE_LOSS: return 'USD'
+            case Fit.DRAWDOWN: return 'USD'
+            case Fit.DRAWDOWN_PER_PROFIT: return 'USD'
+            case Fit.CORRELATION: return None
+            case Fit.NUM_TRADES: return None
+            case Fit.NUM_WINS: return None

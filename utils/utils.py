@@ -2,17 +2,17 @@ import multiprocessing
 import os
 import pickle
 import re
-import time
-from datetime import timedelta, datetime, timezone
-import matplotlib.pyplot as plt
+import sys
+from datetime import timedelta, datetime
+from PyQt6.QtGui import QFont
 
 import databento as db
 import pandas as pd
 import pytz
+from PyQt6.QtWidgets import QApplication
 from tqdm import tqdm
 
 import local.api_keys as keys
-import numpy as np
 import finplot as fplt
 from utils.constants import *
 
@@ -22,7 +22,7 @@ def getOhlc(num_months, isNetwork):
     csv_filename = 'data/' + data_name + '.csv'
     td = timedelta(days=num_months * 30.437)
     starting_date = (datetime.now() - td).strftime("%Y-%m-%d")
-    ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-06-13'
+    ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
     timezone = 'America/Chicago'
 
     # return local cache
@@ -74,10 +74,37 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
-def build_emas(data, path):
+def check_indicators(data, opt, path):
 
-    # window length
-    mins = [25, 2555, 3555, 4555, 5555]
+    # check emas
+    shouldBuildEmas = False
+    try:
+
+        emas = unpack('emas', path)
+        for fastMinutes in opt.fastMinutes:
+            if 'ema_' + str(fastMinutes) not in emas.columns:
+                shouldBuildEmas = True
+        for slowMinutes in opt.slowMinutes:
+            if 'ema_' + str(slowMinutes) not in emas.columns:
+                shouldBuildEmas = True
+
+    except FileNotFoundError: shouldBuildEmas = True
+
+    # build emas, if needed
+    if shouldBuildEmas:
+        print(f'\nIndicators:')
+        build_emas(data, opt, path)
+
+    # check fractals and build, if needed
+    try: unpack('fractals', path)
+    except FileNotFoundError: build_fractals(data, path)
+
+def build_emas(data, opt, path):
+
+    # define ema window lengths
+    mins = []
+    mins.extend(opt.fastMinutes)
+    mins.extend(opt.slowMinutes)
 
     # init container
     emas = pd.DataFrame(index = data.index)
@@ -194,24 +221,30 @@ def init_plot(window, title):
     fplt.candle_bear_body_color = dark_gray
     fplt.cross_hair_color = white
 
-    # font
-    plt.rcParams['font.family'] = 'sans-serif'
-    plt.rcParams['font.sans-serif'] = ['Ubuntu']
-
     # adjust timezone to CME exchange
     fplt.display_timezone = pytz.timezone('America/Chicago')
 
     # init finplot
     ax = fplt.create_plot(title=title)
 
-    # axis
+    # get axis
     axis_pen = fplt._makepen(color = gray)
-    ax.axes['right']['item'].setPen(axis_pen)
-    ax.axes['right']['item'].setTextPen(axis_pen)
-    ax.axes['right']['item'].setTickPen(axis_pen)
-    ax.axes['bottom']['item'].setPen(axis_pen)
-    ax.axes['bottom']['item'].setTextPen(axis_pen)
-    ax.axes['bottom']['item'].setTickPen(axis_pen)
+    right = ax.axes['right']['item']
+    bottom = ax.axes['bottom']['item']
+
+    # set axis
+    right.setPen(axis_pen)
+    right.setTextPen(axis_pen)
+    right.setTickPen(axis_pen)
+
+    bottom.setPen(axis_pen)
+    bottom.setTextPen(axis_pen)
+    bottom.setTickPen(axis_pen)
+
+    # set font
+    font = QFont('Ubuntu', 16)
+    right.setTickFont(font)
+    bottom.setTickFont(font)
 
     # gridlines
     ax.set_visible(xgrid = True, ygrid = True)
@@ -219,6 +252,10 @@ def init_plot(window, title):
     # crosshair
     ax.crosshair.vline.setPen(axis_pen)
     ax.crosshair.hline.setPen(axis_pen)
+
+    # legend
+    fplt.legend_fill_color = dark_black
+    fplt.legend_border_color = None # dark_gray
 
     return ax
 
@@ -231,7 +268,6 @@ def save(bundle, filename, path):
 
     # create new binary
     path_filename = path + '/' + filename + '.bin'
-
     filehandler = open(path_filename, 'wb')
     pickle.dump(bundle, filehandler)
 
@@ -241,9 +277,12 @@ def unpack(id, path):
     filename = str(id) + '.bin'
     path_filename = path + '/' + filename
 
-    try:
-        filehandler = open(path_filename, 'rb')
-        return pickle.load(filehandler)
-    except FileNotFoundError:
-        print(f'\n{path_filename} not found')
-        exit()
+    filehandler = open(path_filename, 'rb')
+    return pickle.load(filehandler)
+
+def format_timestamp(idx, type = 'tradingview'):
+
+    formatter = '%b %d, %Y, %H:%M'
+    if type != 'tradingview': formatter = '%Y%m%d_%H%M%S'
+
+    return idx.strftime(formatter)

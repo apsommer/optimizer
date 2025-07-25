@@ -1,5 +1,5 @@
 from analysis.Engine import Engine
-from model.Fitness import Fitness
+from model.Fitness import Fit
 from strategy.LiveParams import LiveParams
 from strategy.LiveStrategy import *
 from utils.metrics import *
@@ -35,6 +35,9 @@ class Analyzer:
         self.trendEndHour = self.opt.trendEndHour
 
     def run(self):
+
+        # todo pass cores instead
+        isFirstProcess = '0' == multiprocessing.current_process().name
 
         id = 0
         with tqdm(
@@ -75,7 +78,7 @@ class Analyzer:
                                                         engine = Engine(id, strategy)
 
                                                         # run and save
-                                                        engine.run()
+                                                        engine.run(disable = not isFirstProcess)
                                                         engine.save(self.path, False)
 
                                                         id += 1
@@ -105,7 +108,7 @@ class Analyzer:
         self.metrics = get_analyzer_metrics(self)
 
         # collect fittest engines
-        for fitness in Fitness:
+        for fitness in Fit:
 
             # get fittest engine
             metric = self.get_fittest_metric(fitness)

@@ -1,9 +1,12 @@
+import math
 from datetime import timedelta
 
-import numpy as np
-import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 
+import numpy as np
 from model.Metric import Metric
+from utils.utils import format_timestamp
 
 def print_metrics(metrics):
 
@@ -101,6 +104,7 @@ def get_engine_metrics(engine):
     percent_long = round((len(longs) / num_trades) * 100)
     percent_short = round((len(shorts) / num_trades) * 100)
 
+    # split trades in winners and losers
     profitable_longs = [trade.profit for trade in longs if trade.profit > 0]
     losing_longs = [trade.profit for trade in longs if 0 >= trade.profit]
     profitable_shorts = [trade.profit for trade in shorts if trade.profit > 0]
@@ -121,6 +125,22 @@ def get_engine_metrics(engine):
     params = engine.strategy.params
     if params is None:
         params = 'Last in-sample analyzer not profitable!'
+
+    # calculate linear correlation
+    bar_indices = np.arange(len(cash_series)).reshape(-1, 1)
+    adjusted_cash_series = np.array(cash_series - initial_cash)
+
+    regression = (
+        LinearRegression(fit_intercept = False).fit(
+            X = bar_indices, # todo simplify as cash_series.index?
+            y = adjusted_cash_series))
+
+    line = regression.predict(bar_indices)
+    mse = mean_squared_error(adjusted_cash_series, line)
+    correlation = math.sqrt(mse)
+
+    # pretty
+    candles = '{:,}'.format(candles)
 
     return [
 
@@ -147,11 +167,13 @@ def get_engine_metrics(engine):
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annual_return', annual_return, '%', 'Annualized return'),
         Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown per profit'),
+        Metric('num_wins', num_wins, None, 'Number of wins'),
         Metric('win_rate', win_rate, '%', 'Win rate'),
         Metric('loss_rate', loss_rate, '%', 'Loss rate'),
         Metric('average_win', average_win, 'USD', 'Average win'),
         Metric('average_loss', average_loss, 'USD', 'Average loss'),
         Metric('expectancy', expectancy, 'USD', 'Expectancy'),
+        Metric('correlation', correlation, 'USD', 'Linear correlation'),
 
         Metric('long_percent', percent_long, '%', 'Long'),
         Metric('short_percent', percent_short, '%', 'Short'),
@@ -178,6 +200,9 @@ def get_analyzer_metrics(analyzer):
     # format timestamp
     start_date = format_timestamp(start_date)
     end_date = format_timestamp(end_date)
+
+    # pretty
+    candles = '{:,}'.format(candles)
 
     return [
         Metric('header', None, None, 'Analyzer:'),
@@ -221,8 +246,8 @@ def init_walk_forward_metrics(wfa):
         Metric('out_of_sample_days', out_of_sample_days, None, 'Out-of-sample days'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
-        # Metric('candles', candles, None, 'Candles'),
-        # Metric('days', days, None, 'Days'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Days'),
         Metric('opt', opt, None, 'Optimization'),
     ]
 
@@ -237,6 +262,9 @@ def get_walk_forward_results_metrics(wfa):
     start = format_timestamp(start)
     end = format_timestamp(end)
 
+    # pretty
+    candles = '{:,}'.format(candles)
+
     return [
         Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
         Metric('params', wfa.best_params.one_line, None, 'Params'),
@@ -246,5 +274,74 @@ def get_walk_forward_results_metrics(wfa):
         Metric('days', days, None, 'Days'),
     ]
 
-def format_timestamp(idx):
-    return idx.strftime('%b %d, %Y, %H:%M')
+def init_genetic_metrics(genetic):
+
+    start_date = genetic.data.index[0]
+    end_date = genetic.data.index[-1]
+    candles = len(genetic.data.index)
+    days = (end_date - start_date).days
+    months = round(days / 30.437)
+
+    population_size = genetic.population_size
+    generations = genetic.generations
+    mutation_rate = genetic.mutation_rate * 100
+    fitness = genetic.fitness.pretty
+    cores = genetic.cores
+    opt = genetic.opt
+
+    # format timestamp
+    start = format_timestamp(start_date)
+    end = format_timestamp(end_date)
+
+    # pretty
+    candles = '{:,}'.format(candles)
+
+    return [
+        Metric('header', None, None, 'Genetic:'),
+        Metric('months', months, None, 'Months'),
+        Metric('start', start, None, 'Start'),
+        Metric('end', end, None, 'End'),
+        Metric('candles', candles, None, 'Candles'),
+        Metric('days', days, None, 'Days'),
+        Metric('population_size', population_size, None, 'Population size'),
+        Metric('generations', generations, None, 'Generations'),
+        Metric('mutation_rate', mutation_rate, '%', 'Mutation rate'),
+        Metric('fitness', fitness, None, 'Fitness'),
+        Metric('cores', cores, None, 'Process cores'),
+        Metric('opt', opt, None, 'Optimization'),
+    ]
+
+def get_genetic_results_metrics(genetic):
+
+    # summarize each generation
+    metrics = [ Metric('header', None, None, 'Generations:') ]
+    for generation, metric in enumerate(genetic.best_engines):
+
+        population_size = genetic.population_size
+        unprofitable = genetic.unprofitable_engines[generation]
+        profitable_percent = round(((population_size - unprofitable) / population_size) * 100)
+
+        name = 'generation_' + str(generation)
+        title = f'{generation}, {metric.id}'
+
+        # catch unblended single fitness
+        if len(genetic.fitness.fits) == 1:
+
+            # extract pair
+            fit, percent = genetic.fitness.fits[0]
+
+            # format value
+            value = f'\t{fit.pretty}: {round(metric.value)}'
+            if fit.unit is not None: value += f' [{fit.unit}]'
+            value += f', Profitable: {profitable_percent} [%]'
+
+        else:
+            value = f'\tFitness: {round(metric.value)} [%], Profitable: {profitable_percent} [%]'
+
+        # align console output for large populations
+        if 100 > metric.id: value = f'\t' + value
+
+        metrics.append(
+            Metric(name, value, None, title))
+
+    return metrics

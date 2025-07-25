@@ -1,3 +1,7 @@
+import numpy
+import numpy as np
+
+
 class LiveParams:
 
     def __init__(self,
@@ -6,6 +10,7 @@ class LiveParams:
         fastMomentumMinutes,
         fastCrossoverPercent,
         takeProfitPercent,
+        stopLossPercent,
         fastAngleFactor,
         slowMinutes,
         slowAngleFactor,
@@ -18,6 +23,7 @@ class LiveParams:
         self.fastMomentumMinutes = fastMomentumMinutes
         self.fastCrossoverPercent = fastCrossoverPercent
         self.takeProfitPercent = takeProfitPercent
+        self.stopLossPercent = stopLossPercent
         self.fastAngleFactor = fastAngleFactor
         self.slowMinutes = slowMinutes
         self.slowAngleFactor = slowAngleFactor
@@ -33,6 +39,7 @@ class LiveParams:
             * len(self.fastMomentumMinutes)
             * len(self.fastCrossoverPercent)
             * len(self.takeProfitPercent)
+            * len(self.stopLossPercent)
             * len(self.fastAngleFactor)
             * len(self.slowMinutes)
             * len(self.slowAngleFactor)
@@ -48,6 +55,7 @@ class LiveParams:
             f'{self.fastMomentumMinutes}, '
             f'{self.fastCrossoverPercent}, '
             f'{self.takeProfitPercent}, '
+            f'{self.stopLossPercent}, '
             f'{self.fastAngleFactor}, '
             f'{self.slowMinutes}, '
             f'{self.slowAngleFactor}, '
@@ -56,15 +64,40 @@ class LiveParams:
             f'{self.trendEndHour}]')
 
     def __repr__(self):
+
+        if type(self.fastMinutes) == list:
+            return(
+                f'\n\t\tfastMinutes: {pretty_list(self.fastMinutes)}'
+                f'\n\t\tdisableEntryMinutes: {pretty_list(self.disableEntryMinutes)}'
+                f'\n\t\tfastMomentumMinutes: {pretty_list(self.fastMomentumMinutes)}'
+                f'\n\t\tfastCrossoverPercent: {pretty_list(self.fastCrossoverPercent)}'
+                f'\n\t\ttakeProfitPercent: {pretty_list(self.takeProfitPercent)}'
+                f'\n\t\tstopLossPercent: {pretty_list(self.stopLossPercent)}'
+                f'\n\t\tfastAngleFactor: {pretty_list(self.fastAngleFactor)}'
+                f'\n\t\tslowMinutes: {pretty_list(self.slowMinutes)}'
+                f'\n\t\tslowAngleFactor: {pretty_list(self.slowAngleFactor)}'
+                f'\n\t\tcoolOffMinutes: {pretty_list(self.coolOffMinutes)}'
+                f'\n\t\ttrendStartHour: {pretty_list(self.trendStartHour)}'
+                f'\n\t\ttrendEndHour: {pretty_list(self.trendEndHour)}')
+
         return (
             f'\n\t\tfastMinutes: {self.fastMinutes}'
             f'\n\t\tdisableEntryMinutes: {self.disableEntryMinutes}'
             f'\n\t\tfastMomentumMinutes: {self.fastMomentumMinutes}'
             f'\n\t\tfastCrossoverPercent: {self.fastCrossoverPercent}'
             f'\n\t\ttakeProfitPercent: {self.takeProfitPercent}'
+            f'\n\t\tstopLossPercent: {self.stopLossPercent}'
             f'\n\t\tfastAngleFactor: {self.fastAngleFactor}'
             f'\n\t\tslowMinutes: {self.slowMinutes}'
             f'\n\t\tslowAngleFactor: {self.slowAngleFactor}'
             f'\n\t\tcoolOffMinutes: {self.coolOffMinutes}'
             f'\n\t\ttrendStartHour: {self.trendStartHour}'
             f'\n\t\ttrendEndHour: {self.trendEndHour}')
+
+def pretty_list(list):
+    return (
+        np.array2string(
+            a = np.array(list),
+            separator = ',')
+        .replace(' ', '')
+        .replace(',', ', '))

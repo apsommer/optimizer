@@ -1,8 +1,6 @@
-import finplot as fplt
-
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
-from model.Fitness import Fitness
+from model.Fitness import Fit
 from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import *
 from utils.utils import *
@@ -110,7 +108,7 @@ class WalkForward():
         # stitch OS runs together
         for run in tqdm(
             iterable = range(self.runs),
-            disable = fitness is not Fitness.PROFIT, # show only 1 core
+            disable =fitness is not Fit.PROFIT, # show only 1 core
             colour = blue,
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
 
@@ -218,7 +216,7 @@ class WalkForward():
 
         # isolate composite with highest profit
         highest_profit = -np.inf
-        for fitness in Fitness:
+        for fitness in Fit:
 
             engine = unpack(fitness.value, self.path)
             cash_series = engine['cash_series']
@@ -229,11 +227,11 @@ class WalkForward():
                 best_params = engine['params']
                 best_fitness = fitness
 
-        # persist best fitness
+        # persist results
         self.best_params = best_params
         self.best_fitness = best_fitness
-
         self.metrics += get_walk_forward_results_metrics(self)
+        self.save()
 
     ''' serialize '''
     def save(self):
@@ -279,7 +277,7 @@ class WalkForward():
             window = 1,
             title = 'Equity')
 
-        for fitness in Fitness:
+        for fitness in Fit:
 
             # unpack composite engine
             composite = unpack(fitness.value, self.path)
@@ -326,20 +324,17 @@ class WalkForward():
                 buy_hold = size * point_value * delta_df + initial_cash
                 fplt.plot(buy_hold, color=dark_gray, ax=ax)
 
-            # plot out-of-sample window boundaries
-            for run in range(self.runs):
+                # plot out-of-sample window boundaries
+                for run in range(self.runs):
 
-                # isolate samples
-                IS_len = self.IS_len
-                OS_len = self.OS_len
-                IS_start = run * OS_len
-                IS_end = IS_start + IS_len
-                OS_start = IS_end
+                    # isolate samples
+                    IS_len = self.IS_len
+                    OS_len = self.OS_len
+                    IS_start = run * OS_len
+                    IS_end = IS_start + IS_len
+                    OS_start = IS_end
 
-                idx = self.data.index[OS_start]
-                fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_gray, ax = ax)
-
-                if run == 9:
-                    pass
+                    idx = self.data.index[OS_start]
+                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_gray, ax = ax)
 
         fplt.show()

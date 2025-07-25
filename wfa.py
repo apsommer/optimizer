@@ -3,7 +3,7 @@ import warnings
 from multiprocessing import Pool
 
 from analysis.WalkForward import WalkForward
-from model.Fitness import Fitness
+from model.Fitness import Fit
 from strategy.LiveParams import LiveParams
 from utils import utils
 from utils.metrics import *
@@ -13,7 +13,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 12
+num_months = 20
 isNetwork = False
 shouldBuildEmas = False
 shouldBuildFractals = False
@@ -25,16 +25,16 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 # analyzer
 opt = LiveParams(
     fastMinutes = [25],
-    disableEntryMinutes = [105],
-    fastMomentumMinutes = [75], # [60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125],
+    disableEntryMinutes = [95, 105, 125],
+    fastMomentumMinutes = [65, 75, 85, 95, 105, 115, 125],
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.4], # [.25, .3, .35, .4, .45, .5, .55, .6],
+    takeProfitPercent = [.35, .45, .55],
     fastAngleFactor = [0],
-    slowMinutes = [2555], # [2555, 3555, 4555, 5555],
-    slowAngleFactor = [15],
+    slowMinutes = [2555],
+    slowAngleFactor = [15, 20],
     coolOffMinutes = [5],
-    trendStartHour = [2],
-    trendEndHour = [48],
+    trendStartHour = [0],
+    trendEndHour = [48, 60],
 )
 
 ###################################################################
@@ -45,7 +45,6 @@ start_time = time.time()
 
 # organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
-csv_filename = 'data/' + data_name + '.csv'
 parent_path = 'wfa/' + data_name
 path = parent_path + '/' + str(percent) + '_' + str(runs)
 
@@ -77,7 +76,7 @@ wfa = WalkForward(
 # multiprocessing uses all cores
 cores = multiprocessing.cpu_count() # 16 available
 cores -= 1 # leave 1 for basic computer tasks
-fitnesses = [fitness for fitness in Fitness]
+fitnesses = [fitness for fitness in Fit]
 
 # print header metrics
 print_metrics(wfa.metrics)
@@ -108,7 +107,6 @@ pool.join()
 
 # select composite of interest
 wfa.analyze()
-wfa.save()
 print_metrics(get_walk_forward_results_metrics(wfa))
 wfa.print_params_of_fittest_composite()
 
