@@ -26,8 +26,8 @@ mutation_rate = 0.05
 fitness = Fitness(
     fits = [
         # (Fit.PROFIT, 100),
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.EXPECTANCY, 50),
+        (Fit.PROFIT_FACTOR, 50),
+        (Fit.CORRELATION, 50),
     ])
 
 # optimization
