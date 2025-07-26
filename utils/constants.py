@@ -25,9 +25,6 @@ pink = colors[6]
 gray = colors[7]
 yellow = colors[8]
 aqua = colors[9]
-def get_random_color():
-    i = random.randint(0, len(colors) - 1)
-    return colors[i]
 
 # color ribbon
 crest = sns.color_palette("crest", as_cmap = True)

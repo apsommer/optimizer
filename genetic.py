@@ -15,7 +15,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 9 # trump elected 051124
+num_months = 20 # trump elected 051124
 isNetwork = False
 
 # genetic params
@@ -26,13 +26,13 @@ mutation_rate = 0.05
 fitness = Fitness(
     fits = [
         # (Fit.PROFIT, 100),
-        (Fit.PROFIT_FACTOR, 50),
+        (Fit.DRAWDOWN, 50),
         (Fit.CORRELATION, 50),
     ])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [25],
+    fastMinutes = [15, 20, 25, 30],
     disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0],
@@ -41,8 +41,8 @@ opt = LiveParams(
     fastAngleFactor = [0],
     slowMinutes = np.linspace(2005, 3005, 6, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 6, dtype = int),
-    coolOffMinutes = [25],
-    trendStartHour = [4],
+    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 124, 101, dtype = int),
 )
 

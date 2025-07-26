@@ -48,7 +48,7 @@ start_time = time.time()
 data_name = 'NQ_' + str(num_months) + 'mon'
 csv_filename = 'data/' + data_name + '.csv'
 parent_path = 'wfa/' + data_name
-path = parent_path + '/' + str(percent) + '_' + str(runs)
+analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
 
 # get ohlc prices
 data = utils.getOhlc(num_months, isNetwork)
@@ -59,7 +59,7 @@ emas = unpack('emas', parent_path)
 fractals = unpack('fractals', parent_path)
 
 # remove any residual analyses
-shutil.rmtree(path, ignore_errors = True)
+shutil.rmtree(analyzer_path, ignore_errors = True)
 
 # multiprocessing uses all cores
 cores = multiprocessing.cpu_count() # 16 available
@@ -109,11 +109,6 @@ pool.join()
 wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
 wfa.print_fittest_composite()
-
-# print last in-sample analyzer
-IS_path = wfa.parent_path + '/' + str(runs)
-analyzer_metrics = unpack('analyzer', IS_path)['metrics']
-print_metrics(analyzer_metrics)
 
 # print analysis time
 elapsed = time.time() - start_time
