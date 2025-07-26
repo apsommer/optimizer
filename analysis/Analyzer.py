@@ -7,19 +7,17 @@ from utils.utils import *
 
 class Analyzer:
 
-    def __init__(self, id, data, emas, fractals, opt, wfa_path):
+    def __init__(self, id, data, emas, fractals, opt, analyzer_path):
 
         self.id = id
         self.data = data
         self.emas = emas
         self.fractals = fractals
         self.opt = opt
-        self.wfa_path = wfa_path
+        self.analyzer_path = analyzer_path
 
-        self.path = wfa_path  + '/' + str(id) + '/'
-        self.engine_metrics = []
-        self.metrics = []
-        self.fittest = { }
+        # organize outputs
+        self.path = analyzer_path + '/' + str(id) + '/'
 
         # extract optimization params
         self.fastMinutes = self.opt.fastMinutes
@@ -34,6 +32,11 @@ class Analyzer:
         self.coolOffMinutes = self.opt.coolOffMinutes
         self.trendStartHour = self.opt.trendStartHour
         self.trendEndHour = self.opt.trendEndHour
+
+        # track in-sample sweep
+        self.engine_metrics = []
+        self.metrics = []
+        self.fittest = { }
 
     def run(self):
 

@@ -5,9 +5,9 @@ from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import *
 from utils.utils import *
 
-class WalkForward():
+class WalkForward:
 
-    def __init__(self, num_months, percent, runs, data, emas, fractals, opt, path):
+    def __init__(self, num_months, percent, runs, data, emas, fractals, opt, parent_path):
 
         self.num_months = num_months
         self.percent = percent
@@ -16,7 +16,12 @@ class WalkForward():
         self.emas = emas
         self.fractals = fractals
         self.opt = opt
-        self.path = path
+        self.parent_path = parent_path
+
+        # organize outputs
+        self.analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
+        self.analysis_path = parent_path + '/' + format_timestamp(datetime.now(), 'local')
+        os.makedirs(self.analysis_path)
 
         self.best_params = None
         self.best_fitness = None
@@ -42,7 +47,7 @@ class WalkForward():
         IS_fractals = self.fractals.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.opt, self.path)
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.opt, self.analyzer_path)
         analyzer.run()
         analyzer.save()
 
@@ -62,10 +67,8 @@ class WalkForward():
         OS_fractals = self.fractals.iloc[OS_start : OS_end]
 
         # get fittest params from in-sample analyzer
-        IS_path = self.path + '/' + str(run)
+        IS_path = self.analyzer_path + '/' + str(run)
         fittest = unpack('analyzer', IS_path)['fittest']
-
-        # todo skip extra fitness if only analyzing 1 engine
 
         # create and save engine for each fitness
         for fitness in tqdm(
@@ -95,7 +98,7 @@ class WalkForward():
             engine.metrics.append(metric)
 
             # persist full engine
-            OS_path = self.path + '/' + fitness.value
+            OS_path = self.analyzer_path + '/' + fitness.value
             engine.save(OS_path, True)
 
     def build_composite(self, fitness):
@@ -117,7 +120,7 @@ class WalkForward():
             else: balance = cash_series.values[-1]
 
             # check if OS exists
-            OS_path = self.path + '/' + fitness.value
+            OS_path = self.analyzer_path + '/' + fitness.value
             OS_engine_filepath = OS_path + '/' + str(run) + '.bin'
             isProfitable = os.path.exists(OS_engine_filepath)
 
@@ -165,7 +168,7 @@ class WalkForward():
         for i, trade in enumerate(trades): trade.id = i + 1
 
         # extract fittest engines from last in-sample analyzer
-        IS_path = self.path + '/' + str(self.runs)
+        IS_path = self.analyzer_path + '/' + str(self.runs)
         fittest = unpack('analyzer', IS_path)['fittest']
         metric = fittest[fitness]
 
@@ -193,7 +196,7 @@ class WalkForward():
             engine.metrics.append(
                 Metric('invalids', str(invalid_runs), None, 'Invalid runs'))
 
-        engine.save(self.path, True)
+        engine.save(self.analysis_path, True)
 
     def calculate_efficiency(self, IS_profits, engine):
 
@@ -218,7 +221,7 @@ class WalkForward():
         highest_profit = -np.inf
         for fitness in Fit:
 
-            engine = unpack(fitness.value, self.path)
+            engine = unpack(fitness.value, self.analysis_path)
             cash_series = engine['cash_series']
             cash = cash_series[-1]
 
@@ -244,8 +247,8 @@ class WalkForward():
 
         save(
             bundle = bundle,
-            filename = 'wfa',
-            path = self.path)
+            filename = 'analysis',
+            path = self.analysis_path)
 
     ####################################################################################################################
 
@@ -254,7 +257,7 @@ class WalkForward():
         for run in range(self.runs):
 
             # extract fittest engines from in-sample analyzer
-            IS_path = self.path + '/' + str(run)
+            IS_path = self.analyzer_path + '/' + str(run)
             fittest = unpack('analyzer', IS_path)['fittest']
             metric = fittest[self.best_fitness]
 
@@ -280,7 +283,7 @@ class WalkForward():
         for fitness in Fit:
 
             # unpack composite engine
-            composite = unpack(fitness.value, self.path)
+            composite = unpack(fitness.value, self.analysis_path)
             cash_series = composite['cash_series']
 
             # plot cash series

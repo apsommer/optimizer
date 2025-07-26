@@ -25,10 +25,10 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [75],
-    fastMomentumMinutes = [90], # np.around(np.linspace(55, 135, 17), 2),
+    fastMomentumMinutes = [75], #  np.linspace(55, 135, 9, dtype = int),
     fastCrossoverPercent = [0],
-    takeProfitPercent = [.3, .4], # np.around(np.linspace(.25, .75, 11), 2),
-    stopLossPercent = [.5], #  np.around(np.linspace(.25, 1, 16), 2),
+    takeProfitPercent = [.35, .56], # np.around(np.linspace(.25, .75, 6), 2),
+    stopLossPercent = [.5], # np.around(np.linspace(.25, .95, 8), 2),
     fastAngleFactor = [0],
     slowMinutes = [2405],
     slowAngleFactor = [15],
@@ -47,7 +47,7 @@ start_time = time.time()
 # organize outputs
 data_name = 'NQ_' + str(num_months) + 'mon'
 csv_filename = 'data/' + data_name + '.csv'
-parent_path = 'walk_forward/' + data_name
+parent_path = 'wfa/' + data_name
 path = parent_path + '/' + str(percent) + '_' + str(runs)
 
 # get ohlc prices
@@ -59,7 +59,7 @@ emas = unpack('emas', parent_path)
 fractals = unpack('fractals', parent_path)
 
 # remove any residual analyses
-shutil.rmtree(path, ignore_errors=True)
+shutil.rmtree(path, ignore_errors = True)
 
 # multiprocessing uses all cores
 cores = multiprocessing.cpu_count() # 16 available
@@ -74,7 +74,7 @@ wfa = WalkForward(
     emas = emas,
     fractals = fractals,
     opt = opt,
-    path = path,
+    parent_path = parent_path,
 )
 
 # init header metrics
@@ -111,7 +111,7 @@ print_metrics(get_walk_forward_results_metrics(wfa))
 wfa.print_fittest_composite()
 
 # print last in-sample analyzer
-IS_path = wfa.path + '/' + str(runs)
+IS_path = wfa.parent_path + '/' + str(runs)
 analyzer_metrics = unpack('analyzer', IS_path)['metrics']
 print_metrics(analyzer_metrics)
 
