@@ -249,7 +249,7 @@ class WalkForward():
 
     ####################################################################################################################
 
-    def print_params_of_fittest_composite(self):
+    def print_fittest_composite(self):
 
         for run in range(self.runs):
 
@@ -284,7 +284,17 @@ class WalkForward():
             cash_series = composite['cash_series']
 
             # plot cash series
-            fplt.plot(cash_series, color=fitness.color, legend=fitness.pretty, ax=ax)
+            color = fitness.color
+            fplt.plot(
+                cash_series,
+                color = fitness.color,
+                width = 2,
+                ax = ax)
+
+            # format legend
+            legend = '<span style="font-size:16pt">' + fitness.pretty + '</span>'
+            fplt.legend_text_color = color
+            fplt.add_legend(legend, ax)
 
             # consider composite with highest profit
             if fitness is self.best_fitness:
@@ -314,7 +324,7 @@ class WalkForward():
                 engine.plot_trades()
 
                 # plot initial cash
-                fplt.plot(engine.initial_cash, color=dark_gray, ax=ax)
+                fplt.plot(engine.initial_cash, color = dark_gray, ax = ax)
 
                 # plot buy and hold
                 size = engine.strategy.size
@@ -322,7 +332,7 @@ class WalkForward():
                 # delta_df = composite.data.Close - composite.data.Close.iloc[0]
                 delta_df = self.data.Close - self.data.Close.iloc[0]
                 buy_hold = size * point_value * delta_df + initial_cash
-                fplt.plot(buy_hold, color=dark_gray, ax=ax)
+                fplt.plot(buy_hold, color = dark_gray, ax = ax)
 
                 # plot out-of-sample window boundaries
                 for run in range(self.runs):
@@ -335,6 +345,12 @@ class WalkForward():
                     OS_start = IS_end
 
                     idx = self.data.index[OS_start]
-                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_gray, ax = ax)
+                    fplt.add_line(
+                        p0 = (idx, -1e6),
+                        p1 = (idx, 1e6),
+                        width = 1,
+                        style = '-',
+                        color = light_gray,
+                        ax = ax)
 
         fplt.show()

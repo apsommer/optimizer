@@ -25,10 +25,10 @@ runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [75],
-    fastMomentumMinutes = np.around(np.linspace(55, 135, 17), 2),
+    fastMomentumMinutes = [90], # np.around(np.linspace(55, 135, 17), 2),
     fastCrossoverPercent = [0],
-    takeProfitPercent = np.around(np.linspace(.25, .75, 11), 2),
-    stopLossPercent = np.around(np.linspace(.25, 1, 16), 2),
+    takeProfitPercent = [.3, .4], # np.around(np.linspace(.25, .75, 11), 2),
+    stopLossPercent = [.5], #  np.around(np.linspace(.25, 1, 16), 2),
     fastAngleFactor = [0],
     slowMinutes = [2405],
     slowAngleFactor = [15],
@@ -108,7 +108,7 @@ pool.join()
 # select composite of interest
 wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
-wfa.print_params_of_fittest_composite()
+wfa.print_fittest_composite()
 
 # print last in-sample analyzer
 IS_path = wfa.path + '/' + str(runs)
