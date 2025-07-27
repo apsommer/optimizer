@@ -2,25 +2,24 @@ import multiprocessing
 import os
 import pickle
 import re
-import sys
 from datetime import timedelta, datetime
-from PyQt6.QtGui import QFont
 
 import databento as db
+import finplot as fplt
 import pandas as pd
 import pytz
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QFont
 from tqdm import tqdm
 
 import local.api_keys as keys
-import finplot as fplt
 from utils.constants import *
 
-def getOhlc(num_months, isNetwork):
 
-    data_name = 'NQ_' + str(num_months) + 'mon'
+def getOhlc(asset, num_months, isNetwork):
+
+    data_name = asset + '_' + str(num_months) + 'm'
     csv_filename = 'data/' + data_name + '.csv'
-    td = timedelta(days=num_months * 30.437)
+    td = timedelta(days = num_months * 30.437)
     starting_date = (datetime.now() - td).strftime("%Y-%m-%d")
     ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
     timezone = 'America/Chicago'
@@ -28,21 +27,24 @@ def getOhlc(num_months, isNetwork):
     # return local cache
     if not isNetwork:
 
-        ohlc = pd.read_csv(csv_filename, index_col=0)
-        ohlc.index = timestamp(ohlc, timezone)
-
         print(f'Upload OHLC from {csv_filename}')
+
+        ohlc = pd.read_csv(csv_filename, index_col = 0)
+        ohlc.index = timestamp(ohlc, timezone)
         return ohlc
 
     print(f'$$$ Download OHLC from databento as {csv_filename}')
 
-    # request network data synchronous
-    client = db.Historical(keys.bento_api_key) # $$$
+    # construct symbol
+    symbol = asset + '.v.0' # ["NQ.v.0"], # [ticker].v.[expiry]
+
+    # request network data, synchronous!
+    client = db.Historical(keys.bento_api_key)
     ohlc = (client.timeseries.get_range(
-        dataset = "GLBX.MDP3",
-        symbols = ["NQ.v.0"],
-        stype_in = "continuous",
-        schema = "ohlcv-1m",
+        dataset = 'GLBX.MDP3',
+        symbols = [symbol],
+        stype_in = 'continuous',
+        schema = 'ohlcv-1m',
         start = starting_date,
         end = ending_date
     ).to_df())

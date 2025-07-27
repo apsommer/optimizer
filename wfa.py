@@ -14,6 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
+asset = 'ES'
 num_months = 9
 isNetwork = False
 
@@ -45,13 +46,12 @@ np.set_printoptions(threshold = 3)
 start_time = time.time()
 
 # organize outputs
-data_name = 'NQ_' + str(num_months) + 'mon'
-csv_filename = 'data/' + data_name + '.csv'
+data_name = asset + '_' + str(num_months) + 'm'
 parent_path = 'wfa/' + data_name
 analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
 
 # get ohlc prices
-data = utils.getOhlc(num_months, isNetwork)
+data = utils.getOhlc(asset, num_months, isNetwork)
 
 # get indicators
 check_indicators(data, opt, parent_path)

@@ -15,33 +15,35 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-num_months = 20 # trump elected 051124
-isNetwork = False
+asset = 'ES'
+num_months = 9# trump elected 051124
+isNetwork = True
 
 # genetic params
-population_size = 150
-generations = 10
+population_size = 15
+generations = 2
 mutation_rate = 0.05
 
 fitness = Fitness(
     fits = [
         # (Fit.PROFIT, 100),
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.NUM_TRADES, 50),
+        (Fit.DRAWDOWN, 50),
+        (Fit.PROFIT_FACTOR, 50),
+        # (Fit.CORRELATION, 20)
     ])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [15, 20, 25, 30],
+    fastMinutes = [20],
     disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0],
     takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
-    stopLossPercent = np.around(np.linspace(.25, 1, 76), 2),
+    stopLossPercent = [0], # np.around(np.linspace(.25, 1, 76), 2),
     fastAngleFactor = [0],
-    slowMinutes = np.linspace(2005, 3005, 6, dtype = int),
+    slowMinutes = [2505], # np.linspace(2005, 3005, 6, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 6, dtype = int),
-    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
+    coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 124, 101, dtype = int),
 )
@@ -54,13 +56,12 @@ np.set_printoptions(threshold = 3)
 start_time = time.time()
 
 # organize outputs
-data_name = 'NQ_' + str(num_months) + 'mon'
-csv_filename = 'data/' + data_name + '.csv'
+data_name = asset + '_' + str(num_months) + 'm'
 parent_path = 'genetic/' + data_name
 path = parent_path + '/generations'
 
 # get ohlc prices
-data = utils.getOhlc(num_months, isNetwork)
+data = utils.getOhlc(asset, num_months, isNetwork)
 
 # get indicators
 check_indicators(data, opt, parent_path)
@@ -114,7 +115,7 @@ with tqdm(
         # check for convergence
         isSolutionConverged = genetic.selection(
             generation = generation,
-            tournament_size = 3)
+            tournament_size = 5)
 
         if isSolutionConverged:
             print('\n\n\tSolution converged.')
