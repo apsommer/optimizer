@@ -6,16 +6,24 @@ from strategy.BaseStrategy import BaselineStrategy
 from utils.constants import *
 from utils.utils import init_plot
 
-
 class LiveStrategy(BaselineStrategy):
+
+    # todo pass ticker
+    # @property
+    # def ticker(self):
+    #     return Ticker(
+    #         # symbol = 'NQ',
+    #         # point_value = 20
+    #         symbol = 'MNQ',
+    #         point_value = 2,
+    #         tick_size = 0.25,
+    #         margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 
     @property
     def ticker(self):
         return Ticker(
-            # symbol = 'NQ',
-            # point_value = 20
-            symbol = 'MNQ',
-            point_value = 2,
+            symbol = 'MES',
+            point_value = 5,
             tick_size = 0.25,
             margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
 

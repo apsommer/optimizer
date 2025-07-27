@@ -16,7 +16,7 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 9# trump elected 051124
+num_months = 9 # trump elected 051124
 isNetwork = True
 
 # genetic params
