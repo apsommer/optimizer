@@ -40,7 +40,10 @@ def get_engine_metrics(engine):
     # check trades exist
     num_trades = len(engine.trades)
     if num_trades == 0:
-        return [ Metric('no_trades', None, None, f'Engine {engine.id} has no trades') ]
+        return [
+            Metric('no_trades', None, None, f'Engine {engine.id} has no trades'),
+            Metric('profit', 0, 'USD', 'Profit')
+        ]
 
     trades = engine.trades
     cash_series = engine.cash_series
