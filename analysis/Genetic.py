@@ -111,8 +111,8 @@ class Genetic:
 
                 # run and save
                 engine.run(
-                    position= 2,
-                    disable=core != 0)
+                    position = 2,
+                    disable = core != 0)
                 engine.save(path, False)
                 pbar.update()
 
@@ -147,8 +147,8 @@ class Genetic:
         self.best_engines.append(
             max(fitnesses, key = lambda metric: metric.value))
 
-        # check for solution convergence
-        if generation > 2:
+        # check for solution convergence, applicable only unblended single fitness
+        if generation > 2 and len(self.fitness.fits) == 1:
             current_winner = max(self.best_engines, key = lambda metric: metric.value)
             prev_winner = max(self.best_engines[:-1], key = lambda metric: metric.value)
             prev_prev_winner = max(self.best_engines[:-2], key = lambda metric: metric.value)

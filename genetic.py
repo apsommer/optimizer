@@ -7,8 +7,7 @@ from multiprocessing import Pool
 from analysis.Genetic import Genetic
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
-from utils import utils
-from utils.metrics import print_metrics
+from utils.metrics import print_metrics, get_genetic_results_metrics
 from utils.utils import *
 
 ''' genetic analysis '''
@@ -16,8 +15,7 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 9 # trump elected 051124
-isNetwork = True
+num_months = 8 # trump elected 051124
 
 # genetic params
 population_size = 15
@@ -26,10 +24,8 @@ mutation_rate = 0.05
 
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT, 100),
-        (Fit.DRAWDOWN, 50),
-        (Fit.PROFIT_FACTOR, 50),
-        # (Fit.CORRELATION, 20)
+        (Fit.DRAWDOWN_PER_PROFIT, 70),
+        (Fit.NUM_WINS, 30),
     ])
 
 # optimization
@@ -57,16 +53,13 @@ start_time = time.time()
 
 # organize outputs
 data_name = asset + '_' + str(num_months) + 'm'
+data_path = 'data/' + data_name
 parent_path = 'genetic/' + data_name
 path = parent_path + '/generations'
 
-# get ohlc prices
-data = utils.getOhlc(asset, num_months, isNetwork)
-
-# get indicators
-check_indicators(data, opt, parent_path)
-emas = unpack('emas', parent_path)
-fractals = unpack('fractals', parent_path)
+# init data and indicators
+data = getOhlc(asset, num_months)
+emas, fractals = getIndicators(data, opt, data_path)
 
 # remove residual analyses
 shutil.rmtree(path, ignore_errors = True)
@@ -139,11 +132,10 @@ pool.map(
     iterable = range(generations))
 pool.close()
 pool.join()
-
 genetic.save()
 
 # display results
-genetic.print_metrics()
+print_metrics(get_genetic_results_metrics(genetic))
 genetic.plot()
 
 # print analysis time

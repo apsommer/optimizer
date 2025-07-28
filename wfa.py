@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ES'
+asset = 'ES_3m'
 num_months = 9
 isNetwork = False
 
@@ -54,7 +54,7 @@ analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
 data = utils.getOhlc(asset, num_months, isNetwork)
 
 # get indicators
-check_indicators(data, opt, parent_path)
+getIndicators(data, opt, parent_path)
 emas = unpack('emas', parent_path)
 fractals = unpack('fractals', parent_path)
 

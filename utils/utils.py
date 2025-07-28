@@ -14,14 +14,13 @@ from tqdm import tqdm
 import local.api_keys as keys
 from utils.constants import *
 
+def getOhlc(asset, num_months, isNetwork = False):
 
-def getOhlc(asset, num_months, isNetwork):
-
+    # init
     data_name = asset + '_' + str(num_months) + 'm'
-    csv_filename = 'data/' + data_name + '.csv'
-    td = timedelta(days = num_months * 30.437)
-    starting_date = (datetime.now() - td).strftime("%Y-%m-%d")
-    ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
+    path = 'data/' + data_name
+    csv_filename = data_name + '.csv'
+    csv_filepath = path + '/' + csv_filename
     timezone = 'America/Chicago'
 
     # return local cache
@@ -29,8 +28,15 @@ def getOhlc(asset, num_months, isNetwork):
 
         print(f'Upload OHLC from {csv_filename}')
 
-        ohlc = pd.read_csv(csv_filename, index_col = 0)
-        ohlc.index = timestamp(ohlc, timezone)
+        try:
+            ohlc = pd.read_csv(csv_filepath, index_col = 0)
+            ohlc.index = timestamp(ohlc, timezone)
+
+        except FileNotFoundError:
+            os.system('clear')
+            print(f'{csv_filename} does not exist, download $$$?')
+            exit()
+
         return ohlc
 
     print(f'$$$ Download OHLC from databento as {csv_filename}')
@@ -38,25 +44,34 @@ def getOhlc(asset, num_months, isNetwork):
     # construct symbol
     symbol = asset + '.v.0' # ["NQ.v.0"], # [ticker].v.[expiry]
 
-    # request network data, synchronous!
+    # init databento client
     client = db.Historical(keys.bento_api_key)
-    ohlc = (client.timeseries.get_range(
+    td = timedelta(days = num_months * 30.437)
+    starting_date = (datetime.now() - td).strftime("%Y-%m-%d")
+    ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
+
+    # request network data, synchronous!
+    ohlc = client.timeseries.get_range(
         dataset = 'GLBX.MDP3',
         symbols = [symbol],
         stype_in = 'continuous',
         schema = 'ohlcv-1m',
         start = starting_date,
-        end = ending_date
-    ).to_df())
+        end = ending_date)
 
     # rename, drop, timestamp
+    ohlc = ohlc.to_df()
     ohlc.rename(columns = {"open": "Open", "high": "High", "low": "Low", "close": "Close"}, inplace = True)
     ohlc.index.rename("timestamp", inplace = True)
     ohlc = ohlc[ohlc.columns.drop(['symbol', 'rtype', 'instrument_id', 'publisher_id', 'volume'])]
     ohlc.index = timestamp(ohlc, timezone)
 
+    # make directory, if needed
+    if not os.path.exists(path):
+        os.makedirs(path)
+
     # save to disk
-    ohlc.to_csv(csv_filename)
+    ohlc.to_csv(csv_filepath)
     return ohlc
 
 def timestamp(data, timezone):
@@ -76,7 +91,7 @@ def set_process_name():
     id = (id - 1) % cores
     multiprocessing.current_process().name = str(id)
 
-def check_indicators(data, opt, path):
+def getIndicators(data, opt, path):
 
     # check emas
     shouldBuildEmas = False
@@ -90,16 +105,21 @@ def check_indicators(data, opt, path):
             if 'ema_' + str(slowMinutes) not in emas.columns:
                 shouldBuildEmas = True
 
-    except FileNotFoundError: shouldBuildEmas = True
+    except FileNotFoundError:
+        shouldBuildEmas = True
 
     # build emas, if needed
     if shouldBuildEmas:
         print(f'\nIndicators:')
-        build_emas(data, opt, path)
+        emas = build_emas(data, opt, path)
 
     # check fractals and build, if needed
-    try: unpack('fractals', path)
-    except FileNotFoundError: build_fractals(data, path)
+    try:
+        fractals = unpack('fractals', path)
+    except FileNotFoundError:
+        fractals = build_fractals(data, path)
+
+    return emas, fractals
 
 def build_emas(data, opt, path):
 
@@ -154,6 +174,7 @@ def build_emas(data, opt, path):
             emas.loc[idx, col_short] = shortMinutes
 
     save(emas, 'emas', path)
+    return emas
 
 def build_fractals(data, path):
 
@@ -194,6 +215,7 @@ def build_fractals(data, path):
         fractals.iloc[i].sellFractal = sellPrice
 
     save(fractals, 'fractals', path)
+    return fractals
 
 def get_slope(series):
 
