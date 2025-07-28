@@ -18,8 +18,8 @@ asset = 'ES'
 num_months = 8 # trump elected 051124
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 7
 mutation_rate = 0.05
 
 fitness = Fitness(
@@ -111,7 +111,7 @@ with tqdm(
             tournament_size = 5)
 
         if isSolutionConverged:
-            print('\n\n\tSolution converged.')
+            print(f'\n\n\t{generation}: Solution converged.')
             break
 
         genetic.crossover()

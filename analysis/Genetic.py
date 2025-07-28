@@ -147,7 +147,8 @@ class Genetic:
         self.best_engines.append(
             max(fitnesses, key = lambda metric: metric.value))
 
-        # check for solution convergence, applicable only unblended single fitness
+        # check for solution convergence
+        # todo applicable only for unblended single fitness
         if generation > 2 and len(self.fitness.fits) == 1:
             current_winner = max(self.best_engines, key = lambda metric: metric.value)
             prev_winner = max(self.best_engines[:-1], key = lambda metric: metric.value)

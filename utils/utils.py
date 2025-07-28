@@ -16,11 +16,13 @@ from utils.constants import *
 
 def getOhlc(asset, num_months, isNetwork = False):
 
-    # init
+    # organize outputs
     data_name = asset + '_' + str(num_months) + 'm'
     path = 'data/' + data_name
     csv_filename = data_name + '.csv'
     csv_filepath = path + '/' + csv_filename
+
+    # set timezone to exchange
     timezone = 'America/Chicago'
 
     # return local cache
