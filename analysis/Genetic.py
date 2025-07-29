@@ -57,6 +57,7 @@ class Genetic:
         self.engine_metrics = []
         self.best_engines = []
         self.unprofitable_engines = []
+        self.params = []
 
         # init first population
         self.population = []
@@ -144,8 +145,11 @@ class Genetic:
         fitnesses = self.fitness.blend(self.engine_metrics)
 
         # persist best engine in generation
-        self.best_engines.append(
-            max(fitnesses, key = lambda metric: metric.value))
+        best_engine = max(fitnesses, key = lambda metric: metric.value)
+        best_params = next(metric for metric in self.engine_metrics
+            if metric.name == 'params' and metric.id == best_engine.id)
+        self.best_engines.append(best_engine)
+        self.params.append(best_params)
 
         # check for solution convergence
         # todo applicable only for unblended single fitness

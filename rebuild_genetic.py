@@ -12,7 +12,7 @@ from utils.utils import *
 # data, indicators
 asset = 'ES'
 num_months = 20 # trump elected 051124
-id = '20250728_224409'
+id = '20250729_184627'
 
 ###################################################################
 
@@ -43,8 +43,7 @@ print_metrics(metrics)
 # unpack winning solution
 winner_metric = max(best_engines, key = lambda it: it.value)
 winner_generation = best_engines.index(winner_metric)
-# winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
-winner_id = 'g6e35'
+winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
 winner = unpack(winner_id, path)
 params = winner['params']
 cash_series = winner['cash_series']

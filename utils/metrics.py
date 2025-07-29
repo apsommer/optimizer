@@ -320,6 +320,7 @@ def get_genetic_results_metrics(genetic):
     metrics = [ Metric('header', None, None, 'Generations:') ]
     for generation, metric in enumerate(genetic.best_engines):
 
+        # calculate percent unprofitable
         population_size = genetic.population_size
         unprofitable = genetic.unprofitable_engines[generation]
         profitable_percent = round(((population_size - unprofitable) / population_size) * 100)
@@ -336,10 +337,13 @@ def get_genetic_results_metrics(genetic):
             # format value
             value = f'\t{fit.pretty}: {round(metric.value)}'
             if fit.unit is not None: value += f' [{fit.unit}]'
-            value += f', Profitable: {profitable_percent} [%]'
+            value += f',\tProfitable: {profitable_percent} [%]'
 
         else:
-            value = f'\tFitness: {round(metric.value)} [%], Profitable: {profitable_percent} [%]'
+            value = f'\tFitness: {round(metric.value)} [%],\tProfitable: {profitable_percent} [%]'
+
+        # append params
+        value += ',\t' + genetic.params[generation].value.one_line
 
         # align console output for large populations
         if 100 > metric.id: value = f'\t' + value

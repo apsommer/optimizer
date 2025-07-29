@@ -15,11 +15,11 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 20 # trump elected 051124
+num_months = 3 # trump elected 051124
 
 # genetic params
-population_size = 150
-generations = 7
+population_size = 15
+generations = 2
 mutation_rate = 0.05
 
 fitness = Fitness(
