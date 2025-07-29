@@ -15,7 +15,7 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 8 # trump elected 051124
+num_months = 20 # trump elected 051124
 
 # genetic params
 population_size = 150

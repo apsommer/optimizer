@@ -9,8 +9,10 @@ from utils.utils import *
 ''' run winner from genetic analysis '''
 # INPUT ###########################################################
 
-num_months = 9
-id = '20250725_230329'
+# data, indicators
+asset = 'ES'
+num_months = 20 # trump elected 051124
+id = '20250728_224409'
 
 ###################################################################
 
@@ -20,17 +22,18 @@ np.set_printoptions(threshold = 3)
 start_time = time.time()
 
 # organize outputs
-data_name = 'NQ_' + str(num_months) + 'mon'
+data_name = asset + '_' + str(num_months) + 'm'
+data_path = 'data/' + data_name
 parent_path = 'genetic/' + data_name
-analysis_path = parent_path + '/' + id
+path = parent_path + '/' + id
 
-# get ohlc data and indicators
-data = getOhlc(num_months, False)
-emas = unpack('emas', parent_path)
-fractals = unpack('fractals', parent_path)
+# init data and indicators
+data = getOhlc(asset, num_months)
+emas = unpack('emas', data_path)
+fractals = unpack('fractals', data_path)
 
 # unpack analysis
-genetic = unpack('analysis', analysis_path)
+genetic = unpack('analysis', path)
 metrics = genetic['metrics']
 best_engines = genetic['best_engines']
 
@@ -41,7 +44,7 @@ print_metrics(metrics)
 winner_metric = max(best_engines, key = lambda it: it.value)
 winner_generation = best_engines.index(winner_metric)
 winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
-winner = unpack(winner_id, analysis_path)
+winner = unpack(winner_id, path)
 params = winner['params']
 cash_series = winner['cash_series']
 trades = winner['trades']
@@ -64,7 +67,7 @@ for generation, metric in enumerate(best_engines):
 
     # unpack full results
     id = 'g' + str(generation) + 'e' + str(metric.id)
-    engine = unpack(id, analysis_path)
+    engine = unpack(id, path)
 
     fplt.plot(
         engine['cash_series'],
