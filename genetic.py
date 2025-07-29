@@ -25,7 +25,7 @@ mutation_rate = 0.05
 fitness = Fitness(
     fits = [
         (Fit.DRAWDOWN_PER_PROFIT, 70),
-        (Fit.NUM_WINS, 30),
+        (Fit.PROFIT, 30),
     ])
 
 # optimization
@@ -36,7 +36,7 @@ opt = LiveParams(
     fastCrossoverPercent = [0],
     takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
     stopLossPercent = [0], # np.around(np.linspace(.25, 1, 76), 2),
-    fastAngleFactor = [0],
+    fastAngleFactor = np.linspace(50, 5050, 1001, dtype = int),
     slowMinutes = [2505], # np.linspace(2005, 3005, 6, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 6, dtype = int),
     coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),

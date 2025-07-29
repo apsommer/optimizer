@@ -80,10 +80,6 @@ class LiveStrategy(BaselineStrategy):
         elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # tp off, fc only
         else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
 
-        # restrict stop loss magnitude to take profit
-        # if self.stopLoss > self.takeProfit:
-        #     self.stopLoss = self.takeProfit
-
         # strategy
         self.longExitBarIndex = -1
         self.shortExitBarIndex = -1
@@ -175,6 +171,10 @@ class LiveStrategy(BaselineStrategy):
             isExitShortFastMomentum = (
                 is_short
                 and fastLong > fastMomentumMinutes)
+
+        # exit, rapid momentum swing
+        isExitLongRapidMomentum = is_long and -fastAngle > fastSlope
+        isExitShortRapidMomentum = is_short and fastSlope > fastAngle
 
         # entry long
         isEntryLongSignal = (
@@ -289,7 +289,9 @@ class LiveStrategy(BaselineStrategy):
             or isExitLongTakeProfit
             or isExitLongStopLoss
             or self.is_last_bar
-            or isExitLongFlip)
+            or isExitLongFlip
+            or isExitLongRapidMomentum
+        )
 
         if isExitLong:
 
@@ -301,6 +303,7 @@ class LiveStrategy(BaselineStrategy):
             elif is_long and isEntryShortSignal: comment = 'flip shortSignal'
             elif isExitLongFastMomentum: comment = 'fastMomentum'
             elif isExitLongStopLoss: comment = 'stopLoss'
+            elif isExitLongRapidMomentum: comment = 'rapidMomentum'
 
             self.longExitBarIndex = bar_index
             self.sell(ticker, size, comment)
@@ -312,7 +315,9 @@ class LiveStrategy(BaselineStrategy):
             or isExitShortTakeProfit
             or isExitShortStopLoss
             or self.is_last_bar
-            or isExitShortFlip)
+            or isExitShortFlip
+            or isExitShortRapidMomentum
+        )
 
         if isExitShort:
 
@@ -324,6 +329,7 @@ class LiveStrategy(BaselineStrategy):
             elif is_short and isEntryLongSignal: comment = 'flip longSignal'
             elif isExitShortFastMomentum: comment = 'fastMomentum'
             elif isExitShortStopLoss: comment = 'stopLoss'
+            elif isExitShortRapidMomentum: comment = 'rapidMomentum'
 
             self.shortExitBarIndex = bar_index
             self.buy(ticker, size, comment)

@@ -116,7 +116,11 @@ class Engine:
     def print_metrics(self):
         print_metrics(self.metrics)
 
-    def print_trades(self, show_last = 3):
+    def print_trades(self):
+
+        # INPUT ########
+        show_last = 1000
+        ################
 
         trades = self.trades
 

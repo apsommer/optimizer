@@ -43,7 +43,8 @@ print_metrics(metrics)
 # unpack winning solution
 winner_metric = max(best_engines, key = lambda it: it.value)
 winner_generation = best_engines.index(winner_metric)
-winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
+# winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
+winner_id = 'g6e35'
 winner = unpack(winner_id, path)
 params = winner['params']
 cash_series = winner['cash_series']
