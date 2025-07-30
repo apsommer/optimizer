@@ -7,7 +7,7 @@ from multiprocessing import Pool
 from analysis.Genetic import Genetic
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
-from utils.metrics import print_metrics, get_genetic_results_metrics
+from utils.metrics import print_metrics, get_genetic_results_metrics, get_value
 from utils.utils import *
 
 ''' genetic analysis '''
@@ -15,33 +15,33 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 3 # trump elected 051124
+num_months = 8 # trump elected 051124
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 3
 mutation_rate = 0.05
 
 fitness = Fitness(
     fits = [
-        (Fit.DRAWDOWN_PER_PROFIT, 70),
-        (Fit.PROFIT, 30),
+        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        (Fit.NUM_WINS, 50),
     ])
 
 # optimization
 opt = LiveParams(
     fastMinutes = [20],
-    disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
+    disableEntryMinutes = np.linspace(55, 155, 21, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 155, 21, dtype = int),
     fastCrossoverPercent = [0],
-    takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
+    takeProfitPercent = np.around(np.linspace(.25, .75, 11), 2),
     stopLossPercent = [0], # np.around(np.linspace(.25, 1, 76), 2),
-    fastAngleFactor = np.linspace(50, 5050, 1001, dtype = int),
-    slowMinutes = [2505], # np.linspace(2005, 3005, 6, dtype = int),
-    slowAngleFactor = np.linspace(0, 25, 6, dtype = int),
-    coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 124, 101, dtype = int),
+    fastAngleFactor = np.linspace(50, 3000, 51, dtype = int),
+    slowMinutes = [2755], # np.linspace(2005, 3005, 5, dtype = int),
+    slowAngleFactor = np.linspace(5, 25, 21, dtype = int),
+    coolOffMinutes = [5], # np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = [8], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = np.linspace(12, 124, 29, dtype = int),
 )
 
 ###################################################################
@@ -120,7 +120,9 @@ with tqdm(
 
         # add comment to progress bar
         best = genetic.best_engines[generation]
-        pbar.set_postfix_str(f'{round(best.value)}%')
+        pf = get_value(best, 'profit_factor')
+        trades = get_value(best, 'num_trades')
+        pbar.set_postfix_str(f'pf: {round(pf, 2)}, trades: {trades}')
         pbar.update()
 
 # run and save best engines

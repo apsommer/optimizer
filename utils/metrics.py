@@ -35,6 +35,9 @@ def print_metrics(metrics):
 
         print("\t{}: {} [{}]".format(title, rounded_value, unit))
 
+def get_value(metrics, name):
+    return next(metric for metric in metrics.metrics if metric.name == name).value
+
 def get_engine_metrics(engine):
 
     # check trades exist

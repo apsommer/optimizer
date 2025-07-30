@@ -177,14 +177,22 @@ class LiveStrategy(BaselineStrategy):
         isExitShortRapidMomentum = is_short and fastSlope > fastAngle
 
         # entry long
-        isEntryLongSignal = (
+        isEntryLongFractal = (
             fast > slow
             and not isEntryLongDisabled
             and slowSlope > slowAngle
             and hasLongEntryDelayElapsed
             and self.trendStartMinutes < slowLong < self.trendEndMinutes
             and fast > close > buyFractal > slow
-            and 0.5 * fastMomentumMinutes > fastShort)
+            and 0.5 * fastMomentumMinutes > fastShort
+        )
+
+        isEntryLongCrossover = (
+            open < slow < close
+            and slowSlope > slowAngle
+        )
+
+        isEntryLongSignal = isEntryLongFractal or isEntryLongCrossover
 
         isEntryLong = (
             ((is_flat or is_short) and isEntryLongSignal)
@@ -194,17 +202,28 @@ class LiveStrategy(BaselineStrategy):
             self.buy(ticker, size)
 
         # entry short
-        isEntryShortSignal = (
+        isEntryShortFractal = (
             slow > fast
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and hasShortEntryDelayElapsed
             and self.trendStartMinutes < slowShort < self.trendEndMinutes
             and slow > sellFractal > close > fast
-            and 0.5 * fastMomentumMinutes > fastLong)
+            and 0.5 * fastMomentumMinutes > fastLong
+        )
+
+        isEntryShortCrossover = (
+            open > slow > close
+            and -slowAngle > slowSlope
+        )
+
+        isEntryShortSignal = isEntryShortFractal or isEntryShortCrossover
+
         isEntryShort = (
             ((is_flat or is_long) and isEntryShortSignal)
-            or (isExitLongFastMomentum and slow > fast))
+            or (isExitLongFastMomentum and slow > fast)
+        )
+
         if isEntryShort:
             self.sell(ticker, size)
 
