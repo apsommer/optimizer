@@ -19,7 +19,7 @@ class Engine:
 
     def run(self, position = 1, disable = True, bar_format = None):
 
-        if bar_format is None: bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'
+        if bar_format is None: bar_format = '                        {percentage:3.0f}%|{bar:80}{r_bar}'
         for idx in tqdm(
             position = position,
             disable = disable,

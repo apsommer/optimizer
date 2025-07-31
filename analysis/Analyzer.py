@@ -48,7 +48,7 @@ class Analyzer:
             disable = self.id != 0, # show only 1 core
             total = self.opt.size,
             colour = blue,
-            bar_format = '        In-sample:      {percentage:3.0f}%|{bar:100}{r_bar}') as pbar:
+            bar_format = '        In-sample:      {percentage:3.0f}%|{bar:80}{r_bar}') as pbar:
 
             # sweep params from opt
             for fastMinutes in self.fastMinutes:

@@ -15,7 +15,7 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 8 # trump elected 051124
+num_months = 20 # trump elected 051124
 
 # genetic params
 population_size = 150
@@ -25,7 +25,7 @@ mutation_rate = 0.05
 fitness = Fitness(
     fits = [
         (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.NUM_WINS, 50),
+        (Fit.NUM_TRADES, 50),
     ])
 
 # optimization
@@ -85,7 +85,7 @@ genetic = Genetic(
 print_metrics(genetic.metrics)
 
 # execute genetic algorithm
-bar_format = '        Generations:    {percentage:3.0f}%|{bar:100}{r_bar}'
+bar_format = '        Generations:    {percentage:3.0f}%|{bar:80}{r_bar}'
 with tqdm(
     position = 0,
     leave = False,
@@ -118,10 +118,11 @@ with tqdm(
         genetic.mutation()
         genetic.clean()
 
-        # add comment to progress bar
-        best = genetic.best_engines[generation]
-        pf = get_value(best, 'profit_factor')
-        trades = get_value(best, 'num_trades')
+        # add comment to progress bar todo unnecessary?
+        best_metric = genetic.best_engines[generation]
+        best_engine = unpack(best_metric.id, path + '/' + str(generation))
+        pf = get_value(best_engine['metrics'], 'profit_factor')
+        trades = get_value(best_engine['metrics'], 'num_trades')
         pbar.set_postfix_str(f'pf: {round(pf, 2)}, trades: {trades}')
         pbar.update()
 

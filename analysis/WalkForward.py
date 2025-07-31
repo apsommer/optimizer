@@ -75,7 +75,7 @@ class WalkForward:
             iterable = fittest,
             disable = run != 0, # show only 1 core
             colour = blue,
-            bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
+            bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:80}{r_bar}'):
 
             # catch unprofitable in-sample
             metric = fittest[fitness]
@@ -113,7 +113,7 @@ class WalkForward:
             iterable = range(self.runs),
             disable =fitness is not Fit.PROFIT, # show only 1 core
             colour = blue,
-            bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
+            bar_format = '        Composite:      {percentage:3.0f}%|{bar:80}{r_bar}'):
 
             # get cash balance at end of previous run
             if cash_series.empty: balance = initial_cash

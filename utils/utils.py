@@ -136,7 +136,7 @@ def build_emas(data, opt, path):
     for min in tqdm(
         iterable = mins,
         colour = yellow,
-        bar_format = '        Averages:       {percentage:3.0f}%|{bar:100}{r_bar}'):
+        bar_format = '        Averages:       {percentage:3.0f}%|{bar:80}{r_bar}'):
 
         # column names
         col_ema = 'ema_' + str(min)
@@ -163,7 +163,7 @@ def build_emas(data, opt, path):
             position = 1,
             iterable = data.index,
             colour = aqua,
-            bar_format = '                        {percentage:3.0f}%|{bar:100}{r_bar}'):
+            bar_format = '                        {percentage:3.0f}%|{bar:80}{r_bar}'):
 
             if slope[idx] > 0:
                 longMinutes += 1
@@ -193,7 +193,7 @@ def build_fractals(data, path):
     for i in tqdm(
         iterable = range(len(data.index)),
         colour = yellow,
-        bar_format = '        Fractals:       {percentage:3.0f}%|{bar:100}{r_bar}'):
+        bar_format = '        Fractals:       {percentage:3.0f}%|{bar:80}{r_bar}'):
 
         # skip first 2 bars and last 2 bars, due to definition -2:+2
         if 2 < i < len(data.index) - 3:

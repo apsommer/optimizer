@@ -94,7 +94,7 @@ class Genetic:
         end = int(start + group_size)
         group = self.population[start : end]
 
-        bar_format = '                  ' + str(generation) + ':    {percentage:3.0f}%|{bar:100}{r_bar}'
+        bar_format = '                  ' + str(generation) + ':    {percentage:3.0f}%|{bar:80}{r_bar}'
         with tqdm(
             disable = core != 0, # show only 1 core
             position = 1,
@@ -262,7 +262,7 @@ class Genetic:
         engine = Engine(id, strategy)
 
         # run and save
-        bar_format = '        Plot:           {percentage:3.0f}%|{bar:100}{r_bar}'
+        bar_format = '        Plot:           {percentage:3.0f}%|{bar:80}{r_bar}'
         engine.run(
             position = 0,
             disable = generation != 0,
