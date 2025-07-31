@@ -235,7 +235,7 @@ class LiveStrategy(BaselineStrategy):
         else:
 
             longFastCrossoverExit = np.nan
-            if isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * open
+            if isEntryLong: longFastCrossoverExit = (1 + fastCrossover) * close
             elif is_long: longFastCrossoverExit = self.longFastCrossoverExit
             self.longFastCrossoverExit = longFastCrossoverExit
 
@@ -250,7 +250,7 @@ class LiveStrategy(BaselineStrategy):
 
             # exit, short crossover fast
             shortFastCrossoverExit = np.nan
-            if isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * open
+            if isEntryShort: shortFastCrossoverExit = (1 - fastCrossover) * close
             elif is_short: shortFastCrossoverExit = self.shortFastCrossoverExit
             self.shortFastCrossoverExit = shortFastCrossoverExit
 
@@ -270,12 +270,12 @@ class LiveStrategy(BaselineStrategy):
 
         else:
 
-            if isEntryLong: longTakeProfit = (1 + takeProfit) * open
+            if isEntryLong: longTakeProfit = (1 + takeProfit) * close
             elif not is_long: longTakeProfit = np.nan
             self.longTakeProfit = longTakeProfit
             isExitLongTakeProfit = high > longTakeProfit
 
-            if isEntryShort: shortTakeProfit = (1 - takeProfit) * open
+            if isEntryShort: shortTakeProfit = (1 - takeProfit) * close
             elif not is_short: shortTakeProfit = np.nan
             self.shortTakeProfit = shortTakeProfit
             isExitShortTakeProfit = shortTakeProfit > low
@@ -287,12 +287,12 @@ class LiveStrategy(BaselineStrategy):
 
         else:
 
-            if isEntryLong: longStopLoss = (1 - stopLoss) * open
+            if isEntryLong: longStopLoss = (1 - stopLoss) * close
             elif not is_long: longStopLoss = np.nan
             self.longStopLoss = longStopLoss
             isExitLongStopLoss = longStopLoss > low
 
-            if isEntryShort: shortStopLoss = (1 + stopLoss) * open
+            if isEntryShort: shortStopLoss = (1 + stopLoss) * close
             elif not is_short: shortStopLoss = np.nan
             self.shortStopLoss = shortStopLoss
             isExitShortStopLoss = high > shortStopLoss
