@@ -6,7 +6,8 @@ from sklearn.metrics import mean_squared_error
 
 import numpy as np
 from model.Metric import Metric
-from utils.utils import format_timestamp
+from utils.utils import format_timestamp, unpack
+
 
 def print_metrics(metrics):
 
@@ -35,8 +36,12 @@ def print_metrics(metrics):
 
         print("\t{}: {} [{}]".format(title, rounded_value, unit))
 
-def get_value(metrics, name):
-    return next(metric for metric in metrics if metric.name == name).value
+def get_pf_trades(metrics):
+
+    pf = round(next(metric for metric in metrics if metric.name == 'profit_factor').value, 2)
+    trades = next(metric for metric in metrics if metric.name == 'num_trades').value
+
+    return f'pf: {round(pf, 2)}, trades: {trades}'
 
 def get_engine_metrics(engine):
 
@@ -323,6 +328,10 @@ def get_genetic_results_metrics(genetic):
     metrics = [ Metric('header', None, None, 'Generations:') ]
     for generation, metric in enumerate(genetic.best_engines):
 
+        # unpack full metrics
+        path = genetic.parent_path + '/generations' + '/' + str(generation)
+        engine = unpack(metric.id, path)
+
         # calculate percent unprofitable
         population_size = genetic.population_size
         unprofitable = genetic.unprofitable_engines[generation]
@@ -343,7 +352,8 @@ def get_genetic_results_metrics(genetic):
             value += f',\tProfitable: {profitable_percent} [%]'
 
         else:
-            value = f'\tFitness: {round(metric.value)} [%],\tProfitable: {profitable_percent} [%]'
+
+            value = f'\t{get_pf_trades(engine['metrics'])},\tProfitable: {profitable_percent} [%]'
 
         # append params
         value += ',\t' + genetic.params[generation].value.one_line

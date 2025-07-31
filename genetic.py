@@ -7,7 +7,7 @@ from multiprocessing import Pool
 from analysis.Genetic import Genetic
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
-from utils.metrics import print_metrics, get_genetic_results_metrics, get_value
+from utils.metrics import print_metrics, get_genetic_results_metrics, get_pf_trades
 from utils.utils import *
 
 ''' genetic analysis '''
@@ -118,12 +118,10 @@ with tqdm(
         genetic.mutation()
         genetic.clean()
 
-        # add comment to progress bar todo unnecessary?
+        # add comment to progress bar
         best_metric = genetic.best_engines[generation]
         best_engine = unpack(best_metric.id, path + '/' + str(generation))
-        pf = get_value(best_engine['metrics'], 'profit_factor')
-        trades = get_value(best_engine['metrics'], 'num_trades')
-        pbar.set_postfix_str(f'pf: {round(pf, 2)}, trades: {trades}')
+        pbar.set_postfix_str(get_pf_trades(best_engine['metrics']))
         pbar.update()
 
 # run and save best engines

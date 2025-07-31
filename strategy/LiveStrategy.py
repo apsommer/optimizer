@@ -196,7 +196,8 @@ class LiveStrategy(BaselineStrategy):
 
         isEntryLong = (
             ((is_flat or is_short) and isEntryLongSignal)
-            or (isExitShortFastMomentum and fast > slow))
+            or (isExitShortFastMomentum and fast > slow)
+            or (isExitShortRapidMomentum and fast > slow))
 
         if isEntryLong:
             self.buy(ticker, size)
@@ -221,7 +222,8 @@ class LiveStrategy(BaselineStrategy):
 
         isEntryShort = (
             ((is_flat or is_long) and isEntryShortSignal)
-            or (isExitLongFastMomentum and slow > fast)
+            or (isExitLongFastMomentum and slow > fast
+            or (isExitLongRapidMomentum and slow > fast))
         )
 
         if isEntryShort:
@@ -298,8 +300,15 @@ class LiveStrategy(BaselineStrategy):
             isExitShortStopLoss = high > shortStopLoss
 
         # flip
-        isExitLongFlip = (is_long and isEntryShortSignal) or (isExitLongFastMomentum and slow > fast)
-        isExitShortFlip = (is_short and isEntryLongSignal) or (isExitShortFastMomentum and fast > slow)
+        isExitLongFlip = (
+            (is_long and isEntryShortSignal)
+            or (isExitLongFastMomentum and slow > fast)
+            or (isExitLongRapidMomentum and slow > fast))
+
+        isExitShortFlip = (
+            (is_short and isEntryLongSignal)
+            or (isExitShortFastMomentum and fast > slow)
+            or (isExitShortRapidMomentum and fast > slow))
 
         # exit long
         isExitLong = is_long and (
@@ -320,6 +329,7 @@ class LiveStrategy(BaselineStrategy):
             elif self.is_last_bar: comment = 'lastBar'
             elif isExitLongFastMomentum and slow > fast: comment = 'flip fastMomentum'
             elif is_long and isEntryShortSignal: comment = 'flip shortSignal'
+            elif isExitLongRapidMomentum and slow > fast: comment = 'flip rapidMomentum'
             elif isExitLongFastMomentum: comment = 'fastMomentum'
             elif isExitLongStopLoss: comment = 'stopLoss'
             elif isExitLongRapidMomentum: comment = 'rapidMomentum'
@@ -346,6 +356,7 @@ class LiveStrategy(BaselineStrategy):
             elif self.is_last_bar: comment = 'lastBar'
             elif isExitShortFastMomentum and fast > slow: comment = 'flip fastMomentum'
             elif is_short and isEntryLongSignal: comment = 'flip longSignal'
+            elif isExitShortRapidMomentum and fast > slow: comment = 'flip rapidMomentum'
             elif isExitShortFastMomentum: comment = 'fastMomentum'
             elif isExitShortStopLoss: comment = 'stopLoss'
             elif isExitShortRapidMomentum: comment = 'rapidMomentum'
