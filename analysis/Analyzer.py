@@ -26,7 +26,7 @@ class Analyzer:
         self.fastCrossoverPercent = self.opt.fastCrossoverPercent
         self.takeProfitPercent = self.opt.takeProfitPercent
         self.stopLossPercent = self.opt.stopLossPercent
-        self.fastAngleFactor = self.opt.fastAngleFactor
+        self.fastAngleFactor = self.opt.fastAngleExitFactor
         self.slowMinutes = self.opt.slowMinutes
         self.slowAngleFactor = self.opt.slowAngleFactor
         self.coolOffMinutes = self.opt.coolOffMinutes
@@ -72,7 +72,7 @@ class Analyzer:
                                                                 fastCrossoverPercent = fastCrossoverPercent,
                                                                 takeProfitPercent = takeProfitPercent,
                                                                 stopLossPercent = stopLossPercent,
-                                                                fastAngleFactor = fastAngleFactor,
+                                                                fastAngleExitFactor= fastAngleFactor,
                                                                 slowMinutes = slowMinutes,
                                                                 slowAngleFactor = slowAngleFactor,
                                                                 coolOffMinutes = coolOffMinutes,

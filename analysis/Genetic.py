@@ -45,7 +45,8 @@ class Genetic:
         self.fastCrossoverPercent = self.opt.fastCrossoverPercent
         self.takeProfitPercent = self.opt.takeProfitPercent
         self.stopLossPercent = self.opt.stopLossPercent
-        self.fastAngleFactor = self.opt.fastAngleFactor
+        self.fastAngleEntryFactor = self.opt.fastAngleEntryFactor
+        self.fastAngleExitFactor = self.opt.fastAngleExitFactor
         self.slowMinutes = self.opt.slowMinutes
         self.slowAngleFactor = self.opt.slowAngleFactor
         self.coolOffMinutes = self.opt.coolOffMinutes
@@ -70,7 +71,8 @@ class Genetic:
                 fastCrossoverPercent = random.choice(self.fastCrossoverPercent),
                 takeProfitPercent = random.choice(self.takeProfitPercent),
                 stopLossPercent = random.choice(self.stopLossPercent),
-                fastAngleFactor = random.choice(self.fastAngleFactor),
+                fastAngleEntryFactor = random.choice(self.fastAngleEntryFactor),
+                fastAngleExitFactor= random.choice(self.fastAngleExitFactor),
                 slowMinutes = random.choice(self.slowMinutes),
                 slowAngleFactor = random.choice(self.slowAngleFactor),
                 coolOffMinutes = random.choice(self.coolOffMinutes),

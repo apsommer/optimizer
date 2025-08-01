@@ -48,7 +48,8 @@ class LiveStrategy(BaselineStrategy):
         fastCrossoverPercent = params.fastCrossoverPercent
         takeProfitPercent = params.takeProfitPercent
         stopLossPercent = params.stopLossPercent
-        fastAngleFactor = params.fastAngleFactor
+        fastAngleEntryFactor = params.fastAngleEntryFactor
+        fastAngleExitFactor = params.fastAngleExitFactor
         self.slowMinutes = params.slowMinutes
         slowAngleFactor = params.slowAngleFactor
         self.coolOffMinutes = params.coolOffMinutes
@@ -70,7 +71,8 @@ class LiveStrategy(BaselineStrategy):
         self.sellFractals = fractals.loc[:, 'sellFractal']
 
         # convert units
-        self.fastAngle = fastAngleFactor / 1000.0
+        self.fastAngleEntry = fastAngleEntryFactor / 1000.0
+        self.fastAngleExit = fastAngleExitFactor / 1000.0
         self.slowAngle = slowAngleFactor / 1000.0
         self.takeProfit = takeProfitPercent / 100.0
         self.stopLoss = stopLossPercent / 100.0
@@ -100,7 +102,8 @@ class LiveStrategy(BaselineStrategy):
         bar_index = self.bar_index
 
         # params
-        fastAngle = self.fastAngle
+        fastAngleEntry = self.fastAngleEntry
+        fastAngleExit = self.fastAngleExit
         slowAngle = self.slowAngle
         disableEntryMinutes = self.disableEntryMinutes
         coolOffMinutes = self.coolOffMinutes
@@ -173,8 +176,8 @@ class LiveStrategy(BaselineStrategy):
                 and fastLong > fastMomentumMinutes)
 
         # exit, rapid momentum swing
-        isExitLongRapidMomentum = is_long and -fastAngle > fastSlope
-        isExitShortRapidMomentum = is_short and fastSlope > fastAngle
+        isExitLongRapidMomentum = is_long and -fastAngleExit > fastSlope
+        isExitShortRapidMomentum = is_short and fastSlope > fastAngleExit
 
         # entry, long fractal
         isEntryLongFractal = (
@@ -196,9 +199,9 @@ class LiveStrategy(BaselineStrategy):
         # entry, long fast crossover
         isEntryLongFastCrossover = (
             high > fast > open
+            and fastSlope > fastAngleEntry
             and fast > slow
             and slowSlope > slowAngle
-            and fastSlope > 0
         )
 
         # entry, long
@@ -235,9 +238,9 @@ class LiveStrategy(BaselineStrategy):
         # entry, short fast crossover
         isEntryShortFastCrossover = (
             open > fast > low
+            and -fastAngleEntry > fastSlope
             and slow > fast
             and -slowAngle > slowSlope
-            and 0 > fastSlope
         )
 
         # entry, short
