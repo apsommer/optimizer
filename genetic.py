@@ -30,17 +30,17 @@ fitness = Fitness(
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [15, 20, 25, 30],
-    disableEntryMinutes = np.linspace(55, 255, 201, dtype = int),
+    fastMinutes = [20],
+    disableEntryMinutes = [0], # np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
-    fastCrossoverPercent = np.linspace(70, 100, 31, dtype = int),
+    fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(.4, .9, 51), 2),
     stopLossPercent = [0], # np.around(np.linspace(.25, 1, 76), 2),
     fastAngleFactor = np.linspace(250, 3250, 3001, dtype = int),
-    slowMinutes = np.linspace(2005, 3005, 5, dtype = int),
+    slowMinutes = [2555], # np.linspace(2005, 3005, 5, dtype = int),
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = np.linspace(0, 12, 13, dtype = int),
+    coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = [2], # np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 112, 101, dtype = int),
 )
 

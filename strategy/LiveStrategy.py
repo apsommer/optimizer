@@ -176,7 +176,7 @@ class LiveStrategy(BaselineStrategy):
         isExitLongRapidMomentum = is_long and -fastAngle > fastSlope
         isExitShortRapidMomentum = is_short and fastSlope > fastAngle
 
-        # entry long
+        # entry, long fractal
         isEntryLongFractal = (
             fast > slow
             and not isEntryLongDisabled
@@ -187,22 +187,35 @@ class LiveStrategy(BaselineStrategy):
             and 0.5 * fastMomentumMinutes > fastShort
         )
 
-        isEntryLongCrossover = (
-            open < slow < close
+        # entry, long slow crossover
+        isEntryLongSlowCrossover = (
+            high > slow > open
             and slowSlope > slowAngle
         )
 
-        isEntryLongSignal = isEntryLongFractal or isEntryLongCrossover
+        # entry, long fast crossover
+        isEntryLongFastCrossover = (
+            high > fast > open
+            and fast > slow
+            and slowSlope > slowAngle
+            and fastSlope > 0
+        )
 
+        # entry, long
+        isEntryLongSignal =(
+            isEntryLongFractal
+            or isEntryLongSlowCrossover
+            or isEntryLongFastCrossover
+        )
         isEntryLong = (
             ((is_flat or is_short) and isEntryLongSignal)
             or (isExitShortFastMomentum and fast > slow)
-            or (isExitShortRapidMomentum and fast > slow))
-
+            or (isExitShortRapidMomentum and fast > slow)
+        )
         if isEntryLong:
             self.buy(ticker, size)
 
-        # entry short
+        # entry, short fractal
         isEntryShortFractal = (
             slow > fast
             and not isEntryShortDisabled
@@ -213,19 +226,30 @@ class LiveStrategy(BaselineStrategy):
             and 0.5 * fastMomentumMinutes > fastLong
         )
 
-        isEntryShortCrossover = (
-            open > slow > close
+        # entry, short slow crossover
+        isEntryShortSlowCrossover = (
+            open > slow > low
             and -slowAngle > slowSlope
         )
 
-        isEntryShortSignal = isEntryShortFractal or isEntryShortCrossover
+        # entry, short fast crossover
+        isEntryShortFastCrossover = (
+            open > fast > low
+            and slow > fast
+            and -slowAngle > slowSlope
+            and 0 > fastSlope
+        )
 
+        # entry, short
+        isEntryShortSignal = (
+            isEntryShortFractal
+            or isEntryShortSlowCrossover
+            or isEntryShortFastCrossover)
         isEntryShort = (
             ((is_flat or is_long) and isEntryShortSignal)
             or (isExitLongFastMomentum and slow > fast
             or (isExitLongRapidMomentum and slow > fast))
         )
-
         if isEntryShort:
             self.sell(ticker, size)
 
