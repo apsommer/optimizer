@@ -11,8 +11,8 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 20 # trump elected 051124
-id = '20250729_184627'
+num_months = 8 # trump elected 051124
+id = '20250802_010022' # todo hunt for unique id, no need for asset, num_months
 
 ###################################################################
 

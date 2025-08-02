@@ -36,7 +36,7 @@ opt = LiveParams(
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(.3, 1, 71), 2),
     stopLossPercent = [0], # np.around(np.linspace(.25, 1, 76), 2),
-    fastAngleEntryFactor = np.linspace(0, 1000, 1001, dtype = int),
+    fastAngleEntryFactor = np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor= np.linspace(1250, 5250, 4001, dtype = int),
     slowMinutes = [2555], # np.linspace(2005, 3005, 5, dtype = int),
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),

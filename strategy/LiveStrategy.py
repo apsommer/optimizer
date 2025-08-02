@@ -184,7 +184,6 @@ class LiveStrategy(BaselineStrategy):
             fast > slow
             and not isEntryLongDisabled
             and slowSlope > slowAngle
-            and hasLongEntryDelayElapsed
             and self.trendStartMinutes < slowLong < self.trendEndMinutes
             and fast > close > buyFractal > slow
             and 0.5 * fastMomentumMinutes > fastShort
@@ -211,10 +210,10 @@ class LiveStrategy(BaselineStrategy):
             or isEntryLongFastCrossover
         )
         isEntryLong = (
-            ((is_flat or is_short) and isEntryLongSignal)
-            or (isExitShortFastMomentum and fast > slow)
-            or (isExitShortRapidMomentum and fast > slow)
-        )
+            hasLongEntryDelayElapsed and (
+                ((is_flat or is_short) and isEntryLongSignal)
+                or (isExitShortFastMomentum and fast > slow)
+                or (isExitShortRapidMomentum and fast > slow)))
         if isEntryLong:
             self.buy(ticker, size)
 
@@ -223,7 +222,6 @@ class LiveStrategy(BaselineStrategy):
             slow > fast
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
-            and hasShortEntryDelayElapsed
             and self.trendStartMinutes < slowShort < self.trendEndMinutes
             and slow > sellFractal > close > fast
             and 0.5 * fastMomentumMinutes > fastLong
@@ -249,10 +247,10 @@ class LiveStrategy(BaselineStrategy):
             or isEntryShortSlowCrossover
             or isEntryShortFastCrossover)
         isEntryShort = (
-            ((is_flat or is_long) and isEntryShortSignal)
-            or (isExitLongFastMomentum and slow > fast
-            or (isExitLongRapidMomentum and slow > fast))
-        )
+            hasShortEntryDelayElapsed and (
+                ((is_flat or is_long) and isEntryShortSignal)
+                or (isExitLongFastMomentum and slow > fast
+                or (isExitLongRapidMomentum and slow > fast))))
         if isEntryShort:
             self.sell(ticker, size)
 
@@ -390,6 +388,8 @@ class LiveStrategy(BaselineStrategy):
 
             self.shortExitBarIndex = bar_index
             self.buy(ticker, size, comment)
+
+    ####################################################################################################################
 
     def plot(self, window, title ='Strategy', shouldShow = False):
 
