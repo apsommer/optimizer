@@ -36,12 +36,12 @@ def print_metrics(metrics):
 
         print("\t{}: {} [{}]".format(title, rounded_value, unit))
 
-def get_pf_trades(metrics):
+def display_progress_bar(metrics):
 
     pf = round(next(metric for metric in metrics if metric.name == 'profit_factor').value, 2)
     trades = next(metric for metric in metrics if metric.name == 'num_trades').value
 
-    return f'pf: {round(pf, 2)}, trades: {trades}'
+    return f'pf: {pf}, trades: {trades}'
 
 def get_engine_metrics(engine):
 
@@ -328,37 +328,39 @@ def get_genetic_results_metrics(genetic):
     metrics = [ Metric('header', None, None, 'Generations:') ]
     for generation, metric in enumerate(genetic.best_engines):
 
-        # unpack full metrics
+        # unpack best engines
         path = genetic.parent_path + '/generations' + '/' + str(generation)
         engine = unpack(metric.id, path)
 
-        # calculate percent unprofitable
+        # percent of population unprofitable
         population_size = genetic.population_size
         unprofitable = genetic.unprofitable_engines[generation]
         profitable_percent = round(((population_size - unprofitable) / population_size) * 100)
 
+        # format
         name = 'generation_' + str(generation)
         title = f'{generation}, {metric.id}'
 
-        # catch unblended single fitness
+        # single fitness, unblended
         if len(genetic.fitness.fits) == 1:
 
             # extract pair
             fit, percent = genetic.fitness.fits[0]
 
-            # format value
             value = f'\t{fit.pretty}: {metric.value}'
             if fit.unit is not None: value += f' [{fit.unit}]'
             value += f',\tProfitable: {profitable_percent} [%]'
 
+        # multiple fitness targets, blended
         else:
 
-            value = f'\t{get_pf_trades(engine['metrics'])},\tProfitable: {profitable_percent} [%]'
+            value = f'\t{display_progress_bar(engine['metrics'])}'
+            value += f',\tProfitable: {profitable_percent} [%]'
 
-        # append params
+        # add params
         value += ',\t' + genetic.params[generation].value.one_line
 
-        # align console output for large populations
+        # align console for large populations
         if 100 > metric.id: value = f'\t' + value
 
         metrics.append(

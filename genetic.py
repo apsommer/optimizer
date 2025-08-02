@@ -7,21 +7,19 @@ from multiprocessing import Pool
 from analysis.Genetic import Genetic
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
-from utils.metrics import print_metrics, get_genetic_results_metrics, get_pf_trades
+from utils.metrics import print_metrics, get_genetic_results_metrics, display_progress_bar
 from utils.utils import *
 
 ''' genetic analysis '''
-# INPUT ###########################################################
 
-# data, indicators
 asset = 'MES'
 num_months = 8
+isNetwork = False
 
-# genetic params
+# genetic
 population_size = 150
 generations = 5
 mutation_rate = 0.05
-
 fitness = Fitness(
     fits = [
         (Fit.DRAWDOWN_PER_PROFIT, 70),
@@ -59,7 +57,7 @@ parent_path = 'genetic/' + data_name
 path = parent_path + '/generations'
 
 # init data and indicators
-data = getOhlc(asset, num_months)
+data = getOhlc(asset, num_months, isNetwork)
 emas, fractals = getIndicators(data, opt, data_path)
 
 # remove residual analyses
@@ -109,7 +107,7 @@ with tqdm(
         # check for convergence
         isSolutionConverged = genetic.selection(
             generation = generation,
-            tournament_size = 5)
+            tournament_size = 3)
 
         if isSolutionConverged:
             print(f'\n\n\t{generation}: Solution converged.')
@@ -122,7 +120,7 @@ with tqdm(
         # add comment to progress bar
         best_metric = genetic.best_engines[generation]
         best_engine = unpack(best_metric.id, path + '/' + str(generation))
-        pbar.set_postfix_str(get_pf_trades(best_engine['metrics']))
+        pbar.set_postfix_str(display_progress_bar(best_engine['metrics']))
         pbar.update()
 
 # run and save best engines
