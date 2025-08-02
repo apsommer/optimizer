@@ -347,7 +347,7 @@ def get_genetic_results_metrics(genetic):
             fit, percent = genetic.fitness.fits[0]
 
             # format value
-            value = f'\t{fit.pretty}: {round(metric.value)}'
+            value = f'\t{fit.pretty}: {metric.value}'
             if fit.unit is not None: value += f' [{fit.unit}]'
             value += f',\tProfitable: {profitable_percent} [%]'
 

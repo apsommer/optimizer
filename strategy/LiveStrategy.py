@@ -8,24 +8,15 @@ from utils.utils import init_plot
 
 class LiveStrategy(BaselineStrategy):
 
-    # todo pass ticker
-    # @property
-    # def ticker(self):
-    #     return Ticker(
-    #         # symbol = 'NQ',
-    #         # point_value = 20
-    #         symbol = 'MNQ',
-    #         point_value = 2,
-    #         tick_size = 0.25,
-    #         margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
-
+    # margin 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
     @property
     def ticker(self):
         return Ticker(
             symbol = 'MES',
             point_value = 5,
             tick_size = 0.25,
-            margin = 0.5) # 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
+            margin = 0.5
+        )
 
     @property
     def size(self):
@@ -56,21 +47,22 @@ class LiveStrategy(BaselineStrategy):
         self.trendStartMinutes = params.trendStartHour * 60
         self.trendEndMinutes = params.trendEndHour * 60
 
-        # extract emas
+        # exponential moving averages
         self.fast = emas.loc[:, 'ema_' + str(self.fastMinutes)]
-        self.slow = emas.loc[:, 'ema_' + str(self.slowMinutes)]
         self.fastSlope = emas.loc[:, 'slope_' + str(self.fastMinutes)]
-        self.slowSlope = emas.loc[:, 'slope_' + str(self.slowMinutes)]
         self.fastLongMinutes = emas.loc[:, 'long_' + str(self.fastMinutes)]
         self.fastShortMinutes = emas.loc[:, 'short_' + str(self.fastMinutes)]
+
+        self.slow = emas.loc[:, 'ema_' + str(self.slowMinutes)]
+        self.slowSlope = emas.loc[:, 'slope_' + str(self.slowMinutes)]
         self.slowLongMinutes = emas.loc[:, 'long_' + str(self.slowMinutes)]
         self.slowShortMinutes = emas.loc[:, 'short_' + str(self.slowMinutes)]
 
-        # extract fractals
+        # fractals
         self.buyFractals = fractals.loc[:, 'buyFractal']
         self.sellFractals = fractals.loc[:, 'sellFractal']
 
-        # convert units
+        # units
         self.fastAngleEntry = fastAngleEntryFactor / 1000.0
         self.fastAngleExit = fastAngleExitFactor / 1000.0
         self.slowAngle = slowAngleFactor / 1000.0
@@ -78,9 +70,9 @@ class LiveStrategy(BaselineStrategy):
         self.stopLoss = stopLossPercent / 100.0
 
         # calculate fast crossover
-        if fastCrossoverPercent == 0: self.fastCrossover = 0 # off, tp only
-        elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # tp off, fc only
-        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # both on, fc % of tp
+        if fastCrossoverPercent == 0: self.fastCrossover = 0 # disable
+        elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # crossover only, disable take profit
+        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # crossover = % of take profit
 
         # strategy
         self.longExitBarIndex = -1
@@ -206,7 +198,7 @@ class LiveStrategy(BaselineStrategy):
         # entry, long
         isEntryLongSignal =(
             isEntryLongFractal
-            or isEntryLongSlowCrossover
+            # or isEntryLongSlowCrossover
             or isEntryLongFastCrossover
         )
         isEntryLong = (
@@ -244,7 +236,7 @@ class LiveStrategy(BaselineStrategy):
         # entry, short
         isEntryShortSignal = (
             isEntryShortFractal
-            or isEntryShortSlowCrossover
+            # or isEntryShortSlowCrossover
             or isEntryShortFastCrossover)
         isEntryShort = (
             hasShortEntryDelayElapsed and (

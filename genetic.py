@@ -15,17 +15,17 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 3 # trump elected 051124
+num_months = 8 # trump elected 051124
 
 # genetic params
-population_size = 15
-generations = 2
+population_size = 150
+generations = 5
 mutation_rate = 0.05
 
 fitness = Fitness(
     fits = [
-        (Fit.DRAWDOWN_PER_PROFIT, 100),
-        # (Fit.NUM_WINS, 30),
+        (Fit.DRAWDOWN_PER_PROFIT, 70),
+        (Fit.CORRELATION, 30),
     ])
 
 # optimization
@@ -33,16 +33,16 @@ opt = LiveParams(
     fastMinutes = [20],
     disableEntryMinutes = np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
-    fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
-    takeProfitPercent = np.around(np.linspace(.3, 1, 71), 2),
-    stopLossPercent = [0], # np.around(np.linspace(.25, 1, 76), 2),
+    fastCrossoverPercent = np.linspace(70, 100, 31, dtype = int),
+    takeProfitPercent = np.around(np.linspace(.35, .75, 51), 2),
+    stopLossPercent = [0],
     fastAngleEntryFactor = np.linspace(0, 100, 101, dtype = int),
-    fastAngleExitFactor= np.linspace(1250, 5250, 4001, dtype = int),
-    slowMinutes = [2555], # np.linspace(2005, 3005, 5, dtype = int),
-    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = [5], # np.linspace(0, 25, 26, dtype = int),
+    fastAngleExitFactor = np.linspace(1000, 7000, 6001, dtype = int),
+    slowMinutes = [2555],
+    slowAngleFactor = np.linspace(0, 100, 101, dtype = int),
+    coolOffMinutes =  np.linspace(0, 25, 26, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 112, 101, dtype = int),
+    trendEndHour = np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################
