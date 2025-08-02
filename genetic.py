@@ -14,8 +14,8 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ES'
-num_months = 8 # trump elected 051124
+asset = 'MES'
+num_months = 8
 
 # genetic params
 population_size = 150
@@ -31,18 +31,18 @@ fitness = Fitness(
 # optimization
 opt = LiveParams(
     fastMinutes = [20],
-    disableEntryMinutes = [0], # p.linspace(55, 255, 201, dtype = int),
+    disableEntryMinutes = [0], # np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = np.linspace(70, 100, 31, dtype = int),
-    takeProfitPercent = np.around(np.linspace(.35, .75, 51), 2),
+    takeProfitPercent = [0], # np.around(np.linspace(.35, .75, 51), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 7000, 6001, dtype = int),
     slowMinutes = [2555],
     slowAngleFactor = np.linspace(0, 100, 101, dtype = int),
-    coolOffMinutes =  np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 212, 201, dtype = int),
+    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = [0], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = [0] # np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################

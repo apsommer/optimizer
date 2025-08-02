@@ -49,8 +49,8 @@ def getOhlc(asset, num_months, isNetwork = False):
     # init databento client
     client = db.Historical(keys.bento_api_key)
     td = timedelta(days = num_months * 30.437)
-    starting_date = (datetime.now() - td).strftime("%Y-%m-%d")
-    ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
+    starting_date = '2024-05-11' # (datetime.now() - td).strftime("%Y-%m-%d") # trump elected 051124
+    ending_date = '2025-08-02' # datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
 
     # request network data, synchronous!
     ohlc = client.timeseries.get_range(

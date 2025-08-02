@@ -176,17 +176,26 @@ class LiveStrategy(BaselineStrategy):
             isExitLongRapidMomentum = is_long and -fastAngleExit > fastSlope
             isExitShortRapidMomentum = is_short and fastSlope > fastAngleExit
 
+        # slow trend is long or short
+        if self.trendStartMinutes == 0 or self.trendEndMinutes == 0:
+            isEntryLongEnabled = True
+            isEntryShortEnabled = True
+        else:
+            isEntryLongEnabled = self.trendStartMinutes < slowLong < self.trendEndMinutes
+            isEntryShortEnabled = self.trendStartMinutes < slowShort < self.trendEndMinutes
+
         # entry, long fractal signal
         isEntryLongFractal = (
             fast > slow
             and not isEntryLongDisabled
             and slowSlope > slowAngle
-            and self.trendStartMinutes < slowLong < self.trendEndMinutes
+            and isEntryLongEnabled
             and fast > close > buyFractal > slow
             and 0.5 * fastMomentumMinutes > fastShort
         )
 
-        # entry, long fast crossover todo creates too many trades?
+        # todo creates too many trades?
+        # entry, long fast crossover
         isEntryLongFastCrossover = (
             high > fast > open
             and fastSlope > fastAngleEntry
@@ -209,7 +218,7 @@ class LiveStrategy(BaselineStrategy):
             slow > fast
             and not isEntryShortDisabled
             and -slowAngle > slowSlope
-            and self.trendStartMinutes < slowShort < self.trendEndMinutes
+            and isEntryShortEnabled
             and slow > sellFractal > close > fast
             and 0.5 * fastMomentumMinutes > fastLong
         )
