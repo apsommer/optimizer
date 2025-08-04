@@ -45,7 +45,8 @@ class Genetic:
         self.fastCrossoverPercent = self.opt.fastCrossoverPercent
         self.takeProfitPercent = self.opt.takeProfitPercent
         self.stopLossPercent = self.opt.stopLossPercent
-        self.fastAngleFactor = self.opt.fastAngleFactor
+        self.fastAngleEntryFactor = self.opt.fastAngleEntryFactor
+        self.fastAngleExitFactor = self.opt.fastAngleExitFactor
         self.slowMinutes = self.opt.slowMinutes
         self.slowAngleFactor = self.opt.slowAngleFactor
         self.coolOffMinutes = self.opt.coolOffMinutes
@@ -57,6 +58,7 @@ class Genetic:
         self.engine_metrics = []
         self.best_engines = []
         self.unprofitable_engines = []
+        self.params = []
 
         # init first population
         self.population = []
@@ -69,7 +71,8 @@ class Genetic:
                 fastCrossoverPercent = random.choice(self.fastCrossoverPercent),
                 takeProfitPercent = random.choice(self.takeProfitPercent),
                 stopLossPercent = random.choice(self.stopLossPercent),
-                fastAngleFactor = random.choice(self.fastAngleFactor),
+                fastAngleEntryFactor = random.choice(self.fastAngleEntryFactor),
+                fastAngleExitFactor= random.choice(self.fastAngleExitFactor),
                 slowMinutes = random.choice(self.slowMinutes),
                 slowAngleFactor = random.choice(self.slowAngleFactor),
                 coolOffMinutes = random.choice(self.coolOffMinutes),
@@ -93,7 +96,7 @@ class Genetic:
         end = int(start + group_size)
         group = self.population[start : end]
 
-        bar_format = '                  ' + str(generation) + ':    {percentage:3.0f}%|{bar:100}{r_bar}'
+        bar_format = '                  ' + str(generation) + ':    {percentage:3.0f}%|{bar:80}{r_bar}'
         with tqdm(
             disable = core != 0, # show only 1 core
             position = 1,
@@ -111,8 +114,8 @@ class Genetic:
 
                 # run and save
                 engine.run(
-                    position= 2,
-                    disable=core != 0)
+                    position = 2,
+                    disable = core != 0)
                 engine.save(path, False)
                 pbar.update()
 
@@ -144,11 +147,15 @@ class Genetic:
         fitnesses = self.fitness.blend(self.engine_metrics)
 
         # persist best engine in generation
-        self.best_engines.append(
-            max(fitnesses, key = lambda metric: metric.value))
+        best_engine = max(fitnesses, key = lambda metric: metric.value)
+        best_params = next(metric for metric in self.engine_metrics
+            if metric.name == 'params' and metric.id == best_engine.id)
+        self.best_engines.append(best_engine)
+        self.params.append(best_params)
 
         # check for solution convergence
-        if generation > 2:
+        # todo applicable only for unblended single fitness
+        if generation > 2 and len(self.fitness.fits) == 1:
             current_winner = max(self.best_engines, key = lambda metric: metric.value)
             prev_winner = max(self.best_engines[:-1], key = lambda metric: metric.value)
             prev_prev_winner = max(self.best_engines[:-2], key = lambda metric: metric.value)
@@ -257,7 +264,7 @@ class Genetic:
         engine = Engine(id, strategy)
 
         # run and save
-        bar_format = '        Plot:           {percentage:3.0f}%|{bar:100}{r_bar}'
+        bar_format = '        Plot:           {percentage:3.0f}%|{bar:80}{r_bar}'
         engine.run(
             position = 0,
             disable = generation != 0,

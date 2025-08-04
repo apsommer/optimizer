@@ -6,7 +6,8 @@ from sklearn.metrics import mean_squared_error
 
 import numpy as np
 from model.Metric import Metric
-from utils.utils import format_timestamp
+from utils.utils import format_timestamp, unpack
+
 
 def print_metrics(metrics):
 
@@ -35,12 +36,22 @@ def print_metrics(metrics):
 
         print("\t{}: {} [{}]".format(title, rounded_value, unit))
 
+def display_progress_bar(metrics):
+
+    pf = round(next(metric for metric in metrics if metric.name == 'profit_factor').value, 2)
+    trades = next(metric for metric in metrics if metric.name == 'num_trades').value
+
+    return f'pf: {pf}, trades: {trades}'
+
 def get_engine_metrics(engine):
 
     # check trades exist
     num_trades = len(engine.trades)
     if num_trades == 0:
-        return [ Metric('no_trades', None, None, f'Engine {engine.id} has no trades') ]
+        return [
+            Metric('no_trades', None, None, f'Engine {engine.id} has no trades'),
+            Metric('profit', 0, 'USD', 'Profit')
+        ]
 
     trades = engine.trades
     cash_series = engine.cash_series
@@ -317,28 +328,39 @@ def get_genetic_results_metrics(genetic):
     metrics = [ Metric('header', None, None, 'Generations:') ]
     for generation, metric in enumerate(genetic.best_engines):
 
+        # unpack best engines
+        path = genetic.parent_path + '/generations' + '/' + str(generation)
+        engine = unpack(metric.id, path)
+
+        # percent of population unprofitable
         population_size = genetic.population_size
         unprofitable = genetic.unprofitable_engines[generation]
         profitable_percent = round(((population_size - unprofitable) / population_size) * 100)
 
+        # format
         name = 'generation_' + str(generation)
         title = f'{generation}, {metric.id}'
 
-        # catch unblended single fitness
+        # single fitness, unblended
         if len(genetic.fitness.fits) == 1:
 
             # extract pair
             fit, percent = genetic.fitness.fits[0]
 
-            # format value
-            value = f'\t{fit.pretty}: {round(metric.value)}'
+            value = f'\t{fit.pretty}: {metric.value}'
             if fit.unit is not None: value += f' [{fit.unit}]'
-            value += f', Profitable: {profitable_percent} [%]'
+            value += f',\tProfitable: {profitable_percent} [%]'
 
+        # multiple fitness targets, blended
         else:
-            value = f'\tFitness: {round(metric.value)} [%], Profitable: {profitable_percent} [%]'
 
-        # align console output for large populations
+            value = f'\t{display_progress_bar(engine['metrics'])}'
+            value += f',\tProfitable: {profitable_percent} [%]'
+
+        # add params
+        value += ',\t' + genetic.params[generation].value.one_line
+
+        # align console for large populations
         if 100 > metric.id: value = f'\t' + value
 
         metrics.append(

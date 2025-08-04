@@ -7,43 +7,40 @@ from multiprocessing import Pool
 from analysis.Genetic import Genetic
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
-from utils import utils
-from utils.metrics import print_metrics
+from utils.metrics import print_metrics, get_genetic_results_metrics, display_progress_bar
 from utils.utils import *
 
-''' genetic analysis '''
-# INPUT ###########################################################
-
 # data, indicators
-num_months = 9 # trump elected 051124
+asset = 'NQ'
+num_months = 9
 isNetwork = False
 
-# genetic params
+# genetic
 population_size = 150
-generations = 10
+generations = 5
 mutation_rate = 0.05
-
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT, 100),
         (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.EXPECTANCY, 50),
+        (Fit.PROFIT_FACTOR, 30),
+        (Fit.NUM_WINS, 20),
     ])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [25],
-    disableEntryMinutes = np.linspace(55, 155, 101, dtype = int),
+    fastMinutes = [20],
+    disableEntryMinutes = [0], # np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
-    fastCrossoverPercent = [0],
-    takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
-    stopLossPercent = np.around(np.linspace(.25, 1, 76), 2),
-    fastAngleFactor = [0],
-    slowMinutes = np.linspace(2005, 3005, 6, dtype = int),
-    slowAngleFactor = np.linspace(0, 25, 6, dtype = int),
-    coolOffMinutes = [25],
-    trendStartHour = [4],
-    trendEndHour = np.linspace(12, 124, 101, dtype = int),
+    fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
+    takeProfitPercent = np.around(np.linspace(.3, 1, 71), 2),
+    stopLossPercent = [0],
+    fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
+    fastAngleExitFactor = np.linspace(1000, 2000, 1001, dtype = int),
+    slowMinutes = [2555],
+    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
+    coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = [0], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = [0] # np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################
@@ -54,18 +51,14 @@ np.set_printoptions(threshold = 3)
 start_time = time.time()
 
 # organize outputs
-data_name = 'NQ_' + str(num_months) + 'mon'
-csv_filename = 'data/' + data_name + '.csv'
+data_name = asset + '_' + str(num_months) + 'm'
+data_path = 'data/' + data_name
 parent_path = 'genetic/' + data_name
 path = parent_path + '/generations'
 
-# get ohlc prices
-data = utils.getOhlc(num_months, isNetwork)
-
-# get indicators
-check_indicators(data, opt, parent_path)
-emas = unpack('emas', parent_path)
-fractals = unpack('fractals', parent_path)
+# init data and indicators
+data = getOhlc(asset, num_months, isNetwork)
+emas, fractals = getIndicators(data, opt, data_path)
 
 # remove residual analyses
 shutil.rmtree(path, ignore_errors = True)
@@ -91,7 +84,7 @@ genetic = Genetic(
 print_metrics(genetic.metrics)
 
 # execute genetic algorithm
-bar_format = '        Generations:    {percentage:3.0f}%|{bar:100}{r_bar}'
+bar_format = '        Generations:    {percentage:3.0f}%|{bar:80}{r_bar}'
 with tqdm(
     position = 0,
     leave = False,
@@ -117,7 +110,7 @@ with tqdm(
             tournament_size = 3)
 
         if isSolutionConverged:
-            print('\n\n\tSolution converged.')
+            print(f'\n\n\t{generation}: Solution converged.')
             break
 
         genetic.crossover()
@@ -125,8 +118,9 @@ with tqdm(
         genetic.clean()
 
         # add comment to progress bar
-        best = genetic.best_engines[generation]
-        pbar.set_postfix_str(f'{round(best.value)}%')
+        best_metric = genetic.best_engines[generation]
+        best_engine = unpack(best_metric.id, path + '/' + str(generation))
+        pbar.set_postfix_str(display_progress_bar(best_engine['metrics']))
         pbar.update()
 
 # run and save best engines
@@ -138,11 +132,10 @@ pool.map(
     iterable = range(generations))
 pool.close()
 pool.join()
-
 genetic.save()
 
 # display results
-genetic.print_metrics()
+print_metrics(get_genetic_results_metrics(genetic))
 genetic.plot()
 
 # print analysis time

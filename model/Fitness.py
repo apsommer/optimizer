@@ -57,18 +57,17 @@ class Fitness:
     @property
     def pretty(self):
 
+        # catch unblended single fitness
+        if len(self.fits) == 1:
+            fit, _ = self.fits[0]
+            return fit.pretty
+
         pretty = ''
         for pair in self.fits:
-
             fit, percent = pair
+            pretty += '\n\t\t' + fit.pretty + ', ' + str(percent) + ' [%]'
 
-            # catch unblended single fitness
-            if len(self.fits) == 1:
-                return fit.pretty
-
-            pretty += fit.pretty + ' ' + str(percent) + ' [%], '
-
-        return pretty[:-2]
+        return pretty
 
 class Fit(Enum):
 
@@ -102,7 +101,18 @@ class Fit(Enum):
 
     @property
     def color(self):
-        return get_random_color()
+        match self:
+            case Fit.PROFIT: return colors[0]
+            case Fit.PROFIT_FACTOR: return colors[1]
+            case Fit.EXPECTANCY: return colors[2]
+            case Fit.WIN_RATE: return colors[3]
+            case Fit.AVERAGE_WIN: return colors[4]
+            case Fit.AVERAGE_LOSS: return colors[5]
+            case Fit.DRAWDOWN: return colors[6]
+            case Fit.DRAWDOWN_PER_PROFIT: return colors[7]
+            case Fit.CORRELATION: return colors[8]
+            case Fit.NUM_TRADES: return colors[9]
+            case Fit.NUM_WINS: return colors[0]
 
     @property
     def unit(self):

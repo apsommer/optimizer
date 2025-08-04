@@ -11,7 +11,8 @@ class LiveParams:
         fastCrossoverPercent,
         takeProfitPercent,
         stopLossPercent,
-        fastAngleFactor,
+        fastAngleEntryFactor,
+        fastAngleExitFactor,
         slowMinutes,
         slowAngleFactor,
         coolOffMinutes,
@@ -24,7 +25,8 @@ class LiveParams:
         self.fastCrossoverPercent = fastCrossoverPercent
         self.takeProfitPercent = takeProfitPercent
         self.stopLossPercent = stopLossPercent
-        self.fastAngleFactor = fastAngleFactor
+        self.fastAngleEntryFactor = fastAngleEntryFactor
+        self.fastAngleExitFactor = fastAngleExitFactor
         self.slowMinutes = slowMinutes
         self.slowAngleFactor = slowAngleFactor
         self.coolOffMinutes = coolOffMinutes
@@ -40,7 +42,8 @@ class LiveParams:
             * len(self.fastCrossoverPercent)
             * len(self.takeProfitPercent)
             * len(self.stopLossPercent)
-            * len(self.fastAngleFactor)
+            * len(self.fastAngleEntryFactor)
+            * len(self.fastAngleExitFactor)
             * len(self.slowMinutes)
             * len(self.slowAngleFactor)
             * len(self.coolOffMinutes)
@@ -56,7 +59,8 @@ class LiveParams:
             f'{self.fastCrossoverPercent}, '
             f'{self.takeProfitPercent}, '
             f'{self.stopLossPercent}, '
-            f'{self.fastAngleFactor}, '
+            f'{self.fastAngleEntryFactor}, '
+            f'{self.fastAngleExitFactor}, '
             f'{self.slowMinutes}, '
             f'{self.slowAngleFactor}, '
             f'{self.coolOffMinutes}, '
@@ -73,7 +77,8 @@ class LiveParams:
                 f'\n\t\tfastCrossoverPercent: {pretty_list(self.fastCrossoverPercent)}'
                 f'\n\t\ttakeProfitPercent: {pretty_list(self.takeProfitPercent)}'
                 f'\n\t\tstopLossPercent: {pretty_list(self.stopLossPercent)}'
-                f'\n\t\tfastAngleFactor: {pretty_list(self.fastAngleFactor)}'
+                f'\n\t\tfastAngleEntryFactor: {pretty_list(self.fastAngleEntryFactor)}'
+                f'\n\t\tfastAngleExitFactor: {pretty_list(self.fastAngleExitFactor)}'
                 f'\n\t\tslowMinutes: {pretty_list(self.slowMinutes)}'
                 f'\n\t\tslowAngleFactor: {pretty_list(self.slowAngleFactor)}'
                 f'\n\t\tcoolOffMinutes: {pretty_list(self.coolOffMinutes)}'
@@ -87,7 +92,8 @@ class LiveParams:
             f'\n\t\tfastCrossoverPercent: {self.fastCrossoverPercent}'
             f'\n\t\ttakeProfitPercent: {self.takeProfitPercent}'
             f'\n\t\tstopLossPercent: {self.stopLossPercent}'
-            f'\n\t\tfastAngleFactor: {self.fastAngleFactor}'
+            f'\n\t\tfastAngleEntryFactor: {self.fastAngleEntryFactor}'
+            f'\n\t\tfastAngleExitFactor: {self.fastAngleExitFactor}'
             f'\n\t\tslowMinutes: {self.slowMinutes}'
             f'\n\t\tslowAngleFactor: {self.slowAngleFactor}'
             f'\n\t\tcoolOffMinutes: {self.coolOffMinutes}'

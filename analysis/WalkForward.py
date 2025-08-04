@@ -5,9 +5,9 @@ from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import *
 from utils.utils import *
 
-class WalkForward():
+class WalkForward:
 
-    def __init__(self, num_months, percent, runs, data, emas, fractals, opt, path):
+    def __init__(self, num_months, percent, runs, data, emas, fractals, opt, parent_path):
 
         self.num_months = num_months
         self.percent = percent
@@ -16,7 +16,12 @@ class WalkForward():
         self.emas = emas
         self.fractals = fractals
         self.opt = opt
-        self.path = path
+        self.parent_path = parent_path
+
+        # organize outputs
+        self.analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
+        self.analysis_path = parent_path + '/' + format_timestamp(datetime.now(), 'local')
+        os.makedirs(self.analysis_path)
 
         self.best_params = None
         self.best_fitness = None
@@ -42,7 +47,7 @@ class WalkForward():
         IS_fractals = self.fractals.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.opt, self.path)
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.opt, self.analyzer_path)
         analyzer.run()
         analyzer.save()
 
@@ -62,17 +67,15 @@ class WalkForward():
         OS_fractals = self.fractals.iloc[OS_start : OS_end]
 
         # get fittest params from in-sample analyzer
-        IS_path = self.path + '/' + str(run)
+        IS_path = self.analyzer_path + '/' + str(run)
         fittest = unpack('analyzer', IS_path)['fittest']
-
-        # todo skip extra fitness if only analyzing 1 engine
 
         # create and save engine for each fitness
         for fitness in tqdm(
             iterable = fittest,
             disable = run != 0, # show only 1 core
             colour = blue,
-            bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:100}{r_bar}'):
+            bar_format = '        Out-of-sample:  {percentage:3.0f}%|{bar:80}{r_bar}'):
 
             # catch unprofitable in-sample
             metric = fittest[fitness]
@@ -95,7 +98,7 @@ class WalkForward():
             engine.metrics.append(metric)
 
             # persist full engine
-            OS_path = self.path + '/' + fitness.value
+            OS_path = self.analyzer_path + '/' + fitness.value
             engine.save(OS_path, True)
 
     def build_composite(self, fitness):
@@ -110,14 +113,14 @@ class WalkForward():
             iterable = range(self.runs),
             disable =fitness is not Fit.PROFIT, # show only 1 core
             colour = blue,
-            bar_format = '        Composite:      {percentage:3.0f}%|{bar:100}{r_bar}'):
+            bar_format = '        Composite:      {percentage:3.0f}%|{bar:80}{r_bar}'):
 
             # get cash balance at end of previous run
             if cash_series.empty: balance = initial_cash
             else: balance = cash_series.values[-1]
 
             # check if OS exists
-            OS_path = self.path + '/' + fitness.value
+            OS_path = self.analyzer_path + '/' + fitness.value
             OS_engine_filepath = OS_path + '/' + str(run) + '.bin'
             isProfitable = os.path.exists(OS_engine_filepath)
 
@@ -165,7 +168,7 @@ class WalkForward():
         for i, trade in enumerate(trades): trade.id = i + 1
 
         # extract fittest engines from last in-sample analyzer
-        IS_path = self.path + '/' + str(self.runs)
+        IS_path = self.analyzer_path + '/' + str(self.runs)
         fittest = unpack('analyzer', IS_path)['fittest']
         metric = fittest[fitness]
 
@@ -193,7 +196,7 @@ class WalkForward():
             engine.metrics.append(
                 Metric('invalids', str(invalid_runs), None, 'Invalid runs'))
 
-        engine.save(self.path, True)
+        engine.save(self.analysis_path, True)
 
     def calculate_efficiency(self, IS_profits, engine):
 
@@ -218,7 +221,7 @@ class WalkForward():
         highest_profit = -np.inf
         for fitness in Fit:
 
-            engine = unpack(fitness.value, self.path)
+            engine = unpack(fitness.value, self.analysis_path)
             cash_series = engine['cash_series']
             cash = cash_series[-1]
 
@@ -244,17 +247,17 @@ class WalkForward():
 
         save(
             bundle = bundle,
-            filename = 'wfa',
-            path = self.path)
+            filename = 'analysis',
+            path = self.analysis_path)
 
     ####################################################################################################################
 
-    def print_params_of_fittest_composite(self):
+    def print_fittest_composite(self):
 
         for run in range(self.runs):
 
             # extract fittest engines from in-sample analyzer
-            IS_path = self.path + '/' + str(run)
+            IS_path = self.analyzer_path + '/' + str(run)
             fittest = unpack('analyzer', IS_path)['fittest']
             metric = fittest[self.best_fitness]
 
@@ -280,11 +283,21 @@ class WalkForward():
         for fitness in Fit:
 
             # unpack composite engine
-            composite = unpack(fitness.value, self.path)
+            composite = unpack(fitness.value, self.analysis_path)
             cash_series = composite['cash_series']
 
             # plot cash series
-            fplt.plot(cash_series, color=fitness.color, legend=fitness.pretty, ax=ax)
+            color = fitness.color
+            fplt.plot(
+                cash_series,
+                color = fitness.color,
+                width = 2,
+                ax = ax)
+
+            # format legend
+            legend = '<span style="font-size:16pt">' + fitness.pretty + '</span>'
+            fplt.legend_text_color = color
+            fplt.add_legend(legend, ax)
 
             # consider composite with highest profit
             if fitness is self.best_fitness:
@@ -314,7 +327,7 @@ class WalkForward():
                 engine.plot_trades()
 
                 # plot initial cash
-                fplt.plot(engine.initial_cash, color=dark_gray, ax=ax)
+                fplt.plot(engine.initial_cash, color = dark_gray, ax = ax)
 
                 # plot buy and hold
                 size = engine.strategy.size
@@ -322,7 +335,7 @@ class WalkForward():
                 # delta_df = composite.data.Close - composite.data.Close.iloc[0]
                 delta_df = self.data.Close - self.data.Close.iloc[0]
                 buy_hold = size * point_value * delta_df + initial_cash
-                fplt.plot(buy_hold, color=dark_gray, ax=ax)
+                fplt.plot(buy_hold, color = dark_gray, ax = ax)
 
                 # plot out-of-sample window boundaries
                 for run in range(self.runs):
@@ -335,6 +348,12 @@ class WalkForward():
                     OS_start = IS_end
 
                     idx = self.data.index[OS_start]
-                    fplt.add_line((idx, -1e6), (idx, 1e6), width = 1, style = '-', color = light_gray, ax = ax)
+                    fplt.add_line(
+                        p0 = (idx, -1e6),
+                        p1 = (idx, 1e6),
+                        width = 1,
+                        style = '-',
+                        color = light_gray,
+                        ax = ax)
 
         fplt.show()
