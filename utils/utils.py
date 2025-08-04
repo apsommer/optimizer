@@ -28,7 +28,7 @@ def getOhlc(asset, num_months, isNetwork = False):
     # return local cache
     if not isNetwork:
 
-        print(f'Upload OHLC from {csv_filename}')
+        print(f'Upload ohlc from {csv_filename}')
 
         try:
             ohlc = pd.read_csv(csv_filepath, index_col = 0)
@@ -41,7 +41,7 @@ def getOhlc(asset, num_months, isNetwork = False):
 
         return ohlc
 
-    print(f'$$$ Download OHLC from databento as {csv_filename}')
+    print(f'$$$ Download ohlc from databento as {csv_filename}')
 
     # construct symbol
     symbol = asset + '.v.0' # ["NQ.v.0"], # [ticker].v.[expiry]
@@ -49,8 +49,8 @@ def getOhlc(asset, num_months, isNetwork = False):
     # init databento client
     client = db.Historical(keys.bento_api_key)
     td = timedelta(days = num_months * 30.437)
-    starting_date = '2024-05-11' # (datetime.now() - td).strftime("%Y-%m-%d") # trump elected 051124
-    ending_date = '2025-08-02' # datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
+    starting_date = '2024-11-05' # (datetime.now() - td).strftime("%Y-%m-%d") # trump elected 051124
+    ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
 
     # request network data, synchronous!
     ohlc = client.timeseries.get_range(

@@ -8,16 +8,6 @@ from utils.utils import init_plot
 
 class LiveStrategy(BaselineStrategy):
 
-    # margin 10% of underlying, http://tradestation.com/pricing/futures-margin-requirements/
-    @property
-    def ticker(self):
-        return Ticker(
-            symbol = 'MES',
-            point_value = 5,
-            tick_size = 0.25,
-            margin = 0.5
-        )
-
     @property
     def size(self):
         return 1
@@ -72,7 +62,7 @@ class LiveStrategy(BaselineStrategy):
         # calculate fast crossover
         if fastCrossoverPercent == 0: self.fastCrossover = 0 # disable
         elif self.takeProfit == 0: self.fastCrossover = fastCrossoverPercent / 100.0 # crossover only, disable take profit
-        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # crossover = % of take profit
+        else: self.fastCrossover = (fastCrossoverPercent / 100.0) * self.takeProfit # crossover as % take profit
 
         # strategy
         self.longExitBarIndex = -1

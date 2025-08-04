@@ -1,6 +1,17 @@
 from model.Order import Order
+from model.Ticker import Ticker
+
 
 class BaselineStrategy():
+
+    @property
+    def ticker(self):
+        return Ticker(
+            symbol = 'NQ',
+            point_value = 20,
+            tick_size = 0.25,
+            margin = 0.5
+        )
 
     def __init__(self):
         self.current_idx = None
@@ -33,7 +44,7 @@ class BaselineStrategy():
 
     @property
     def position_size(self):
-        return sum([order.size for order in self.orders])
+        return sum([order.size for order in self.orders]) # todo fix perf
 
     @property
     def is_flat(self):
