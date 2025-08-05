@@ -57,15 +57,10 @@ class Fitness:
     @property
     def pretty(self):
 
-        # catch unblended single fitness
-        if len(self.fits) == 1:
-            fit, _ = self.fits[0]
-            return fit.pretty
-
         pretty = ''
         for pair in self.fits:
             fit, percent = pair
-            pretty += '\n\t\t' + fit.pretty + ', ' + str(percent) + ' [%]'
+            pretty += '\n\t\t' + fit.pretty + ': ' + str(percent) + ' [%]'
 
         return pretty
 

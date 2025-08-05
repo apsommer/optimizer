@@ -10,6 +10,8 @@ from strategy.LiveParams import LiveParams
 from utils.metrics import print_metrics, get_genetic_results_metrics, display_progress_bar
 from utils.utils import *
 
+########################################################################################################################
+
 # data, indicators
 asset = 'NQ'
 num_months = 9
@@ -22,8 +24,8 @@ mutation_rate = 0.05
 fitness = Fitness(
     fits = [
         (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.PROFIT_FACTOR, 30),
-        (Fit.NUM_WINS, 20),
+        (Fit.PROFIT, 30),
+        (Fit.CORRELATION, 20),
     ])
 
 # optimization
@@ -34,16 +36,16 @@ opt = LiveParams(
     fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
     takeProfitPercent = np.around(np.linspace(.3, 1, 71), 2),
     stopLossPercent = [0],
-    fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
-    fastAngleExitFactor = np.linspace(1000, 2000, 1001, dtype = int),
+    fastAngleEntryFactor = np.linspace(0, 100, 101, dtype = int),
+    fastAngleExitFactor = [0], # np.linspace(1000, 2000, 1001, dtype = int),
     slowMinutes = [2555],
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = [0], # np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [0] # np.linspace(12, 212, 201, dtype = int),
+    trendStartHour = np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = np.linspace(12, 212, 201, dtype = int),
 )
 
-###################################################################
+########################################################################################################################
 
 os.system('clear')
 warnings.filterwarnings('ignore')
@@ -63,9 +65,8 @@ emas, fractals = getIndicators(data, opt, data_path)
 # remove residual analyses
 shutil.rmtree(path, ignore_errors = True)
 
-# multiprocessing uses all cores
-cores = multiprocessing.cpu_count() # 16 available
-cores -= 1 # leave 1 for basic computer tasks
+# multiprocessing uses all cores, 16 available, leave 1 for basic tasks
+cores = multiprocessing.cpu_count() - 1
 
 # init genetic analysis
 genetic = Genetic(
