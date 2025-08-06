@@ -24,7 +24,9 @@ mutation_rate = 0.05
 fitness = Fitness(
     fits = [
         (Fit.PROFIT, 50),
-        (Fit.DRAWDOWN_PER_PROFIT, 50)
+        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        # (Fit.DRAWDOWN_PER_PROFIT, 70),
+        # (Fit.NUM_TRADES, 30),
     ])
 
 # optimization

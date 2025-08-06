@@ -320,11 +320,18 @@ class Genetic:
         ax = engine.plot_equity(shouldShow = False)
 
         # plot equity of best engines
+        winner_profit, winner_id = 0, ''
         for generation, metric in enumerate(self.best_engines):
 
             # unpack full results
             id = 'g' + str(generation) + 'e' + str(metric.id)
             engine = unpack(id, self.analysis_path)
+
+            # capture highest profit
+            profit = engine['cash_series'][-1] - initial_cash
+            if profit > winner_profit:
+                winner_profit = profit
+                winner_id = id
 
             fplt.plot(
                 engine['cash_series'],
@@ -336,5 +343,24 @@ class Genetic:
             legend = '<span style="font-size:16pt">' + id + '</span>'
             fplt.legend_text_color = colors[generation]
             fplt.add_legend(legend, ax)
+
+        # unpack engine with highest profit
+        winner = unpack(winner_id, self.analysis_path)
+        params = winner['params']
+        cash_series = winner['cash_series']
+        trades = winner['trades']
+
+        # build winning engine, but don't run!
+        strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
+        engine = Engine(winner_id, strategy)
+        engine.cash_series = cash_series
+        engine.trades = trades
+        engine.analyze()
+
+        # display winner
+        engine.print_metrics()
+        engine.print_trades()
+        engine.plot_trades()
+        ax = engine.plot_equity(shouldShow = False)
 
         fplt.show()
