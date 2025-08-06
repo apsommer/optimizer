@@ -40,7 +40,7 @@ class Analyzer:
 
     def run(self):
 
-        # todo pass cores instead
+        # detect first processing core
         isFirstProcess = '0' == multiprocessing.current_process().name
 
         id = 0

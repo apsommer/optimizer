@@ -154,7 +154,7 @@ class Genetic:
         self.params.append(best_params)
 
         # check for solution convergence
-        # todo applicable only for unblended single fitness
+        # applicable only for unblended single fitness, as blending is relative to each generation
         if generation > 2 and len(self.fitness.fits) == 1:
             current_winner = max(self.best_engines, key = lambda metric: metric.value)
             prev_winner = max(self.best_engines[:-1], key = lambda metric: metric.value)

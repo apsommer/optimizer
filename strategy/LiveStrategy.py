@@ -184,9 +184,9 @@ class LiveStrategy(BaselineStrategy):
             and 0.5 * fastMomentumMinutes > fastShort
         )
 
-        # todo creates too many trades?
         # entry, long fast crossover
-        isEntryLongFastCrossover = (
+        if fastAngleEntry == 0: isEntryLongFastCrossover = False
+        else: isEntryLongFastCrossover = (
             high > fast > open
             and fastSlope > fastAngleEntry
             and fast > slow
@@ -214,7 +214,8 @@ class LiveStrategy(BaselineStrategy):
         )
 
         # entry, short fast crossover
-        isEntryShortFastCrossover = (
+        if fastAngleEntry == 0: isEntryShortFastCrossover = False
+        else: isEntryShortFastCrossover = (
             open > fast > low
             and -fastAngleEntry > fastSlope
             and slow > fast

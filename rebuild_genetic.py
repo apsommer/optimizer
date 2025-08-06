@@ -10,9 +10,9 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ES'
-num_months = 8 # trump elected 051124
-id = '20250802_131739' # todo hunt for unique id, no need for asset, num_months
+asset = 'NQ'
+num_months = 9
+id = '20250805_122055'
 
 ###################################################################
 
@@ -43,7 +43,8 @@ print_metrics(metrics)
 # unpack winning solution
 winner_metric = max(best_engines, key = lambda it: it.value)
 winner_generation = best_engines.index(winner_metric)
-winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
+# winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
+winner_id = 'g4e149'
 winner = unpack(winner_id, path)
 params = winner['params']
 cash_series = winner['cash_series']

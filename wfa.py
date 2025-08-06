@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ES_3m'
+asset = 'NQ'
 num_months = 9
 isNetwork = False
 
