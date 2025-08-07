@@ -18,8 +18,8 @@ num_months = 9
 isNetwork = False
 
 # genetic
-population_size = 15
-generations = 2
+population_size = 150
+generations = 5
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [

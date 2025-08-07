@@ -26,7 +26,8 @@ class Analyzer:
         self.fastCrossoverPercent = self.opt.fastCrossoverPercent
         self.takeProfitPercent = self.opt.takeProfitPercent
         self.stopLossPercent = self.opt.stopLossPercent
-        self.fastAngleFactor = self.opt.fastAngleExitFactor
+        self.fastAngleEntryFactor = self.opt.fastAngleEntryFactor
+        self.fastAngleExitFactor = self.opt.fastAngleExitFactor
         self.slowMinutes = self.opt.slowMinutes
         self.slowAngleFactor = self.opt.slowAngleFactor
         self.coolOffMinutes = self.opt.coolOffMinutes
@@ -57,38 +58,40 @@ class Analyzer:
                         for fastCrossoverPercent in self.fastCrossoverPercent:
                             for takeProfitPercent in self.takeProfitPercent:
                                 for stopLossPercent in self.stopLossPercent:
-                                    for fastAngleFactor in self.fastAngleFactor:
-                                        for slowMinutes in self.slowMinutes:
-                                            for slowAngleFactor in self.slowAngleFactor:
-                                                for coolOffMinutes in self.coolOffMinutes:
-                                                    for trendStartHour in self.trendStartHour:
-                                                        for trendEndHour in self.trendEndHour:
+                                    for fastAngleEntryFactor in self.fastAngleEntryFactor:
+                                        for fastAngleExitFactor in self.fastAngleExitFactor:
+                                            for slowMinutes in self.slowMinutes:
+                                                for slowAngleFactor in self.slowAngleFactor:
+                                                    for coolOffMinutes in self.coolOffMinutes:
+                                                        for trendStartHour in self.trendStartHour:
+                                                            for trendEndHour in self.trendEndHour:
 
-                                                            # update params
-                                                            params = LiveParams(
-                                                                fastMinutes = fastMinutes,
-                                                                disableEntryMinutes = disableEntryMinutes,
-                                                                fastMomentumMinutes = fastMomentumMinutes,
-                                                                fastCrossoverPercent = fastCrossoverPercent,
-                                                                takeProfitPercent = takeProfitPercent,
-                                                                stopLossPercent = stopLossPercent,
-                                                                fastAngleExitFactor= fastAngleFactor,
-                                                                slowMinutes = slowMinutes,
-                                                                slowAngleFactor = slowAngleFactor,
-                                                                coolOffMinutes = coolOffMinutes,
-                                                                trendStartHour = trendStartHour,
-                                                                trendEndHour = trendEndHour)
+                                                                # update params
+                                                                params = LiveParams(
+                                                                    fastMinutes = fastMinutes,
+                                                                    disableEntryMinutes = disableEntryMinutes,
+                                                                    fastMomentumMinutes = fastMomentumMinutes,
+                                                                    fastCrossoverPercent = fastCrossoverPercent,
+                                                                    takeProfitPercent = takeProfitPercent,
+                                                                    stopLossPercent = stopLossPercent,
+                                                                    fastAngleEntryFactor = fastAngleEntryFactor,
+                                                                    fastAngleExitFactor = fastAngleExitFactor,
+                                                                    slowMinutes = slowMinutes,
+                                                                    slowAngleFactor = slowAngleFactor,
+                                                                    coolOffMinutes = coolOffMinutes,
+                                                                    trendStartHour = trendStartHour,
+                                                                    trendEndHour = trendEndHour)
 
-                                                            # init strategy and engine
-                                                            strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
-                                                            engine = Engine(id, strategy)
+                                                                # init strategy and engine
+                                                                strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
+                                                                engine = Engine(id, strategy)
 
-                                                            # run and save
-                                                            engine.run(disable = not isFirstProcess)
-                                                            engine.save(self.path, False)
+                                                                # run and save
+                                                                engine.run(disable = not isFirstProcess)
+                                                                engine.save(self.path, False)
 
-                                                            id += 1
-                                                            pbar.update()
+                                                                id += 1
+                                                                pbar.update()
 
         pbar.close()
         self.analyze()
