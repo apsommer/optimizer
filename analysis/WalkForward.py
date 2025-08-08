@@ -209,13 +209,14 @@ class WalkForward:
 
         # composite annual return
         metric = next(metric for metric in composite.metrics if metric.name == 'annual_return')
-        engine_annual_return = metric.value
+        composite_annual_return = metric.value
 
-        efficiency = (engine_annual_return / IS_annual_return) * 100
-        print(f'IS_total_profit: {IS_total_profit}, engine_annual_return: {engine_annual_return}, efficiency: {efficiency}')
-
-        composite.metrics.append(
-            Metric('efficiency', efficiency, '%', 'Efficiency'))
+        # calculate efficiency
+        efficiency = (composite_annual_return / IS_annual_return) * 100
+        composite.metrics.extend([
+            Metric('IS_annual_return', IS_annual_return, '%', 'In-sample annual return'),
+            Metric('efficiency', efficiency, '%', 'Efficiency'),
+        ])
 
     def analyze(self):
 

@@ -19,20 +19,20 @@ num_months = 9
 isNetwork = False
 
 # walk forward
-percent = 20
-runs = 14 # +1 added for final in-sample
+percent = 25
+runs = 9 # +1 added for final in-sample
 
 # optimization
 opt = LiveParams(
     fastMinutes = [20],
     disableEntryMinutes = [0], # np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(65, 125, 13, dtype = int),
-    fastCrossoverPercent = np.around(np.linspace(75, 95, 5), 2),
-    takeProfitPercent = np.around(np.linspace(.35, .75, 5), 2),
+    fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
+    takeProfitPercent = np.around(np.linspace(.45, .95, 6), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor = [2055], # np.linspace(1000, 3000, 401, dtype = int),
-    slowMinutes = [2555],
+    slowMinutes = [2055, 2555, 3055],
     slowAngleFactor = [15], # np.linspace(5, 25, 5, dtype = int),
     coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
@@ -41,6 +41,7 @@ opt = LiveParams(
 
 ###################################################################
 
+# clean console
 os.system('clear')
 warnings.filterwarnings('ignore')
 np.set_printoptions(threshold = 3)
