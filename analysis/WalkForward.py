@@ -9,6 +9,7 @@ class WalkForward:
 
     def __init__(self, num_months, percent, runs, data, emas, fractals, opt, parent_path):
 
+        self.id = format_timestamp(datetime.now(), 'local')
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
@@ -20,7 +21,7 @@ class WalkForward:
 
         # organize outputs
         self.analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
-        self.analysis_path = parent_path + '/' + format_timestamp(datetime.now(), 'local')
+        self.analysis_path = parent_path + '/' + self.id
         os.makedirs(self.analysis_path)
 
         self.best_params = None
@@ -198,7 +199,7 @@ class WalkForward:
 
         engine.save(self.analysis_path, True)
 
-    def calculate_efficiency(self, IS_profits, engine):
+    def calculate_efficiency(self, IS_profits, composite):
 
         # in-sample annual return
         IS_total_profit = sum(IS_profits)
@@ -207,12 +208,13 @@ class WalkForward:
         IS_annual_return = ((IS_cash / initial_cash) ** (1 / (IS_days / 365)) - 1) * 100
 
         # composite annual return
-        metric = next(metric for metric in engine.metrics if metric.name == 'annual_return')
+        metric = next(metric for metric in composite.metrics if metric.name == 'annual_return')
         engine_annual_return = metric.value
 
         efficiency = (engine_annual_return / IS_annual_return) * 100
+        print(f'IS_total_profit: {IS_total_profit}, engine_annual_return: {engine_annual_return}, efficiency: {efficiency}')
 
-        engine.metrics.append(
+        composite.metrics.append(
             Metric('efficiency', efficiency, '%', 'Efficiency'))
 
     def analyze(self):

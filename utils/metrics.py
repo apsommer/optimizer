@@ -228,6 +228,7 @@ def get_analyzer_metrics(analyzer):
 
 def init_walk_forward_metrics(wfa):
 
+    id = wfa.id
     start_date = wfa.data.index[0]
     end_date = wfa.data.index[-1]
     candles = len(wfa.data.index)
@@ -250,6 +251,7 @@ def init_walk_forward_metrics(wfa):
 
     return [
         Metric('header', None, None, 'Walk forward:'),
+        Metric('id', id, None, 'Id'),
         Metric('months', months, None, 'Months'),
         Metric('percent', wfa.percent, '%', 'Percent'),
         Metric('runs', runs, None, 'Runs'),
