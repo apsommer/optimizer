@@ -20,20 +20,20 @@ isNetwork = False
 
 # walk forward
 percent = 20
-runs = 9 # +1 added for final in-sample
+runs = 5 # +1 added for final in-sample
 
 # optimization
 opt = LiveParams(
     fastMinutes = [20],
     disableEntryMinutes = [0], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(65, 125, 13, dtype = int),
+    fastMomentumMinutes = [65, 95], # np.linspace(65, 125, 13, dtype = int),
     fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
-    takeProfitPercent = np.around(np.linspace(.35, .65, 7), 2),
+    takeProfitPercent = [.5], # np.around(np.linspace(.35, .65, 7), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor = [2055], # np.linspace(1000, 3000, 401, dtype = int),
     slowMinutes = [2555],
-    slowAngleFactor = np.linspace(5, 25, 5, dtype = int),
+    slowAngleFactor = [10], # np.linspace(5, 25, 5, dtype = int),
     coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
     trendEndHour = [60], # np.linspace(12, 212, 201, dtype = int),
@@ -94,11 +94,11 @@ pool.close()
 pool.join()
 
 # build composite engines
-fitnesses = [fitness for fitness in Fit]
+fits = [fit for fit in Fit]
 pool = Pool(
     processes = cores,
     initializer = set_process_name)
-pool.map(wfa.build_composite, fitnesses)
+pool.map(wfa.build_composite, fits)
 pool.close()
 pool.join()
 

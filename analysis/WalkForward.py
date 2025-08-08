@@ -101,7 +101,7 @@ class WalkForward:
             OS_path = self.analyzer_path + '/' + fitness.value
             engine.save(OS_path, True)
 
-    def build_composite(self, fitness):
+    def build_composite(self, fit):
 
         cash_series = pd.Series()
         trades = []
@@ -111,7 +111,7 @@ class WalkForward:
         # stitch OS runs together
         for run in tqdm(
             iterable = range(self.runs),
-            disable =fitness is not Fit.PROFIT, # show only 1 core
+            disable =fit is not Fit.PROFIT, # show only 1 core
             colour = blue,
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:80}{r_bar}'):
 
@@ -120,7 +120,7 @@ class WalkForward:
             else: balance = cash_series.values[-1]
 
             # check if OS exists
-            OS_path = self.analyzer_path + '/' + fitness.value
+            OS_path = self.analyzer_path + '/' + fit.value
             OS_engine_filepath = OS_path + '/' + str(run) + '.bin'
             isProfitable = os.path.exists(OS_engine_filepath)
 
@@ -170,7 +170,7 @@ class WalkForward:
         # extract fittest engines from last in-sample analyzer
         IS_path = self.analyzer_path + '/' + str(self.runs)
         fittest = unpack('analyzer', IS_path)['fittest']
-        metric = fittest[fitness]
+        metric = fittest[fit]
 
         # get params of fittest engine
         if metric is None: params = None
@@ -183,10 +183,10 @@ class WalkForward:
 
         # construct engine, but don't run!
         strategy = LiveStrategy(composite_data, composite_emas, composite_fractals, params)
-        engine = Engine(fitness.value, strategy)
+        engine = Engine(fit.value, strategy)
         engine.cash_series = cash_series
         engine.trades = trades
-        engine.analyze()
+        engine.analyze() # generate metrics
 
         # calculate efficiency
         self.calculate_efficiency(IS_profits, engine)
