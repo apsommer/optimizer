@@ -41,9 +41,6 @@ class Analyzer:
 
     def run(self):
 
-        # detect first processing core
-        isFirstProcess = '0' == multiprocessing.current_process().name
-
         id = 0
         with tqdm(
             disable = self.id != 0, # show only 1 core
@@ -87,7 +84,7 @@ class Analyzer:
                                                                 engine = Engine(id, strategy)
 
                                                                 # run and save
-                                                                engine.run(disable = not isFirstProcess)
+                                                                engine.run(disable = self.id != 0)
                                                                 engine.save(self.path, False)
 
                                                                 id += 1

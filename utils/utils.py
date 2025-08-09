@@ -46,20 +46,20 @@ def getOhlc(asset, num_months, isNetwork = False):
     # construct symbol
     symbol = asset + '.v.0' # ["NQ.v.0"], # [ticker].v.[expiry]
 
-    # init databento client
-    client = db.Historical(keys.bento_api_key)
-    td = timedelta(days = num_months * 30.437)
-    starting_date = '2024-11-05' # (datetime.now() - td).strftime("%Y-%m-%d") # trump elected 051124
+    # timespan
+    delta = timedelta(days = num_months * 30.437)
+    starting_date = (datetime.now() - delta).strftime("%Y-%m-%d") # trump elected 051124
     ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
 
-    # request network data, synchronous!
-    ohlc = client.timeseries.get_range(
+    # request network data, costs $$$, synchronous
+    ohlc = db.Historical(keys.db).timeseries.get_range(
         dataset = 'GLBX.MDP3',
         symbols = [symbol],
         stype_in = 'continuous',
         schema = 'ohlcv-1m',
         start = starting_date,
-        end = ending_date)
+        end = ending_date
+    )
 
     # rename, drop, timestamp
     ohlc = ohlc.to_df()
@@ -69,8 +69,7 @@ def getOhlc(asset, num_months, isNetwork = False):
     ohlc.index = timestamp(ohlc, timezone)
 
     # make directory, if needed
-    if not os.path.exists(path):
-        os.makedirs(path)
+    if not os.path.exists(path): os.makedirs(path)
 
     # save to disk
     ohlc.to_csv(csv_filepath)
@@ -79,19 +78,6 @@ def getOhlc(asset, num_months, isNetwork = False):
 def timestamp(data, timezone):
     utc = pd.to_datetime(data.index, utc = True)
     return utc.tz_convert(timezone)
-
-def set_process_name():
-
-    cores = multiprocessing.cpu_count()  # 16 available
-    cores -= 1  # leave 1 for basic computer tasks
-
-    # extract numerical digits from default process name, 1-based
-    id = int(re.findall(
-        pattern = r'\d+',
-        string = multiprocessing.current_process().name)[0])
-
-    id = (id - 1) % cores
-    multiprocessing.current_process().name = str(id)
 
 def getIndicators(data, opt, path):
 

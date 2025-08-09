@@ -79,26 +79,20 @@ wfa = WalkForward(
 print_metrics(wfa.metrics)
 
 # run in-sample sweep
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
+pool = Pool(cores)
 pool.map(wfa.in_sample, range(runs + 1)) # add 1 for last IS (prediction)
 pool.close()
 pool.join()
 
 # run out-of-sample for each fitness
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
+pool = Pool(cores)
 pool.map(wfa.out_of_sample, range(runs))
 pool.close()
 pool.join()
 
 # build composite engines
 fits = [fit for fit in Fit]
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
+pool = Pool(cores)
 pool.map(wfa.build_composite, fits)
 pool.close()
 pool.join()

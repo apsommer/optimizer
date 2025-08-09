@@ -15,7 +15,7 @@ from utils.utils import *
 # data, indicators
 asset = 'NQ'
 num_months = 15
-isNetwork = True
+isNetwork = False
 
 # genetic
 population_size = 150
@@ -95,9 +95,7 @@ with tqdm(
     for generation in range(generations):
 
         # split population between process cores and evaluate
-        pool = Pool(
-            processes = cores,
-            initializer = set_process_name)
+        pool = Pool(cores)
         pool.map(
             func = partial(genetic.evaluate, generation = generation),
             iterable = range(cores))
@@ -124,9 +122,7 @@ with tqdm(
         pbar.update()
 
 # run and save best engines
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
+pool = Pool(cores)
 pool.map(
     func = genetic.analyze,
     iterable = range(generations))
