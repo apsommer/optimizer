@@ -14,8 +14,8 @@ from utils.utils import *
 
 # data, indicators
 asset = 'NQ'
-num_months = 9
-isNetwork = False
+num_months = 15
+isNetwork = True
 
 # genetic
 population_size = 150
@@ -23,10 +23,8 @@ generations = 5
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT, 50),
+        (Fit.PROFIT_PER_DAY, 50),
         (Fit.DRAWDOWN_PER_PROFIT, 50),
-        # (Fit.DRAWDOWN_PER_PROFIT, 70),
-        # (Fit.NUM_TRADES, 30),
     ])
 
 # optimization
@@ -39,10 +37,10 @@ opt = LiveParams(
     stopLossPercent = [0],
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 3000, 401, dtype = int),
-    slowMinutes = [2555],
+    slowMinutes = np.linspace(1055, 3055, 5, dtype = int),
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
+    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 212, 201, dtype = int),
 )
 

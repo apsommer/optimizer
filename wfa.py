@@ -15,12 +15,12 @@ from utils.utils import *
 
 # data, indicators
 asset = 'NQ'
-num_months = 9
+num_months = 15
 isNetwork = False
 
 # walk forward
-percent = 25
-runs = 9 # +1 added for final in-sample
+percent = 20
+runs = 14 # +1 added for final in-sample
 
 # optimization
 opt = LiveParams(

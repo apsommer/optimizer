@@ -72,6 +72,7 @@ def get_engine_metrics(engine):
     cash = cash_series.iloc[-1]
     profit = cash - initial_cash
     trades_per_day = num_trades / days
+    profit_per_day = profit / days
 
     wins = [ trade.profit for trade in trades if trade.profit > 0 ]
     losses = [ trade.profit for trade in trades if 0 > trade.profit ]
@@ -94,6 +95,7 @@ def get_engine_metrics(engine):
 
     drawdown = max_daily_drawdown.min() * initial_price
     drawdown_per_profit = (drawdown / profit) * 100
+    drawdown_per_day = drawdown / days
 
     # wins
     num_wins = len(wins)
@@ -171,8 +173,10 @@ def get_engine_metrics(engine):
         Metric('num_trades', num_trades, None, 'Trades'),
         Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f'),
         Metric('drawdown', drawdown, 'USD', 'Drawdown'),
+        Metric('drawdown_per_day', drawdown_per_day, 'USD', 'Drawdown per day'),
         Metric('profit', profit, 'USD', 'Profit'),
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
+        Metric('profit_per_day', profit_per_day, 'USD', 'Profit per day'),
         Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
         Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
         Metric('total_return', total_return, '%', 'Total return'),
