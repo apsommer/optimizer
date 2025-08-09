@@ -302,7 +302,7 @@ def init_genetic_metrics(genetic):
     population_size = genetic.population_size
     generations = genetic.generations
     mutation_rate = genetic.mutation_rate * 100
-    fitness = genetic.fit.pretty
+    fitness = genetic.fitness.pretty
     cores = genetic.cores
     opt = genetic.opt
 
@@ -348,10 +348,10 @@ def get_genetic_results_metrics(genetic):
         title = f'{generation}, {metric.id}'
 
         # single fitness, unblended
-        if len(genetic.fit.fits) == 1:
+        if len(genetic.fitness.fits) == 1:
 
             # extract pair
-            fit, percent = genetic.fit.fits[0]
+            fit, percent = genetic.fitness.fits[0]
 
             value = f'\t{fit.pretty}: {metric.value}'
             if fit.unit is not None: value += f' [{fit.unit}]'

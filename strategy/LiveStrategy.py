@@ -101,13 +101,13 @@ class LiveStrategy(BaselineStrategy):
         # averages
         fast = self.fast[idx]
         fastSlope = self.fastSlope[idx]
-        fastLong = self.fastLongMinutes[idx]
-        fastShort = self.fastShortMinutes[idx]
+        fastLongMinutes = self.fastLongMinutes[idx]
+        fastShortMinutes = self.fastShortMinutes[idx]
 
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
-        slowLong = self.slowLongMinutes[idx]
-        slowShort = self.slowShortMinutes[idx]
+        slowLongMinutes = self.slowLongMinutes[idx]
+        slowShortMinutes = self.slowShortMinutes[idx]
 
         # fractal
         buyFractal = self.buyFractals[idx]
@@ -137,8 +137,8 @@ class LiveStrategy(BaselineStrategy):
             isEntryLongDisabled = False
             isEntryShortDisabled = False
         else:
-            isEntryLongDisabled = fastLong > disableEntryMinutes
-            isEntryShortDisabled = fastShort > disableEntryMinutes
+            isEntryLongDisabled = fastLongMinutes > disableEntryMinutes
+            isEntryShortDisabled = fastShortMinutes > disableEntryMinutes
 
         # cooloff time imposed after trade exit
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
@@ -151,11 +151,11 @@ class LiveStrategy(BaselineStrategy):
         else:
             isExitLongFastMomentum = (
                 is_long
-                and fastShort > fastMomentumMinutes
+                and fastShortMinutes > fastMomentumMinutes
             )
             isExitShortFastMomentum = (
                 is_short
-                and fastLong > fastMomentumMinutes
+                and fastLongMinutes > fastMomentumMinutes
             )
 
         # exit, rapid momentum swing
@@ -171,8 +171,8 @@ class LiveStrategy(BaselineStrategy):
             isEntryLongEnabled = True
             isEntryShortEnabled = True
         else:
-            isEntryLongEnabled = self.trendStartMinutes < slowLong < self.trendEndMinutes
-            isEntryShortEnabled = self.trendStartMinutes < slowShort < self.trendEndMinutes
+            isEntryLongEnabled = self.trendStartMinutes < slowLongMinutes < self.trendEndMinutes
+            isEntryShortEnabled = self.trendStartMinutes < slowShortMinutes < self.trendEndMinutes
 
         # entry, long fractal signal
         isEntryLongFractal = (
@@ -181,7 +181,7 @@ class LiveStrategy(BaselineStrategy):
             and slowSlope > slowAngle
             and isEntryLongEnabled
             and fast > close > buyFractal > slow
-            and 0.5 * fastMomentumMinutes > fastShort
+            and 0.5 * fastMomentumMinutes > fastShortMinutes
         )
 
         # entry, long fast crossover
@@ -210,7 +210,7 @@ class LiveStrategy(BaselineStrategy):
             and -slowAngle > slowSlope
             and isEntryShortEnabled
             and slow > sellFractal > close > fast
-            and 0.5 * fastMomentumMinutes > fastLong
+            and 0.5 * fastMomentumMinutes > fastShortMinutes
         )
 
         # entry, short fast crossover
@@ -223,7 +223,7 @@ class LiveStrategy(BaselineStrategy):
         )
 
         # entry, short
-        isEntryShortSignal =  isEntryShortFractal or isEntryShortFastCrossover
+        isEntryShortSignal = isEntryShortFractal or isEntryShortFastCrossover
         isEntryShort = (
             hasShortEntryDelayElapsed and (
                 ((is_flat or is_long) and isEntryShortSignal)

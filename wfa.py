@@ -19,24 +19,24 @@ num_months = 15
 isNetwork = False
 
 # walk forward
-percent = 20
+percent = 25
 runs = 14 # +1 added for final in-sample
 
 # optimization
 opt = LiveParams(
     fastMinutes = [20],
-    disableEntryMinutes = [0], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(65, 125, 13, dtype = int),
+    disableEntryMinutes = [110], # np.linspace(55, 255, 201, dtype = int),
+    fastMomentumMinutes = np.linspace(45, 115, 8, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(.45, .95, 6), 2),
+    takeProfitPercent = np.around(np.linspace(.35, .85, 6), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
-    fastAngleExitFactor = [2055], # np.linspace(1000, 3000, 401, dtype = int),
-    slowMinutes = [2055, 2555, 3055],
-    slowAngleFactor = [15], # np.linspace(5, 25, 5, dtype = int),
-    coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
+    fastAngleExitFactor = [2155], # np.linspace(1000, 3000, 401, dtype = int),
+    slowMinutes = [2555],
+    slowAngleFactor = np.linspace(3, 18, 6, dtype = int),
+    coolOffMinutes = [5], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [60], # np.linspace(12, 212, 201, dtype = int),
+    trendEndHour = [72], # np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################
