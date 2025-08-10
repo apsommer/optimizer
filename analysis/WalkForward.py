@@ -257,8 +257,8 @@ class WalkForward:
 
     def print_composite_summary(self):
 
-        # todo import console table tool
-        print(f'\n\t\t\tProfit\t\tProfit Factor\tTrades\t\tPparams')
+        # todo import console table
+        print(f'\n\t\t\tProfit\t\tProfit Factor\tTrades\t\tParams')
         for run in range(self.runs):
 
             # extract fittest engines from in-sample analyzer
@@ -280,7 +280,7 @@ class WalkForward:
 
             # display to console
             print(
-                '\t' + str(run) + ', ' + '[' + str(metric.id) + '], '
+                '\t' + str(run) + ', ' + '[' + str(metric.id) + ']'
                 + '\t' + str(round(profit))
                 + '\t\t' + str(round(profit_factor, 2))
                 + '\t\t' + str(num_trades)
