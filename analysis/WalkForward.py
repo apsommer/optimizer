@@ -24,7 +24,7 @@ class WalkForward:
         self.analysis_path = parent_path + '/' + self.id
         os.makedirs(self.analysis_path)
 
-        self.best_params = None
+        self.next_params = None
         self.best_fitness = None
 
         # calculate window sizes
@@ -222,6 +222,7 @@ class WalkForward:
 
         # isolate composite with highest profit
         highest_profit = -np.inf
+        next_params, best_fitness = None, None
         for fitness in Fit:
 
             engine = unpack(fitness.value, self.analysis_path)
@@ -230,11 +231,11 @@ class WalkForward:
 
             if cash > highest_profit:
                 highest_profit = cash
-                best_params = engine['params']
+                next_params = engine['params']
                 best_fitness = fitness
 
         # persist results
-        self.best_params = best_params
+        self.next_params = next_params
         self.best_fitness = best_fitness
         self.metrics += get_walk_forward_results_metrics(self)
         self.save()
@@ -243,19 +244,18 @@ class WalkForward:
     def save(self):
 
         bundle = {
-            'best_params': self.best_params,
-            'best_fitness': self.best_fitness,
+            'id': self.id,
             'metrics': self.metrics
         }
 
         save(
             bundle = bundle,
-            filename = 'analysis',
+            filename = self.id,
             path = self.analysis_path)
 
     ####################################################################################################################
 
-    def print_fittest_composite(self):
+    def print_composite_summary(self):
 
         for run in range(self.runs):
 
@@ -272,10 +272,25 @@ class WalkForward:
             # get params from fittest engine
             OS_engine = unpack(str(metric.id), IS_path)
             num_trades = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'num_trades')
+            profit_factor = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'profit_factor')
+            profit = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'profit')
             params = OS_engine['params']
 
             # display to console
-            print('\t' + str(run) + ', [' + str(metric.id) + '], (' + str(num_trades) + '): ' + params.one_line)
+            print(
+                '\t' + str(run) + ', '
+                + str(metric.id) + ', '
+                + 'profit: ' + str(profit) + ', '
+                + 'pf: ' + str(profit_factor) + ', '
+                + 'trades: ' + str(num_trades) + ', '
+                + params.one_line
+            )
+
+    def print_last_analyzer(self):
+
+        IS_path = self.analyzer_path + '/' + str(self.runs)
+        analyzer = unpack('analyzer', IS_path)
+        print_metrics(analyzer['metrics'])
 
     def plot(self):
 

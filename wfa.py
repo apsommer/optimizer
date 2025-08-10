@@ -19,21 +19,21 @@ num_months = 15
 isNetwork = False
 
 # walk forward
-percent = 25
+percent = 20
 runs = 14 # +1 added for final in-sample
 
 # optimization
 opt = LiveParams(
     fastMinutes = [20],
     disableEntryMinutes = [110], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(45, 115, 8, dtype = int),
+    fastMomentumMinutes = [65], # np.linspace(45, 115, 8, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(.35, .85, 6), 2),
+    takeProfitPercent = [.3, .6], # np.around(np.linspace(.35, 1.05, 8), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor = [2155], # np.linspace(1000, 3000, 401, dtype = int),
     slowMinutes = [2555],
-    slowAngleFactor = np.linspace(3, 18, 6, dtype = int),
+    slowAngleFactor = [0], # np.linspace(3, 18, 6, dtype = int),
     coolOffMinutes = [5], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
     trendEndHour = [72], # np.linspace(12, 212, 201, dtype = int),
@@ -100,7 +100,8 @@ pool.join()
 # select composite of interest
 wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
-wfa.print_fittest_composite()
+wfa.print_composite_summary()
+wfa.print_last_analyzer()
 
 # print analysis time
 elapsed = time.time() - start_time

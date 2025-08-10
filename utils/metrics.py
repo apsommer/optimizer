@@ -280,11 +280,14 @@ def get_walk_forward_results_metrics(wfa):
     end = format_timestamp(end)
 
     # pretty
+    best_fitness = wfa.best_fitness.pretty
+    next_params = wfa.next_params.one_line
     candles = '{:,}'.format(candles)
 
     return [
-        Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
-        Metric('params', wfa.best_params.one_line, None, 'Params'),
+        Metric('header', None, None, 'Solution:'),
+        Metric('best_fitness', best_fitness, None, 'Best fitness'),
+        Metric('next_params', next_params, None, 'Next params'),
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),
