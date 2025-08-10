@@ -15,7 +15,7 @@ from utils.utils import *
 
 # data, indicators
 asset = 'NQ'
-num_months = 15
+num_months = 20
 isNetwork = False
 
 # walk forward
@@ -26,9 +26,9 @@ runs = 14 # +1 added for final in-sample
 opt = LiveParams(
     fastMinutes = [20],
     disableEntryMinutes = [110], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(45, 115, 8, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 125, 8, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(.35, 1.05, 8), 2),
+    takeProfitPercent = np.around(np.linspace(.55, 1.55, 11), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor = [2155], # np.linspace(1000, 3000, 401, dtype = int),
@@ -101,7 +101,7 @@ pool.join()
 wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
 wfa.print_composite_summary()
-wfa.print_last_analyzer()
+# wfa.print_last_analyzer()
 
 # print analysis time
 elapsed = time.time() - start_time
