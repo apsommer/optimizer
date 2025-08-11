@@ -2,7 +2,7 @@
 /.idea/
 __pycache__
 /venv/
-/archive/
 /wfa/
 /data/
 /genetic/
+/single/
