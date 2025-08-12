@@ -83,11 +83,6 @@ class LiveStrategy(BaselineStrategy):
         self.bar_index += 1
         bar_index = self.bar_index
 
-        # tradingview limitation ~20k bars
-        tv_start = pd.Timestamp('2025-07-27T22:00:00', tz='America/Chicago')
-        if tv_start > idx:
-            return
-
         # params
         fastAngleEntry = self.fastAngleEntry
         fastAngleExit = self.fastAngleExit
@@ -114,9 +109,9 @@ class LiveStrategy(BaselineStrategy):
         slowLongMinutes = self.slowLongMinutes[idx]
         slowShortMinutes = self.slowShortMinutes[idx]
 
-        # fractal
-        buyFractal = self.buyFractals.iloc[bar_index - 2] # self.buyFractals[idx]
-        sellFractal = self.sellFractals.iloc[bar_index - 2] # self.sellFractals[idx]
+        # fractal, -2 because can not see into future
+        buyFractal = self.buyFractals.iloc[bar_index - 2]
+        sellFractal = self.sellFractals.iloc[bar_index - 2]
 
         # strategy
         longExitBarIndex = self.longExitBarIndex

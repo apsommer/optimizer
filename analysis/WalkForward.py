@@ -1,9 +1,13 @@
+from rich.padding import Padding
+
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
 from model.Fitness import Fit
 from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import *
 from utils.utils import *
+from rich.console import Console
+from rich.table import Table
 
 class WalkForward:
 
@@ -257,8 +261,13 @@ class WalkForward:
 
     def print_composite_summary(self):
 
-        # todo import console table
-        print(f'\n\t\t\tProfit\t\tProfit Factor\tTrades\t\tParams')
+        table = Table(title = f'Walk Forward: {self.id}')
+        columns = [
+            'Run', 'Id', 'Profit', 'Profit Factor', 'Trades', 'Params'
+        ]
+        for column in columns:
+            table.add_column(column)
+
         for run in range(self.runs):
 
             # extract fittest engines from in-sample analyzer
@@ -278,14 +287,22 @@ class WalkForward:
             profit = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'profit')
             params = OS_engine['params']
 
-            # display to console
-            print(
-                '\t' + str(run) + ', ' + '[' + str(metric.id) + ']'
-                + '\t' + str(round(profit))
-                + '\t\t' + str(round(profit_factor, 2))
-                + '\t\t' + str(num_trades)
-                + '\t\t' + params.one_line
-            )
+            # add row to table
+            row = [
+                str(run),
+                str(metric.id),
+                str(round(profit)),
+                str(round(profit_factor, 2)),
+                str(num_trades),
+                params.one_line
+            ]
+            table.add_row(*row)
+
+        # display to console
+        print()
+        console = Console()
+        padding = Padding(table, pad = (0, 0, 0, 8))
+        console.print(padding)
 
     def print_last_analyzer(self):
 

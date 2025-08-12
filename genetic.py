@@ -14,7 +14,7 @@ from utils.utils import *
 
 # data, indicators
 asset = 'NQ'
-num_months = 15
+num_months = 20
 isNetwork = False
 
 # genetic

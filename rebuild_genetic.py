@@ -11,8 +11,9 @@ from utils.utils import *
 
 # data, indicators
 asset = 'NQ'
-num_months = 15
-id = '20250809_141613'
+num_months = 20
+id = '20250811_194458'
+engine = 'g4e95' # None
 
 ###################################################################
 
@@ -44,7 +45,10 @@ print_metrics(metrics)
 winner_metric = max(best_engines, key = lambda it: it.value)
 winner_generation = best_engines.index(winner_metric)
 winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
-# winner_id = 'g4e100'
+
+if engine is not None:
+    winner_id = engine
+
 winner = unpack(winner_id, path)
 params = winner['params']
 cash_series = winner['cash_series']
