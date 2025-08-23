@@ -14,7 +14,7 @@ from utils.utils import *
 
 # data, indicators
 asset = 'NQ'
-num_months = 20
+num_months = 40
 isNetwork = False
 
 # genetic
@@ -33,11 +33,11 @@ opt = LiveParams(
     disableEntryMinutes = np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
-    takeProfitPercent = np.around(np.linspace(.25, .75, 51), 2),
+    takeProfitPercent = np.around(np.linspace(.25, .95, 71), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
-    fastAngleExitFactor = np.linspace(1000, 3000, 401, dtype = int),
-    slowMinutes = np.linspace(1055, 3055, 5, dtype = int),
+    fastAngleExitFactor = np.linspace(1000, 3000, 2001, dtype = int),
+    slowMinutes = np.linspace(1755, 3055, 7, dtype = int),
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),

@@ -225,7 +225,7 @@ class WalkForward:
     def analyze(self):
 
         # isolate composite with highest profit
-        highest_profit = -np.inf
+        highest_profit = 0
         next_params, best_fitness = None, None
         for fitness in Fit:
 
@@ -261,27 +261,22 @@ class WalkForward:
 
     def print_composite_summary(self):
 
-        table = Table(title = f'Walk Forward: {self.id}')
+        table = Table(title = f'{self.id}: {self.best_fitness.pretty}')
         columns = [
-            'Run', 'Id', 'Profit', 'Profit Factor', 'Trades', 'Params'
+            'Run', 'Profit', 'Profit Factor', 'Trades', 'Params'
         ]
         for column in columns:
             table.add_column(column)
 
+        OS_path = self.analyzer_path + '/' + self.best_fitness.value
+
         for run in range(self.runs):
 
-            # extract fittest engines from in-sample analyzer
-            IS_path = self.analyzer_path + '/' + str(run)
-            fittest = unpack('analyzer', IS_path)['fittest']
-            metric = fittest[self.best_fitness]
+            # unpack OS engine
+            try: OS_engine = unpack(str(run), OS_path)
+            except FileNotFoundError: continue
 
-            # catch in-sample without profit
-            if metric is None:
-                print('\t' + str(run) + ': In-sample not profitable')
-                continue
-
-            # get params from fittest engine
-            OS_engine = unpack(str(metric.id), IS_path)
+            # extract engine metrics
             num_trades = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'num_trades')
             profit_factor = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'profit_factor')
             profit = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'profit')
@@ -290,7 +285,6 @@ class WalkForward:
             # add row to table
             row = [
                 str(run),
-                str(metric.id),
                 str(round(profit)),
                 str(round(profit_factor, 2)),
                 str(num_trades),

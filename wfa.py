@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'NQ'
+asset = 'ES'
 num_months = 20
 isNetwork = False
 
@@ -25,18 +25,18 @@ runs = 14 # +1 added for final in-sample
 # optimization
 opt = LiveParams(
     fastMinutes = [20],
-    disableEntryMinutes = [135], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = [85], # np.linspace(55, 125, 8, dtype = int),
+    disableEntryMinutes = [145], # np.linspace(55, 255, 201, dtype = int),
+    fastMomentumMinutes = np.linspace(75, 135, 7, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
-    takeProfitPercent = [.4, .5], # np.around(np.linspace(.45, .95, 6), 2),
+    takeProfitPercent = np.around(np.linspace(.45, .95, 6), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor = [2155], # np.linspace(1000, 3000, 401, dtype = int),
-    slowMinutes = [2555],
-    slowAngleFactor = [15], # np.linspace(3, 21, 7, dtype = int),
+    slowMinutes = [2405],
+    slowAngleFactor = np.linspace(9, 24, 6, dtype = int),
     coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [60], # np.linspace(12, 212, 201, dtype = int),
+    trendEndHour = [68], # np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################

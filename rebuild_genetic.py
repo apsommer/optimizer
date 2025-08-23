@@ -11,9 +11,9 @@ from utils.utils import *
 
 # data, indicators
 asset = 'NQ'
-num_months = 20
-id = '20250811_194458'
-engine = 'g4e95' # None
+num_months = 40
+id = '20250814_230000'
+engine = 'g4e49' # None
 
 ###################################################################
 
