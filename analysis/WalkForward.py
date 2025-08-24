@@ -206,10 +206,9 @@ class WalkForward:
     def calculate_efficiency(self, IS_profits, composite):
 
         # in-sample annual return
-        IS_total_profit = sum(IS_profits)
-        IS_cash = IS_total_profit - initial_cash
+        IS_profit = sum(IS_profits)
         IS_days = self.OS_len * self.runs / 1440
-        IS_annual_return = ((IS_cash / initial_cash) ** (1 / (IS_days / 365)) - 1) * 100
+        IS_annual_return = ((IS_profit / initial_cash) ** (1 / (IS_days / 365)) - 1) * 100
 
         # composite annual return
         metric = next(metric for metric in composite.metrics if metric.name == 'annual_return')

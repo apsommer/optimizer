@@ -15,23 +15,23 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 20
+num_months = 8
 isNetwork = False
 
 # walk forward
-percent = 20
-runs = 14 # +1 added for final in-sample
+percent = 25
+runs = 8 # +1 added for final in-sample
 
 # optimization
 opt = LiveParams(
     fastMinutes = [20],
     disableEntryMinutes = [145], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(75, 135, 7, dtype = int),
+    fastMomentumMinutes = [0], # np.linspace(75, 135, 7, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
     takeProfitPercent = np.around(np.linspace(.45, .95, 6), 2),
-    stopLossPercent = [0],
+    stopLossPercent = np.around(np.linspace(.45, .95, 6), 2),
     fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
-    fastAngleExitFactor = [2155], # np.linspace(1000, 3000, 401, dtype = int),
+    fastAngleExitFactor = [0], # np.linspace(1000, 3000, 401, dtype = int),
     slowMinutes = [2405],
     slowAngleFactor = np.linspace(9, 24, 6, dtype = int),
     coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),

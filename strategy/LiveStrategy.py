@@ -49,8 +49,8 @@ class LiveStrategy(BaselineStrategy):
         self.slowShortMinutes = emas.loc[:, 'short_' + str(self.slowMinutes)]
 
         # fractals
-        self.buyFractals = fractals.loc[:, 'buyFractal']
-        self.sellFractals = fractals.loc[:, 'sellFractal']
+        self.buyFractals = fractals.buyFractal
+        self.sellFractals = fractals.sellFractal
 
         # units
         self.fastAngleEntry = fastAngleEntryFactor / 1000.0
@@ -109,9 +109,9 @@ class LiveStrategy(BaselineStrategy):
         slowLongMinutes = self.slowLongMinutes[idx]
         slowShortMinutes = self.slowShortMinutes[idx]
 
-        # fractal, -2 because can not see into future
-        buyFractal = self.buyFractals.iloc[bar_index - 2]
-        sellFractal = self.sellFractals.iloc[bar_index - 2]
+        # fractal, todo -2 because can not see into future
+        buyFractal = self.buyFractals[idx]
+        sellFractal = self.sellFractals[idx]
 
         # strategy
         longExitBarIndex = self.longExitBarIndex
@@ -181,7 +181,7 @@ class LiveStrategy(BaselineStrategy):
             and slowSlope > slowAngle
             and isEntryLongEnabled
             and fast > close > buyFractal > slow
-            and 0.5 * fastMomentumMinutes > fastShortMinutes
+            # and 0.5 * fastMomentumMinutes > fastShortMinutes
         )
 
         # entry, long fast crossover
@@ -210,7 +210,7 @@ class LiveStrategy(BaselineStrategy):
             and -slowAngle > slowSlope
             and isEntryShortEnabled
             and slow > sellFractal > close > fast
-            and 0.5 * fastMomentumMinutes > fastLongMinutes
+            # and 0.5 * fastMomentumMinutes > fastLongMinutes
         )
 
         # entry, short fast crossover
@@ -399,15 +399,21 @@ class LiveStrategy(BaselineStrategy):
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
 
-        # plot ribbon
-        ema_columns = [ column for column in self.emas.columns if 'ema' in column ]
-        for i, column in enumerate(ema_columns):
+        # # plot ribbon
+        # ema_columns = [ column for column in self.emas.columns if 'ema' in column ]
+        # for i, column in enumerate(ema_columns):
+        #
+        #     fplt.plot(
+        #         self.emas.loc[:, column],
+        #         color = get_ribbon_color(i),
+        #         width = i,
+        #         ax = ax)
 
-            fplt.plot(
-                self.emas.loc[:, column],
-                color = get_ribbon_color(i),
-                width = i,
-                ax = ax)
+        fplt.plot(
+            self.fast,
+            color = get_ribbon_color(0),
+            width = 1,
+            ax = ax)
 
         if shouldShow: fplt.show()
         return ax

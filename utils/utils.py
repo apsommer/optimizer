@@ -173,8 +173,8 @@ def build_fractals(data, path):
         columns = ['buyFractal', 'sellFractal'])
 
     # fractal indicator
-    buyPrice = data.iloc[0].High
-    sellPrice = data.iloc[0].Low
+    buyPrice = np.nan
+    sellPrice = np.nan
 
     for i in tqdm(
         iterable = range(len(data.index)),
@@ -182,22 +182,25 @@ def build_fractals(data, path):
         bar_format = '        Fractals:       {percentage:3.0f}%|{bar:80}{r_bar}'):
 
         # skip first 2 bars and last 2 bars, due to definition -2:+2
-        if 2 < i < len(data.index) - 3:
+        if 2 > i or i > len(data.index) - 3:
+            fractals.iloc[i].buyFractal = np.nan
+            fractals.iloc[i].sellFractal = np.nan
+            continue
 
-            # update prices, if needed
-            if (data.iloc[i].High > data.iloc[i-1].High
-                and data.iloc[i].High > data.iloc[i-2].High
-                and data.iloc[i].High > data.iloc[i+1].High
-                and data.iloc[i].High > data.iloc[i+2].High):
+        # update prices, if needed
+        if (data.iloc[i].High > data.iloc[i-1].High
+            and data.iloc[i].High > data.iloc[i-2].High
+            and data.iloc[i].High > data.iloc[i+1].High
+            and data.iloc[i].High > data.iloc[i+2].High):
 
-                buyPrice = data.iloc[i].High
+            buyPrice = data.iloc[i].High
 
-            if (data.iloc[i].Low < data.iloc[i-1].Low
-                and data.iloc[i].Low < data.iloc[i-2].Low
-                and data.iloc[i].Low < data.iloc[i+1].Low
-                and data.iloc[i].Low < data.iloc[i+2].Low):
+        if (data.iloc[i].Low < data.iloc[i-1].Low
+            and data.iloc[i].Low < data.iloc[i-2].Low
+            and data.iloc[i].Low < data.iloc[i+1].Low
+            and data.iloc[i].Low < data.iloc[i+2].Low):
 
-                sellPrice = data.iloc[i].Low
+            sellPrice = data.iloc[i].Low
 
         fractals.iloc[i].buyFractal = buyPrice
         fractals.iloc[i].sellFractal = sellPrice

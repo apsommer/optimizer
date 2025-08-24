@@ -8,7 +8,6 @@ import numpy as np
 from model.Metric import Metric
 from utils.utils import format_timestamp, unpack
 
-
 def print_metrics(metrics):
 
     for metric in metrics:
