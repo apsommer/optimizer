@@ -50,9 +50,9 @@ class Fitness:
         values, metrics = fitness_df.sum(axis = 1, skipna = False), []
         for id, value in enumerate(values):
             if np.isnan(value): continue
-            title = f'[{id}] {self.pretty}'
+            title = f'[{id}] {Fit.BLEND.value}'
             metrics.append(
-                Metric(title, value, '%', 'Blend', id = id))
+                Metric('blend', value, '%', title, id = id))
 
         return metrics
 
@@ -106,20 +106,20 @@ class Fit(Enum):
     @property
     def color(self):
         match self:
-            case Fit.PROFIT: return get_ribbon_color(0)
-            case Fit.PROFIT_FACTOR: return get_ribbon_color(1)
-            case Fit.EXPECTANCY: return get_ribbon_color(2)
-            case Fit.WIN_RATE: return get_ribbon_color(3)
-            case Fit.AVERAGE_WIN: return get_ribbon_color(4)
-            case Fit.AVERAGE_LOSS: return get_ribbon_color(5)
-            case Fit.DRAWDOWN: return get_ribbon_color(6)
-            case Fit.DRAWDOWN_PER_PROFIT: return get_ribbon_color(7)
-            case Fit.CORRELATION: return get_ribbon_color(8)
-            case Fit.NUM_TRADES: return get_ribbon_color(9)
-            case Fit.NUM_WINS: return get_ribbon_color(0)
-            case Fit.PROFIT_PER_DAY: return get_ribbon_color(1)
-            case Fit.DRAWDOWN_PER_DAY: return get_ribbon_color(2)
-            case Fit.BLEND: return get_ribbon_color(3)
+            case Fit.PROFIT: return colors[0]
+            case Fit.PROFIT_FACTOR: return colors[1]
+            case Fit.EXPECTANCY: return colors[2]
+            case Fit.WIN_RATE: return colors[3]
+            case Fit.AVERAGE_WIN: return colors[4]
+            case Fit.AVERAGE_LOSS: return colors[5]
+            case Fit.DRAWDOWN: return colors[6]
+            case Fit.DRAWDOWN_PER_PROFIT: return colors[7]
+            case Fit.CORRELATION: return colors[8]
+            case Fit.NUM_TRADES: return colors[9]
+            case Fit.NUM_WINS: return colors[0]
+            case Fit.PROFIT_PER_DAY: return colors[1]
+            case Fit.DRAWDOWN_PER_DAY: return colors[2]
+            case Fit.BLEND: return colors[3]
 
     @property
     def unit(self):
