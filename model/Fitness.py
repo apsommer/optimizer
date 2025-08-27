@@ -50,8 +50,9 @@ class Fitness:
         values, metrics = fitness_df.sum(axis = 1, skipna = False), []
         for id, value in enumerate(values):
             if np.isnan(value): continue
+            title = f'[{id}] {self.pretty}'
             metrics.append(
-                Metric('blend', value, '%', 'Blend', id = id))
+                Metric(title, value, '%', 'Blend', id = id))
 
         return metrics
 
@@ -82,6 +83,8 @@ class Fit(Enum):
     PROFIT_PER_DAY = 'profit_per_day'
     DRAWDOWN_PER_DAY = 'drawdown_per_day'
 
+    BLEND = 'blend'
+
     @property
     def pretty(self):
         match self:
@@ -98,6 +101,7 @@ class Fit(Enum):
             case Fit.NUM_WINS: return 'Number of wins'
             case Fit.PROFIT_PER_DAY: return 'Profit per day'
             case Fit.DRAWDOWN_PER_DAY: return 'Drawdown per day'
+            case Fit.BLEND: return 'Blend'
 
     @property
     def color(self):
@@ -115,6 +119,7 @@ class Fit(Enum):
             case Fit.NUM_WINS: return colors[0]
             case Fit.PROFIT_PER_DAY: return colors[1]
             case Fit.DRAWDOWN_PER_DAY: return colors[2]
+            case Fit.BLEND: return colors[3]
 
     @property
     def unit(self):
@@ -132,3 +137,4 @@ class Fit(Enum):
             case Fit.NUM_WINS: return None
             case Fit.PROFIT_PER_DAY: return 'USD'
             case Fit.DRAWDOWN_PER_DAY: return 'USD'
+            case Fit.BLEND: return None

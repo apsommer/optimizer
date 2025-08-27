@@ -7,12 +7,13 @@ from utils.utils import *
 
 class Analyzer:
 
-    def __init__(self, id, data, emas, fractals, opt, analyzer_path):
+    def __init__(self, id, data, emas, fractals, fitness, opt, analyzer_path):
 
         self.id = id
         self.data = data
         self.emas = emas
         self.fractals = fractals
+        self.fitness = fitness
         self.opt = opt
         self.analyzer_path = analyzer_path
 
@@ -116,11 +117,19 @@ class Analyzer:
         # collect fittest engines
         for fitness in Fit:
 
-            # get fittest engine
-            metric = self.get_fittest_metric(fitness)
+            # get fittest blend
+            if fitness is Fit.BLEND:
+                fitnesses = self.fitness.blend(self.engine_metrics)
+                metric = max(fitnesses, key = lambda metric: metric.value)
+
+            # get standard fitness
+            else:
+                metric = self.get_fittest_metric(fitness)
+
             self.fittest[fitness] = metric
 
             # skip adding to analyzer metrics if not profitable
+            # todo entire IS unprofitable -> exit()
             if metric is None: continue
             self.metrics.append(metric)
 

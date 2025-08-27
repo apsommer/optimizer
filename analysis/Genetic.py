@@ -144,6 +144,7 @@ class Genetic:
             print(f'{generation}: Entire generation unprofitable.')
             exit()
 
+        # get blended fitnesses
         fitnesses = self.fitness.blend(self.engine_metrics)
 
         # persist best engine in generation

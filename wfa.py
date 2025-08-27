@@ -23,23 +23,22 @@ percent = 25
 runs = 7 # +1 added for final in-sample
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 30),
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.NUM_WINS, 20)
+        (Fit.PROFIT, 50),
+        (Fit.CORRELATION, 50),
     ])
 
 # optimization
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [105], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(75, 130, 12, dtype = int),
+    fastMomentumMinutes = [120], # np.linspace(75, 130, 12, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(.35, .75, 9), 2),
+    takeProfitPercent = [.4, .6], # np.around(np.linspace(.35, .75, 9), 2),
     stopLossPercent = [0] , # np.around(np.linspace(.45, .95, 11), 2),
     fastAngleEntryFactor = [20], # np.linspace(0, 100, 101, dtype = int),
     fastAngleExitFactor = [2050], # np.linspace(1000, 3000, 401, dtype = int),
     slowMinutes = [2150],
-    slowAngleFactor = np.linspace(21, 35, 3, dtype = int),
+    slowAngleFactor = [15], # np.linspace(21, 35, 3, dtype = int),
     coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
     trendEndHour = [142], # np.linspace(12, 212, 201, dtype = int),
@@ -108,7 +107,7 @@ pool.join()
 wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
 wfa.print_composite_summary()
-# wfa.print_last_analyzer()
+wfa.print_last_analyzer()
 
 # print analysis time
 elapsed = time.time() - start_time

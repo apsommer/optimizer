@@ -17,7 +17,7 @@ class WalkForward:
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
-        self.fitness = fitenss
+        self.fitness = fitness
         self.data = data
         self.emas = emas
         self.fractals = fractals
@@ -53,7 +53,7 @@ class WalkForward:
         IS_fractals = self.fractals.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.opt, self.analyzer_path)
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.fitness, self.opt, self.analyzer_path)
         analyzer.run()
         analyzer.save()
 

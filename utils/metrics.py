@@ -79,7 +79,7 @@ def get_engine_metrics(engine):
     gross_loss = sum(losses)
 
     total_return = (profit / initial_cash) * 100
-    annual_return = ((abs(cash) / initial_cash) ** (1 / (days / 365)) - 1) * 100
+    annual_return = ((cash / initial_cash) ** (1 / (days / 365)) - 1) * 100
     if 0 > cash: annual_return = -annual_return
 
     if gross_loss == 0: profit_factor = np.inf
