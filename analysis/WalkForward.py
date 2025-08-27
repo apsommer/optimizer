@@ -117,7 +117,7 @@ class WalkForward:
         # stitch OS runs together
         for run in tqdm(
             iterable = range(self.runs),
-            disable =fit is not Fit.PROFIT, # show only 1 core
+            disable = fit is not Fit.PROFIT, # show only 1 core
             colour = blue,
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:80}{r_bar}'):
 
@@ -147,6 +147,7 @@ class WalkForward:
                 engine_cash_series += balance - initial_cash
 
             # OS does not exist: IS not profitable
+            # todo same as above, remove exit on unprotifable IS
             else:
 
                 # count invalid runs

@@ -252,6 +252,9 @@ def init_walk_forward_metrics(wfa):
     in_sample_days = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
     out_of_sample_days = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
 
+    # fitness
+    fitness = wfa.fitness.pretty
+
     return [
         Metric('header', None, None, 'Walk forward:'),
         Metric('id', id, None, 'Id'),
@@ -264,6 +267,7 @@ def init_walk_forward_metrics(wfa):
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
+        Metric('fitness', fitness, None, 'Fitness'),
         Metric('opt', opt, None, 'Optimization'),
     ]
 
