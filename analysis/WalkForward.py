@@ -311,7 +311,7 @@ class WalkForward:
             window = 1,
             title = 'Equity')
 
-        for fitness in Fit:
+        for i, fitness in enumerate(Fit):
 
             # unpack composite engine
             composite = unpack(fitness.value, self.analysis_path)
@@ -322,7 +322,7 @@ class WalkForward:
             fplt.plot(
                 cash_series,
                 color = fitness.color,
-                width = 2,
+                width = i,
                 ax = ax)
 
             # format legend
