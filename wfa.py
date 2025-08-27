@@ -20,7 +20,7 @@ isNetwork = False
 
 # walk forward
 percent = 25
-runs = 7 # +1 added for final in-sample
+runs = 9 # +1 added for final in-sample
 fitness = Fitness(
     fits = [
         (Fit.PROFIT, 50),

@@ -147,7 +147,7 @@ class WalkForward:
                 engine_cash_series += balance - initial_cash
 
             # OS does not exist: IS not profitable
-            # todo same as above, remove exit on unprotifable IS
+            # todo same as above, remove exit on unprofitable IS
             else:
 
                 # count invalid runs
@@ -363,7 +363,6 @@ class WalkForward:
                 # plot buy and hold
                 size = engine.strategy.size
                 point_value = engine.strategy.ticker.point_value
-                # delta_df = composite.data.Close - composite.data.Close.iloc[0]
                 delta_df = self.data.Close - self.data.Close.iloc[0]
                 buy_hold = size * point_value * delta_df + initial_cash
                 fplt.plot(buy_hold, color = dark_gray, ax = ax)
