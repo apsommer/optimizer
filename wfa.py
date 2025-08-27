@@ -23,7 +23,7 @@ percent = 25
 runs = 9 # +1 added for final in-sample
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT, 50),
+        (Fit.EXPECTANCY, 50),
         (Fit.CORRELATION, 50),
     ])
 

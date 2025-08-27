@@ -50,7 +50,7 @@ class Fitness:
         values, metrics = fitness_df.sum(axis = 1, skipna = False), []
         for id, value in enumerate(values):
             if np.isnan(value): continue
-            title = f'[{id}] {Fit.BLEND.value}'
+            title = f'[{id}] {Fit.BLEND.pretty}'
             metrics.append(
                 Metric('blend', value, '%', title, id = id))
 

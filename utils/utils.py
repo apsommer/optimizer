@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import pickle
 import re
+import shutil
 from datetime import timedelta, datetime
 
 import databento as db
@@ -68,8 +69,9 @@ def getOhlc(asset, num_months, isNetwork = False):
     ohlc = ohlc[ohlc.columns.drop(['symbol', 'rtype', 'instrument_id', 'publisher_id', 'volume'])]
     ohlc.index = timestamp(ohlc, timezone)
 
-    # make directory, if needed
-    if not os.path.exists(path): os.makedirs(path)
+    # remove residual data and indicators
+    shutil.rmtree(path, ignore_errors = True)
+    os.makedirs(path)
 
     # save to disk
     ohlc.to_csv(csv_filepath)
