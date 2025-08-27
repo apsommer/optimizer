@@ -117,6 +117,11 @@ class Analyzer:
         # collect fittest engines
         for fitness in Fit:
 
+            # skip adding to analyzer metrics if not profitable
+            # todo entire IS unprofitable -> exit()
+            if len(self.engine_metrics) == 0:
+                continue
+
             # get fittest blend
             if fitness is Fit.BLEND:
                 fitnesses = self.fitness.blend(self.engine_metrics)
@@ -127,10 +132,6 @@ class Analyzer:
                 metric = self.get_fittest_metric(fitness)
 
             self.fittest[fitness] = metric
-
-            # skip adding to analyzer metrics if not profitable
-            # todo entire IS unprofitable -> exit()
-            if metric is None: continue
             self.metrics.append(metric)
 
     def get_fittest_metric(self, fitness):

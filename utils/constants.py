@@ -14,7 +14,7 @@ light_black = '#5e5e5e'
 # get color pallet from seaborn, 10 total
 # https://seaborn.pydata.org/tutorial/color_palettes.html
 # deep, muted, pastel, bright, dark, colorblind
-colors = sns.color_palette('bright').as_hex()
+colors = sns.color_palette('dark').as_hex()
 blue = colors[0]
 orange = colors[1]
 green = colors[2]
