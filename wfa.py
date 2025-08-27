@@ -4,7 +4,7 @@ import warnings
 from multiprocessing import Pool
 
 from analysis.WalkForward import WalkForward
-from model.Fitness import Fit
+from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
 from utils.metrics import *
@@ -15,28 +15,34 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ES'
-num_months = 8
+num_months = 20
 isNetwork = False
 
 # walk forward
 percent = 25
-runs = 8 # +1 added for final in-sample
+runs = 7 # +1 added for final in-sample
+fitness = Fitness(
+    fits = [
+        (Fit.PROFIT_FACTOR, 30),
+        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        (Fit.NUM_WINS, 20)
+    ])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [20],
-    disableEntryMinutes = [145], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = [0], # np.linspace(75, 135, 7, dtype = int),
+    fastMinutes = [25],
+    disableEntryMinutes = [105], # np.linspace(55, 255, 201, dtype = int),
+    fastMomentumMinutes = np.linspace(75, 130, 12, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(.45, .95, 6), 2),
-    stopLossPercent = np.around(np.linspace(.45, .95, 6), 2),
-    fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
-    fastAngleExitFactor = [0], # np.linspace(1000, 3000, 401, dtype = int),
-    slowMinutes = [2405],
-    slowAngleFactor = np.linspace(9, 24, 6, dtype = int),
+    takeProfitPercent = np.around(np.linspace(.35, .75, 9), 2),
+    stopLossPercent = [0] , # np.around(np.linspace(.45, .95, 11), 2),
+    fastAngleEntryFactor = [20], # np.linspace(0, 100, 101, dtype = int),
+    fastAngleExitFactor = [2050], # np.linspace(1000, 3000, 401, dtype = int),
+    slowMinutes = [2150],
+    slowAngleFactor = np.linspace(21, 35, 3, dtype = int),
     coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [68], # np.linspace(12, 212, 201, dtype = int),
+    trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = [142], # np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################
@@ -67,6 +73,7 @@ cores = multiprocessing.cpu_count() - 1
 wfa = WalkForward(
     num_months = num_months,
     percent = percent,
+    fitness = fitness,
     runs = runs,
     data = data,
     emas = emas,

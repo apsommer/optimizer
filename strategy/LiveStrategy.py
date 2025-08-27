@@ -1,7 +1,7 @@
 import finplot as fplt
 import pandas as pd
 
-from model.Ticker import Ticker
+from datetime import timedelta
 from strategy.BaseStrategy import BaselineStrategy
 from utils.constants import *
 from utils.utils import init_plot
@@ -109,7 +109,15 @@ class LiveStrategy(BaselineStrategy):
         slowLongMinutes = self.slowLongMinutes[idx]
         slowShortMinutes = self.slowShortMinutes[idx]
 
-        # fractal, todo -2 because can not see into future
+        # # fractal, subtract 2 minutes because can not see into the future
+        # if idx == self.buyFractals.index[0] or idx == self.buyFractals.index[1]: fractal_idx = idx
+        # else: fractal_idx = idx - timedelta(minutes = 2)
+        # try:
+        #     buyFractal = self.buyFractals[fractal_idx]
+        #     sellFractal = self.sellFractals[fractal_idx]
+        # except KeyError:
+        #     pass
+
         buyFractal = self.buyFractals[idx]
         sellFractal = self.sellFractals[idx]
 

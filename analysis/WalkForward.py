@@ -11,12 +11,13 @@ from rich.table import Table
 
 class WalkForward:
 
-    def __init__(self, num_months, percent, runs, data, emas, fractals, opt, parent_path):
+    def __init__(self, num_months, percent, fitness, runs, data, emas, fractals, opt, parent_path):
 
         self.id = format_timestamp(datetime.now(), 'local')
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
+        self.fitness = fitenss
         self.data = data
         self.emas = emas
         self.fractals = fractals
@@ -206,9 +207,9 @@ class WalkForward:
     def calculate_efficiency(self, IS_profits, composite):
 
         # in-sample annual return
-        IS_profit = sum(IS_profits)
+        IS_cash = sum(IS_profits) + initial_cash
         IS_days = self.OS_len * self.runs / 1440
-        IS_annual_return = ((IS_profit / initial_cash) ** (1 / (IS_days / 365)) - 1) * 100
+        IS_annual_return = ((IS_cash / initial_cash) ** (1 / (IS_days / 365)) - 1) * 100
 
         # composite annual return
         metric = next(metric for metric in composite.metrics if metric.name == 'annual_return')

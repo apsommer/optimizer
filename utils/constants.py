@@ -32,7 +32,7 @@ ribbon_colors = crest(np.linspace(0, 1, 10))
 def get_ribbon_color(i):
     return mpl.colors.rgb2hex(ribbon_colors[i % 10])
 
-initial_cash = 100000
+initial_cash = 10000
 
 ########################################################################################################################
 

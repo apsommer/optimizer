@@ -7,8 +7,8 @@ class BaselineStrategy():
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'NQ',
-            point_value = 20,
+            symbol = 'MES',
+            point_value = 5,
             tick_size = 0.25,
             margin = 0.5
         )

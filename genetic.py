@@ -13,35 +13,36 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'NQ'
-num_months = 40
+asset = 'ES'
+num_months = 20
 isNetwork = False
 
 # genetic
 population_size = 150
-generations = 5
+generations = 7
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_PER_DAY, 50),
+        (Fit.PROFIT_FACTOR, 30),
         (Fit.DRAWDOWN_PER_PROFIT, 50),
+        (Fit.NUM_WINS, 20)
     ])
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [20],
-    disableEntryMinutes = np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
+    fastMinutes = [25],
+    disableEntryMinutes = np.linspace(60, 180, 25, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 155, 21, dtype = int),
     fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
     takeProfitPercent = np.around(np.linspace(.25, .95, 71), 2),
     stopLossPercent = [0],
-    fastAngleEntryFactor = [0], # np.linspace(0, 100, 101, dtype = int),
-    fastAngleExitFactor = np.linspace(1000, 3000, 2001, dtype = int),
-    slowMinutes = np.linspace(1755, 3055, 7, dtype = int),
-    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 212, 201, dtype = int),
+    fastAngleEntryFactor = np.linspace(0, 50, 11, dtype = int),
+    fastAngleExitFactor =  [2050], # np.linspace(1000, 3000, 2001, dtype = int),
+    slowMinutes = [2150], # np.linspace(1755, 3055, 7, dtype = int),
+    slowAngleFactor = np.linspace(0, 50, 11, dtype = int),
+    coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = [142], # np.linspace(12, 212, 201, dtype = int),
 )
 
 ########################################################################################################################
@@ -72,7 +73,7 @@ genetic = Genetic(
     population_size = population_size,
     generations = generations,
     mutation_rate = mutation_rate,
-    fitness= fitness,
+    fitness = fitness,
     data = data,
     emas = emas,
     fractals = fractals,
