@@ -170,6 +170,7 @@ def build_fractals(data, path):
 
     # init container
     fractals = pd.DataFrame(
+        data = np.nan,
         index = data.index,
         dtype = float,
         columns = ['buyFractal', 'sellFractal'])
@@ -184,10 +185,7 @@ def build_fractals(data, path):
         bar_format = '        Fractals:       {percentage:3.0f}%|{bar:80}{r_bar}'):
 
         # skip first 2 bars and last 2 bars, due to definition -2:+2
-        if 2 > i or i > len(data.index) - 3:
-            fractals.iloc[i].buyFractal = np.nan
-            fractals.iloc[i].sellFractal = np.nan
-            continue
+        if 2 > i or i > len(data.index) - 3: continue
 
         # update prices, if needed
         if (data.iloc[i].High > data.iloc[i-1].High
@@ -204,8 +202,9 @@ def build_fractals(data, path):
 
             sellPrice = data.iloc[i].Low
 
-        fractals.iloc[i].buyFractal = buyPrice
-        fractals.iloc[i].sellFractal = sellPrice
+        # stagger 2 minutes because can not see into the future
+        fractals.iloc[i+2].buyFractal = buyPrice
+        fractals.iloc[i+2].sellFractal = sellPrice
 
     save(fractals, 'fractals', path)
     return fractals

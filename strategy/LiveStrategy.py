@@ -109,15 +109,7 @@ class LiveStrategy(BaselineStrategy):
         slowLongMinutes = self.slowLongMinutes[idx]
         slowShortMinutes = self.slowShortMinutes[idx]
 
-        # # fractal, subtract 2 minutes because can not see into the future
-        # if idx == self.buyFractals.index[0] or idx == self.buyFractals.index[1]: fractal_idx = idx
-        # else: fractal_idx = idx - timedelta(minutes = 2)
-        # try:
-        #     buyFractal = self.buyFractals[fractal_idx]
-        #     sellFractal = self.sellFractals[fractal_idx]
-        # except KeyError:
-        #     pass
-
+        # fractals
         buyFractal = self.buyFractals[idx]
         sellFractal = self.sellFractals[idx]
 
