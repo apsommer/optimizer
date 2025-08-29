@@ -80,8 +80,6 @@ class Fit(Enum):
     CORRELATION = 'correlation'
     NUM_TRADES = 'num_trades'
     NUM_WINS = 'num_wins'
-    PROFIT_PER_DAY = 'profit_per_day'
-    DRAWDOWN_PER_DAY = 'drawdown_per_day'
 
     BLEND = 'blend'
 
