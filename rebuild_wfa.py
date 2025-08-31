@@ -15,6 +15,7 @@ num_months = 20
 percent = 25
 runs = 9 # +1 added for final in-sample
 id = '20250830_121931'
+engine = None # 'correlation' # None
 
 ###################################################################
 
@@ -42,7 +43,9 @@ metrics = wfa['metrics']
 print_metrics(metrics)
 
 # unpack winning solution
-winner_id = 'correlation' # todo persist in wfa.save()
+winner_id = wfa.winner_id
+if engine is not None: winner_id = engine
+
 winner = unpack(winner_id, path)
 params = winner['params']
 cash_series = winner['cash_series']

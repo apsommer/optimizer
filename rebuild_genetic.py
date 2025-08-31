@@ -45,9 +45,7 @@ print_metrics(metrics)
 winner_metric = max(best_engines, key = lambda it: it.value)
 winner_generation = best_engines.index(winner_metric)
 winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
-
-if engine is not None:
-    winner_id = engine
+if engine is not None: winner_id = engine
 
 winner = unpack(winner_id, path)
 params = winner['params']
