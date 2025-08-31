@@ -168,7 +168,7 @@ def build_emas(data, opt, path):
 
 def get_slope(series):
 
-    slope = pd.Series(index=series.index)
+    slope = pd.Series(index = series.index)
     prev = series.iloc[0]
 
     for idx, value in series.items():

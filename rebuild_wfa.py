@@ -1,9 +1,6 @@
 import time
 import warnings
 
-from rich import Console
-from rich.padding import Padding
-
 from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import print_metrics, print_composite_summary
