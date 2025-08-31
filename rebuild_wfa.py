@@ -6,7 +6,7 @@ from rich.padding import Padding
 
 from analysis.Engine import Engine
 from strategy.LiveStrategy import LiveStrategy
-from utils.metrics import print_metrics
+from utils.metrics import print_metrics, print_composite_summary
 from utils.utils import *
 
 ''' display results of walk forward analysis '''
@@ -44,10 +44,7 @@ composite_summary = wfa['composite_summary']
 
 # display analysis metrics
 print_metrics(metrics)
-print()
-console = Console()
-padding = Padding(composite_summary, pad = (0, 0, 0, 8))
-console.print(padding)
+print_composite_summary(composite_summary)
 
 # unpack winning solution
 winner_id = wfa.winner_id

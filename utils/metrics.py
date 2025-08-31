@@ -1,6 +1,8 @@
 import math
 from datetime import timedelta
 
+from rich import Console
+from rich.padding import Padding
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
@@ -379,3 +381,12 @@ def get_genetic_results_metrics(genetic):
             Metric(name, value, None, title))
 
     return metrics
+
+########################################################################################################################
+
+def print_composite_summary(composite_summary):
+
+    print()
+    console = Console()
+    padding = Padding(composite_summary, pad = (0, 0, 0, 8))
+    console.print(padding)

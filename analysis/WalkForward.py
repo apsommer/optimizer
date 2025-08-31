@@ -296,13 +296,9 @@ class WalkForward:
             ]
             table.add_row(*row)
 
-        self.composite_summary = table
-
         # display to console
-        print()
-        console = Console()
-        padding = Padding(table, pad = (0, 0, 0, 8))
-        console.print(padding)
+        self.composite_summary = table
+        print_composite_summary(table)
 
     def print_last_analyzer(self):
 
