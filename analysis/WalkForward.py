@@ -250,7 +250,8 @@ class WalkForward:
 
         bundle = {
             'id': self.id,
-            'metrics': self.metrics
+            'metrics': self.metrics,
+            'winner_id': self.best_fitness.value
         }
 
         save(
