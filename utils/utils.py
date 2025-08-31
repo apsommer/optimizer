@@ -166,6 +166,18 @@ def build_emas(data, opt, path):
     save(emas, 'emas', path)
     return emas
 
+def get_slope(series):
+
+    slope = pd.Series(index=series.index)
+    prev = series.iloc[0]
+
+    for idx, value in series.items():
+        if idx == series.index[0]: continue
+        slope[idx] = ((value - prev) / prev) * 100
+        prev = value
+
+    return np.rad2deg(np.atan(slope))
+
 def build_fractals(data, path):
 
     # init container
@@ -208,18 +220,6 @@ def build_fractals(data, path):
 
     save(fractals, 'fractals', path)
     return fractals
-
-def get_slope(series):
-
-    slope = pd.Series(index=series.index)
-    prev = series.iloc[0]
-
-    for idx, value in series.items():
-        if idx == series.index[0]: continue
-        slope[idx] = ((value - prev) / prev) * 100
-        prev = value
-
-    return np.rad2deg(np.atan(slope))
 
 def init_plot(window, title):
 
