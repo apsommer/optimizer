@@ -80,7 +80,6 @@ class Fit(Enum):
     CORRELATION = 'correlation'
     NUM_TRADES = 'num_trades'
     NUM_WINS = 'num_wins'
-
     BLEND = 'blend'
 
     @property
@@ -97,8 +96,6 @@ class Fit(Enum):
             case Fit.CORRELATION: return 'Linear correlation'
             case Fit.NUM_TRADES: return 'Number of trades'
             case Fit.NUM_WINS: return 'Number of wins'
-            case Fit.PROFIT_PER_DAY: return 'Profit per day'
-            case Fit.DRAWDOWN_PER_DAY: return 'Drawdown per day'
             case Fit.BLEND: return 'Blend'
 
     @property
@@ -115,8 +112,6 @@ class Fit(Enum):
             case Fit.CORRELATION: return colors[8]
             case Fit.NUM_TRADES: return colors[9]
             case Fit.NUM_WINS: return colors[0]
-            case Fit.PROFIT_PER_DAY: return colors[1]
-            case Fit.DRAWDOWN_PER_DAY: return colors[2]
             case Fit.BLEND: return colors[3]
 
     @property
@@ -133,6 +128,4 @@ class Fit(Enum):
             case Fit.CORRELATION: return None
             case Fit.NUM_TRADES: return None
             case Fit.NUM_WINS: return None
-            case Fit.PROFIT_PER_DAY: return 'USD'
-            case Fit.DRAWDOWN_PER_DAY: return 'USD'
             case Fit.BLEND: return None

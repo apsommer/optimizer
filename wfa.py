@@ -23,22 +23,22 @@ percent = 25
 runs = 9 # +1 added for final in-sample
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT, 50),
-        (Fit.CORRELATION, 50),
+        (Fit.WIN_RATE, 25),
+        (Fit.CORRELATION, 75),
     ])
 
 # optimization
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [105], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(95, 135, 9, dtype = int),
+    fastMomentumMinutes = [125], # np.linspace(95, 135, 9, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(.35, .75, 9), 2),
+    takeProfitPercent = np.around(np.linspace(.25, .65, 9), 2),
     stopLossPercent = [0] , # np.around(np.linspace(.45, .95, 11), 2),
-    fastAngleEntryFactor = [15, 20, 25, 35, 40], # np.linspace(0, 100, 101, dtype = int),
+    fastAngleEntryFactor = np.linspace(10, 50, 9, dtype = int),
     fastAngleExitFactor = [2050], # np.linspace(1000, 3000, 401, dtype = int),
     slowMinutes = [2150],
-    slowAngleFactor = [25], # np.linspace(21, 35, 3, dtype = int),
+    slowAngleFactor = np.linspace(10, 50, 9, dtype = int),
     coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
     trendEndHour = [142], # np.linspace(12, 212, 201, dtype = int),
