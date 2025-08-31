@@ -240,6 +240,7 @@ class WalkForward:
         # persist results
         self.next_params = next_params
         self.best_fitness = best_fitness
+        self.summarize_composite()
         self.metrics += get_walk_forward_results_metrics(self)
         self.save()
 
@@ -250,7 +251,7 @@ class WalkForward:
             'id': self.id,
             'metrics': self.metrics,
             'winner_id': self.best_fitness.value,
-            'composition_summary': self.composite_summary,
+            'composite_summary': self.composite_summary,
         }
 
         save(
@@ -260,7 +261,7 @@ class WalkForward:
 
     ####################################################################################################################
 
-    def print_composite_summary(self):
+    def summarize_composite(self):
 
         table = Table(title = f'{self.id}: {self.best_fitness.pretty}')
         columns = [
@@ -295,7 +296,6 @@ class WalkForward:
 
         # display to console
         self.composite_summary = table
-        print_composite_summary(table)
 
     def print_last_analyzer(self):
 

@@ -31,14 +31,14 @@ fitness = Fitness(
 opt = LiveParams(
     fastMinutes = [25],
     disableEntryMinutes = [105], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = [125], # np.linspace(95, 135, 9, dtype = int),
+    fastMomentumMinutes = np.linspace(95, 135, 9, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(75, 95, 5),
     takeProfitPercent = np.around(np.linspace(.25, .65, 9), 2),
     stopLossPercent = [0] , # np.around(np.linspace(.45, .95, 11), 2),
     fastAngleEntryFactor = np.linspace(10, 50, 9, dtype = int),
     fastAngleExitFactor = [2050], # np.linspace(1000, 3000, 401, dtype = int),
     slowMinutes = [2150],
-    slowAngleFactor = np.linspace(10, 50, 9, dtype = int),
+    slowAngleFactor = [25], # np.linspace(10, 50, 9, dtype = int),
     coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
     trendEndHour = [142], # np.linspace(12, 212, 201, dtype = int),
@@ -106,7 +106,7 @@ pool.join()
 # select composite of interest
 wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
-wfa.print_composite_summary()
+print_composite_summary(wfa.composite_summary)
 wfa.print_last_analyzer()
 
 # print analysis time

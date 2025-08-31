@@ -177,7 +177,7 @@ class LiveStrategy(BaselineStrategy):
         # entry, long fractal signal
         isEntryLongFractal = (
             fast > slow
-            and not isEntryLongDisabled
+            # and not isEntryLongDisabled
             and slowSlope > slowAngle
             and isEntryLongEnabled
             and fast > close > buyFractal > slow
@@ -196,7 +196,9 @@ class LiveStrategy(BaselineStrategy):
         # entry, long
         isEntryLongSignal = isEntryLongFractal or isEntryLongFastCrossover
         isEntryLong = (
-            hasLongEntryDelayElapsed and (
+            hasLongEntryDelayElapsed
+            and not isEntryLongDisabled
+            and (
                 ((is_flat or is_short) and isEntryLongSignal)
                 or (isExitShortFastMomentum and fast > slow)
                 or (isExitShortRapidMomentum and fast > slow)))
@@ -206,7 +208,7 @@ class LiveStrategy(BaselineStrategy):
         # entry, short fractal signal
         isEntryShortFractal = (
             slow > fast
-            and not isEntryShortDisabled
+            # and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and isEntryShortEnabled
             and slow > sellFractal > close > fast
@@ -225,7 +227,9 @@ class LiveStrategy(BaselineStrategy):
         # entry, short
         isEntryShortSignal = isEntryShortFractal or isEntryShortFastCrossover
         isEntryShort = (
-            hasShortEntryDelayElapsed and (
+            hasShortEntryDelayElapsed
+            and not isEntryShortDisabled
+            and (
                 ((is_flat or is_long) and isEntryShortSignal)
                 or (isExitLongFastMomentum and slow > fast
                 or (isExitLongRapidMomentum and slow > fast))))
