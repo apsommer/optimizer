@@ -1,7 +1,7 @@
 import math
 from datetime import timedelta
 
-from rich import Console
+from rich.console import Console
 from rich.padding import Padding
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error

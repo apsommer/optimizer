@@ -10,10 +10,26 @@ from utils.utils import *
 ''' single engine verify to tradingview'''
 # INPUT ###########################################################
 
-asset = 'NQ'
-num_months = 15
+asset = 'ES'
+num_months = 20
 isNetwork = False
 id = format_timestamp(datetime.now(), 'local')
+
+params = LiveParams(
+    fastMinutes = 25,
+    disableEntryMinutes = 105,
+    fastMomentumMinutes = 125,
+    fastCrossoverPercent = 0,
+    takeProfitPercent = 0.55,
+    stopLossPercent = 0,
+    fastAngleEntryFactor = 15,
+    fastAngleExitFactor = 2050,
+    slowMinutes = 2150,
+    slowAngleFactor = 25,
+    coolOffMinutes = 10,
+    trendStartHour = 6,
+    trendEndHour = 142
+)
 
 ###################################################################
 
@@ -33,21 +49,6 @@ emas = unpack('emas', data_path)
 fractals = unpack('fractals', data_path)
 
 # define strategy
-params = LiveParams(
-    fastMinutes = 20,
-    disableEntryMinutes = 110,
-    fastMomentumMinutes = 95,
-    fastCrossoverPercent = 0,
-    takeProfitPercent = 0.75,
-    stopLossPercent = 0,
-    fastAngleEntryFactor = 0,
-    fastAngleExitFactor = 2055,
-    slowMinutes = 2555,
-    slowAngleFactor = 15,
-    coolOffMinutes = 5,
-    trendStartHour = 4,
-    trendEndHour = 72
-)
 strategy = LiveStrategy(data, emas, fractals, params)
 engine = Engine(id, strategy)
 engine.run(disable = False)

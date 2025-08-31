@@ -1,12 +1,9 @@
-from rich.padding import Padding
-
 from analysis.Analyzer import Analyzer
 from analysis.Engine import Engine
 from model.Fitness import Fit
 from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import *
 from utils.utils import *
-from rich.console import Console
 from rich.table import Table
 
 class WalkForward:
