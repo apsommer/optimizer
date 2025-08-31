@@ -128,7 +128,7 @@ def build_emas(data, opt, path):
 
         # column names
         col_ema = 'ema_' + str(min)
-        col_slopes = 'slope_' + str(min)
+        col_slope = 'slope_' + str(min)
         col_long = 'long_' + str(min)
         col_short = 'short_' + str(min)
 
@@ -141,7 +141,7 @@ def build_emas(data, opt, path):
 
         # slope of average
         slope = get_slope(smoothed)
-        emas.loc[:, col_slopes] = slope
+        emas.loc[:, col_slope] = slope
 
         # build trend counts
         longMinutes = 0
