@@ -38,6 +38,7 @@ fractals = unpack('fractals', data_path)
 # unpack analysis
 wfa = unpack(id, path)
 metrics = wfa['metrics']
+composite_summary = wfa['composite_summary']
 
 # display analysis metrics
 print_metrics(metrics)

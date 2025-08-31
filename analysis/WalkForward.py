@@ -31,6 +31,7 @@ class WalkForward:
 
         self.next_params = None
         self.best_fitness = None
+        self.composite_summary = None
 
         # calculate window sizes
         self.IS_len = round(len(data) / ((percent / 100) * runs + 1))
@@ -251,7 +252,8 @@ class WalkForward:
         bundle = {
             'id': self.id,
             'metrics': self.metrics,
-            'winner_id': self.best_fitness.value
+            'winner_id': self.best_fitness.value,
+            'composition_summary': self.composite_summary,
         }
 
         save(
@@ -293,6 +295,8 @@ class WalkForward:
                 params.one_line
             ]
             table.add_row(*row)
+
+        self.composite_summary = table
 
         # display to console
         print()
