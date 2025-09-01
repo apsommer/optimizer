@@ -133,106 +133,98 @@ class LiveStrategy(BaselineStrategy):
         ################################################################################################################
 
         # disable entry after fast trends in 1 direction for certain time
-        if disableEntryMinutes == 0:
-            isEntryLongDisabled = False
-            isEntryShortDisabled = False
-        else:
-            isEntryLongDisabled = fastLongMinutes > disableEntryMinutes
-            isEntryShortDisabled = fastShortMinutes > disableEntryMinutes
+        isEntryLongDisabled = (
+            disableEntryMinutes != 0
+            and fastLongMinutes > disableEntryMinutes)
+        isEntryShortDisabled = (
+            disableEntryMinutes != 0
+            and fastShortMinutes > disableEntryMinutes)
 
         # cooloff time imposed after trade exit
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
         # exit, slow momentum drift against trade position
-        if fastMomentumMinutes == 0:
-            isExitLongFastMomentum = False
-            isExitShortFastMomentum = False
-        else:
-            isExitLongFastMomentum = (
-                is_long
-                and fastShortMinutes > fastMomentumMinutes
-            )
-            isExitShortFastMomentum = (
-                is_short
-                and fastLongMinutes > fastMomentumMinutes
-            )
+        isExitLongFastMomentum = (
+            fastMomentumMinutes != 0
+            and is_long
+            and fastShortMinutes > fastMomentumMinutes)
+        isExitShortFastMomentum = (
+            fastMomentumMinutes != 0
+            and is_short
+            and fastLongMinutes > fastMomentumMinutes)
 
         # exit, rapid momentum swing
-        if fastAngleExit == 0:
-            isExitLongRapidMomentum = False
-            isExitShortRapidMomentum = False
-        else:
-            isExitLongRapidMomentum = is_long and -fastAngleExit > fastSlope
-            isExitShortRapidMomentum = is_short and fastSlope > fastAngleExit
+        isExitLongRapidMomentum = (
+            fastAngleExit != 0
+            and is_long
+            and -fastAngleExit > fastSlope)
+        isExitShortRapidMomentum = (
+            fastAngleExit != 0
+            and is_short
+            and fastSlope > fastAngleExit)
 
         # slow trend is long or short
-        if self.trendStartMinutes == 0 or self.trendEndMinutes == 0:
-            isEntryLongEnabled = True
-            isEntryShortEnabled = True
-        else:
-            isEntryLongEnabled = self.trendStartMinutes < slowLongMinutes < self.trendEndMinutes
-            isEntryShortEnabled = self.trendStartMinutes < slowShortMinutes < self.trendEndMinutes
+        isEntryLongEnabled = (
+            self.trendStartMinutes != 0
+            and self.trendEndMinutes != 0
+            and self.trendStartMinutes < slowLongMinutes < self.trendEndMinutes)
+        isEntryShortEnabled = (
+            self.trendStartMinutes != 0
+            and self.trendEndMinutes != 0
+            and self.trendStartMinutes < slowShortMinutes < self.trendEndMinutes)
 
         # entry, long fractal signal
         isEntryLongFractal = (
             fast > slow
-            # and not isEntryLongDisabled
             and slowSlope > slowAngle
             and isEntryLongEnabled
-            and fast > close > buyFractal > slow
-            # and 0.5 * fastMomentumMinutes > fastShortMinutes
-        )
+            and fast > close > buyFractal > slow)
 
         # entry, long fast crossover
-        if fastAngleEntry == 0: isEntryLongFastCrossover = False
-        else: isEntryLongFastCrossover = (
-            high > fast > open
+        isEntryLongFastCrossover = (
+            fastAngleEntry != 0
+            and high > fast > open
             and fastSlope > fastAngleEntry
             and fast > slow
-            and slowSlope > slowAngle
-        )
+            and slowSlope > slowAngle)
 
         # entry, long
-        isEntryLongSignal = isEntryLongFractal or isEntryLongFastCrossover
-        isEntryLong = (
+        isEntryLongSignal = (
             hasLongEntryDelayElapsed
             and not isEntryLongDisabled
-            and (
-                ((is_flat or is_short) and isEntryLongSignal)
-                or (isExitShortFastMomentum and fast > slow)
-                or (isExitShortRapidMomentum and fast > slow)))
+            and (isEntryLongFractal or isEntryLongFastCrossover))
+        isEntryLong = (
+            ((is_flat or is_short) and isEntryLongSignal)
+            or (isExitShortFastMomentum and fast > slow)
+            or (isExitShortRapidMomentum and fast > slow))
         if isEntryLong:
             self.buy(ticker, size)
 
         # entry, short fractal signal
         isEntryShortFractal = (
             slow > fast
-            # and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and isEntryShortEnabled
-            and slow > sellFractal > close > fast
-            # and 0.5 * fastMomentumMinutes > fastLongMinutes
-        )
+            and slow > sellFractal > close > fast)
 
         # entry, short fast crossover
-        if fastAngleEntry == 0: isEntryShortFastCrossover = False
-        else: isEntryShortFastCrossover = (
-            open > fast > low
+        isEntryShortFastCrossover = (
+            fastAngleEntry != 0
+            and open > fast > low
             and -fastAngleEntry > fastSlope
             and slow > fast
-            and -slowAngle > slowSlope
-        )
+            and -slowAngle > slowSlope)
 
         # entry, short
-        isEntryShortSignal = isEntryShortFractal or isEntryShortFastCrossover
-        isEntryShort = (
+        isEntryShortSignal = (
             hasShortEntryDelayElapsed
             and not isEntryShortDisabled
-            and (
-                ((is_flat or is_long) and isEntryShortSignal)
-                or (isExitLongFastMomentum and slow > fast
-                or (isExitLongRapidMomentum and slow > fast))))
+            and (isEntryShortFractal or isEntryShortFastCrossover))
+        isEntryShort = (
+            ((is_flat or is_long) and isEntryShortSignal)
+            or (isExitLongFastMomentum and slow > fast
+            or (isExitLongRapidMomentum and slow > fast)))
         if isEntryShort:
             self.sell(ticker, size)
 
