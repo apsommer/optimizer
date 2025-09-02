@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'ES'
+asset = 'YM'
 num_months = 20
 isNetwork = False
 
@@ -30,19 +30,19 @@ fitness = Fitness(
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [25],
+    fastMinutes = np.linspace(15, 50, 9, dtype = int), # [25],
     disableEntryMinutes = np.linspace(60, 180, 25, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 21, dtype = int),
     fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
     takeProfitPercent = np.around(np.linspace(.25, .95, 71), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = np.linspace(0, 50, 11, dtype = int),
-    fastAngleExitFactor =  [2050], # np.linspace(1000, 3000, 2001, dtype = int),
-    slowMinutes = [2150], # np.linspace(1755, 3055, 7, dtype = int),
+    fastAngleExitFactor =  np.linspace(1000, 3000, 2001, dtype = int),
+    slowMinutes = np.linspace(1755, 3055, 7, dtype = int),
     slowAngleFactor = np.linspace(0, 50, 11, dtype = int),
-    coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [142], # np.linspace(12, 212, 201, dtype = int),
+    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = np.linspace(12, 212, 201, dtype = int),
 )
 
 ########################################################################################################################
