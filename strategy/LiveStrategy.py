@@ -366,6 +366,10 @@ class LiveStrategy(BaselineStrategy):
 
     def plot(self, window, title ='Strategy', shouldShow = False):
 
+        # INPUT #########
+        show_slow = False
+        #################
+
         ax = init_plot(
             window= window,
             title = title)
@@ -395,22 +399,23 @@ class LiveStrategy(BaselineStrategy):
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
 
-        # # plot ribbon
-        # ema_columns = [ column for column in self.emas.columns if 'ema' in column ]
-        # for i, column in enumerate(ema_columns):
-        #
-        #     fplt.plot(
-        #         self.emas.loc[:, column],
-        #         color = get_ribbon_color(i),
-        #         width = i,
-        #         ax = ax)
+        # plot slow and fast
+        if show_slow:
+            ema_columns = [ column for column in self.emas.columns if 'ema' in column ]
+            for i, column in enumerate(ema_columns):
+                fplt.plot(
+                    self.emas.loc[:, column],
+                    color = get_ribbon_color(i),
+                    width = i,
+                    ax = ax)
 
         # plot fast only
-        fplt.plot(
-            self.fast,
-            color = get_ribbon_color(0),
-            width = 1,
-            ax = ax)
+        else:
+            fplt.plot(
+                self.fast,
+                color = get_ribbon_color(0),
+                width = 1,
+                ax = ax)
 
         if shouldShow: fplt.show()
         return ax

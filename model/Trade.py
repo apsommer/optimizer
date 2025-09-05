@@ -42,11 +42,15 @@ class Trade:
 
     def __repr__(self):
 
+        # INPUT ########
+        decimals = 2
+        ################
+
         # format to match tradingview
         exit = ('\n\t' + str(self.id) + '\t' + format_timestamp(self.exit_order.idx) + '\t' +
-                str(round(self.exit_order.price)) + '\t' + str(round(self.profit)) + '\t' + self.exit_order.comment)
+                str(round(self.exit_order.price, decimals)) + '\t' + str(round(self.profit, decimals)) + '\t' + self.exit_order.comment)
 
         entry = ('\n\t' + str(self.entry_order.sentiment) + '\t' + format_timestamp(self.entry_order.idx) + '\t' +
-                 str(round(self.entry_order.price)))
+                 str(round(self.entry_order.price, decimals)))
 
         return exit + entry
