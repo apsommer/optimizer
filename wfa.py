@@ -49,7 +49,6 @@ opt = LiveParams(
 # clean console
 os.system('clear')
 warnings.filterwarnings('ignore')
-np.set_printoptions(threshold = 3)
 start_time = time.time()
 
 # organize outputs

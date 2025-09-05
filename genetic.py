@@ -34,12 +34,12 @@ opt = LiveParams(
     disableEntryMinutes = np.linspace(60, 180, 25, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 21, dtype = int),
     fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
-    takeProfitPercent = np.around(np.linspace(0, 0.5, 501), 2),
+    takeProfitPercent = np.around(np.linspace(0, 0.5, 501), 3),
     stopLossPercent = [0],
-    fastAngleEntryFactor = np.linspace(0, 50, 11, dtype = int),
+    fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
     fastAngleExitFactor =  np.linspace(1000, 3000, 2001, dtype = int),
     slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
-    slowAngleFactor = np.linspace(0, 50, 11, dtype = int),
+    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 212, 201, dtype = int),
@@ -49,7 +49,6 @@ opt = LiveParams(
 
 os.system('clear')
 warnings.filterwarnings('ignore')
-np.set_printoptions(threshold = 3)
 start_time = time.time()
 
 # organize outputs
