@@ -10,11 +10,11 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ES'
+asset = '6E'
 num_months = 20
 percent = 25
 runs = 9 # +1 added for final in-sample
-id = '20250830_121931'
+id = '20250907_133809'
 
 ###################################################################
 
@@ -38,13 +38,13 @@ fractals = unpack('fractals', data_path)
 wfa = unpack(id, path)
 metrics = wfa['metrics']
 composite_summary = wfa['composite_summary']
+winner_id = wfa['winner_id']
 
 # display analysis metrics
 print_metrics(metrics)
 print_composite_summary(composite_summary)
 
 # unpack winning solution
-winner_id = wfa.winner_id
 winner = unpack(winner_id, path)
 params = winner['params']
 cash_series = winner['cash_series']

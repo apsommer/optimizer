@@ -108,4 +108,5 @@ def pretty_list(list):
             separator = ',',
             threshold = 3)
         .replace(' ', '')
-        .replace(',', ', '))
+        .replace(',', ', ')
+        .replace('0.,', '0,'))

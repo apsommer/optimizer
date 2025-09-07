@@ -367,7 +367,7 @@ class LiveStrategy(BaselineStrategy):
     def plot(self, window, title ='Strategy', shouldShow = False):
 
         # INPUT #########
-        show_slow = False
+        show_slow = True
         #################
 
         ax = init_plot(

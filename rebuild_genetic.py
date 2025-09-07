@@ -10,10 +10,10 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ES'
+asset = '6E'
 num_months = 20
-id = '20250825_105352'
-engine = None # 'g4e49' # None
+id = '20250906_135000'
+engine = 'g2e68' # None
 
 ###################################################################
 
@@ -47,6 +47,7 @@ winner_generation = best_engines.index(winner_metric)
 winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
 if engine is not None: winner_id = engine
 
+# unpack winning solution
 winner = unpack(winner_id, path)
 params = winner['params']
 cash_series = winner['cash_series']

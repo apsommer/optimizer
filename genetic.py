@@ -18,31 +18,34 @@ num_months = 20
 isNetwork = False
 
 # genetic
-population_size = 15
-generations = 2
+population_size = 100
+generations = 7
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 30),
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.NUM_WINS, 20)
+        # (Fit.PROFIT, 30),
+        (Fit.DRAWDOWN_PER_PROFIT, 70),
+        (Fit.NUM_WINS, 30)
     ])
+
+# multiprocessing uses all cores, 16 available, leave 1 for basic tasks
+cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
     fastMinutes = np.linspace(15, 55, 9, dtype = int), # [25],
-    disableEntryMinutes = np.linspace(60, 180, 25, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 155, 21, dtype = int),
+    disableEntryMinutes = [0], # np.linspace(60, 180, 121, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
-    takeProfitPercent = np.around(np.linspace(0, 0.5, 501), 3),
+    takeProfitPercent = np.around(np.linspace(0, 0.1, 1001), 3),
     stopLossPercent = [0],
     fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
     fastAngleExitFactor =  np.linspace(1000, 3000, 2001, dtype = int),
     slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
-    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 212, 201, dtype = int),
+    slowAngleFactor = np.linspace(0, 50, 26, dtype = int),
+    coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = np.linspace(60, 180, 121, dtype = int),
 )
 
 ########################################################################################################################
@@ -63,9 +66,6 @@ emas, fractals = getIndicators(data, opt, data_path)
 
 # remove residual analyses
 shutil.rmtree(path, ignore_errors = True)
-
-# multiprocessing uses all cores, 16 available, leave 1 for basic tasks
-cores = multiprocessing.cpu_count() - 1
 
 # init genetic analysis
 genetic = Genetic(

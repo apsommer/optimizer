@@ -4,13 +4,15 @@ from model.Ticker import Ticker
 
 class BaselineStrategy():
 
-    # MES: 5, 0.25, MYM: 0.5, 1, M6E: 12500, 0.0001
+    # MES: 5, 0.25
+    # MYM: 0.5, 1
+    # M6E: 125000, 0.00005
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'M6E',
-            point_value = 12500,
-            tick_size = 0.0001,
+            symbol = '6E',
+            point_value = 125000,
+            tick_size = 0.00005,
             margin = 0.5
         )
 
