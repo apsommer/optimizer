@@ -23,9 +23,9 @@ percent = 25
 runs = 9 # +1 added for final in-sample
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT, 30),
-        (Fit.DRAWDOWN_PER_PROFIT, 70),
-        (Fit.NUM_WINS, 30)
+        (Fit.CORRELATION, 30),
+        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        (Fit.NUM_WINS, 20)
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
@@ -42,7 +42,7 @@ opt = LiveParams(
     fastAngleEntryFactor = [25], # np.linspace(15, 55, 5, dtype = int),
     fastAngleExitFactor = [2150], # np.linspace(1000, 3000, 401, dtype = int),
     slowMinutes = [2015], # np.linspace(1755, 3055, 7, dtype = int),
-    slowAngleFactor = [20], # np.linspace(15, 50, 8, dtype = int),
+    slowAngleFactor = np.linspace(15, 50, 8, dtype = int),
     coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
     trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
     trendEndHour = [105], # np.linspace(12, 212, 201, dtype = int),
