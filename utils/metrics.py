@@ -208,8 +208,13 @@ def get_analyzer_metrics(analyzer):
     start_date = analyzer.data.index[0]
     end_date = analyzer.data.index[-1]
     num_engines = analyzer.opt.size
-    num_engines_profitable = len(analyzer.engine_metrics)
-    profitable_engine_percent = (num_engines_profitable / num_engines) * 100
+
+    # calculate percent profitable
+    profitable = 0
+    for id in np.arange(num_engines):
+        profitable += next((1 for metric in analyzer.engine_metrics if metric.id == id), 0)
+    profitable_percent = (profitable / num_engines) * 100
+
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
     candles = len(analyzer.data.index)
 
@@ -224,7 +229,7 @@ def get_analyzer_metrics(analyzer):
         Metric('header', None, None, 'Analyzer:'),
         Metric('id', analyzer.id, None, 'Id'),
         Metric('num_engines', num_engines, None, 'Engines'),
-        Metric('profitable_engine_percent', profitable_engine_percent, '%', 'Profitable engines'),
+        Metric('profitable_percent', profitable_percent, '%', 'Profitable engines'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
