@@ -13,9 +13,9 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = '6E'
+asset = 'RTY'
 num_months = 20
-isNetwork = False
+isNetwork = True
 
 # genetic
 population_size = 100
@@ -36,8 +36,8 @@ opt = LiveParams(
     fastMinutes = np.linspace(15, 55, 9, dtype = int), # [25],
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
-    fastCrossoverPercent = np.linspace(70, 100, 31),
-    takeProfitPercent = np.around(np.linspace(0, 0.1, 1001), 3),
+    fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
+    takeProfitPercent = np.around(np.linspace(0.2, 1, 81), 3),
     stopLossPercent = [0],
     fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
     fastAngleExitFactor =  np.linspace(1000, 3000, 2001, dtype = int),

@@ -7,12 +7,13 @@ class BaselineStrategy():
     # MES: 5, 0.25
     # MYM: 0.5, 1
     # M6E: 125000, 0.00005
+    # RTY: 5, 0.1
     @property
     def ticker(self):
         return Ticker(
-            symbol = '6E',
-            point_value = 125000,
-            tick_size = 0.00005,
+            symbol = 'MRTY',
+            point_value = 5,
+            tick_size = 0.1,
             margin = 0.5
         )
 

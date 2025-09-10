@@ -10,25 +10,25 @@ from utils.utils import *
 ''' single engine verify to tradingview'''
 # INPUT ###########################################################
 
-asset = 'ES'
+asset = '6E'
 num_months = 20
 isNetwork = False
 id = format_timestamp(datetime.now(), 'local')
 
 params = LiveParams(
-    fastMinutes = 25,
-    disableEntryMinutes = 105,
-    fastMomentumMinutes = 125,
-    fastCrossoverPercent = 0,
-    takeProfitPercent = 0.55,
+    fastMinutes = 15,
+    disableEntryMinutes = 110,
+    fastMomentumMinutes = 95,
+    fastCrossoverPercent = 80,
+    takeProfitPercent = 0.065,
     stopLossPercent = 0,
-    fastAngleEntryFactor = 15,
-    fastAngleExitFactor = 2050,
-    slowMinutes = 2150,
-    slowAngleFactor = 25,
+    fastAngleEntryFactor = 20,
+    fastAngleExitFactor = 2025,
+    slowMinutes = 2275,
+    slowAngleFactor = 20,
     coolOffMinutes = 10,
-    trendStartHour = 6,
-    trendEndHour = 142
+    trendStartHour = 10,
+    trendEndHour = 115
 )
 
 ###################################################################
