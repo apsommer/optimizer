@@ -130,7 +130,10 @@ class Engine:
         if len(trades) > show_last: print('\t...')
 
         # trades
-        for trade in trades[-show_last:]: print(trade)
+        for trade in trades[-show_last:]:
+            print(trade)
+            if trade.id > 377:
+                pass
         print()
 
     def plot_trades(self, shouldShow = False):

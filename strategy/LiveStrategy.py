@@ -197,7 +197,8 @@ class LiveStrategy(BaselineStrategy):
         isEntryLong = (
             ((is_flat or is_short) and isEntryLongSignal)
             or (isExitShortFastMomentum and fast > slow)
-            or (isExitShortRapidMomentum and fast > slow))
+            or (isExitShortRapidMomentum and fast > slow)
+            and not self.is_last_bar)
         if isEntryLong:
             self.buy(ticker, size)
 
@@ -223,8 +224,9 @@ class LiveStrategy(BaselineStrategy):
             and (isEntryShortFractal or isEntryShortFastCrossover))
         isEntryShort = (
             ((is_flat or is_long) and isEntryShortSignal)
-            or (isExitLongFastMomentum and slow > fast
-            or (isExitLongRapidMomentum and slow > fast)))
+            or (isExitLongFastMomentum and slow > fast)
+            or (isExitLongRapidMomentum and slow > fast)
+            and not self.is_last_bar)
         if isEntryShort:
             self.sell(ticker, size)
 
