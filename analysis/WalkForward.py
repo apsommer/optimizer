@@ -360,9 +360,9 @@ class WalkForward:
 
                 # plot buy and hold
                 size = engine.strategy.size
-                point_value = engine.strategy.ticker.point_value
+                tick_value = engine.strategy.ticker.tick_value
                 delta_df = self.data.Close - self.data.Close.iloc[0]
-                buy_hold = size * point_value * delta_df + initial_cash
+                buy_hold = size * tick_value * delta_df + initial_cash
                 fplt.plot(buy_hold, color = dark_gray, ax = ax)
 
                 # plot out-of-sample window boundaries

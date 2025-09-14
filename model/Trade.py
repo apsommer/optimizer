@@ -33,12 +33,12 @@ class Trade:
             return np.nan
 
         size = self.size # negative for shorts!
-        point_value = self.entry_order.ticker.point_value
+        tick_value = self.entry_order.ticker.tick_value
 
         entry_price = self.entry_order.price
         exit_price = self.exit_order.price
 
-        return size * point_value * (exit_price - entry_price)
+        return size * tick_value * (exit_price - entry_price)
 
     def __repr__(self):
 
