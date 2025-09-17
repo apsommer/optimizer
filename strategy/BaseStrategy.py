@@ -4,18 +4,16 @@ from model.Ticker import Ticker
 
 class BaselineStrategy():
 
-    # MES: 5, 0.25
-    # MYM: 0.5, 1
-    # M6E: 125000, 0.00005
-    # RTY: 5, 0.1
-    # ZN: 1000, 1/32
-    # XC: 0.25, 1/8
+    # MXC: 0.005, 2.5
+    # MET: 0.01, 0.05
+    # ETH: 0.5, 25
+    # MGC: 0.1, 1
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'XC',
-            tick_size = 0.00125,
-            tick_value= 50,
+            symbol = 'MGC',
+            tick_size = 0.1,
+            tick_value = 1,
             margin = 0.5
         )
 

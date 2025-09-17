@@ -10,10 +10,10 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ZN'
-num_months = 10
-id = '20250914_163510'
-engine = 'g4e70' # None
+asset = 'GC'
+num_months = 20
+id = '20250916_174155'
+engine = None # 'g4e70' # None
 
 ###################################################################
 

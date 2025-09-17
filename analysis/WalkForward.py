@@ -358,11 +358,12 @@ class WalkForward:
                 # plot initial cash
                 fplt.plot(engine.initial_cash, color = dark_gray, ax = ax)
 
-                # plot buy and hold
+                # reference buy and hold
                 size = engine.strategy.size
+                tick_size = engine.strategy.ticker.tick_size
                 tick_value = engine.strategy.ticker.tick_value
                 delta_df = self.data.Close - self.data.Close.iloc[0]
-                buy_hold = size * tick_value * delta_df + initial_cash
+                buy_hold = size * tick_value * delta_df / tick_size + initial_cash
                 fplt.plot(buy_hold, color = dark_gray, ax = ax)
 
                 # plot out-of-sample window boundaries

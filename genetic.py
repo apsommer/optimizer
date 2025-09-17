@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'XC'
+asset = 'GC'
 num_months = 20
 isNetwork = False
 
@@ -23,8 +23,9 @@ generations = 7
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.DRAWDOWN_PER_PROFIT, 70),
-        (Fit.NUM_WINS, 30),
+        (Fit.DRAWDOWN_PER_PROFIT, 100),
+        # (Fit.PROFIT_FACTOR, 40),
+        # (Fit.NUM_WINS, 10)
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
@@ -36,7 +37,7 @@ opt = LiveParams(
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
-    takeProfitPercent = np.around(np.linspace(0.1, 0.5, 41), 2),
+    takeProfitPercent = np.around(np.linspace(0.5, 3, 251), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 4000, 3001, dtype = int),
