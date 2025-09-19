@@ -166,13 +166,13 @@ class LiveStrategy(BaselineStrategy):
 
         # slow trend is long or short
         isEntryLongEnabled = (
-            self.trendStartMinutes != 0
-            and self.trendEndMinutes != 0
-            and self.trendStartMinutes < slowLongMinutes < self.trendEndMinutes)
+            self.trendStartMinutes == 0
+            or self.trendEndMinutes == 0
+            or self.trendEndMinutes > slowLongMinutes > self.trendStartMinutes)
         isEntryShortEnabled = (
-            self.trendStartMinutes != 0
-            and self.trendEndMinutes != 0
-            and self.trendStartMinutes < slowShortMinutes < self.trendEndMinutes)
+            self.trendStartMinutes == 0
+            or self.trendEndMinutes == 0
+            or self.trendEndMinutes > slowShortMinutes > self.trendStartMinutes)
 
         # entry, long fractal signal
         isEntryLongFractal = (

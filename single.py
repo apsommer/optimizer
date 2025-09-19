@@ -1,5 +1,6 @@
 import time
 import warnings
+from copy import deepcopy
 
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
@@ -10,25 +11,24 @@ from utils.utils import *
 ''' single engine verify to tradingview'''
 # INPUT ###########################################################
 
-asset = '6E'
-num_months = 20
+asset = 'GC'
+num_months = 1
 isNetwork = False
-id = format_timestamp(datetime.now(), 'local')
 
 params = LiveParams(
-    fastMinutes = 15,
-    disableEntryMinutes = 110,
-    fastMomentumMinutes = 95,
-    fastCrossoverPercent = 80,
-    takeProfitPercent = 0.065,
+    fastMinutes = 55,
+    disableEntryMinutes = 130,
+    fastMomentumMinutes = 90,
+    fastCrossoverPercent = 0,
+    takeProfitPercent = 1.6,
     stopLossPercent = 0,
-    fastAngleEntryFactor = 20,
-    fastAngleExitFactor = 2025,
-    slowMinutes = 2275,
-    slowAngleFactor = 20,
-    coolOffMinutes = 10,
-    trendStartHour = 10,
-    trendEndHour = 115
+    fastAngleEntryFactor = 30,
+    fastAngleExitFactor = 2605,
+    slowMinutes = 2755,
+    slowAngleFactor = 15,
+    coolOffMinutes = 15,
+    trendStartHour = 6,
+    trendEndHour = 100 # 100
 )
 
 ###################################################################
@@ -42,11 +42,16 @@ start_time = time.time()
 data_name = asset + '_' + str(num_months) + 'm'
 data_path = 'data/' + data_name
 parent_path = 'single/' + data_name
+id = format_timestamp(datetime.now(), 'local')
 
 # init data and indicators
 data = getOhlc(asset, num_months, isNetwork)
 emas = unpack('emas', data_path)
 fractals = unpack('fractals', data_path)
+# opt = deepcopy(params)
+# opt.fastMinutes = [params.fastMinutes]
+# opt.slowMinutes = [params.slowMinutes]
+# emas, fractals = getIndicators(data, opt, data_path)
 
 # define strategy
 strategy = LiveStrategy(data, emas, fractals, params)
