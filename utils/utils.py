@@ -45,6 +45,7 @@ def getOhlc(asset, num_months, isNetwork = False):
     print(f'$$$ Download ohlc from databento as {csv_filename}')
 
     # construct symbol
+    # https://databento.com/docs/standards-and-conventions/symbology#continuous?historical=python&live=python&reference=python
     symbol = asset + '.v.0' # ["NQ.v.0"], # [ticker].v.[expiry]
 
     # timespan
@@ -55,7 +56,7 @@ def getOhlc(asset, num_months, isNetwork = False):
     # request network data, costs $$$, synchronous
     ohlc = db.Historical(keys.db).timeseries.get_range(
         dataset = 'GLBX.MDP3',
-        symbols = [symbol],
+        symbols = symbol,
         stype_in = 'continuous',
         schema = 'ohlcv-1m',
         start = starting_date,
@@ -244,7 +245,7 @@ def init_plot(window, title):
     ax = fplt.create_plot(title=title)
 
     # get axis
-    axis_pen = fplt._makepen(color = gray)
+    axis_pen = fplt._makepen(color = white)
     right = ax.axes['right']['item']
     bottom = ax.axes['bottom']['item']
 

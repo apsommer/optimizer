@@ -7,12 +7,13 @@ class BaselineStrategy():
     # MXC: 0.005, 2.5
     # MET: 0.01, 0.05
     # ETH: 0.5, 25
-    # MGC: 0.1, 1
+    # MGC (GC): 0.1, 1
+    # MCL (QMX): 0.01, 1
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'MGC',
-            tick_size = 0.1,
+            symbol = 'MCL',
+            tick_size = 0.01,
             tick_value = 1,
             margin = 0.5
         )

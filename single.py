@@ -12,23 +12,23 @@ from utils.utils import *
 # INPUT ###########################################################
 
 asset = 'GC'
-num_months = 1
-isNetwork = False
+num_months = 5
+isNetwork = True
 
 params = LiveParams(
-    fastMinutes = 55,
-    disableEntryMinutes = 130,
-    fastMomentumMinutes = 90,
+    fastMinutes = 65,
+    disableEntryMinutes = 135,
+    fastMomentumMinutes = 120,
     fastCrossoverPercent = 0,
-    takeProfitPercent = 1.6,
+    takeProfitPercent = 2.3,
     stopLossPercent = 0,
     fastAngleEntryFactor = 30,
-    fastAngleExitFactor = 2605,
+    fastAngleExitFactor = 2975,
     slowMinutes = 2755,
     slowAngleFactor = 15,
     coolOffMinutes = 15,
-    trendStartHour = 6,
-    trendEndHour = 100 # 100
+    trendStartHour = 8,
+    trendEndHour = 0
 )
 
 ###################################################################
@@ -44,14 +44,18 @@ data_path = 'data/' + data_name
 parent_path = 'single/' + data_name
 id = format_timestamp(datetime.now(), 'local')
 
-# init data and indicators
+# init data
 data = getOhlc(asset, num_months, isNetwork)
-emas = unpack('emas', data_path)
-fractals = unpack('fractals', data_path)
-# opt = deepcopy(params)
-# opt.fastMinutes = [params.fastMinutes]
-# opt.slowMinutes = [params.slowMinutes]
-# emas, fractals = getIndicators(data, opt, data_path)
+
+# get indicators
+# emas = unpack('emas', data_path)
+# fractals = unpack('fractals', data_path)
+
+# init indicators
+opt = deepcopy(params)
+opt.fastMinutes = [params.fastMinutes]
+opt.slowMinutes = [params.slowMinutes]
+emas, fractals = getIndicators(data, opt, data_path)
 
 # define strategy
 strategy = LiveStrategy(data, emas, fractals, params)

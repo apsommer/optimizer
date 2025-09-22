@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'GC'
+asset = 'QMX'
 num_months = 20
 isNetwork = False
 
@@ -37,7 +37,7 @@ opt = LiveParams(
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
-    takeProfitPercent = np.around(np.linspace(0.5, 3, 251), 2),
+    takeProfitPercent = np.around(np.linspace(0.5, 2.5, 201), 2),
     stopLossPercent = [0],
     fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 4000, 3001, dtype = int),
@@ -45,7 +45,7 @@ opt = LiveParams(
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 180, 169, dtype = int),
+    trendEndHour = [0], # np.linspace(12, 180, 169, dtype = int),
 )
 
 ########################################################################################################################
