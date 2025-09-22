@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'QMX'
+asset = 'QM'
 num_months = 20
 isNetwork = False
 

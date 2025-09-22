@@ -1,7 +1,6 @@
-import multiprocessing
+import os
 import os
 import pickle
-import re
 import shutil
 from datetime import timedelta, datetime
 
@@ -14,6 +13,7 @@ from tqdm import tqdm
 
 import local.api_keys as keys
 from utils.constants import *
+
 
 def getOhlc(asset, num_months, isNetwork = False):
 

@@ -8,7 +8,7 @@ class BaselineStrategy():
     # MET: 0.01, 0.05
     # ETH: 0.5, 25
     # MGC (GC): 0.1, 1
-    # MCL (QMX): 0.01, 1
+    # MCL (QM): 0.01, 1
     @property
     def ticker(self):
         return Ticker(
