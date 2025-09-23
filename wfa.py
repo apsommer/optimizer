@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'QM'
+asset = 'MET'
 num_months = 20
 isNetwork = False
 
@@ -37,7 +37,7 @@ opt = LiveParams(
     disableEntryMinutes = [135], # np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(85, 135, 11, dtype = int),
     fastCrossoverPercent = [0], # [0, 75, 85, 95], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(1.2, 2.5, 14), 3),
+    takeProfitPercent = np.around(np.linspace(0.5, 2.5, 14), 3),
     stopLossPercent = [0], # np.around(np.linspace(.25, .65, 9), 2),
     fastAngleEntryFactor = [20, 30], # np.linspace(15, 35, 5, dtype = int),
     fastAngleExitFactor = [2975], # np.linspace(1000, 3000, 401, dtype = int),
