@@ -8,10 +8,11 @@ class BaselineStrategy():
     # Gold, MGC (GC): 0.1, 1
     # Oil, MCL (QM): 0.01, 1
     # Dow, MYM (YM): 1, 0.5
+    # Silver, SIL (SI): 0.001, 1
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'MYM',
+            symbol = 'SIL',
             tick_size = 1,
             tick_value = 0.5,
             margin = 1 # todo remove
