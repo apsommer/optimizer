@@ -19,13 +19,13 @@ isNetwork = False
 
 # genetic
 population_size = 100
-generations = 7
+generations = 3
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 30),
-        (Fit.NUM_WINS, 50),
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        # (Fit.PROFIT_FACTOR, 80),
+        # (Fit.NUM_WINS, 10),
+        (Fit.CORRELATION, 100),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks

@@ -151,7 +151,7 @@ def get_engine_metrics(engine):
 
     line = regression.predict(bar_indices)
     mse = mean_squared_error(adjusted_cash_series, line)
-    correlation = math.sqrt(mse)
+    correlation = -math.sqrt(mse) # negative for fitness optimization
 
     # pretty
     candles = '{:,}'.format(candles)

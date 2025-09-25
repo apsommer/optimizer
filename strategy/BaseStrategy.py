@@ -13,8 +13,8 @@ class BaselineStrategy():
     def ticker(self):
         return Ticker(
             symbol = 'SIL',
-            tick_size = 1,
-            tick_value = 0.5,
+            tick_size = 0.001,
+            tick_value = 1,
             margin = 1 # todo remove
         )
 
