@@ -9,12 +9,13 @@ class BaselineStrategy():
     # Oil, MCL (QM): 0.01, 1
     # Dow, MYM (YM): 1, 0.5
     # Silver, SIL (SI): 0.001, 1
+    # 10-year, MTN (ZN): 0.015625, 1.5625
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'SIL',
-            tick_size = 0.001,
-            tick_value = 1,
+            symbol = 'MTN',
+            tick_size = 0.015625,
+            tick_value = 1.5625,
             margin = 1 # todo remove
         )
 
