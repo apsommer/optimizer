@@ -100,6 +100,7 @@ def get_engine_metrics(engine):
 
     # wins
     num_wins = len(wins)
+    num_losses = len(losses)
     win_rate = (num_wins / num_trades) * 100
     if num_wins == 0: average_win = 0
     else: average_win = sum(wins) / num_wins
@@ -151,10 +152,15 @@ def get_engine_metrics(engine):
 
     line = regression.predict(bar_indices)
     mse = mean_squared_error(adjusted_cash_series, line)
-    correlation = -math.sqrt(mse) # negative for fitness optimization
+    correlation = math.sqrt(mse)
 
     # pretty
     candles = '{:,}'.format(candles)
+
+    # negative for fitness optimization
+    num_losses = -num_losses
+    correlation = -correlation
+
 
     return [
 
@@ -184,6 +190,7 @@ def get_engine_metrics(engine):
         Metric('annual_return', annual_return, '%', 'Annualized return'),
         Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown per profit'),
         Metric('num_wins', num_wins, None, 'Number of wins'),
+        Metric('num_losses', num_losses, None, 'Number of losses'),
         Metric('win_rate', win_rate, '%', 'Win rate'),
         Metric('loss_rate', loss_rate, '%', 'Loss rate'),
         Metric('average_win', average_win, 'USD', 'Average win'),

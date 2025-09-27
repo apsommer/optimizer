@@ -80,6 +80,7 @@ class Fit(Enum):
     CORRELATION = 'correlation'
     NUM_TRADES = 'num_trades'
     NUM_WINS = 'num_wins'
+    NUM_LOSSES = 'num_losses'
     BLEND = 'blend'
 
     @property
@@ -96,6 +97,7 @@ class Fit(Enum):
             case Fit.CORRELATION: return 'Linear correlation'
             case Fit.NUM_TRADES: return 'Number of trades'
             case Fit.NUM_WINS: return 'Number of wins'
+            case Fit.NUM_WINS: return 'Number of losses'
             case Fit.BLEND: return 'Blend'
 
     @property
@@ -112,7 +114,8 @@ class Fit(Enum):
             case Fit.CORRELATION: return colors[8]
             case Fit.NUM_TRADES: return colors[9]
             case Fit.NUM_WINS: return colors[0]
-            case Fit.BLEND: return colors[3]
+            case Fit.NUM_LOSSES: return colors[1]
+            case Fit.BLEND: return colors[2]
 
     @property
     def unit(self):
@@ -128,4 +131,5 @@ class Fit(Enum):
             case Fit.CORRELATION: return None
             case Fit.NUM_TRADES: return None
             case Fit.NUM_WINS: return None
+            case Fit.NUM_LOSSES: return None
             case Fit.BLEND: return None

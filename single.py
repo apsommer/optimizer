@@ -12,8 +12,8 @@ from utils.utils import *
 # INPUT ###########################################################
 
 asset = 'GC'
-num_months = 5
-isNetwork = True
+num_months = 1
+isNetwork = False
 
 params = LiveParams(
     fastMinutes = 65,
