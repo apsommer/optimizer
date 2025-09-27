@@ -14,7 +14,7 @@ from utils.utils import *
 
 # data, indicators
 asset = 'ZN'
-num_months = 15
+num_months = 25
 isNetwork = False
 
 # genetic
@@ -33,17 +33,17 @@ cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = np.linspace(105, 165, 7, dtype = int), # [25],
+    fastMinutes = np.linspace(25, 155, 14, dtype = int), # [25],
     disableEntryMinutes = [0], # np.linspace(60, 180, 121, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 135, 81, dtype = int),
-    fastCrossoverPercent = np.linspace(70, 100, 31),
+    fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
+    fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
     takeProfitPercent = np.around(np.linspace(0.1, 1, 91), 2),
     stopLossPercent = [0], # np.around(np.linspace(1, 3, 201), 2),
-    fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
+    fastAngleEntryFactor = [0], # np.linspace(0, 50, 51, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 4000, 3001, dtype = int),
     slowMinutes = np.linspace(2055, 3555, 7, dtype = int),
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
+    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 180, 169, dtype = int),
 )
