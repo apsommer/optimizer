@@ -245,8 +245,8 @@ def get_analyzer_metrics(analyzer):
 def init_walk_forward_metrics(wfa):
 
     # configuration
-    asset = wfa.parent_path.split('/')[-1].split('_')[0]
     id = wfa.id
+    asset = wfa.parent_path.split('/')[-1].split('_')[0]
     start_date = wfa.data.index[0]
     end_date = wfa.data.index[-1]
     candles = len(wfa.data.index)
@@ -272,8 +272,8 @@ def init_walk_forward_metrics(wfa):
 
     return [
         Metric('header', None, None, 'Walk forward:'),
-        Metric('asset', asset, None, 'Asset'),
         Metric('id', id, None, 'Id'),
+        Metric('asset', asset, None, 'Asset'),
         Metric('months', months, None, 'Months'),
         Metric('percent', wfa.percent, '%', 'Percent'),
         Metric('runs', runs, None, 'Runs'),
