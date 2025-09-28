@@ -244,10 +244,8 @@ def get_analyzer_metrics(analyzer):
 
 def init_walk_forward_metrics(wfa):
 
-    # extract asset
-    asset = wfa.parent_path
-    # todo
-
+    # configuration
+    asset = wfa.parent_path.split('/')[-1].split('_')[0]
     id = wfa.id
     start_date = wfa.data.index[0]
     end_date = wfa.data.index[-1]
