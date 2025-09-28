@@ -10,7 +10,6 @@ class WalkForward:
 
     def __init__(self, num_months, percent, fitness, runs, data, emas, fractals, opt, parent_path):
 
-        self.id = format_timestamp(datetime.now(), 'local')
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
@@ -22,6 +21,7 @@ class WalkForward:
         self.parent_path = parent_path
 
         # organize outputs
+        self.id = parent_path.split('/')[-1] + '_' + format_timestamp(datetime.now(), 'local')
         self.analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
         self.analysis_path = parent_path + '/' + self.id
         os.makedirs(self.analysis_path)
