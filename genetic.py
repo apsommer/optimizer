@@ -14,17 +14,18 @@ from utils.utils import *
 
 # data, indicators
 asset = 'NKD'
-num_months = 20
+num_months = 15
 isNetwork = False
 
 # genetic
 population_size = 100
-generations = 3
+generations = 7
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 70),
-        (Fit.NUM_WINS, 30),
+        (Fit.PROFIT_FACTOR, 60),
+        (Fit.DRAWDOWN_PER_PROFIT, 20),
+        (Fit.NUM_WINS, 20),
         # (Fit.CORRELATION, 10),
     ])
 
@@ -37,12 +38,12 @@ opt = LiveParams(
     disableEntryMinutes = np.linspace(60, 240, 181, dtype = int),
     fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
-    takeProfitPercent = np.around(np.linspace(0.2, 0.8, 61), 2),
+    takeProfitPercent = np.around(np.linspace(0.25, 1.25, 101), 2),
     stopLossPercent = [0], # np.around(np.linspace(0.2, 1.2, 101), 2),
-    fastAngleEntryFactor = np.linspace(15, 50,  36, dtype = int),
+    fastAngleEntryFactor = np.linspace(0, 50,  51, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 4000, 3001, dtype = int),
     slowMinutes = np.linspace(2055, 3555, 7, dtype = int),
-    slowAngleFactor = np.linspace(5, 25, 21, dtype = int),
+    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 180, 169, dtype = int),

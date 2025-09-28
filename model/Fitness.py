@@ -87,7 +87,7 @@ class Fit(Enum):
     def pretty(self):
         match self:
             case Fit.PROFIT: return 'Profit'
-            case Fit.PROFIT_FACTOR: return 'Profit Factor'
+            case Fit.PROFIT_FACTOR: return 'Profit factor'
             case Fit.EXPECTANCY: return 'Expectancy'
             case Fit.WIN_RATE: return 'Win rate'
             case Fit.AVERAGE_WIN: return 'Average win'

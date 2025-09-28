@@ -14,7 +14,6 @@ from tqdm import tqdm
 import local.api_keys as keys
 from utils.constants import *
 
-
 def getOhlc(asset, num_months, isNetwork = False):
 
     # organize outputs

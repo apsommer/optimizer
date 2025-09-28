@@ -28,7 +28,7 @@ class WalkForward:
 
         self.next_params = None
         self.best_fitness = None
-        self.composite_summary = None
+        self.winner_display_table = None
 
         # calculate window sizes
         self.IS_len = round(len(data) / ((percent / 100) * runs + 1))
@@ -251,7 +251,7 @@ class WalkForward:
             'id': self.id,
             'metrics': self.metrics,
             'winner_id': self.best_fitness.value,
-            'composite_summary': self.composite_summary,
+            'winner_display_table': self.winner_display_table,
         }
 
         save(
@@ -295,7 +295,7 @@ class WalkForward:
             table.add_row(*row)
 
         # display to console
-        self.composite_summary = table
+        self.winner_display_table = table
 
     def print_last_analyzer(self):
 

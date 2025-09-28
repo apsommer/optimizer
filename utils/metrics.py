@@ -100,7 +100,6 @@ def get_engine_metrics(engine):
 
     # wins
     num_wins = len(wins)
-    num_losses = len(losses)
     win_rate = (num_wins / num_trades) * 100
     if num_wins == 0: average_win = 0
     else: average_win = sum(wins) / num_wins
@@ -245,6 +244,10 @@ def get_analyzer_metrics(analyzer):
 
 def init_walk_forward_metrics(wfa):
 
+    # extract asset
+    asset = wfa.parent_path
+    # todo
+
     id = wfa.id
     start_date = wfa.data.index[0]
     end_date = wfa.data.index[-1]
@@ -271,6 +274,7 @@ def init_walk_forward_metrics(wfa):
 
     return [
         Metric('header', None, None, 'Walk forward:'),
+        Metric('asset', asset, None, 'Asset'),
         Metric('id', id, None, 'Id'),
         Metric('months', months, None, 'Months'),
         Metric('percent', wfa.percent, '%', 'Percent'),
