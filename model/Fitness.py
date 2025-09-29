@@ -97,7 +97,7 @@ class Fit(Enum):
             case Fit.CORRELATION: return 'Linear correlation'
             case Fit.NUM_TRADES: return 'Number of trades'
             case Fit.NUM_WINS: return 'Number of wins'
-            case Fit.NUM_WINS: return 'Number of losses'
+            case Fit.NUM_LOSSES: return 'Number of losses'
             case Fit.BLEND: return 'Blend'
 
     @property

@@ -13,20 +13,20 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'NKD'
-num_months = 15
+asset = 'ZC'
+num_months = 20
 isNetwork = False
 
 # genetic
 population_size = 100
-generations = 7
+generations = 3
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 60),
-        (Fit.DRAWDOWN_PER_PROFIT, 20),
+        (Fit.PROFIT_FACTOR, 40),
+        (Fit.DRAWDOWN_PER_PROFIT, 30),
         (Fit.NUM_WINS, 20),
-        # (Fit.CORRELATION, 10),
+        (Fit.CORRELATION, 10),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
@@ -36,9 +36,9 @@ cores = 10 # multiprocessing.cpu_count() - 1
 opt = LiveParams(
     fastMinutes = np.linspace(25, 155, 14, dtype = int), # [25],
     disableEntryMinutes = np.linspace(60, 240, 181, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
-    takeProfitPercent = np.around(np.linspace(0.25, 1.25, 101), 2),
+    takeProfitPercent = np.around(np.linspace(0.25, 2.25, 201), 2),
     stopLossPercent = [0], # np.around(np.linspace(0.2, 1.2, 101), 2),
     fastAngleEntryFactor = np.linspace(0, 50,  51, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 4000, 3001, dtype = int),
@@ -46,7 +46,7 @@ opt = LiveParams(
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 180, 169, dtype = int),
+    trendEndHour = [0], # np.linspace(12, 180, 169, dtype = int),
 )
 
 ########################################################################################################################

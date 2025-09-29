@@ -323,6 +323,9 @@ class WalkForward:
                 width = 2,
                 ax = ax)
 
+            if fitness is None:
+                pass
+
             # format legend
             legend = '<span style="font-size:16pt">' + fitness.pretty + '</span>'
             fplt.legend_text_color = color
