@@ -13,19 +13,20 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'ZC'
-num_months = 20
+asset = 'ES'
+num_months = 25
 isNetwork = False
 
 # genetic
 population_size = 100
-generations = 3
+generations = 10
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 40),
-        (Fit.DRAWDOWN_PER_PROFIT, 30),
-        (Fit.NUM_WINS, 20),
+        # (Fit.PROFIT_FACTOR, 50),
+        # (Fit.DRAWDOWN_PER_PROFIT, 10),
+        (Fit.NUM_WINS, 40),
+        (Fit.PROFIT, 50),
         (Fit.CORRELATION, 10),
     ])
 
@@ -37,8 +38,8 @@ opt = LiveParams(
     fastMinutes = np.linspace(25, 155, 14, dtype = int), # [25],
     disableEntryMinutes = np.linspace(60, 240, 181, dtype = int),
     fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
-    fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
-    takeProfitPercent = np.around(np.linspace(0.25, 2.25, 201), 2),
+    fastCrossoverPercent = np.linspace(70, 100, 31),
+    takeProfitPercent = np.around(np.linspace(0.25, 1, 76), 2),
     stopLossPercent = [0], # np.around(np.linspace(0.2, 1.2, 101), 2),
     fastAngleEntryFactor = np.linspace(0, 50,  51, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 4000, 3001, dtype = int),

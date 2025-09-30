@@ -11,13 +11,14 @@ class BaselineStrategy():
     # Silver, SIL (SI): 0.001, 1
     # 10-year, MTN (ZN): 0.015625, 1.5625
     # Nikkei, MNK (NKD): 5, 2.50
-    # Corn, MZC (ZC): 0.005, 2.50
+    # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large!
+    # S&P 500, MES (ES): 0.25, 1.25
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'ZC',
-            tick_size = 0.005,
-            tick_value = 2.50,
+            symbol = 'MES',
+            tick_size = 0.25,
+            tick_value = 1.25,
             margin = 1 # todo remove
         )
 
