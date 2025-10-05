@@ -23,10 +23,10 @@ percent = 25
 runs = 9 # +1 added for final in-sample
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT, 80),
-        # (Fit.PROFIT_FACTOR, 40),
-        # (Fit.DRAWDOWN_PER_PROFIT, 20),
+        # (Fit.PROFIT_FACTOR, 50),
+        # (Fit.DRAWDOWN_PER_PROFIT, 30),
         # (Fit.NUM_WINS, 20),
+        (Fit.PROFIT, 80),
         (Fit.CORRELATION, 20),
     ])
 
@@ -39,7 +39,7 @@ opt = LiveParams(
     disableEntryMinutes = [105], # np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(95, 165, 15, dtype = int),
     fastCrossoverPercent = [75], # [0, 75, 85, 95], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(0.30, 0.70, 9), 2),
+    takeProfitPercent = np.around(np.linspace(0.3, 0.7, 9), 2),
     stopLossPercent = [0], # np.around(np.linspace(.25, .65, 9), 29
     fastAngleEntryFactor = [10, 25, 35, 40], # np.linspace(15, 35, 5, dtype = int),
     fastAngleExitFactor = [1455], # np.linspace(1000, 3000, 401, dtype = int),

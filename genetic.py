@@ -13,9 +13,9 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'QM'
-num_months = 25
-isNetwork = False
+asset = 'HG'
+num_months = 20
+isNetwork = True
 
 # genetic
 population_size = 100
@@ -35,7 +35,7 @@ cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = np.linspace(25, 155, 14, dtype = int), # [25],
+    fastMinutes = np.linspace(25, 75, 6, dtype = int), # [25],
     disableEntryMinutes = np.linspace(60, 240, 181, dtype = int),
     fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31),

@@ -13,12 +13,13 @@ class BaselineStrategy():
     # Nikkei, MNK (NKD): 5, 2.50
     # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large!
     # S&P 500, MES (ES): 0.25, 1.25
+    # Copper, MHG (HG): 0.0005, 1.25
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'MCL',
-            tick_size = 0.01,
-            tick_value = 1,
+            symbol = 'MHG',
+            tick_size = 0.0005,
+            tick_value = 1.25,
             margin = 1 # todo remove
         )
 
