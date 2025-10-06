@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'HG'
+asset = 'MCL'
 num_months = 20
 isNetwork = True
 
@@ -23,7 +23,7 @@ generations = 5
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 50),
+        # (Fit.PROFIT_FACTOR, 30),
         # (Fit.DRAWDOWN_PER_PROFIT, 30),
         # (Fit.NUM_WINS, 20),
         (Fit.PROFIT, 80),

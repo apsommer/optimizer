@@ -6,20 +6,20 @@ class BaselineStrategy():
 
     # Ether, MET (ETH): 0.05, 0.05
     # Gold, MGC (GC): 0.1, 1
-    # Oil, MCL (QM): 0.01, 1
+    # Oil, MCL: 0.01, 1 ... do not use full QM
     # Dow, MYM (YM): 1, 0.5
     # Silver, SIL (SI): 0.001, 1
     # 10-year, MTN (ZN): 0.015625, 1.5625
     # Nikkei, MNK (NKD): 5, 2.50
-    # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large!
+    # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large
     # S&P 500, MES (ES): 0.25, 1.25
     # Copper, MHG (HG): 0.0005, 1.25
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'MHG',
-            tick_size = 0.0005,
-            tick_value = 1.25,
+            symbol = 'MCL',
+            tick_size = 0.01,
+            tick_value = 1,
             margin = 1 # todo remove
         )
 
