@@ -15,7 +15,7 @@ from utils.utils import *
 # data, indicators
 asset = 'MCL'
 num_months = 20
-isNetwork = True
+isNetwork = False
 
 # genetic
 population_size = 100
@@ -23,11 +23,11 @@ generations = 5
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 30),
+        (Fit.PROFIT_FACTOR, 40),
         # (Fit.DRAWDOWN_PER_PROFIT, 30),
-        # (Fit.NUM_WINS, 20),
-        (Fit.PROFIT, 80),
-        (Fit.CORRELATION, 20),
+        (Fit.NUM_WINS, 30),
+        # (Fit.PROFIT, 50),
+        (Fit.CORRELATION, 30),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
