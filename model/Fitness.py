@@ -42,8 +42,8 @@ class Fitness:
             # normalize and scale
             best = max(fitnesses, key = lambda metric: metric.value)
             for metric in fitnesses:
-                normalized = metric.value / best.value
-                scaled = normalized * percent
+                normalized = metric.value / best.value # normalize to 1
+                scaled = normalized * percent # scale by percent blend
                 fitness_df.loc[metric.id, fit.value] = scaled
 
         # blend scaled fitnesses

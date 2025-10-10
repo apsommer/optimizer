@@ -6,7 +6,7 @@ class BaselineStrategy():
 
     # Ether, MET (ETH): 0.05, 0.05
     # Gold, MGC (GC): 0.1, 1
-    # Oil, MCL: 0.01, 1 ... do not use full QM
+    # Oil, MCL: 0.01, 1
     # Dow, MYM (YM): 1, 0.5
     # Silver, SIL (SI): 0.001, 1
     # 10-year, MTN (ZN): 0.015625, 1.5625
@@ -18,9 +18,9 @@ class BaselineStrategy():
     @property
     def ticker(self):
         return Ticker(
-            symbol = '6E',
-            tick_size = 0.00005,
-            tick_value = 6.25,
+            symbol = 'MES',
+            tick_size = 0.25,
+            tick_value = 1.25,
             margin = 1 # todo remove
         )
 

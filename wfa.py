@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = '6E'
+asset = 'MES'
 num_months = 20
 isNetwork = False
 
@@ -23,11 +23,11 @@ percent = 25
 runs = 9 # +1 added for final in-sample
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 50),
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.NUM_WINS, 40),
-        (Fit.PROFIT, 10),
-        # (Fit.CORRELATION, 20),
+        # (Fit.PROFIT_FACTOR, 80),
+        # (Fit.DRAWDOWN_PER_PROFIT, 40),
+        # (Fit.NUM_WINS, 20),
+        (Fit.PROFIT, 70),
+        (Fit.CORRELATION, 30),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
@@ -35,19 +35,19 @@ cores = runs + 1 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [15],
-    disableEntryMinutes = [110], # np.linspace(55, 255, 201, dtype = int),
+    fastMinutes = [25],
+    disableEntryMinutes = [105], # np.linspace(55, 255, 201, dtype = int),
     fastMomentumMinutes = np.linspace(95, 135, 9, dtype = int),
-    fastCrossoverPercent = [80], # [0, 75, 85, 95], # np.linspace(75, 95, 5),
+    fastCrossoverPercent = [0], # [0, 75, 85, 95], # np.linspace(75, 95, 5),
     takeProfitPercent = np.around(np.linspace(0.35, 0.75, 9), 2),
     stopLossPercent = [0], # np.around(np.linspace(.25, .65, 9), 29
-    fastAngleEntryFactor = [15, 20, 25, 30, 35], # np.linspace(15, 35, 5, dtype = int),
-    fastAngleExitFactor = [2025], # np.linspace(1000, 3000, 401, dtype = int),
-    slowMinutes = [2275], # np.linspace(1755, 3055, 7, dtype = int),
-    slowAngleFactor = [20], # np.linspace(15, 50, 8, dtype = int),
+    fastAngleEntryFactor = [15, 20, 25, 35, 40], # np.linspace(15, 35, 5, dtype = int),
+    fastAngleExitFactor = [2050], # np.linspace(1000, 3000, 401, dtype = int),
+    slowMinutes = [2105], # np.linspace(1755, 3055, 7, dtype = int),
+    slowAngleFactor = [25], # np.linspace(15, 50, 8, dtype = int),
     coolOffMinutes = [10], # np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = [10], # np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [115], # np.linspace(12, 212, 201, dtype = int),
+    trendStartHour = [6], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = [0], # np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################

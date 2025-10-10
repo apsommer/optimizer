@@ -160,7 +160,6 @@ def get_engine_metrics(engine):
     num_losses = -num_losses
     correlation = -correlation
 
-
     return [
 
         # engine
