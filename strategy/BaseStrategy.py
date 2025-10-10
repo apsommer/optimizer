@@ -4,23 +4,29 @@ from model.Ticker import Ticker
 
 class BaselineStrategy():
 
-    # Ether, MET (ETH): 0.05, 0.05
-    # Gold, MGC (GC): 0.1, 1
-    # Oil, MCL: 0.01, 1
-    # Dow, MYM (YM): 1, 0.5
-    # Silver, SIL (SI): 0.001, 1
-    # 10-year, MTN (ZN): 0.015625, 1.5625
-    # Nikkei, MNK (NKD): 5, 2.50
-    # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large
+    # Nasdaq 100, MNQ: 0.25, 0.50
     # S&P 500, MES (ES): 0.25, 1.25
-    # Copper, MHG (HG): 0.0005, 1.25
+    # Dow, MYM (YM): 1, 0.5
+    # Nikkei, MNK (NKD): 5, 2.50
+
     # Euro/USD, 6E: 0.00005, 6.25
+    # Ether, MET (ETH): 0.05, 0.05
+
+    # Gold, MGC (GC): 0.1, 1
+    # Silver, SIL (SI): 0.001, 1
+    # Copper, MHG (HG): 0.0005, 1.25
+
+    # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large
+    # Oil, MCL: 0.01, 1
+
+    # 10-year, MTN (ZN): 0.015625, 1.5625
+
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'MES',
+            symbol = 'MNQ',
             tick_size = 0.25,
-            tick_value = 1.25,
+            tick_value = 0.50,
             margin = 1 # todo remove
         )
 

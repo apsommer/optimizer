@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'MES'
+asset = 'MNQ'
 num_months = 20
 isNetwork = False
 
@@ -35,7 +35,7 @@ cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int), # [25],
+    fastMinutes = np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 240, 181, dtype = int),
     fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
@@ -43,9 +43,9 @@ opt = LiveParams(
     stopLossPercent = [0], # np.around(np.linspace(0.2, 1.2, 101), 2),
     fastAngleEntryFactor = np.linspace(0, 60,  61, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 3000, 2001, dtype = int),
-    slowMinutes = [2055, 2305], # np.linspace(2055, 3555, 7, dtype = int),
-    slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
-    coolOffMinutes = np.linspace(0, 25, 26, dtype = int),
+    slowMinutes = np.linspace(2055, 3555, 7, dtype = int),
+    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
+    coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 180, 169, dtype = int),
 )
