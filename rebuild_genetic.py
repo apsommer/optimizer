@@ -11,8 +11,8 @@ from utils.utils import *
 
 # data, indicators
 asset = 'MCL'
-num_months = 20
-id = '20251007_163136'
+num_months = 30
+id = '20251014_221456'
 engine = None # 'g4e70' # None
 
 ###################################################################

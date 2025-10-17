@@ -24,9 +24,9 @@ class BaselineStrategy():
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'MNQ',
-            tick_size = 0.25,
-            tick_value = 0.50,
+            symbol = 'MCL',
+            tick_size = 0.01,
+            tick_value = 1,
             margin = 1 # todo remove
         )
 
