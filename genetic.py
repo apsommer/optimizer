@@ -25,9 +25,9 @@ fitness = Fitness(
     fits = [
         (Fit.PROFIT_FACTOR, 60),
         # (Fit.DRAWDOWN_PER_PROFIT, 25),
-        (Fit.NUM_WINS, 20),
+        (Fit.NUM_WINS, 30),
         # (Fit.PROFIT, 70),
-        (Fit.CORRELATION, 20),
+        (Fit.CORRELATION, 10),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks

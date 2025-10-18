@@ -55,7 +55,7 @@ class BaselineStrategy():
             Order(
                 ticker = ticker,
                 sentiment = 'short',
-                size = -size,
+                size = size,
                 idx = self.current_idx,
                 bar_index = self.bar_index,
                 price = self.close,
