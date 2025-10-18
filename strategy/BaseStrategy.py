@@ -36,6 +36,7 @@ class BaselineStrategy():
         self.data = None
         self.orders = []
         self.params = None
+        self.position = 0
 
     def buy(self, ticker, size, comment = ''):
         self.orders.append(
@@ -47,6 +48,7 @@ class BaselineStrategy():
                 bar_index = self.bar_index,
                 price = self.close,
                 comment = comment))
+        self.position += size
 
     def sell(self, ticker, size, comment = ''):
         self.orders.append(
@@ -58,22 +60,19 @@ class BaselineStrategy():
                 bar_index = self.bar_index,
                 price = self.close,
                 comment = comment))
-
-    @property
-    def position_size(self):
-        return sum([order.size for order in self.orders]) # todo fix perf
+        self.position -= size
 
     @property
     def is_flat(self):
-        return self.position_size == 0
+        return self.position == 0
 
     @property
     def is_long(self):
-        return self.position_size > 0
+        return self.position > 0
 
     @property
     def is_short(self):
-        return 0 > self.position_size
+        return 0 > self.position
 
     @property
     def open(self):

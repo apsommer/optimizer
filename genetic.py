@@ -23,11 +23,11 @@ generations = 5
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 60),
+        (Fit.PROFIT_FACTOR, 60),
         # (Fit.DRAWDOWN_PER_PROFIT, 25),
-        (Fit.NUM_WINS, 100),
+        (Fit.NUM_WINS, 20),
         # (Fit.PROFIT, 70),
-        # (Fit.CORRELATION, 30),
+        (Fit.CORRELATION, 20),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
