@@ -55,12 +55,12 @@ class BaselineStrategy():
             Order(
                 ticker = ticker,
                 sentiment = 'short',
-                size = size,
+                size = -size,
                 idx = self.current_idx,
                 bar_index = self.bar_index,
                 price = self.close,
                 comment = comment))
-        self.position -= size
+        self.position += size
 
     @property
     def is_flat(self):
