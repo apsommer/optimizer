@@ -32,7 +32,8 @@ class Trade:
         if self.entry_order is None or self.exit_order is None:
             return np.nan
 
-        size = self.size # negative for shorts!
+        size = self.size
+        side = self.side # equal to entry order sentiment
 
         tick_size = self.entry_order.ticker.tick_size
         tick_value = self.entry_order.ticker.tick_value
@@ -40,7 +41,10 @@ class Trade:
         entry_price = self.entry_order.price
         exit_price = self.exit_order.price
 
-        return size * tick_value * (exit_price - entry_price) / tick_size
+        delta_price = exit_price - entry_price
+        if side == 'short': delta_price = entry_price - exit_price
+
+        return size * tick_value * delta_price / tick_size
 
     def __repr__(self):
 
