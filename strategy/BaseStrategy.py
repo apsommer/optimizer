@@ -17,16 +17,16 @@ class BaselineStrategy():
     # Copper, MHG (HG): 0.0005, 1.25
 
     # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large
-    # Oil, MCL: 0.01, 1
+    # Oil, MCL: 0.01, 1 ... genetic pf too low
 
     # 10-year, MTN (ZN): 0.015625, 1.5625
 
     @property
     def ticker(self):
         return Ticker(
-            symbol = 'MCL',
-            tick_size = 0.01,
-            tick_value = 1,
+            symbol = 'MHG',
+            tick_size = 0.0005,
+            tick_value = 1.25,
             margin = 1 # todo remove
         )
 
