@@ -35,19 +35,19 @@ cores = runs + 1 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [65],
-    disableEntryMinutes = [100], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 115, 13, dtype = int),
+    fastMinutes = [25],
+    disableEntryMinutes = [135], # np.linspace(55, 255, 201, dtype = int),
+    fastMomentumMinutes = np.linspace(75, 135, 13, dtype = int),
     fastCrossoverPercent = [0], # [0, 75, 85, 95], # np.linspace(75, 95, 5),
-    takeProfitPercent = np.around(np.linspace(1.5, 3, 16), 2),
+    takeProfitPercent = np.around(np.linspace(0.5, 1, 11), 2),
     stopLossPercent = [0], # np.around(np.linspace(.25, .65, 9), 29
-    fastAngleEntryFactor = [20, 40], # np.linspace(15, 35, 5, dtype = int),
-    fastAngleExitFactor = [1785], # np.linspace(1000, 3000, 401, dtype = int),
-    slowMinutes = [4555], # np.linspace(1755, 3055, 7, dtype = int),
-    slowAngleFactor = [21], # np.linspace(15, 50, 8, dtype = int),
+    fastAngleEntryFactor = [15, 25, 35], # np.linspace(15, 35, 5, dtype = int),
+    fastAngleExitFactor = [1965], # np.linspace(1000, 3000, 401, dtype = int),
+    slowMinutes = [3805], # np.linspace(1755, 3055, 7, dtype = int),
+    slowAngleFactor = [20], # np.linspace(15, 50, 8, dtype = int),
     coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = [8], # np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [115], # np.linspace(12, 212, 201, dtype = int),
+    trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = [0], # np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################

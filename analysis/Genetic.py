@@ -141,7 +141,7 @@ class Genetic:
         # track unprofitable engines
         self.unprofitable_engines.append(unprofitable)
         if len(self.engine_metrics) == 0:
-            print(f'{generation}: Entire generation unprofitable.')
+            print(f'\n{generation}: Entire generation unprofitable.')
             exit()
 
         # get blended fitnesses
@@ -150,7 +150,7 @@ class Genetic:
         # persist best engine in generation
         best_engine = max(fitnesses, key = lambda metric: metric.value)
         best_params = next(metric for metric in self.engine_metrics
-            if metric.name == 'params' and metric.id == best_engine.id)
+        if metric.name == 'params' and metric.id == best_engine.id)
         self.best_engines.append(best_engine)
         self.params.append(best_params)
 
