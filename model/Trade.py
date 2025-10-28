@@ -33,20 +33,26 @@ class Trade:
             return np.nan
 
         size = self.size # negative for shorts!
-        point_value = self.entry_order.ticker.point_value
+
+        tick_size = self.entry_order.ticker.tick_size
+        tick_value = self.entry_order.ticker.tick_value
 
         entry_price = self.entry_order.price
         exit_price = self.exit_order.price
 
-        return size * point_value * (exit_price - entry_price)
+        return size * tick_value * (exit_price - entry_price) / tick_size
 
     def __repr__(self):
 
+        # INPUT ########
+        decimals = 2
+        ################
+
         # format to match tradingview
         exit = ('\n\t' + str(self.id) + '\t' + format_timestamp(self.exit_order.idx) + '\t' +
-                str(round(self.exit_order.price)) + '\t' + str(round(self.profit)) + '\t' + self.exit_order.comment)
+                str(round(self.exit_order.price, decimals)) + '\t' + str(round(self.profit, decimals)) + '\t' + self.exit_order.comment)
 
         entry = ('\n\t' + str(self.entry_order.sentiment) + '\t' + format_timestamp(self.entry_order.idx) + '\t' +
-                 str(round(self.entry_order.price)))
+                 str(round(self.entry_order.price, decimals)))
 
         return exit + entry

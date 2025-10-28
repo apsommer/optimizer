@@ -10,44 +10,50 @@ from strategy.LiveParams import LiveParams
 from utils.metrics import print_metrics, get_genetic_results_metrics, display_progress_bar
 from utils.utils import *
 
+########################################################################################################################
+
 # data, indicators
-asset = 'NQ'
-num_months = 9
+asset = 'NG'
+num_months = 15
 isNetwork = False
 
 # genetic
-population_size = 150
-generations = 5
+population_size = 100
+generations = 10
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.PROFIT_FACTOR, 30),
-        (Fit.NUM_WINS, 20),
+        (Fit.PROFIT_FACTOR, 80),
+        (Fit.DRAWDOWN_PER_PROFIT, 20),
+        # (Fit.NUM_WINS, 30),
+        # (Fit.PROFIT, 20),
+        # (Fit.CORRELATION, 10),
     ])
+
+# multiprocessing uses all cores, 16 available, leave 1 for basic tasks
+cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [20],
-    disableEntryMinutes = [0], # np.linspace(55, 255, 201, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 155, 101, dtype = int),
-    fastCrossoverPercent = [0], # np.around(np.linspace(.3, 1, 71), 2),
-    takeProfitPercent = np.around(np.linspace(.3, 1, 71), 2),
-    stopLossPercent = [0],
-    fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
-    fastAngleExitFactor = np.linspace(1000, 2000, 1001, dtype = int),
-    slowMinutes = [2555],
-    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
-    trendStartHour = [0], # np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [0] # np.linspace(12, 212, 201, dtype = int),
+    fastMinutes = [65], # np.linspace(25, 125, 6, dtype = int),
+    disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
+    fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
+    takeProfitPercent = np.around(np.linspace(0.5, 1, 51), 2),
+    stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
+    fastAngleEntryFactor = np.linspace(20, 50,  31, dtype = int),
+    fastAngleExitFactor = np.linspace(2000, 3000, 1001, dtype = int),
+    slowMinutes = [4805], # np.linspace(2055, 5555, 15, dtype = int),
+    slowAngleFactor = np.linspace(20, 50, 31, dtype = int),
+    coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
+    trendStartHour = np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = np.linspace(12, 60, 49, dtype = int),
 )
 
-###################################################################
+########################################################################################################################
 
 os.system('clear')
 warnings.filterwarnings('ignore')
-np.set_printoptions(threshold = 3)
 start_time = time.time()
 
 # organize outputs
@@ -63,16 +69,12 @@ emas, fractals = getIndicators(data, opt, data_path)
 # remove residual analyses
 shutil.rmtree(path, ignore_errors = True)
 
-# multiprocessing uses all cores
-cores = multiprocessing.cpu_count() # 16 available
-cores -= 1 # leave 1 for basic computer tasks
-
 # init genetic analysis
 genetic = Genetic(
     population_size = population_size,
     generations = generations,
     mutation_rate = mutation_rate,
-    fitness= fitness,
+    fitness = fitness,
     data = data,
     emas = emas,
     fractals = fractals,
@@ -95,9 +97,7 @@ with tqdm(
     for generation in range(generations):
 
         # split population between process cores and evaluate
-        pool = Pool(
-            processes = cores,
-            initializer = set_process_name)
+        pool = Pool(cores)
         pool.map(
             func = partial(genetic.evaluate, generation = generation),
             iterable = range(cores))
@@ -124,9 +124,7 @@ with tqdm(
         pbar.update()
 
 # run and save best engines
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
+pool = Pool(cores)
 pool.map(
     func = genetic.analyze,
     iterable = range(generations))

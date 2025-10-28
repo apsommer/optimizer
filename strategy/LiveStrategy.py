@@ -1,7 +1,7 @@
 import finplot as fplt
 import pandas as pd
 
-from model.Ticker import Ticker
+from datetime import timedelta
 from strategy.BaseStrategy import BaselineStrategy
 from utils.constants import *
 from utils.utils import init_plot
@@ -49,8 +49,8 @@ class LiveStrategy(BaselineStrategy):
         self.slowShortMinutes = emas.loc[:, 'short_' + str(self.slowMinutes)]
 
         # fractals
-        self.buyFractals = fractals.loc[:, 'buyFractal']
-        self.sellFractals = fractals.loc[:, 'sellFractal']
+        self.buyFractals = fractals.buyFractal
+        self.sellFractals = fractals.sellFractal
 
         # units
         self.fastAngleEntry = fastAngleEntryFactor / 1000.0
@@ -83,6 +83,11 @@ class LiveStrategy(BaselineStrategy):
         self.bar_index += 1
         bar_index = self.bar_index
 
+        # todo tradingview limitation ~20k bars
+        # tv_start = pd.Timestamp('2025-08-29T22:00:00', tz='America/Chicago')
+        # if tv_start > idx:
+        #     return
+
         # params
         fastAngleEntry = self.fastAngleEntry
         fastAngleExit = self.fastAngleExit
@@ -101,15 +106,15 @@ class LiveStrategy(BaselineStrategy):
         # averages
         fast = self.fast[idx]
         fastSlope = self.fastSlope[idx]
-        fastLong = self.fastLongMinutes[idx]
-        fastShort = self.fastShortMinutes[idx]
+        fastLongMinutes = self.fastLongMinutes[idx]
+        fastShortMinutes = self.fastShortMinutes[idx]
 
         slow = self.slow[idx]
         slowSlope = self.slowSlope[idx]
-        slowLong = self.slowLongMinutes[idx]
-        slowShort = self.slowShortMinutes[idx]
+        slowLongMinutes = self.slowLongMinutes[idx]
+        slowShortMinutes = self.slowShortMinutes[idx]
 
-        # fractal
+        # fractals
         buyFractal = self.buyFractals[idx]
         sellFractal = self.sellFractals[idx]
 
@@ -133,101 +138,104 @@ class LiveStrategy(BaselineStrategy):
         ################################################################################################################
 
         # disable entry after fast trends in 1 direction for certain time
-        if disableEntryMinutes == 0:
-            isEntryLongDisabled = False
-            isEntryShortDisabled = False
-        else:
-            isEntryLongDisabled = fastLong > disableEntryMinutes
-            isEntryShortDisabled = fastShort > disableEntryMinutes
+        isEntryLongDisabled = (
+            disableEntryMinutes != 0
+            and fastLongMinutes > disableEntryMinutes)
+        isEntryShortDisabled = (
+            disableEntryMinutes != 0
+            and fastShortMinutes > disableEntryMinutes)
 
         # cooloff time imposed after trade exit
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
         # exit, slow momentum drift against trade position
-        if fastMomentumMinutes == 0:
-            isExitLongFastMomentum = False
-            isExitShortFastMomentum = False
-        else:
-            isExitLongFastMomentum = (
-                is_long
-                and fastShort > fastMomentumMinutes
-            )
-            isExitShortFastMomentum = (
-                is_short
-                and fastLong > fastMomentumMinutes
-            )
+        isExitLongFastMomentum = (
+            fastMomentumMinutes != 0
+            and is_long
+            and fastShortMinutes > fastMomentumMinutes)
+        isExitShortFastMomentum = (
+            fastMomentumMinutes != 0
+            and is_short
+            and fastLongMinutes > fastMomentumMinutes)
 
         # exit, rapid momentum swing
-        if fastAngleExit == 0:
-            isExitLongRapidMomentum = False
-            isExitShortRapidMomentum = False
-        else:
-            isExitLongRapidMomentum = is_long and -fastAngleExit > fastSlope
-            isExitShortRapidMomentum = is_short and fastSlope > fastAngleExit
+        isExitLongRapidMomentum = (
+            fastAngleExit != 0
+            and is_long
+            and -fastAngleExit > fastSlope)
+        isExitShortRapidMomentum = (
+            fastAngleExit != 0
+            and is_short
+            and fastSlope > fastAngleExit)
 
         # slow trend is long or short
-        if self.trendStartMinutes == 0 or self.trendEndMinutes == 0:
-            isEntryLongEnabled = True
-            isEntryShortEnabled = True
-        else:
-            isEntryLongEnabled = self.trendStartMinutes < slowLong < self.trendEndMinutes
-            isEntryShortEnabled = self.trendStartMinutes < slowShort < self.trendEndMinutes
+        isEntryLongEnabled = (
+            self.trendStartMinutes == 0
+            or self.trendEndMinutes == 0
+            or self.trendEndMinutes > slowLongMinutes > self.trendStartMinutes)
+        isEntryShortEnabled = (
+            self.trendStartMinutes == 0
+            or self.trendEndMinutes == 0
+            or self.trendEndMinutes > slowShortMinutes > self.trendStartMinutes)
 
         # entry, long fractal signal
         isEntryLongFractal = (
             fast > slow
-            and not isEntryLongDisabled
             and slowSlope > slowAngle
             and isEntryLongEnabled
             and fast > close > buyFractal > slow
-            and 0.5 * fastMomentumMinutes > fastShort
-        )
+            and 0.8 * fastMomentumMinutes > fastShortMinutes)
 
-        # todo creates too many trades?
         # entry, long fast crossover
         isEntryLongFastCrossover = (
-            high > fast > open
+            fastAngleEntry != 0
+            and high > fast > open
             and fastSlope > fastAngleEntry
             and fast > slow
             and slowSlope > slowAngle
-        )
+            and isEntryLongEnabled)
 
         # entry, long
-        isEntryLongSignal = isEntryLongFractal or isEntryLongFastCrossover
+        isEntryLongSignal = (
+            hasLongEntryDelayElapsed
+            and not isEntryLongDisabled
+            and (isEntryLongFractal or isEntryLongFastCrossover))
         isEntryLong = (
-            hasLongEntryDelayElapsed and (
-                ((is_flat or is_short) and isEntryLongSignal)
-                or (isExitShortFastMomentum and fast > slow)
-                or (isExitShortRapidMomentum and fast > slow)))
+            ((is_flat or is_short) and isEntryLongSignal)
+            or (isExitShortFastMomentum and fast > slow)
+            or (isExitShortRapidMomentum and fast > slow)
+            and not self.is_last_bar)
         if isEntryLong:
             self.buy(ticker, size)
 
         # entry, short fractal signal
         isEntryShortFractal = (
             slow > fast
-            and not isEntryShortDisabled
             and -slowAngle > slowSlope
             and isEntryShortEnabled
             and slow > sellFractal > close > fast
-            and 0.5 * fastMomentumMinutes > fastLong
-        )
+            and 0.8 * fastMomentumMinutes > fastLongMinutes)
 
         # entry, short fast crossover
         isEntryShortFastCrossover = (
-            open > fast > low
+            fastAngleEntry != 0
+            and open > fast > low
             and -fastAngleEntry > fastSlope
             and slow > fast
             and -slowAngle > slowSlope
-        )
+            and isEntryShortEnabled)
 
         # entry, short
-        isEntryShortSignal =  isEntryShortFractal or isEntryShortFastCrossover
+        isEntryShortSignal = (
+            hasShortEntryDelayElapsed
+            and not isEntryShortDisabled
+            and (isEntryShortFractal or isEntryShortFastCrossover))
         isEntryShort = (
-            hasShortEntryDelayElapsed and (
-                ((is_flat or is_long) and isEntryShortSignal)
-                or (isExitLongFastMomentum and slow > fast
-                or (isExitLongRapidMomentum and slow > fast))))
+            ((is_flat or is_long) and isEntryShortSignal)
+            or (isExitLongFastMomentum and slow > fast)
+            or (isExitLongRapidMomentum and slow > fast)
+            and not self.is_last_bar)
         if isEntryShort:
             self.sell(ticker, size)
 
@@ -369,6 +377,10 @@ class LiveStrategy(BaselineStrategy):
 
     def plot(self, window, title ='Strategy', shouldShow = False):
 
+        # INPUT #########
+        show_slow = False
+        #################
+
         ax = init_plot(
             window= window,
             title = title)
@@ -398,14 +410,22 @@ class LiveStrategy(BaselineStrategy):
         fplt.plot(entities['buyFractal'], style='o', color=blue, ax=ax)
         fplt.plot(entities['sellFractal'], style='o', color=aqua, ax=ax)
 
-        # plot ribbon
-        ema_columns = [ column for column in self.emas.columns if 'ema' in column ]
-        for i, column in enumerate(ema_columns):
+        # plot slow and fast
+        if show_slow:
+            ema_columns = [ column for column in self.emas.columns if 'ema' in column ]
+            for i, column in enumerate(ema_columns):
+                fplt.plot(
+                    self.emas.loc[:, column],
+                    color = get_ribbon_color(i),
+                    width = i,
+                    ax = ax)
 
+        # plot fast only
+        else:
             fplt.plot(
-                self.emas.loc[:, column],
-                color = get_ribbon_color(i),
-                width = i,
+                self.fast,
+                color = get_ribbon_color(0),
+                width = 1,
                 ax = ax)
 
         if shouldShow: fplt.show()

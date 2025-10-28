@@ -1,5 +1,6 @@
 import random
 from enum import Enum
+from unittest import case
 
 import numpy as np
 import pandas as pd
@@ -41,31 +42,27 @@ class Fitness:
             # normalize and scale
             best = max(fitnesses, key = lambda metric: metric.value)
             for metric in fitnesses:
-                normalized = metric.value / best.value
-                scaled = normalized * percent
+                normalized = metric.value / best.value # normalize to 1
+                scaled = normalized * percent # scale by percent blend
                 fitness_df.loc[metric.id, fit.value] = scaled
 
         # blend scaled fitnesses
         values, metrics = fitness_df.sum(axis = 1, skipna = False), []
         for id, value in enumerate(values):
             if np.isnan(value): continue
+            title = f'[{id}] {Fit.BLEND.pretty}'
             metrics.append(
-                Metric('blend', value, '%', 'Blend', id = id))
+                Metric('blend', value, '%', title, id = id))
 
         return metrics
 
     @property
     def pretty(self):
 
-        # catch unblended single fitness
-        if len(self.fits) == 1:
-            fit, _ = self.fits[0]
-            return fit.pretty
-
         pretty = ''
         for pair in self.fits:
             fit, percent = pair
-            pretty += '\n\t\t' + fit.pretty + ', ' + str(percent) + ' [%]'
+            pretty += '\n\t\t' + fit.pretty + ': ' + str(percent) + ' [%]'
 
         return pretty
 
@@ -83,12 +80,14 @@ class Fit(Enum):
     CORRELATION = 'correlation'
     NUM_TRADES = 'num_trades'
     NUM_WINS = 'num_wins'
+    NUM_LOSSES = 'num_losses'
+    BLEND = 'blend'
 
     @property
     def pretty(self):
         match self:
             case Fit.PROFIT: return 'Profit'
-            case Fit.PROFIT_FACTOR: return 'Profit Factor'
+            case Fit.PROFIT_FACTOR: return 'Profit factor'
             case Fit.EXPECTANCY: return 'Expectancy'
             case Fit.WIN_RATE: return 'Win rate'
             case Fit.AVERAGE_WIN: return 'Average win'
@@ -98,6 +97,8 @@ class Fit(Enum):
             case Fit.CORRELATION: return 'Linear correlation'
             case Fit.NUM_TRADES: return 'Number of trades'
             case Fit.NUM_WINS: return 'Number of wins'
+            case Fit.NUM_LOSSES: return 'Number of losses'
+            case Fit.BLEND: return 'Blend'
 
     @property
     def color(self):
@@ -113,6 +114,8 @@ class Fit(Enum):
             case Fit.CORRELATION: return colors[8]
             case Fit.NUM_TRADES: return colors[9]
             case Fit.NUM_WINS: return colors[0]
+            case Fit.NUM_LOSSES: return colors[1]
+            case Fit.BLEND: return colors[2]
 
     @property
     def unit(self):
@@ -128,3 +131,5 @@ class Fit(Enum):
             case Fit.CORRELATION: return None
             case Fit.NUM_TRADES: return None
             case Fit.NUM_WINS: return None
+            case Fit.NUM_LOSSES: return None
+            case Fit.BLEND: return None

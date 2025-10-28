@@ -1,7 +1,7 @@
-import multiprocessing
+import os
 import os
 import pickle
-import re
+import shutil
 from datetime import timedelta, datetime
 
 import databento as db
@@ -44,22 +44,23 @@ def getOhlc(asset, num_months, isNetwork = False):
     print(f'$$$ Download ohlc from databento as {csv_filename}')
 
     # construct symbol
+    # https://databento.com/docs/standards-and-conventions/symbology#continuous?historical=python&live=python&reference=python
     symbol = asset + '.v.0' # ["NQ.v.0"], # [ticker].v.[expiry]
 
-    # init databento client
-    client = db.Historical(keys.bento_api_key)
-    td = timedelta(days = num_months * 30.437)
-    starting_date = '2024-11-05' # (datetime.now() - td).strftime("%Y-%m-%d") # trump elected 051124
+    # timespan
+    delta = timedelta(days = num_months * 30.437)
+    starting_date = (datetime.now() - delta).strftime("%Y-%m-%d") # trump elected 051124
     ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24'
 
-    # request network data, synchronous!
-    ohlc = client.timeseries.get_range(
+    # request network data, costs $$$, synchronous
+    ohlc = db.Historical(keys.db).timeseries.get_range(
         dataset = 'GLBX.MDP3',
-        symbols = [symbol],
+        symbols = symbol,
         stype_in = 'continuous',
         schema = 'ohlcv-1m',
         start = starting_date,
-        end = ending_date)
+        end = ending_date
+    )
 
     # rename, drop, timestamp
     ohlc = ohlc.to_df()
@@ -68,9 +69,9 @@ def getOhlc(asset, num_months, isNetwork = False):
     ohlc = ohlc[ohlc.columns.drop(['symbol', 'rtype', 'instrument_id', 'publisher_id', 'volume'])]
     ohlc.index = timestamp(ohlc, timezone)
 
-    # make directory, if needed
-    if not os.path.exists(path):
-        os.makedirs(path)
+    # remove residual data and indicators
+    shutil.rmtree(path, ignore_errors = True)
+    os.makedirs(path)
 
     # save to disk
     ohlc.to_csv(csv_filepath)
@@ -79,19 +80,6 @@ def getOhlc(asset, num_months, isNetwork = False):
 def timestamp(data, timezone):
     utc = pd.to_datetime(data.index, utc = True)
     return utc.tz_convert(timezone)
-
-def set_process_name():
-
-    cores = multiprocessing.cpu_count()  # 16 available
-    cores -= 1  # leave 1 for basic computer tasks
-
-    # extract numerical digits from default process name, 1-based
-    id = int(re.findall(
-        pattern = r'\d+',
-        string = multiprocessing.current_process().name)[0])
-
-    id = (id - 1) % cores
-    multiprocessing.current_process().name = str(id)
 
 def getIndicators(data, opt, path):
 
@@ -140,7 +128,7 @@ def build_emas(data, opt, path):
 
         # column names
         col_ema = 'ema_' + str(min)
-        col_slopes = 'slope_' + str(min)
+        col_slope = 'slope_' + str(min)
         col_long = 'long_' + str(min)
         col_short = 'short_' + str(min)
 
@@ -153,7 +141,7 @@ def build_emas(data, opt, path):
 
         # slope of average
         slope = get_slope(smoothed)
-        emas.loc[:, col_slopes] = slope
+        emas.loc[:, col_slope] = slope
 
         # build trend counts
         longMinutes = 0
@@ -178,50 +166,9 @@ def build_emas(data, opt, path):
     save(emas, 'emas', path)
     return emas
 
-def build_fractals(data, path):
-
-    # init container
-    fractals = pd.DataFrame(
-        index = data.index,
-        dtype = float,
-        columns = ['buyFractal', 'sellFractal'])
-
-    # fractal indicator
-    buyPrice = data.iloc[0].High
-    sellPrice = data.iloc[0].Low
-
-    for i in tqdm(
-        iterable = range(len(data.index)),
-        colour = yellow,
-        bar_format = '        Fractals:       {percentage:3.0f}%|{bar:80}{r_bar}'):
-
-        # skip first 2 bars and last 2 bars, due to definition -2:+2
-        if 2 < i < len(data.index) - 3:
-
-            # update prices, if needed
-            if (data.iloc[i].High > data.iloc[i-1].High
-                and data.iloc[i].High > data.iloc[i-2].High
-                and data.iloc[i].High > data.iloc[i+1].High
-                and data.iloc[i].High > data.iloc[i+2].High):
-
-                buyPrice = data.iloc[i].High
-
-            if (data.iloc[i].Low < data.iloc[i-1].Low
-                and data.iloc[i].Low < data.iloc[i-2].Low
-                and data.iloc[i].Low < data.iloc[i+1].Low
-                and data.iloc[i].Low < data.iloc[i+2].Low):
-
-                sellPrice = data.iloc[i].Low
-
-        fractals.iloc[i].buyFractal = buyPrice
-        fractals.iloc[i].sellFractal = sellPrice
-
-    save(fractals, 'fractals', path)
-    return fractals
-
 def get_slope(series):
 
-    slope = pd.Series(index=series.index)
+    slope = pd.Series(index = series.index)
     prev = series.iloc[0]
 
     for idx, value in series.items():
@@ -230,6 +177,49 @@ def get_slope(series):
         prev = value
 
     return np.rad2deg(np.atan(slope))
+
+def build_fractals(data, path):
+
+    # init container
+    fractals = pd.DataFrame(
+        data = np.nan,
+        index = data.index,
+        dtype = float,
+        columns = ['buyFractal', 'sellFractal'])
+
+    # fractal indicator
+    buyPrice = np.nan
+    sellPrice = np.nan
+
+    for i in tqdm(
+        iterable = range(len(data.index)),
+        colour = yellow,
+        bar_format = '        Fractals:       {percentage:3.0f}%|{bar:80}{r_bar}'):
+
+        # skip first 2 bars and last 2 bars, due to definition -2:+2
+        if 2 > i or i > len(data.index) - 3: continue
+
+        # update prices, if needed
+        if (data.iloc[i].High > data.iloc[i-1].High
+            and data.iloc[i].High > data.iloc[i-2].High
+            and data.iloc[i].High > data.iloc[i+1].High
+            and data.iloc[i].High > data.iloc[i+2].High):
+
+            buyPrice = data.iloc[i].High
+
+        if (data.iloc[i].Low < data.iloc[i-1].Low
+            and data.iloc[i].Low < data.iloc[i-2].Low
+            and data.iloc[i].Low < data.iloc[i+1].Low
+            and data.iloc[i].Low < data.iloc[i+2].Low):
+
+            sellPrice = data.iloc[i].Low
+
+        # stagger 2 minutes because can not see into the future
+        fractals.iloc[i+2].buyFractal = buyPrice
+        fractals.iloc[i+2].sellFractal = sellPrice
+
+    save(fractals, 'fractals', path)
+    return fractals
 
 def init_plot(window, title):
 
@@ -254,7 +244,7 @@ def init_plot(window, title):
     ax = fplt.create_plot(title=title)
 
     # get axis
-    axis_pen = fplt._makepen(color = gray)
+    axis_pen = fplt._makepen(color = white)
     right = ax.axes['right']['item']
     bottom = ax.axes['bottom']['item']
 

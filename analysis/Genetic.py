@@ -141,20 +141,21 @@ class Genetic:
         # track unprofitable engines
         self.unprofitable_engines.append(unprofitable)
         if len(self.engine_metrics) == 0:
-            print(f'{generation}: Entire generation unprofitable.')
+            print(f'\n{generation}: Entire generation unprofitable.')
             exit()
 
+        # get blended fitnesses
         fitnesses = self.fitness.blend(self.engine_metrics)
 
         # persist best engine in generation
         best_engine = max(fitnesses, key = lambda metric: metric.value)
         best_params = next(metric for metric in self.engine_metrics
-            if metric.name == 'params' and metric.id == best_engine.id)
+        if metric.name == 'params' and metric.id == best_engine.id)
         self.best_engines.append(best_engine)
         self.params.append(best_params)
 
         # check for solution convergence
-        # todo applicable only for unblended single fitness
+        # applicable only for unblended single fitness, as blending is relative to each generation
         if generation > 2 and len(self.fitness.fits) == 1:
             current_winner = max(self.best_engines, key = lambda metric: metric.value)
             prev_winner = max(self.best_engines[:-1], key = lambda metric: metric.value)
@@ -297,16 +298,28 @@ class Genetic:
 
     def plot(self):
 
-        # unpack winning solution
-        winner_metric = max(self.best_engines, key = lambda it: it.value)
-        winner_generation = self.best_engines.index(winner_metric)
-        winner_id = 'g' + str(winner_generation) + 'e' + str(winner_metric.id)
+        # find engine with highest profit
+        winner_profit = 0
+        winner_id = ''
+
+        for generation, metric in enumerate(self.best_engines):
+
+            # unpack full results
+            id = 'g' + str(generation) + 'e' + str(metric.id)
+            engine = unpack(id, self.analysis_path)
+
+            profit = next(metric.value for metric in engine['metrics'] if metric.name == 'profit')
+            if profit > winner_profit:
+                winner_profit = profit
+                winner_id = id
+
+        # unpack winner
         winner = unpack(winner_id, self.analysis_path)
         params = winner['params']
         cash_series = winner['cash_series']
         trades = winner['trades']
 
-        # build winning engine, but don't run!
+        # build engine, but don't run!
         strategy = LiveStrategy(self.data, self.emas, self.fractals, params)
         engine = Engine(winner_id, strategy)
         engine.cash_series = cash_series
@@ -319,7 +332,7 @@ class Genetic:
         engine.plot_trades()
         ax = engine.plot_equity(shouldShow = False)
 
-        # plot equity of best engines
+        # overlay each generation
         for generation, metric in enumerate(self.best_engines):
 
             # unpack full results

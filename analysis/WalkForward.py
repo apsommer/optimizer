@@ -4,14 +4,16 @@ from model.Fitness import Fit
 from strategy.LiveStrategy import LiveStrategy
 from utils.metrics import *
 from utils.utils import *
+from rich.table import Table
 
 class WalkForward:
 
-    def __init__(self, num_months, percent, runs, data, emas, fractals, opt, parent_path):
+    def __init__(self, num_months, percent, fitness, runs, data, emas, fractals, opt, parent_path):
 
         self.num_months = num_months
         self.percent = percent
         self.runs = runs
+        self.fitness = fitness
         self.data = data
         self.emas = emas
         self.fractals = fractals
@@ -19,12 +21,14 @@ class WalkForward:
         self.parent_path = parent_path
 
         # organize outputs
+        self.id = parent_path.split('/')[-1] + '_' + format_timestamp(datetime.now(), 'local')
         self.analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
-        self.analysis_path = parent_path + '/' + format_timestamp(datetime.now(), 'local')
+        self.analysis_path = parent_path + '/' + self.id
         os.makedirs(self.analysis_path)
 
-        self.best_params = None
+        self.next_params = None
         self.best_fitness = None
+        self.winner_display_table = None
 
         # calculate window sizes
         self.IS_len = round(len(data) / ((percent / 100) * runs + 1))
@@ -47,7 +51,7 @@ class WalkForward:
         IS_fractals = self.fractals.iloc[IS_start : IS_end]
 
         # run exhaustive sweep
-        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.opt, self.analyzer_path)
+        analyzer = Analyzer(run, IS_data, IS_emas, IS_fractals, self.fitness, self.opt, self.analyzer_path)
         analyzer.run()
         analyzer.save()
 
@@ -101,7 +105,7 @@ class WalkForward:
             OS_path = self.analyzer_path + '/' + fitness.value
             engine.save(OS_path, True)
 
-    def build_composite(self, fitness):
+    def build_composite(self, fit):
 
         cash_series = pd.Series()
         trades = []
@@ -111,7 +115,7 @@ class WalkForward:
         # stitch OS runs together
         for run in tqdm(
             iterable = range(self.runs),
-            disable =fitness is not Fit.PROFIT, # show only 1 core
+            disable = fit is not Fit.PROFIT, # show only 1 core
             colour = blue,
             bar_format = '        Composite:      {percentage:3.0f}%|{bar:80}{r_bar}'):
 
@@ -120,7 +124,7 @@ class WalkForward:
             else: balance = cash_series.values[-1]
 
             # check if OS exists
-            OS_path = self.analyzer_path + '/' + fitness.value
+            OS_path = self.analyzer_path + '/' + fit.value
             OS_engine_filepath = OS_path + '/' + str(run) + '.bin'
             isProfitable = os.path.exists(OS_engine_filepath)
 
@@ -141,6 +145,7 @@ class WalkForward:
                 engine_cash_series += balance - initial_cash
 
             # OS does not exist: IS not profitable
+            # todo same as above, remove exit on unprofitable IS
             else:
 
                 # count invalid runs
@@ -170,7 +175,7 @@ class WalkForward:
         # extract fittest engines from last in-sample analyzer
         IS_path = self.analyzer_path + '/' + str(self.runs)
         fittest = unpack('analyzer', IS_path)['fittest']
-        metric = fittest[fitness]
+        metric = fittest[fit]
 
         # get params of fittest engine
         if metric is None: params = None
@@ -183,10 +188,10 @@ class WalkForward:
 
         # construct engine, but don't run!
         strategy = LiveStrategy(composite_data, composite_emas, composite_fractals, params)
-        engine = Engine(fitness.value, strategy)
+        engine = Engine(fit.value, strategy)
         engine.cash_series = cash_series
         engine.trades = trades
-        engine.analyze()
+        engine.analyze() # generate metrics
 
         # calculate efficiency
         self.calculate_efficiency(IS_profits, engine)
@@ -198,27 +203,29 @@ class WalkForward:
 
         engine.save(self.analysis_path, True)
 
-    def calculate_efficiency(self, IS_profits, engine):
+    def calculate_efficiency(self, IS_profits, composite):
 
         # in-sample annual return
-        IS_total_profit = sum(IS_profits)
-        IS_cash = IS_total_profit - initial_cash
+        IS_cash = sum(IS_profits) + initial_cash
         IS_days = self.OS_len * self.runs / 1440
         IS_annual_return = ((IS_cash / initial_cash) ** (1 / (IS_days / 365)) - 1) * 100
 
         # composite annual return
-        metric = next(metric for metric in engine.metrics if metric.name == 'annual_return')
-        engine_annual_return = metric.value
+        metric = next(metric for metric in composite.metrics if metric.name == 'annual_return')
+        composite_annual_return = metric.value
 
-        efficiency = (engine_annual_return / IS_annual_return) * 100
-
-        engine.metrics.append(
-            Metric('efficiency', efficiency, '%', 'Efficiency'))
+        # calculate efficiency
+        efficiency = (composite_annual_return / IS_annual_return) * 100
+        composite.metrics.extend([
+            Metric('IS_annual_return', IS_annual_return, '%', 'In-sample annual return'),
+            Metric('efficiency', efficiency, '%', 'Efficiency'),
+        ])
 
     def analyze(self):
 
         # isolate composite with highest profit
-        highest_profit = -np.inf
+        highest_profit = 0
+        next_params, best_fitness = None, None
         for fitness in Fit:
 
             engine = unpack(fitness.value, self.analysis_path)
@@ -227,12 +234,13 @@ class WalkForward:
 
             if cash > highest_profit:
                 highest_profit = cash
-                best_params = engine['params']
+                next_params = engine['params']
                 best_fitness = fitness
 
         # persist results
-        self.best_params = best_params
+        self.next_params = next_params
         self.best_fitness = best_fitness
+        self.summarize_composite()
         self.metrics += get_walk_forward_results_metrics(self)
         self.save()
 
@@ -240,39 +248,60 @@ class WalkForward:
     def save(self):
 
         bundle = {
-            'best_params': self.best_params,
-            'best_fitness': self.best_fitness,
-            'metrics': self.metrics
+            'id': self.id,
+            'metrics': self.metrics,
+            'winner_id': self.best_fitness.value,
+            'winner_display_table': self.winner_display_table,
         }
 
         save(
             bundle = bundle,
-            filename = 'analysis',
+            filename = self.id,
             path = self.analysis_path)
 
     ####################################################################################################################
 
-    def print_fittest_composite(self):
+    def summarize_composite(self):
+
+        table = Table(title = f'{self.id}: {self.best_fitness.pretty}')
+        columns = [
+            'Run', 'Profit', 'Profit Factor', 'Trades', 'Params'
+        ]
+        for column in columns:
+            table.add_column(column)
+
+        OS_path = self.analyzer_path + '/' + self.best_fitness.value
 
         for run in range(self.runs):
 
-            # extract fittest engines from in-sample analyzer
-            IS_path = self.analyzer_path + '/' + str(run)
-            fittest = unpack('analyzer', IS_path)['fittest']
-            metric = fittest[self.best_fitness]
+            # unpack OS engine
+            try: OS_engine = unpack(str(run), OS_path)
+            except FileNotFoundError: continue
 
-            # catch in-sample without profit
-            if metric is None:
-                print('\t' + str(run) + ': In-sample not profitable')
-                continue
-
-            # get params from fittest engine
-            OS_engine = unpack(str(metric.id), IS_path)
+            # extract engine metrics
             num_trades = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'num_trades')
+            profit_factor = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'profit_factor')
+            profit = next(metric.value for metric in OS_engine['metrics'] if metric.name == 'profit')
             params = OS_engine['params']
 
-            # display to console
-            print('\t' + str(run) + ', [' + str(metric.id) + '], (' + str(num_trades) + '): ' + params.one_line)
+            # add row to table
+            row = [
+                str(run),
+                str(round(profit)),
+                str(round(profit_factor, 2)),
+                str(num_trades),
+                params.one_line
+            ]
+            table.add_row(*row)
+
+        # display to console
+        self.winner_display_table = table
+
+    def print_last_analyzer(self):
+
+        IS_path = self.analyzer_path + '/' + str(self.runs)
+        analyzer = unpack('analyzer', IS_path)
+        print_metrics(analyzer['metrics'])
 
     def plot(self):
 
@@ -293,6 +322,9 @@ class WalkForward:
                 color = fitness.color,
                 width = 2,
                 ax = ax)
+
+            if fitness is None:
+                pass
 
             # format legend
             legend = '<span style="font-size:16pt">' + fitness.pretty + '</span>'
@@ -329,12 +361,12 @@ class WalkForward:
                 # plot initial cash
                 fplt.plot(engine.initial_cash, color = dark_gray, ax = ax)
 
-                # plot buy and hold
+                # reference buy and hold
                 size = engine.strategy.size
-                point_value = engine.strategy.ticker.point_value
-                # delta_df = composite.data.Close - composite.data.Close.iloc[0]
+                tick_size = engine.strategy.ticker.tick_size
+                tick_value = engine.strategy.ticker.tick_value
                 delta_df = self.data.Close - self.data.Close.iloc[0]
-                buy_hold = size * point_value * delta_df + initial_cash
+                buy_hold = size * tick_value * delta_df / tick_size + initial_cash
                 fplt.plot(buy_hold, color = dark_gray, ax = ax)
 
                 # plot out-of-sample window boundaries

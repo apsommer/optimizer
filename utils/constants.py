@@ -14,7 +14,7 @@ light_black = '#5e5e5e'
 # get color pallet from seaborn, 10 total
 # https://seaborn.pydata.org/tutorial/color_palettes.html
 # deep, muted, pastel, bright, dark, colorblind
-colors = sns.color_palette('bright').as_hex()
+colors = sns.color_palette('dark').as_hex()
 blue = colors[0]
 orange = colors[1]
 green = colors[2]
@@ -32,11 +32,11 @@ ribbon_colors = crest(np.linspace(0, 1, 10))
 def get_ribbon_color(i):
     return mpl.colors.rgb2hex(ribbon_colors[i % 10])
 
-########################################################################################################################
-
 initial_cash = 10000
 
+########################################################################################################################
+
 # tradingview limitation ~20k bars
-# tv_start = pd.Timestamp('2025-05-27T18:00:00', tz='America/Chicago')
+# tv_start = pd.Timestamp('2025-07-27T22:00:00', tz='America/Chicago')
 # if tv_start > idx:
 #     return

@@ -1,5 +1,6 @@
 import numpy
 import numpy as np
+from numpy import floating
 
 
 class LiveParams:
@@ -69,7 +70,7 @@ class LiveParams:
 
     def __repr__(self):
 
-        if type(self.fastMinutes) == list:
+        if type(self.takeProfitPercent) == numpy.ndarray:
             return(
                 f'\n\t\tfastMinutes: {pretty_list(self.fastMinutes)}'
                 f'\n\t\tdisableEntryMinutes: {pretty_list(self.disableEntryMinutes)}'
@@ -104,6 +105,8 @@ def pretty_list(list):
     return (
         np.array2string(
             a = np.array(list),
-            separator = ',')
+            separator = ',',
+            threshold = 3)
         .replace(' ', '')
-        .replace(',', ', '))
+        .replace(',', ', ')
+        .replace('0.,', '0,'))

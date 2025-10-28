@@ -1,13 +1,14 @@
 import math
 from datetime import timedelta
 
+from rich.console import Console
+from rich.padding import Padding
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
 import numpy as np
 from model.Metric import Metric
 from utils.utils import format_timestamp, unpack
-
 
 def print_metrics(metrics):
 
@@ -72,6 +73,7 @@ def get_engine_metrics(engine):
     cash = cash_series.iloc[-1]
     profit = cash - initial_cash
     trades_per_day = num_trades / days
+    profit_per_day = profit / days
 
     wins = [ trade.profit for trade in trades if trade.profit > 0 ]
     losses = [ trade.profit for trade in trades if 0 > trade.profit ]
@@ -79,7 +81,7 @@ def get_engine_metrics(engine):
     gross_loss = sum(losses)
 
     total_return = (profit / initial_cash) * 100
-    annual_return = ((abs(cash) / initial_cash) ** (1 / (days / 365)) - 1) * 100
+    annual_return = ((cash / initial_cash) ** (1 / (days / 365)) - 1) * 100
     if 0 > cash: annual_return = -annual_return
 
     if gross_loss == 0: profit_factor = np.inf
@@ -94,6 +96,7 @@ def get_engine_metrics(engine):
 
     drawdown = max_daily_drawdown.min() * initial_price
     drawdown_per_profit = (drawdown / profit) * 100
+    drawdown_per_day = drawdown / days
 
     # wins
     num_wins = len(wins)
@@ -153,6 +156,10 @@ def get_engine_metrics(engine):
     # pretty
     candles = '{:,}'.format(candles)
 
+    # negative for fitness optimization
+    num_losses = -num_losses
+    correlation = -correlation
+
     return [
 
         # engine
@@ -171,14 +178,17 @@ def get_engine_metrics(engine):
         Metric('num_trades', num_trades, None, 'Trades'),
         Metric('profit_factor', profit_factor, None, 'Profit factor', '.2f'),
         Metric('drawdown', drawdown, 'USD', 'Drawdown'),
+        Metric('drawdown_per_day', drawdown_per_day, 'USD', 'Drawdown per day'),
         Metric('profit', profit, 'USD', 'Profit'),
         Metric('trades_per_day', trades_per_day, None, 'Trades per day', '.2f'),
+        Metric('profit_per_day', profit_per_day, 'USD', 'Profit per day'),
         Metric('gross_profit', gross_profit, 'USD', 'Gross profit'),
         Metric('gross_loss', gross_loss, 'USD', 'Gross loss'),
         Metric('total_return', total_return, '%', 'Total return'),
         Metric('annual_return', annual_return, '%', 'Annualized return'),
         Metric('drawdown_per_profit', drawdown_per_profit, '%', 'Drawdown per profit'),
         Metric('num_wins', num_wins, None, 'Number of wins'),
+        Metric('num_losses', num_losses, None, 'Number of losses'),
         Metric('win_rate', win_rate, '%', 'Win rate'),
         Metric('loss_rate', loss_rate, '%', 'Loss rate'),
         Metric('average_win', average_win, 'USD', 'Average win'),
@@ -203,8 +213,13 @@ def get_analyzer_metrics(analyzer):
     start_date = analyzer.data.index[0]
     end_date = analyzer.data.index[-1]
     num_engines = analyzer.opt.size
-    num_engines_profitable = len(analyzer.engine_metrics)
-    profitable_engine_percent = (num_engines_profitable / num_engines) * 100
+
+    # calculate percent profitable
+    profitable = 0
+    for id in np.arange(num_engines):
+        profitable += next((1 for metric in analyzer.engine_metrics if metric.id == id), 0)
+    profitable_percent = (profitable / num_engines) * 100
+
     days = (analyzer.data.index[-1] - analyzer.data.index[0]).days
     candles = len(analyzer.data.index)
 
@@ -219,7 +234,7 @@ def get_analyzer_metrics(analyzer):
         Metric('header', None, None, 'Analyzer:'),
         Metric('id', analyzer.id, None, 'Id'),
         Metric('num_engines', num_engines, None, 'Engines'),
-        Metric('profitable_engine_percent', profitable_engine_percent, '%', 'Profitable engines'),
+        Metric('profitable_percent', profitable_percent, '%', 'Profitable engines'),
         Metric('start_date', start_date, None, 'Start date'),
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
@@ -228,6 +243,9 @@ def get_analyzer_metrics(analyzer):
 
 def init_walk_forward_metrics(wfa):
 
+    # configuration
+    id = wfa.id
+    asset = wfa.parent_path.split('/')[-1].split('_')[0]
     start_date = wfa.data.index[0]
     end_date = wfa.data.index[-1]
     candles = len(wfa.data.index)
@@ -248,8 +266,13 @@ def init_walk_forward_metrics(wfa):
     in_sample_days = str(in_sample) + ' of ' + str(in_sample * (wfa.runs + 1))
     out_of_sample_days = str(out_of_sample) + ' of ' + str(out_of_sample * wfa.runs)
 
+    # fitness
+    fitness = wfa.fitness.pretty
+
     return [
         Metric('header', None, None, 'Walk forward:'),
+        Metric('id', id, None, 'Id'),
+        Metric('asset', asset, None, 'Asset'),
         Metric('months', months, None, 'Months'),
         Metric('percent', wfa.percent, '%', 'Percent'),
         Metric('runs', runs, None, 'Runs'),
@@ -259,6 +282,7 @@ def init_walk_forward_metrics(wfa):
         Metric('end_date', end_date, None, 'End date'),
         Metric('candles', candles, None, 'Candles'),
         Metric('days', days, None, 'Days'),
+        Metric('fitness', fitness, None, 'Fitness'),
         Metric('opt', opt, None, 'Optimization'),
     ]
 
@@ -274,11 +298,14 @@ def get_walk_forward_results_metrics(wfa):
     end = format_timestamp(end)
 
     # pretty
+    best_fitness = wfa.best_fitness.pretty
+    next_params = wfa.next_params.one_line
     candles = '{:,}'.format(candles)
 
     return [
-        Metric('best_fitness', wfa.best_fitness.pretty, None, 'Fitness'),
-        Metric('params', wfa.best_params.one_line, None, 'Params'),
+        Metric('header', None, None, 'Solution:'),
+        Metric('best_fitness', best_fitness, None, 'Best fitness'),
+        Metric('next_params', next_params, None, 'Next params'),
         Metric('start', start, None, 'Start'),
         Metric('end', end, None, 'End'),
         Metric('candles', candles, None, 'Candles'),
@@ -367,3 +394,12 @@ def get_genetic_results_metrics(genetic):
             Metric(name, value, None, title))
 
     return metrics
+
+########################################################################################################################
+
+def print_composite_summary(composite_summary):
+
+    print()
+    console = Console()
+    padding = Padding(composite_summary, pad = (0, 0, 0, 8))
+    console.print(padding)

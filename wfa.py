@@ -4,7 +4,7 @@ import warnings
 from multiprocessing import Pool
 
 from analysis.WalkForward import WalkForward
-from model.Fitness import Fit
+from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
 from utils import utils
 from utils.metrics import *
@@ -14,61 +14,67 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ES_3m'
-num_months = 9
+asset = 'NG'
+num_months = 20
 isNetwork = False
 
-# walk forward params
-percent = 20
-runs = 14 # + 1 added later for final in-sample, use 15 of 16 cores available
+# walk forward
+percent = 25
+runs = 9 # +1 added for final in-sample
+fitness = Fitness(
+    fits = [
+        (Fit.PROFIT_FACTOR, 90),
+        (Fit.DRAWDOWN_PER_PROFIT, 10),
+        # (Fit.NUM_WINS, 30),
+        # (Fit.PROFIT, 20),
+        # (Fit.CORRELATION, 10),
+    ])
 
-# analyzer
+# multiprocessing uses all cores, 16 available, leave 1 for basic tasks
+cores = runs + 1 # multiprocessing.cpu_count() - 1
+
+# optimization
 opt = LiveParams(
-    fastMinutes = [25],
-    disableEntryMinutes = [75],
-    fastMomentumMinutes = [75], #  np.linspace(55, 135, 9, dtype = int),
-    fastCrossoverPercent = [0],
-    takeProfitPercent = [.35, .56], # np.around(np.linspace(.25, .75, 6), 2),
-    stopLossPercent = [.5], # np.around(np.linspace(.25, .95, 8), 2),
-    fastAngleExitFactor= [0],
-    slowMinutes = [2405],
-    slowAngleFactor = [15],
-    coolOffMinutes = [25],
-    trendStartHour = [4],
-    trendEndHour = [45],
+    fastMinutes = [85],
+    disableEntryMinutes = [115], # np.linspace(55, 255, 201, dtype = int),
+    fastMomentumMinutes = np.linspace(75, 155, 17, dtype = int),
+    fastCrossoverPercent = [0], # [0, 75, 85, 95], # np.linspace(75, 95, 5),
+    takeProfitPercent = np.around(np.linspace(0.25, 0.75, 11), 2),
+    stopLossPercent = [0], # np.around(np.linspace(.25, .65, 9), 29
+    fastAngleEntryFactor = np.linspace(15, 35, 3, dtype = int),
+    fastAngleExitFactor = [1960], # np.linspace(1000, 3000, 401, dtype = int),
+    slowMinutes = [3055], # np.linspace(1755, 3055, 7, dtype = int),
+    slowAngleFactor = [30], # np.linspace(15, 50, 8, dtype = int),
+    coolOffMinutes = [15], # np.linspace(0, 25, 26, dtype = int),
+    trendStartHour = [4], # np.linspace(0, 12, 13, dtype = int),
+    trendEndHour = [25], # np.linspace(12, 212, 201, dtype = int),
 )
 
 ###################################################################
 
+# clean console
 os.system('clear')
 warnings.filterwarnings('ignore')
-np.set_printoptions(threshold = 3)
 start_time = time.time()
 
 # organize outputs
 data_name = asset + '_' + str(num_months) + 'm'
+data_path = 'data/' + data_name
 parent_path = 'wfa/' + data_name
 analyzer_path = parent_path + '/' + str(percent) + '_' + str(runs)
 
-# get ohlc prices
-data = utils.getOhlc(asset, num_months, isNetwork)
+# init data and indicators
+data = getOhlc(asset, num_months, isNetwork)
+emas, fractals = getIndicators(data, opt, data_path)
 
-# get indicators
-getIndicators(data, opt, parent_path)
-emas = unpack('emas', parent_path)
-fractals = unpack('fractals', parent_path)
-
-# remove any residual analyses
+# remove residual analyses
 shutil.rmtree(analyzer_path, ignore_errors = True)
-
-# multiprocessing uses all cores
-cores = multiprocessing.cpu_count() # 16 available
-cores -= 1 # leave 1 for basic computer tasks
 
 # init walk forward
 wfa = WalkForward(
     num_months = num_months,
     percent = percent,
+    fitness = fitness,
     runs = runs,
     data = data,
     emas = emas,
@@ -81,34 +87,29 @@ wfa = WalkForward(
 print_metrics(wfa.metrics)
 
 # run in-sample sweep
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
+pool = Pool(cores)
 pool.map(wfa.in_sample, range(runs + 1)) # add 1 for last IS (prediction)
 pool.close()
 pool.join()
 
 # run out-of-sample for each fitness
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
+pool = Pool(cores)
 pool.map(wfa.out_of_sample, range(runs))
 pool.close()
 pool.join()
 
 # build composite engines
-fitnesses = [fitness for fitness in Fit]
-pool = Pool(
-    processes = cores,
-    initializer = set_process_name)
-pool.map(wfa.build_composite, fitnesses)
+fits = [fit for fit in Fit]
+pool = Pool(cores)
+pool.map(wfa.build_composite, fits)
 pool.close()
 pool.join()
 
 # select composite of interest
 wfa.analyze()
 print_metrics(get_walk_forward_results_metrics(wfa))
-wfa.print_fittest_composite()
+print_composite_summary(wfa.winner_display_table)
+wfa.print_last_analyzer()
 
 # print analysis time
 elapsed = time.time() - start_time
