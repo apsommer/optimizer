@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'MNG'
+asset = 'NG'
 num_months = 20
 isNetwork = False
 
