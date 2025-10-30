@@ -13,8 +13,8 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'NG'
-num_months = 15
+asset = 'MES'
+num_months = 20
 isNetwork = False
 
 # genetic
@@ -35,16 +35,16 @@ cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [65], # np.linspace(25, 125, 6, dtype = int),
+    fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
-    takeProfitPercent = np.around(np.linspace(0.5, 1, 51), 2),
+    takeProfitPercent = np.around(np.linspace(0.25, 1, 76), 2),
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
-    fastAngleEntryFactor = np.linspace(20, 50,  31, dtype = int),
-    fastAngleExitFactor = np.linspace(2000, 3000, 1001, dtype = int),
-    slowMinutes = [4805], # np.linspace(2055, 5555, 15, dtype = int),
-    slowAngleFactor = np.linspace(20, 50, 31, dtype = int),
+    fastAngleEntryFactor = np.linspace(0, 50,  51, dtype = int),
+    fastAngleExitFactor = np.linspace(1000, 3000, 2001, dtype = int),
+    slowMinutes = np.linspace(2055, 5555, 15, dtype = int),
+    slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
     coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 60, 49, dtype = int),
