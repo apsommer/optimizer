@@ -13,21 +13,21 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'NG'
-num_months = 15
+asset = '6E'
+num_months = 20
 isNetwork = False
 
 # genetic
 population_size = 100
-generations = 10
+generations = 7
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 80),
-        (Fit.DRAWDOWN_PER_PROFIT, 20),
-        # (Fit.NUM_WINS, 30),
-        # (Fit.PROFIT, 20),
-        # (Fit.CORRELATION, 10),
+        # (Fit.PROFIT_FACTOR, 50),
+        # (Fit.DRAWDOWN_PER_PROFIT, 60),
+        # (Fit.NUM_WINS, 40),
+        (Fit.PROFIT, 60),
+        (Fit.CORRELATION, 40),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
@@ -35,16 +35,16 @@ cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [65], # np.linspace(25, 125, 6, dtype = int),
+    fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
-    fastCrossoverPercent = [0], # np.linspace(70, 100, 31),
-    takeProfitPercent = np.around(np.linspace(0.5, 1, 51), 2),
+    fastMomentumMinutes = np.linspace(55, 125, 71, dtype = int),
+    fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
+    takeProfitPercent = np.around(np.linspace(0.025, 0.1, 76), 2),
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
-    fastAngleEntryFactor = np.linspace(20, 50,  31, dtype = int),
-    fastAngleExitFactor = np.linspace(2000, 3000, 1001, dtype = int),
-    slowMinutes = [4805], # np.linspace(2055, 5555, 15, dtype = int),
-    slowAngleFactor = np.linspace(20, 50, 31, dtype = int),
+    fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
+    fastAngleExitFactor = np.linspace(1000, 4000, 601, dtype = int),
+    slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
+    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
     trendEndHour = np.linspace(12, 60, 49, dtype = int),
