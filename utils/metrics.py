@@ -39,12 +39,12 @@ def print_metrics(metrics):
 
 def display_progress_bar(metrics):
 
-    profit = next(metric for metric in metrics if metric.name == 'profit').value
+    profit = round(next(metric for metric in metrics if metric.name == 'profit').value)
     pf = round(next(metric for metric in metrics if metric.name == 'profit_factor').value, 2)
     trades = next(metric for metric in metrics if metric.name == 'num_trades').value
     params = next(metric for metric in metrics if metric.name == 'params').value
 
-    return f'pf: {pf}, trades: {trades}, profit: {profit},\n params: {params}'
+    return f'{pf} / {trades}, {profit}'
 
 def get_engine_metrics(engine):
 
