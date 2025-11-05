@@ -4,7 +4,7 @@ from model.Ticker import Ticker
 
 class BaselineStrategy():
 
-    # American equities
+    # Equities
     # Nasdaq 100, MNQ: 0.25, 0.50
     # S&P 500, MES (ES): 0.25, 1.25
     # Dow, MYM (YM): 1, 0.5
@@ -30,9 +30,9 @@ class BaselineStrategy():
     @property
     def ticker(self):
         return Ticker(
-            symbol = '6E',
-            tick_size = 0.00005,
-            tick_value = 6.25,
+            symbol = 'MNK',
+            tick_size = 5,
+            tick_value = 2.50,
             margin = 1 # todo remove
         )
 

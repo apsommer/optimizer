@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = '6E'
+asset = 'MNK'
 num_months = 20
 isNetwork = False
 
@@ -37,9 +37,9 @@ cores = 10 # multiprocessing.cpu_count() - 1
 opt = LiveParams(
     fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 125, 71, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 175, 121, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
-    takeProfitPercent = np.around(np.linspace(0.025, 0.1, 76), 2),
+    takeProfitPercent = np.around(np.linspace(0.25, 1, 76), 2),
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
     fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
     fastAngleExitFactor = np.linspace(1000, 4000, 601, dtype = int),
