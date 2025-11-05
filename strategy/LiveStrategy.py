@@ -1,4 +1,5 @@
 import finplot as fplt
+import numpy as np
 import pandas as pd
 
 from datetime import timedelta
@@ -170,14 +171,9 @@ class LiveStrategy(BaselineStrategy):
             and fastSlope > fastAngleExit)
 
         # slow trend is long or short
-        isEntryLongEnabled = (
-            self.trendStartMinutes == 0
-            or self.trendEndMinutes == 0
-            or self.trendEndMinutes > slowLongMinutes > self.trendStartMinutes)
-        isEntryShortEnabled = (
-            self.trendStartMinutes == 0
-            or self.trendEndMinutes == 0
-            or self.trendEndMinutes > slowShortMinutes > self.trendStartMinutes)
+        if self.trendEndMinutes == 0: self.trendEndMinutes = np.inf
+        isEntryLongEnabled = self.trendEndMinutes > slowLongMinutes >= self.trendStartMinutes
+        isEntryShortEnabled = self.trendEndMinutes > slowShortMinutes >= self.trendStartMinutes
 
         # entry, long fractal signal
         isEntryLongFractal = (

@@ -25,9 +25,9 @@ fitness = Fitness(
     fits = [
         # (Fit.PROFIT_FACTOR, 50),
         # (Fit.DRAWDOWN_PER_PROFIT, 60),
-        # (Fit.NUM_WINS, 40),
-        (Fit.PROFIT, 60),
-        (Fit.CORRELATION, 40),
+        (Fit.NUM_WINS, 50),
+        # (Fit.PROFIT, 60),
+        (Fit.CORRELATION, 50),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
@@ -47,7 +47,7 @@ opt = LiveParams(
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
     trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 60, 49, dtype = int),
+    trendEndHour = [0], # np.linspace(12, 60, 49, dtype = int),
 )
 
 ########################################################################################################################
@@ -140,3 +140,6 @@ genetic.plot()
 elapsed = time.time() - start_time
 pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
+
+# required for cProfile
+exit()
