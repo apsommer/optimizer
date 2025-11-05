@@ -5,10 +5,10 @@ from model.Ticker import Ticker
 class BaselineStrategy():
 
     # Equities
-    # Nasdaq 100, MNQ: 0.25, 0.50
-    # S&P 500, MES (ES): 0.25, 1.25
-    # Dow, MYM (YM): 1, 0.5
-    # Nikkei, MNK (NKD): 5, 2.50
+    # Nasdaq-100, MNQ: 0.25, 0.50
+    # S&P-500, MES (ES): 0.25, 1.25
+    # Dow-40, MYM (YM): 1, 0.5
+    # Nikkei-225, MNK (NKD): 5, 2.50
 
     # Currency
     # Euro/USD, 6E: 0.00005, 6.25
@@ -33,7 +33,6 @@ class BaselineStrategy():
             symbol = 'MNK',
             tick_size = 5,
             tick_value = 2.50,
-            margin = 1 # todo remove
         )
 
     def __init__(self):
