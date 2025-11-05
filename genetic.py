@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'MNK'
+asset = 'NKD'
 num_months = 20
 isNetwork = False
 
