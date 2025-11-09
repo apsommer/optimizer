@@ -13,20 +13,20 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'NKD'
+asset = 'MNQ'
 num_months = 20
 isNetwork = False
 
 # genetic
 population_size = 100
-generations = 7
+generations = 5
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 50),
-        # (Fit.DRAWDOWN_PER_PROFIT, 60),
-        (Fit.NUM_WINS, 50),
-        # (Fit.PROFIT, 60),
+        # (Fit.PROFIT_FACTOR, 80),
+        # (Fit.DRAWDOWN_PER_PROFIT, 50),
+        # (Fit.NUM_WINS, 50),
+        (Fit.PROFIT, 50),
         (Fit.CORRELATION, 50),
     ])
 
@@ -37,17 +37,17 @@ cores = 10 # multiprocessing.cpu_count() - 1
 opt = LiveParams(
     fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 175, 121, dtype = int),
+    fastMomentumMinutes = np.linspace(55, 255, 201, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(0.25, 1, 76), 2),
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
-    fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
-    fastAngleExitFactor = np.linspace(1000, 4000, 601, dtype = int),
-    slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
-    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
-    trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = [0], # np.linspace(12, 60, 49, dtype = int),
+    fastAngleEntryFactor = np.linspace(5, 55, 51, dtype = int),
+    fastAngleExitFactor = np.linspace(2000, 3000, 201, dtype = int),
+    slowMinutes = [2795], # np.linspace(1755, 3055, 6, dtype = int),
+    slowAngleFactor = np.linspace(0, 30, 31, dtype = int),
+    coolOffMinutes = [15], # np.linspace(0, 30, 31, dtype = int),
+    trendStartHour = [4], # np.linspace(0, 15, 16, dtype = int),
+    trendEndHour = [96], # np.linspace(50, 550, 501, dtype = int),
 )
 
 ########################################################################################################################
@@ -116,6 +116,8 @@ with tqdm(
         genetic.crossover()
         genetic.mutation()
         genetic.clean()
+
+        # todo add curve to plot?
 
         # add comment to progress bar
         best_metric = genetic.best_engines[generation]

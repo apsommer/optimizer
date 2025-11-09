@@ -12,7 +12,7 @@ from utils.utils import *
 # data, indicators
 asset = 'MES'
 num_months = 20
-id = '20251031_191014'
+id = '20251108_150321'
 engine = None # 'g4e70' # None
 
 ###################################################################
