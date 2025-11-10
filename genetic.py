@@ -13,7 +13,7 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'MNQ'
+asset = 'YM'
 num_months = 20
 isNetwork = False
 
@@ -26,8 +26,8 @@ fitness = Fitness(
         # (Fit.PROFIT_FACTOR, 80),
         # (Fit.DRAWDOWN_PER_PROFIT, 50),
         # (Fit.NUM_WINS, 50),
-        (Fit.PROFIT, 50),
-        (Fit.CORRELATION, 50),
+        (Fit.PROFIT, 80),
+        (Fit.CORRELATION, 20),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
@@ -35,19 +35,19 @@ cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int),
+    fastMinutes = np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(55, 255, 201, dtype = int),
-    fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
+    fastCrossoverPercent = np.linspace(70, 100, 31, dtype = int),
     takeProfitPercent = np.around(np.linspace(0.25, 1, 76), 2),
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
     fastAngleEntryFactor = np.linspace(5, 55, 51, dtype = int),
-    fastAngleExitFactor = np.linspace(2000, 3000, 201, dtype = int),
-    slowMinutes = [2795], # np.linspace(1755, 3055, 6, dtype = int),
-    slowAngleFactor = np.linspace(0, 30, 31, dtype = int),
-    coolOffMinutes = [15], # np.linspace(0, 30, 31, dtype = int),
-    trendStartHour = [4], # np.linspace(0, 15, 16, dtype = int),
-    trendEndHour = [96], # np.linspace(50, 550, 501, dtype = int),
+    fastAngleExitFactor = np.linspace(1000, 4000, 601, dtype = int),
+    slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
+    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
+    coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
+    trendStartHour = np.linspace(0, 15, 16, dtype = int),
+    trendEndHour = np.linspace(15, 515, 501, dtype = int),
 )
 
 ########################################################################################################################
@@ -117,13 +117,14 @@ with tqdm(
         genetic.mutation()
         genetic.clean()
 
-        # todo add curve to plot?
-
         # add comment to progress bar
         best_metric = genetic.best_engines[generation]
         best_engine = unpack(best_metric.id, path + '/' + str(generation))
         pbar.set_postfix_str(display_progress_bar(best_engine['metrics']))
         pbar.update()
+
+        print_metrics(best_engine['metrics'])
+        # todo add curve to plot?
 
 # run and save best engines
 pool = Pool(cores)

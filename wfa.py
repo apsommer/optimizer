@@ -14,7 +14,7 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'MES'
+asset = 'NQ'
 num_months = 20
 isNetwork = False
 
@@ -25,9 +25,9 @@ fitness = Fitness(
     fits = [
         # (Fit.PROFIT_FACTOR, 80),
         (Fit.DRAWDOWN_PER_PROFIT, 50),
-        (Fit.NUM_WINS, 50),
-        # (Fit.PROFIT, 50),
-        # (Fit.CORRELATION, 50),
+        # (Fit.NUM_WINS, 50),
+        (Fit.PROFIT_FACTOR, 20),
+        (Fit.CORRELATION, 30),
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
@@ -36,18 +36,18 @@ cores = runs + 1 # multiprocessing.cpu_count() - 1
 # optimization
 opt = LiveParams(
     fastMinutes = [25],
-    disableEntryMinutes = [165],
-    fastMomentumMinutes = np.linspace(105, 205,11, dtype = int),
+    disableEntryMinutes = [100],
+    fastMomentumMinutes = np.linspace(70, 135,14, dtype = int),
     fastCrossoverPercent = [0],
     takeProfitPercent = np.around(np.linspace(0.25, 0.75, 11), 2),
     stopLossPercent = [0],
-    fastAngleEntryFactor = [20],
-    fastAngleExitFactor = [2050],
+    fastAngleEntryFactor = [30],
+    fastAngleExitFactor = [2220],
     slowMinutes = [2275],
-    slowAngleFactor = [20],
-    coolOffMinutes = [15],
-    trendStartHour = [12],
-    trendEndHour = [62],
+    slowAngleFactor = [25],
+    coolOffMinutes = [20],
+    trendStartHour = [7],
+    trendEndHour = [210],
 )
 
 ###################################################################
