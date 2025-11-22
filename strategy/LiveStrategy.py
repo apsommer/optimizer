@@ -20,7 +20,7 @@ class LiveStrategy(BaselineStrategy):
         self.emas = emas
         self.params = params
 
-        # allow blank strategy for walk-forward composite
+        # allow blank strategy for walk-forward composite todo remove?
         if params is None: return
 
         # unpack params
@@ -76,6 +76,8 @@ class LiveStrategy(BaselineStrategy):
         self.shortTakeProfit = np.nan
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
+
+        self.enableFlips = False
 
     def on_bar(self):
 
@@ -199,7 +201,7 @@ class LiveStrategy(BaselineStrategy):
             and (isEntryLongFractal or isEntryLongFastCrossover))
         isEntryLong = (
             ((is_flat or is_short) and isEntryLongSignal)
-            or (isExitShortFastMomentum and fast > slow)
+            or (isExitShortFastMomentum and fast > slow) # todo stronger criteria?
             or (isExitShortRapidMomentum and fast > slow)
             and not self.is_last_bar)
         if isEntryLong:
