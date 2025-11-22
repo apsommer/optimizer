@@ -199,11 +199,18 @@ class LiveStrategy(BaselineStrategy):
             hasLongEntryDelayElapsed
             and not isEntryLongDisabled
             and (isEntryLongFractal or isEntryLongFastCrossover))
-        isEntryLong = (
-            ((is_flat or is_short) and isEntryLongSignal)
-            or (isExitShortFastMomentum and fast > slow) # todo stronger criteria?
-            or (isExitShortRapidMomentum and fast > slow)
-            and not self.is_last_bar)
+
+        if self.enableFlips:
+            isEntryLong = (
+                ((is_flat or is_short) and isEntryLongSignal)
+                or (isExitShortFastMomentum and fast > slow)
+                or (isExitShortRapidMomentum and fast > slow)
+                and not self.is_last_bar)
+        else:
+            isEntryLong = (
+                is_flat and isEntryLongSignal
+                and not self.is_last_bar)
+
         if isEntryLong:
             self.buy(ticker, size)
 
@@ -229,11 +236,18 @@ class LiveStrategy(BaselineStrategy):
             hasShortEntryDelayElapsed
             and not isEntryShortDisabled
             and (isEntryShortFractal or isEntryShortFastCrossover))
-        isEntryShort = (
-            ((is_flat or is_long) and isEntryShortSignal)
-            or (isExitLongFastMomentum and slow > fast)
-            or (isExitLongRapidMomentum and slow > fast)
-            and not self.is_last_bar)
+
+        if self.enableFlips:
+            isEntryShort = (
+                ((is_flat or is_long) and isEntryShortSignal)
+                or (isExitLongFastMomentum and slow > fast)
+                or (isExitLongRapidMomentum and slow > fast)
+                and not self.is_last_bar)
+        else:
+            isEntryShort = (
+                is_flat and isEntryShortSignal
+                and not self.is_last_bar)
+
         if isEntryShort:
             self.sell(ticker, size)
 
@@ -308,14 +322,19 @@ class LiveStrategy(BaselineStrategy):
             isExitShortStopLoss = high > shortStopLoss
 
         # flip trade immediately in opposite direction
-        isExitLongFlip = (
-            (is_long and isEntryShortSignal)
-            or (isExitLongFastMomentum and slow > fast)
-            or (isExitLongRapidMomentum and slow > fast))
-        isExitShortFlip = (
-            (is_short and isEntryLongSignal)
-            or (isExitShortFastMomentum and fast > slow)
-            or (isExitShortRapidMomentum and fast > slow))
+        if self.enableFlips:
+            isExitLongFlip = (
+                (is_long and isEntryShortSignal)
+                or (isExitLongFastMomentum and slow > fast)
+                or (isExitLongRapidMomentum and slow > fast))
+            isExitShortFlip = (
+                (is_short and isEntryLongSignal)
+                or (isExitShortFastMomentum and fast > slow)
+                or (isExitShortRapidMomentum and fast > slow))
+
+        else:
+            isExitLongFlip = False
+            isExitShortFlip = False
 
         # exit long
         isExitLong = is_long and (

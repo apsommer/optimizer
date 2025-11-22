@@ -18,8 +18,8 @@ num_months = 20
 isNetwork = False
 
 # genetic
-population_size = 100
-generations = 5
+population_size = 10
+generations = 2
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
@@ -47,7 +47,7 @@ opt = LiveParams(
     fastAngleExitFactor = np.linspace(2000, 3000, 201, dtype = int),
     slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
     slowAngleFactor = np.linspace(0, 35, 36, dtype = int),
-    coolOffMinutes = [10], # np.linspace(0, 15, 16, dtype = int),
+    coolOffMinutes = np.linspace(0, 15, 16, dtype = int),
     trendStartHour = np.linspace(0, 24, 25, dtype = int),
     trendEndHour = np.linspace(24, 120, 97, dtype = int),
 )
