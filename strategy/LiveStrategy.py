@@ -208,7 +208,8 @@ class LiveStrategy(BaselineStrategy):
                 and not self.is_last_bar)
         else:
             isEntryLong = (
-                is_flat and isEntryLongSignal
+                is_flat
+                and isEntryLongSignal
                 and not self.is_last_bar)
 
         if isEntryLong:
@@ -245,7 +246,8 @@ class LiveStrategy(BaselineStrategy):
                 and not self.is_last_bar)
         else:
             isEntryShort = (
-                is_flat and isEntryShortSignal
+                is_flat
+                and isEntryShortSignal
                 and not self.is_last_bar)
 
         if isEntryShort:
