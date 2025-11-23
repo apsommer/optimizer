@@ -69,7 +69,8 @@ class Engine:
         self.cash += trade.profit
 
         # flip, enter new trade immediately on exit
-        if 'flip' in order.comment:
+        isFlip = self.strategy.enableFlips and 'flip' in order.comment
+        if isFlip:
             entry_order = self.strategy.orders[-2]
             self.trades.append(
                 Trade(

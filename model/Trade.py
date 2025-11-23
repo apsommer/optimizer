@@ -48,6 +48,8 @@ class Trade:
         decimals = 2
         ################
 
+        print(self.entry_order.idx)
+
         # format to match tradingview
         exit = ('\n\t' + str(self.id) + '\t' + format_timestamp(self.exit_order.idx) + '\t' +
                 str(round(self.exit_order.price, decimals)) + '\t' + str(round(self.profit, decimals)) + '\t' + self.exit_order.comment)

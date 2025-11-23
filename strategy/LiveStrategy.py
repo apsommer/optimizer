@@ -77,7 +77,9 @@ class LiveStrategy(BaselineStrategy):
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
 
+        # INPUT ################
         self.enableFlips = False
+        ########################
 
     def on_bar(self):
 
@@ -201,16 +203,15 @@ class LiveStrategy(BaselineStrategy):
             and (isEntryLongFractal or isEntryLongFastCrossover))
 
         if self.enableFlips:
-            isEntryLong = (
+            isEntryLong = not self.is_last_bar and (
                 ((is_flat or is_short) and isEntryLongSignal)
                 or (isExitShortFastMomentum and fast > slow)
-                or (isExitShortRapidMomentum and fast > slow)
-                and not self.is_last_bar)
+                or (isExitShortRapidMomentum and fast > slow))
         else:
             isEntryLong = (
                 is_flat
-                and isEntryLongSignal
-                and not self.is_last_bar)
+                and not self.is_last_bar
+                and isEntryLongSignal)
 
         if isEntryLong:
             self.buy(ticker, size)
@@ -239,16 +240,15 @@ class LiveStrategy(BaselineStrategy):
             and (isEntryShortFractal or isEntryShortFastCrossover))
 
         if self.enableFlips:
-            isEntryShort = (
+            isEntryShort = not self.is_last_bar and (
                 ((is_flat or is_long) and isEntryShortSignal)
                 or (isExitLongFastMomentum and slow > fast)
-                or (isExitLongRapidMomentum and slow > fast)
-                and not self.is_last_bar)
+                or (isExitLongRapidMomentum and slow > fast))
         else:
             isEntryShort = (
                 is_flat
-                and isEntryShortSignal
-                and not self.is_last_bar)
+                and not self.is_last_bar
+                and isEntryShortSignal)
 
         if isEntryShort:
             self.sell(ticker, size)
