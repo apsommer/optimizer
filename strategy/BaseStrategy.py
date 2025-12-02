@@ -11,7 +11,7 @@ class BaselineStrategy():
     # Nikkei-225, MNK (NKD): 5, 2.50
 
     # Currency
-    # Euro/USD, 6E: 0.00005, 6.25
+    # Euro/USD, 6E: 0.00005, 6.25, Ticker('6E', 0.00005, 6.25)
     # Ether, MET (ETH): 0.05, 0.05
         # 22/09/25 Can not achieve genetic pf > 1.3
 
@@ -30,7 +30,7 @@ class BaselineStrategy():
 
     @property
     def ticker(self):
-        return Ticker('MNQ', 0.25, 0.50)
+        return Ticker('6E', 0.00005, 6.25)
 
     def __init__(self):
         self.current_idx = None
