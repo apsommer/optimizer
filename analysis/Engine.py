@@ -120,7 +120,7 @@ class Engine:
     def print_trades(self):
 
         # INPUT ########
-        show_last = 1000
+        show_last = 10
         ################
 
         trades = self.trades

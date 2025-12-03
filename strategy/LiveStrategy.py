@@ -89,9 +89,9 @@ class LiveStrategy(BaselineStrategy):
         bar_index = self.bar_index
 
         # todo tradingview limitation ~20k bars
-        tv_start = pd.Timestamp('2025-11-19T00:00:00', tz='America/Chicago')
-        if tv_start > idx:
-            return
+        # tv_start = pd.Timestamp('2025-11-19T00:00:00', tz='America/Chicago')
+        # if tv_start > idx:
+        #     return
 
         # params
         fastAngleEntry = self.fastAngleEntry
