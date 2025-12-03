@@ -10,11 +10,11 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'GC'
+asset = '6E'
 num_months = 20
 percent = 25
 runs = 9 # +1 added for final in-sample
-id = 'GC_20m_20251113_203152'
+id = '6E_20m_20251202_131221'
 
 ###################################################################
 

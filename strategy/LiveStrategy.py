@@ -89,9 +89,9 @@ class LiveStrategy(BaselineStrategy):
         bar_index = self.bar_index
 
         # todo tradingview limitation ~20k bars
-        # tv_start = pd.Timestamp('2025-08-29T22:00:00', tz='America/Chicago')
-        # if tv_start > idx:
-        #     return
+        tv_start = pd.Timestamp('2025-11-19T00:00:00', tz='America/Chicago')
+        if tv_start > idx:
+            return
 
         # params
         fastAngleEntry = self.fastAngleEntry
@@ -323,7 +323,7 @@ class LiveStrategy(BaselineStrategy):
             self.shortStopLoss = shortStopLoss
             isExitShortStopLoss = high > shortStopLoss
 
-        # flip trade immediately in opposite direction
+        # flip trade immediately in opposite direction, if enabled
         if self.enableFlips:
             isExitLongFlip = (
                 (is_long and isEntryShortSignal)

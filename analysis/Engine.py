@@ -68,7 +68,7 @@ class Engine:
         trade.exit_order = order
         self.cash += trade.profit
 
-        # flip, enter new trade immediately on exit
+        # flip, enter new trade immediately on exit todo refactor to enum
         isFlip = self.strategy.enableFlips and 'flip' in order.comment
         if isFlip:
             entry_order = self.strategy.orders[-2]

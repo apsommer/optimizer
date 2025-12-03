@@ -13,8 +13,8 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = 'ES'
-num_months = 30
+asset = '6E'
+num_months = 20
 isNetwork = False
 
 # genetic
@@ -23,9 +23,9 @@ generations = 5
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 50),
-        (Fit.DRAWDOWN_PER_PROFIT, 30),
-        (Fit.NUM_WINS, 20),
+        (Fit.PROFIT_FACTOR, 30),
+        (Fit.DRAWDOWN_PER_PROFIT, 20),
+        (Fit.NUM_WINS, 50),
         # (Fit.PROFIT, 20),
         # (Fit.CORRELATION, 25),
         # (Fit.EXPECTANCY, 40),
@@ -38,18 +38,18 @@ cores = 10 # multiprocessing.cpu_count() - 1
 # optimization
 opt = LiveParams(
     fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int),
-    disableEntryMinutes = [120], # np.linspace(45, 180, 136, dtype = int),
+    disableEntryMinutes = np.linspace(45, 180, 136, dtype = int),
     fastMomentumMinutes = np.linspace(55, 185, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
-    takeProfitPercent = np.around(np.linspace(0.3, 0.9, 61), 2),
+    takeProfitPercent = np.around(np.linspace(0.03, 0.09, 61), 3),
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
     fastAngleEntryFactor = np.linspace(15, 45, 31, dtype = int),
     fastAngleExitFactor = np.linspace(2000, 3000, 201, dtype = int),
-    slowMinutes = [2275, 2535, 2795], # np.linspace(1755, 3055, 6, dtype = int),
+    slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = [5], # np.linspace(0, 15, 16, dtype = int),
-    trendStartHour = [2], # np.linspace(0, 24, 25, dtype = int),
-    trendEndHour = np.linspace(50, 150, 101, dtype = int),
+    coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
+    trendStartHour = np.linspace(0, 24, 25, dtype = int),
+    trendEndHour = np.linspace(48, 148, 101, dtype = int),
 )
 
 ########################################################################################################################
