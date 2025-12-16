@@ -4,15 +4,28 @@ from model.Ticker import Ticker
 
 class BaselineStrategy():
 
-    # Equities
+    # US equities
     # Nasdaq-100, Ticker('MNQ', 0.25, 0.50)
     # S&P-500, Ticker('MES', 0.25, 1.25)
     # Dow-40, Ticker('MYM', 1, 0.50)
+        # Russell-2000, M2K?
+
+    # Global equities
     # Nikkei-225, MNK (NKD): 5, 2.50
+        # DAX (FDAX / FDXM) – Germany
+        # FTSE 100 (Z / L) – UK
+        # Hang Seng (HSI / MHI) – Hong Kong
+        # Euro Stoxx 50 (FESX) – Europe large caps
 
     # Currency
     # Euro/USD, Ticker('6E', 0.00005, 6.25)
     # Ether, MET (ETH): 0.05, 0.05 ... genetic pf too low
+        # Bitcoin, MBT?
+        # 6J
+        # 6B
+        # 6A
+        # 6C
+        # 6S
 
     # Metals
     # Gold, Ticker('MGC', 0.1, 1)
@@ -22,6 +35,8 @@ class BaselineStrategy():
     # Agriculture
     # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large
     # Oil, MCL: 0.01, 1 ... genetic pf too low
+
+    # Energy
     # Natural gas, Ticker('NG', 0.001, 10)
 
     # Interest rates
@@ -29,7 +44,7 @@ class BaselineStrategy():
 
     @property
     def ticker(self):
-        return Ticker('MES', 0.25, 1.25)
+        return Ticker('NG', 0.001, 10)
 
     def __init__(self):
         self.current_idx = None
