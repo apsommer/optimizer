@@ -184,7 +184,9 @@ class LiveStrategy(BaselineStrategy):
             fast > slow
             and slowSlope > slowAngle
             and isEntryLongEnabled
-            and fast > high > buyFractal > slow
+            and buyFractal > slow
+            and high > buyFractal
+            and fast > open
             and 0.8 * fastMomentumMinutes > fastShortMinutes)
 
         # entry, long fast crossover
@@ -221,7 +223,9 @@ class LiveStrategy(BaselineStrategy):
             slow > fast
             and -slowAngle > slowSlope
             and isEntryShortEnabled
-            and slow > sellFractal > low > fast
+            and slow > sellFractal
+            and sellFractal > low
+            and open > fast
             and 0.8 * fastMomentumMinutes > fastLongMinutes)
 
         # entry, short fast crossover
