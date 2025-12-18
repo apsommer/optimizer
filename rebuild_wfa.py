@@ -10,11 +10,12 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = '6J'
-num_months = 15
+asset = 'NG'
+num_months = 20
 percent = 25
-runs = 11 # +1 added for final in-sample
-id = '6J_15m_20251209_164058'
+runs = 9 # +1 added for final in-sample
+id = 'NG_20m_20251217_153137'
+# todo only need id, pull rest from position in directory
 
 ###################################################################
 

@@ -78,7 +78,7 @@ class LiveStrategy(BaselineStrategy):
         self.shortStopLoss = np.nan
 
         # INPUT ################
-        self.enableFlips = False
+        self.enableFlips = True
         ########################
 
     def on_bar(self):

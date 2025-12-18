@@ -19,14 +19,14 @@ isNetwork = False
 
 # genetic
 population_size = 100
-generations = 5
+generations = 9
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
         (Fit.PROFIT_FACTOR, 50),
-        (Fit.DRAWDOWN_PER_PROFIT, 30),
-        # (Fit.NUM_WINS, 10),
-        # (Fit.PROFIT, 30),
+        # (Fit.DRAWDOWN_PER_PROFIT, 30),
+        # (Fit.NUM_WINS, 30),
+        (Fit.PROFIT, 30),
         (Fit.CORRELATION, 20),
         # (Fit.EXPECTANCY, 40),
         # (Fit.WIN_RATE, 90)
@@ -37,7 +37,7 @@ cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = np.linspace(25, 125, 6, dtype = int),
+    fastMinutes = [45], # np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(75, 205, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
