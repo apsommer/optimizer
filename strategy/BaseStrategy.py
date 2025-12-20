@@ -44,7 +44,7 @@ class BaselineStrategy():
 
     @property
     def ticker(self):
-        return Ticker('NG', 0.001, 10)
+        return Ticker('MNQ', 0.25, 0.50)
 
     def __init__(self):
         self.current_idx = None
