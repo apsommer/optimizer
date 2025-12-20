@@ -19,14 +19,14 @@ isNetwork = False
 
 # genetic
 population_size = 100
-generations = 9
+generations = 10
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 50),
+        (Fit.PROFIT_FACTOR, 60),
         # (Fit.DRAWDOWN_PER_PROFIT, 30),
         # (Fit.NUM_WINS, 30),
-        (Fit.PROFIT, 30),
+        (Fit.PROFIT, 20),
         (Fit.CORRELATION, 20),
         # (Fit.EXPECTANCY, 40),
         # (Fit.WIN_RATE, 90)
@@ -37,7 +37,7 @@ cores = 10 # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [45], # np.linspace(25, 125, 6, dtype = int),
+    fastMinutes = np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(75, 205, 131, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
@@ -45,7 +45,7 @@ opt = LiveParams(
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
     fastAngleEntryFactor = np.linspace(15, 55, 41, dtype = int),
     fastAngleExitFactor = np.linspace(2000, 4000, 401, dtype = int),
-    slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
+    slowMinutes = np.linspace(2005, 5055, 7, dtype = int),
     slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
     coolOffMinutes = np.linspace(10, 60, 51, dtype = int),
     trendStartHour = np.linspace(0, 24, 25, dtype = int),
