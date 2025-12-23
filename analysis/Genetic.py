@@ -136,6 +136,11 @@ class Genetic:
                 unprofitable += 1
                 continue
 
+            # filter out engines with low trade count
+            trades = next(metric.value for metric in engine_metrics if metric.name == 'num_trades')
+            if 350 > trades:
+                continue
+
             self.engine_metrics.extend(engine_metrics)
 
         # track unprofitable engines
