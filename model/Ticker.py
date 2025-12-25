@@ -13,6 +13,12 @@ class Ticker:
         )
 
 def get_ticker(symbol):
+
     match symbol:
+        case 'MGC': return Ticker('MGC', 0.1, 1)
+        case 'NG': return Ticker('NG', 0.001, 10)
+        case '6E': return Ticker('6E', 0.00005, 6.25)
         case '6J': return Ticker('6J', 0.000001, 12.50)
+
+    print(f'{symbol} not defined in get_ticker()')
     return None

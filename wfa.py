@@ -1,12 +1,11 @@
-import shutil
 import time
 import warnings
 from multiprocessing import Pool
 
+import init
 from analysis.WalkForward import WalkForward
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
-from utils import utils
 from utils.metrics import *
 from utils.utils import *
 
@@ -14,9 +13,9 @@ from utils.utils import *
 # INPUT ###########################################################
 
 # data, indicators
-asset = 'ES'
-num_months = 20
-isNetwork = False
+asset = init.asset
+num_months = init.num_months
+isNetwork = init.isNetwork
 
 # walk forward
 percent = 25

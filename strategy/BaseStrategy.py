@@ -34,9 +34,9 @@ class BaselineStrategy:
 
     # Agriculture
     # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large
-    # Oil, MCL: 0.01, 1 ... genetic pf too low
 
     # Energy
+    # Oil, MCL: 0.01, 1 ... genetic pf too low
     # Natural gas, Ticker('NG', 0.001, 10)
 
     # Interest rates
