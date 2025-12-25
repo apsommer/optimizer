@@ -20,26 +20,26 @@ num_months = init.num_months
 isNetwork = init.isNetwork
 
 # genetic
-population_size = 12
+population_size = 150
 generations = 2
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 80),
+        (Fit.PROFIT_FACTOR, 30),
         # (Fit.DRAWDOWN_PER_PROFIT, 10),
         # (Fit.NUM_WINS, 50),
-        (Fit.PROFIT, 70),
+        # (Fit.PROFIT, 70),
         (Fit.CORRELATION, 30),
-        # (Fit.EXPECTANCY, 50),
+        (Fit.EXPECTANCY, 40),
         # (Fit.WIN_RATE, 90)
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
-cores = 12 # int(population_size / 10) # multiprocessing.cpu_count() - 1
+cores = int(population_size / 10) # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = np.linspace(25, 125, 6, dtype = int),
+    fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(70, 185, 116, dtype = int),
     fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),

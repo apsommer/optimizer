@@ -44,9 +44,9 @@ class Trade:
 
     def __repr__(self):
 
-        # INPUT ########
-        decimals = 2
-        ################
+        # INPUT ####
+        decimals = 4
+        ############
 
         # format to match tradingview
         exit = ('\n\t' + str(self.id) + '\t' + format_timestamp(self.exit_order.idx) + '\t' +
