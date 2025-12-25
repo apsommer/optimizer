@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 
 from datetime import timedelta
+
+import init
 from strategy.BaseStrategy import BaselineStrategy
 from utils.constants import *
 from utils.utils import init_plot
@@ -77,9 +79,8 @@ class LiveStrategy(BaselineStrategy):
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
 
-        # INPUT ################
-        self.enableFlips = False
-        ########################
+        # flip trades
+        self.enable_flips = init.enable_flips
 
     def on_bar(self):
 
@@ -202,7 +203,7 @@ class LiveStrategy(BaselineStrategy):
             and not isEntryLongDisabled
             and (isEntryLongFractal or isEntryLongFastCrossover))
 
-        if self.enableFlips:
+        if self.enable_flips:
             isEntryLong = not self.is_last_bar and (
                 ((is_flat or is_short) and isEntryLongSignal)
                 or (isExitShortFastMomentum and fast > slow)
@@ -239,7 +240,7 @@ class LiveStrategy(BaselineStrategy):
             and not isEntryShortDisabled
             and (isEntryShortFractal or isEntryShortFastCrossover))
 
-        if self.enableFlips:
+        if self.enable_flips:
             isEntryShort = not self.is_last_bar and (
                 ((is_flat or is_long) and isEntryShortSignal)
                 or (isExitLongFastMomentum and slow > fast)
@@ -324,7 +325,7 @@ class LiveStrategy(BaselineStrategy):
             isExitShortStopLoss = high > shortStopLoss
 
         # flip trade immediately in opposite direction, if enabled
-        if self.enableFlips:
+        if self.enable_flips:
             isExitLongFlip = (
                 (is_long and isEntryShortSignal)
                 or (isExitLongFastMomentum and slow > fast)

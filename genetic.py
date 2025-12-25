@@ -20,7 +20,7 @@ num_months = init.num_months
 isNetwork = init.isNetwork
 
 # genetic
-population_size = 120
+population_size = 12
 generations = 2
 mutation_rate = 0.05
 fitness = Fitness(
@@ -35,7 +35,7 @@ fitness = Fitness(
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
-cores = int(population_size / 10) # multiprocessing.cpu_count() - 1
+cores = 12 # int(population_size / 10) # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(

@@ -7,6 +7,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
 import numpy as np
+
+import init
 from model.Metric import Metric
 from utils.utils import format_timestamp, unpack
 
@@ -259,6 +261,7 @@ def init_walk_forward_metrics(wfa):
     end_date = format_timestamp(end_date)
 
     opt = wfa.opt
+    enable_flips = init.enable_flips
 
     # pretty
     candles = '{:,}'.format(candles)
@@ -284,6 +287,7 @@ def init_walk_forward_metrics(wfa):
         Metric('days', days, None, 'Days'),
         Metric('fitness', fitness, None, 'Fitness'),
         Metric('opt', opt, None, 'Optimization'),
+        Metric('enable_flips', enable_flips, None, 'Flip trades'),
     ]
 
 def get_walk_forward_results_metrics(wfa):
@@ -326,6 +330,7 @@ def init_genetic_metrics(genetic):
     fitness = genetic.fitness.pretty
     cores = genetic.cores
     opt = genetic.opt
+    enable_flips = init.enable_flips
 
     # format timestamp
     start = format_timestamp(start_date)
@@ -347,6 +352,7 @@ def init_genetic_metrics(genetic):
         Metric('fitness', fitness, None, 'Fitness'),
         Metric('cores', cores, None, 'Process cores'),
         Metric('opt', opt, None, 'Optimization'),
+        Metric('enable_flips', enable_flips, None, 'Flip trades'),
     ]
 
 def get_genetic_results_metrics(genetic):
