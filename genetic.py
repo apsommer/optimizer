@@ -37,13 +37,6 @@ fitness = Fitness(
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
 cores = int(population_size / 10) # multiprocessing.cpu_count() - 1
 
-tEnd = np.linspace(48, 148, 101, dtype = int)
-n = 3
-i = 0
-while i < len(tEnd):
-    tEnd = np.insert(tEnd, i, 0)
-    i += (n + 1)
-
 # optimization
 opt = LiveParams(
     fastMinutes = np.linspace(25, 125, 6, dtype = int),
