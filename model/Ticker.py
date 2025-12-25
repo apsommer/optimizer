@@ -11,3 +11,8 @@ class Ticker:
             f'\n\t\ttick_size: {self.tick_size}'
             f'\n\t\ttick_value: {self.tick_value}'
         )
+
+def get_ticker(symbol):
+    match symbol:
+        case '6J': return Ticker('6J', 0.000001, 12.50)
+    return None

@@ -1,5 +1,4 @@
 import copy
-import random
 
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
@@ -138,7 +137,7 @@ class Genetic:
 
             # filter out engines with low trade count
             trades = next(metric.value for metric in engine_metrics if metric.name == 'num_trades')
-            if 350 > trades:
+            if 350 > trades or trades > 600:
                 continue
 
             self.engine_metrics.extend(engine_metrics)
@@ -154,8 +153,7 @@ class Genetic:
 
         # persist best engine in generation
         best_engine = max(fitnesses, key = lambda metric: metric.value)
-        best_params = next(metric for metric in self.engine_metrics
-        if metric.name == 'params' and metric.id == best_engine.id)
+        best_params = next(metric for metric in self.engine_metrics if metric.name == 'params' and metric.id == best_engine.id)
         self.best_engines.append(best_engine)
         self.params.append(best_params)
 

@@ -1,8 +1,8 @@
+import init
 from model.Order import Order
-from model.Ticker import Ticker
+from model.Ticker import Ticker, get_ticker
 
-
-class BaselineStrategy():
+class BaselineStrategy:
 
     # US equities
     # Nasdaq-100, Ticker('MNQ', 0.25, 0.50)
@@ -19,13 +19,13 @@ class BaselineStrategy():
 
     # Currency
     # Euro/USD, Ticker('6E', 0.00005, 6.25)
-    # Ether, MET (ETH): 0.05, 0.05 ... genetic pf too low
-        # Bitcoin, MBT?
-        # 6J
+    # Yen/USD, Ticker('6J', 0.000001, 12.50)
         # 6B
         # 6A
         # 6C
         # 6S
+    # Ether, MET (ETH): 0.05, 0.05 ... genetic pf too low
+        # Bitcoin, MBT?
 
     # Metals
     # Gold, Ticker('MGC', 0.1, 1)
@@ -44,7 +44,8 @@ class BaselineStrategy():
 
     @property
     def ticker(self):
-        return Ticker('MES', 0.25, 1.25)
+        return get_ticker(init.asset)
+        # return Ticker('6J', 0.000001, 12.50)
 
     def __init__(self):
         self.current_idx = None
