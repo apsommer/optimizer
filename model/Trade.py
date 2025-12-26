@@ -1,5 +1,6 @@
 import numpy as np
 
+import init
 from utils.utils import format_timestamp
 
 class Trade:
@@ -44,9 +45,7 @@ class Trade:
 
     def __repr__(self):
 
-        # INPUT ####
-        decimals = 4
-        ############
+        decimals = init.trade_summary_decimals
 
         # format to match tradingview
         exit = ('\n\t' + str(self.id) + '\t' + format_timestamp(self.exit_order.idx) + '\t' +

@@ -151,11 +151,20 @@ class Genetic:
         # get blended fitnesses
         fitnesses = self.fitness.blend(self.engine_metrics)
 
-        # persist best engine in generation
-        best_engine = max(fitnesses, key = lambda metric: metric.value)
-        best_params = next(metric for metric in self.engine_metrics if metric.name == 'params' and metric.id == best_engine.id)
-        self.best_engines.append(best_engine)
-        self.params.append(best_params)
+        # todo wtf
+        try:
+
+            # persist best engine in generation
+            best_engine = max(fitnesses, key = lambda metric: metric.value)
+            best_params = next(metric for metric in self.engine_metrics if metric.name == 'params' and metric.id == best_engine.id)
+            self.best_engines.append(best_engine)
+            self.params.append(best_params)
+
+        except StopIteration as e:
+            print(f'best_engine: {best_engine}')
+            print(f'best_params: {best_params}')
+            print(e.value)
+            exit()
 
         # check for solution convergence
         # applicable only for unblended single fitness, as blending is relative to each generation
