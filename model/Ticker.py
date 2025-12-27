@@ -27,7 +27,7 @@ def get_ticker(symbol):
 
         # Currency
         case '6E': return Ticker('6E', 0.00005, 6.25)
-        case '6J': return Ticker('6J', 0.000001, 12.50)
+        case '6J': return Ticker('6J', 0.0000005, 6.25)
             # 6B
             # 6A
             # 6C

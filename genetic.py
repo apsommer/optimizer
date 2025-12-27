@@ -21,15 +21,15 @@ isNetwork = init.isNetwork
 
 # genetic
 population_size = 150
-generations = 5
+generations = 4
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 60),
-        # (Fit.DRAWDOWN_PER_PROFIT, 10),
+        (Fit.PROFIT_FACTOR, 50),
+        (Fit.DRAWDOWN_PER_PROFIT, 50),
         # (Fit.NUM_WINS, 50),
-        (Fit.PROFIT, 20),
-        (Fit.CORRELATION, 20),
+        # (Fit.PROFIT, 50),
+        # (Fit.CORRELATION, 20),
         # (Fit.EXPECTANCY, 40),
         # (Fit.WIN_RATE, 90)
     ])
@@ -39,27 +39,27 @@ cores = int(population_size / 10) # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = np.linspace(25, 125, 6, dtype = int),
+    fastMinutes = [45], # np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
     fastMomentumMinutes = np.linspace(70, 185, 116, dtype = int),
-    fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
-    takeProfitPercent = np.around(np.linspace(0.1, 1, 91), 3),
+    fastCrossoverPercent = np.linspace(70, 100, 31, dtype = int),
+    takeProfitPercent = np.around(np.linspace(0.2, 1.2, 101), 3),
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
     fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
     fastAngleExitFactor = np.linspace(2000, 4000, 401, dtype = int),
     slowMinutes = np.linspace(1555, 3055, 7, dtype = int),
     slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
     coolOffMinutes = np.linspace(5, 55, 51, dtype = int),
-    trendStartHour = np.linspace(1, 48, 48, dtype = int),
+    trendStartHour = np.linspace(0, 48, 49, dtype = int),
     trendEndHour = np.linspace(48, 148, 101, dtype = int)
 )
 
 # inject zeros in trendStart and trendEnd
-i, n = 0, 3
-while i < max(len(opt.trendStartHour), len(opt.trendEndHour)):
-    if i < len(opt.trendStartHour): opt.trendStartHour = np.insert(opt.trendStartHour, i, 0)
-    if i < len(opt.trendEndHour): opt.trendEndHour = np.insert(opt.trendEndHour, i, 0)
-    i += (n + 1)
+# i, n = 0, 3
+# while i < max(len(opt.trendStartHour), len(opt.trendEndHour)):
+#     if i < len(opt.trendStartHour): opt.trendStartHour = np.insert(opt.trendStartHour, i, 0)
+#     if i < len(opt.trendEndHour): opt.trendEndHour = np.insert(opt.trendEndHour, i, 0)
+#     i += (n + 1)
 
 ########################################################################################################################
 
