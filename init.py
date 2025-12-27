@@ -8,9 +8,9 @@ num_months = 30
 isNetwork = False
 
 # strategy
-enable_flips = True
+enable_flips = False
 
 # display
-trade_summary_decimals = len(str(get_ticker(asset))) - 2 # subtract '0.'
+trade_summary_decimals = len(str(get_ticker(asset).tick_size)) - 2 # subtract '0.'
 
 ########################################################################################################################
