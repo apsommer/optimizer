@@ -1,5 +1,4 @@
 import copy
-import random
 
 from analysis.Engine import Engine
 from strategy.LiveParams import LiveParams
@@ -136,6 +135,11 @@ class Genetic:
                 unprofitable += 1
                 continue
 
+            # filter out engines with low trade count
+            trades = next(metric.value for metric in engine_metrics if metric.name == 'num_trades')
+            if 350 > trades:
+                continue
+
             self.engine_metrics.extend(engine_metrics)
 
         # track unprofitable engines
@@ -147,12 +151,20 @@ class Genetic:
         # get blended fitnesses
         fitnesses = self.fitness.blend(self.engine_metrics)
 
-        # persist best engine in generation
-        best_engine = max(fitnesses, key = lambda metric: metric.value)
-        best_params = next(metric for metric in self.engine_metrics
-        if metric.name == 'params' and metric.id == best_engine.id)
-        self.best_engines.append(best_engine)
-        self.params.append(best_params)
+        # todo wtf
+        try:
+
+            # persist best engine in generation
+            best_engine = max(fitnesses, key = lambda metric: metric.value)
+            best_params = next(metric for metric in self.engine_metrics if metric.name == 'params' and metric.id == best_engine.id)
+            self.best_engines.append(best_engine)
+            self.params.append(best_params)
+
+        except StopIteration as e:
+            print(f'best_engine: {best_engine}')
+            print(f'best_params: {best_params}')
+            print(e.value)
+            exit()
 
         # check for solution convergence
         # applicable only for unblended single fitness, as blending is relative to each generation

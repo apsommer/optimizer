@@ -68,8 +68,9 @@ class Engine:
         trade.exit_order = order
         self.cash += trade.profit
 
-        # flip, enter new trade immediately on exit
-        if 'flip' in order.comment:
+        # flip, enter new trade immediately on exit todo refactor to enum
+        isFlip = self.strategy.enable_flips and 'flip' in order.comment
+        if isFlip:
             entry_order = self.strategy.orders[-2]
             self.trades.append(
                 Trade(
@@ -119,7 +120,7 @@ class Engine:
     def print_trades(self):
 
         # INPUT ########
-        show_last = 1000
+        show_last = 10
         ################
 
         trades = self.trades

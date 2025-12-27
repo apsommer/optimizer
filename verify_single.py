@@ -11,24 +11,24 @@ from utils.utils import *
 ''' single engine verify to tradingview'''
 # INPUT ###########################################################
 
-asset = 'MGC'
+asset = '6E'
 num_months = 20
 isNetwork = False
 
 params = LiveParams(
-    fastMinutes = 65,
-    disableEntryMinutes = 135,
-    fastMomentumMinutes = 125,
+    fastMinutes = 25,
+    disableEntryMinutes = 115,
+    fastMomentumMinutes = 138,
     fastCrossoverPercent = 0,
-    takeProfitPercent = 2,
+    takeProfitPercent = 0.08,
     stopLossPercent = 0,
-    fastAngleEntryFactor = 20,
-    fastAngleExitFactor = 2975,
-    slowMinutes = 2755,
-    slowAngleFactor = 15,
-    coolOffMinutes = 15,
-    trendStartHour = 8,
-    trendEndHour = 0
+    fastAngleEntryFactor = 25,
+    fastAngleExitFactor = 2450,
+    slowMinutes = 2535,
+    slowAngleFactor = 10,
+    coolOffMinutes = 20,
+    trendStartHour = 4,
+    trendEndHour = 80
 )
 
 ###################################################################

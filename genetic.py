@@ -1,9 +1,11 @@
-import shutil
 import time
 import warnings
 from functools import partial
 from multiprocessing import Pool
 
+import numpy as np
+
+import init
 from analysis.Genetic import Genetic
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams
@@ -13,42 +15,51 @@ from utils.utils import *
 ########################################################################################################################
 
 # data, indicators
-asset = '6E'
-num_months = 20
-isNetwork = False
+asset = init.asset
+num_months = init.num_months
+isNetwork = init.isNetwork
 
 # genetic
-population_size = 100
-generations = 7
+population_size = 150
+generations = 4
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 50),
-        # (Fit.DRAWDOWN_PER_PROFIT, 60),
-        # (Fit.NUM_WINS, 40),
-        (Fit.PROFIT, 60),
-        (Fit.CORRELATION, 40),
+        (Fit.PROFIT_FACTOR, 50),
+        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        # (Fit.NUM_WINS, 50),
+        # (Fit.PROFIT, 50),
+        # (Fit.CORRELATION, 20),
+        # (Fit.EXPECTANCY, 40),
+        # (Fit.WIN_RATE, 90)
     ])
 
 # multiprocessing uses all cores, 16 available, leave 1 for basic tasks
-cores = 10 # multiprocessing.cpu_count() - 1
+cores = int(population_size / 10) # multiprocessing.cpu_count() - 1
 
 # optimization
 opt = LiveParams(
-    fastMinutes = [25], # np.linspace(25, 125, 6, dtype = int),
+    fastMinutes = [45], # np.linspace(25, 125, 6, dtype = int),
     disableEntryMinutes = np.linspace(60, 180, 121, dtype = int),
-    fastMomentumMinutes = np.linspace(55, 125, 71, dtype = int),
-    fastCrossoverPercent = [0], # np.linspace(70, 100, 31, dtype = int),
-    takeProfitPercent = np.around(np.linspace(0.025, 0.1, 76), 2),
+    fastMomentumMinutes = np.linspace(70, 185, 116, dtype = int),
+    fastCrossoverPercent = np.linspace(70, 100, 31, dtype = int),
+    takeProfitPercent = np.around(np.linspace(0.2, 1.2, 101), 3),
     stopLossPercent = [0], # np.around(np.linspace(0.25, 3, 276), 2),
     fastAngleEntryFactor = np.linspace(0, 50, 51, dtype = int),
-    fastAngleExitFactor = np.linspace(1000, 4000, 601, dtype = int),
-    slowMinutes = np.linspace(1755, 3055, 6, dtype = int),
-    slowAngleFactor = np.linspace(0, 50, 51, dtype = int),
-    coolOffMinutes = np.linspace(0, 30, 31, dtype = int),
-    trendStartHour = np.linspace(0, 12, 13, dtype = int),
-    trendEndHour = np.linspace(12, 60, 49, dtype = int),
+    fastAngleExitFactor = np.linspace(2000, 4000, 401, dtype = int),
+    slowMinutes = np.linspace(1555, 3055, 7, dtype = int),
+    slowAngleFactor = np.linspace(0, 25, 26, dtype = int),
+    coolOffMinutes = np.linspace(5, 55, 51, dtype = int),
+    trendStartHour = np.linspace(0, 48, 49, dtype = int),
+    trendEndHour = np.linspace(48, 148, 101, dtype = int)
 )
+
+# inject zeros in trendStart and trendEnd
+# i, n = 0, 3
+# while i < max(len(opt.trendStartHour), len(opt.trendEndHour)):
+#     if i < len(opt.trendStartHour): opt.trendStartHour = np.insert(opt.trendStartHour, i, 0)
+#     if i < len(opt.trendEndHour): opt.trendEndHour = np.insert(opt.trendEndHour, i, 0)
+#     i += (n + 1)
 
 ########################################################################################################################
 
@@ -123,6 +134,9 @@ with tqdm(
         pbar.set_postfix_str(display_progress_bar(best_engine['metrics']))
         pbar.update()
 
+        # print_metrics(best_engine['metrics'])
+        # todo add curve to plot dynamically?
+
 # run and save best engines
 pool = Pool(cores)
 pool.map(
@@ -140,3 +154,6 @@ genetic.plot()
 elapsed = time.time() - start_time
 pretty = time.strftime('%-Hh %-Mm %-Ss', time.gmtime(elapsed))
 print(f'\nElapsed time: {pretty}')
+
+# required for cProfile
+exit()

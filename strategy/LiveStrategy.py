@@ -1,7 +1,10 @@
 import finplot as fplt
+import numpy as np
 import pandas as pd
 
 from datetime import timedelta
+
+import init
 from strategy.BaseStrategy import BaselineStrategy
 from utils.constants import *
 from utils.utils import init_plot
@@ -19,7 +22,7 @@ class LiveStrategy(BaselineStrategy):
         self.emas = emas
         self.params = params
 
-        # allow blank strategy for walk-forward composite
+        # allow blank strategy for walk-forward composite todo remove?
         if params is None: return
 
         # unpack params
@@ -76,6 +79,9 @@ class LiveStrategy(BaselineStrategy):
         self.longStopLoss = np.nan
         self.shortStopLoss = np.nan
 
+        # flip trades
+        self.enable_flips = init.enable_flips
+
     def on_bar(self):
 
         # index
@@ -84,7 +90,7 @@ class LiveStrategy(BaselineStrategy):
         bar_index = self.bar_index
 
         # todo tradingview limitation ~20k bars
-        # tv_start = pd.Timestamp('2025-08-29T22:00:00', tz='America/Chicago')
+        # tv_start = pd.Timestamp('2025-11-19T00:00:00', tz='America/Chicago')
         # if tv_start > idx:
         #     return
 
@@ -170,14 +176,9 @@ class LiveStrategy(BaselineStrategy):
             and fastSlope > fastAngleExit)
 
         # slow trend is long or short
-        isEntryLongEnabled = (
-            self.trendStartMinutes == 0
-            or self.trendEndMinutes == 0
-            or self.trendEndMinutes > slowLongMinutes > self.trendStartMinutes)
-        isEntryShortEnabled = (
-            self.trendStartMinutes == 0
-            or self.trendEndMinutes == 0
-            or self.trendEndMinutes > slowShortMinutes > self.trendStartMinutes)
+        if self.trendEndMinutes == 0: self.trendEndMinutes = np.inf
+        isEntryLongEnabled = self.trendEndMinutes > slowLongMinutes >= self.trendStartMinutes
+        isEntryShortEnabled = self.trendEndMinutes > slowShortMinutes >= self.trendStartMinutes
 
         # entry, long fractal signal
         isEntryLongFractal = (
@@ -201,11 +202,18 @@ class LiveStrategy(BaselineStrategy):
             hasLongEntryDelayElapsed
             and not isEntryLongDisabled
             and (isEntryLongFractal or isEntryLongFastCrossover))
-        isEntryLong = (
-            ((is_flat or is_short) and isEntryLongSignal)
-            or (isExitShortFastMomentum and fast > slow)
-            or (isExitShortRapidMomentum and fast > slow)
-            and not self.is_last_bar)
+
+        if self.enable_flips:
+            isEntryLong = not self.is_last_bar and (
+                ((is_flat or is_short) and isEntryLongSignal)
+                or (isExitShortFastMomentum and fast > slow)
+                or (isExitShortRapidMomentum and fast > slow))
+        else:
+            isEntryLong = (
+                is_flat
+                and not self.is_last_bar
+                and isEntryLongSignal)
+
         if isEntryLong:
             self.buy(ticker, size)
 
@@ -231,11 +239,18 @@ class LiveStrategy(BaselineStrategy):
             hasShortEntryDelayElapsed
             and not isEntryShortDisabled
             and (isEntryShortFractal or isEntryShortFastCrossover))
-        isEntryShort = (
-            ((is_flat or is_long) and isEntryShortSignal)
-            or (isExitLongFastMomentum and slow > fast)
-            or (isExitLongRapidMomentum and slow > fast)
-            and not self.is_last_bar)
+
+        if self.enable_flips:
+            isEntryShort = not self.is_last_bar and (
+                ((is_flat or is_long) and isEntryShortSignal)
+                or (isExitLongFastMomentum and slow > fast)
+                or (isExitLongRapidMomentum and slow > fast))
+        else:
+            isEntryShort = (
+                is_flat
+                and not self.is_last_bar
+                and isEntryShortSignal)
+
         if isEntryShort:
             self.sell(ticker, size)
 
@@ -309,15 +324,20 @@ class LiveStrategy(BaselineStrategy):
             self.shortStopLoss = shortStopLoss
             isExitShortStopLoss = high > shortStopLoss
 
-        # flip trade immediately in opposite direction
-        isExitLongFlip = (
-            (is_long and isEntryShortSignal)
-            or (isExitLongFastMomentum and slow > fast)
-            or (isExitLongRapidMomentum and slow > fast))
-        isExitShortFlip = (
-            (is_short and isEntryLongSignal)
-            or (isExitShortFastMomentum and fast > slow)
-            or (isExitShortRapidMomentum and fast > slow))
+        # flip trade immediately in opposite direction, if enabled
+        if self.enable_flips:
+            isExitLongFlip = (
+                (is_long and isEntryShortSignal)
+                or (isExitLongFastMomentum and slow > fast)
+                or (isExitLongRapidMomentum and slow > fast))
+            isExitShortFlip = (
+                (is_short and isEntryLongSignal)
+                or (isExitShortFastMomentum and fast > slow)
+                or (isExitShortRapidMomentum and fast > slow))
+
+        else:
+            isExitLongFlip = False
+            isExitShortFlip = False
 
         # exit long
         isExitLong = is_long and (
@@ -377,9 +397,9 @@ class LiveStrategy(BaselineStrategy):
 
     def plot(self, window, title ='Strategy', shouldShow = False):
 
-        # INPUT #########
-        show_slow = False
-        #################
+        # INPUT ########
+        show_slow = True
+        ################
 
         ax = init_plot(
             window= window,

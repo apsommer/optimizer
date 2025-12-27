@@ -1,35 +1,12 @@
+import init
 from model.Order import Order
-from model.Ticker import Ticker
+from model.Ticker import Ticker, get_ticker
 
-
-class BaselineStrategy():
-
-    # Nasdaq 100, MNQ: 0.25, 0.50
-    # S&P 500, MES (ES): 0.25, 1.25
-    # Dow, MYM (YM): 1, 0.5
-    # Nikkei, MNK (NKD): 5, 2.50
-
-    # Euro/USD, 6E: 0.00005, 6.25
-    # Ether, MET (ETH): 0.05, 0.05
-
-    # Gold, MGC (GC): 0.1, 1
-    # Silver, SIL (SI): 0.001, 1
-    # Copper, MHG (HG): 0.0005, 1.25
-
-    # Corn, MZC (ZC): 0.005, 2.50 ... p&l too large
-    # Oil, MCL: 0.01, 1 ... genetic pf too low
-    # Natural gas, MNG (NG): 0.001, 1 (10) ...
-
-    # 10-year, MTN (ZN): 0.015625, 1.5625
+class BaselineStrategy:
 
     @property
     def ticker(self):
-        return Ticker(
-            symbol = '6E',
-            tick_size = 0.00005,
-            tick_value = 6.25,
-            margin = 1 # todo remove
-        )
+        return get_ticker(init.asset)
 
     def __init__(self):
         self.current_idx = None
