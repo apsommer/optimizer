@@ -137,7 +137,7 @@ class Genetic:
 
             # filter out engines with low trade count
             trades = next(metric.value for metric in engine_metrics if metric.name == 'num_trades')
-            if 350 > trades:
+            if 400 > trades:
                 continue
 
             self.engine_metrics.extend(engine_metrics)

@@ -2,7 +2,6 @@ import time
 import warnings
 from multiprocessing import Pool
 
-import init
 from analysis.WalkForward import WalkForward
 from model.Fitness import Fit, Fitness
 from strategy.LiveParams import LiveParams

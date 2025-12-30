@@ -54,5 +54,22 @@ def get_ticker(symbol):
             # Hang Seng (HSI / MHI) – Hong Kong
             # Euro Stoxx 50 (FESX) – Europe large caps
 
-    print(f'{symbol} not defined in get_ticker()')
+    print(f'{symbol} not defined.')
     return None
+
+# round trade summary in console
+def get_ticker_decimals(symbol):
+
+    decimals = 0
+    tick_size = str(get_ticker(symbol).tick_size)
+
+    # scientific notation, 5e-07
+    if 'e' in tick_size:
+        decimals = int(tick_size[-1])
+
+    # standard number, 1.25
+    else:
+        a, b = tick_size.split('.')
+        if a == '0': decimals = len(b)
+
+    return decimals

@@ -54,7 +54,6 @@ class Fitness:
             metrics.append(
                 Metric('blend', value, '%', title, id = id))
 
-        print(metrics)
         return metrics
 
     @property

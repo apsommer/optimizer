@@ -3,8 +3,6 @@ import warnings
 from functools import partial
 from multiprocessing import Pool
 
-import numpy as np
-
 import init
 from analysis.Genetic import Genetic
 from model.Fitness import Fit, Fitness
@@ -25,11 +23,11 @@ generations = 7
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        (Fit.PROFIT_FACTOR, 80),
+        # (Fit.PROFIT_FACTOR, 80),
         # (Fit.DRAWDOWN_PER_PROFIT, 50),
         # (Fit.NUM_WINS, 50),
-        # (Fit.PROFIT, 50),
-        (Fit.CORRELATION, 20),
+        (Fit.PROFIT, 50),
+        (Fit.CORRELATION, 50),
         # (Fit.EXPECTANCY, 50),
         # (Fit.WIN_RATE, 90)
     ])
