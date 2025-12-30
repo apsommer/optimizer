@@ -45,10 +45,11 @@ class Trade:
 
     def __repr__(self):
 
-        # round
+        # round and align
         decimals = init.trade_summary_decimals
-        entry_price = '{:.' + str(decimals) + 'f}'.format(round(self.entry_order.price, decimals))
-        exit_price = '{:.' + str(decimals) + 'f}'.format(round(self.exit_order.price, decimals))
+        align = '{:.' + str(decimals) + 'f}'
+        entry_price = align.format(round(self.entry_order.price, decimals))
+        exit_price = align.format(round(self.exit_order.price, decimals))
         profit = str(round(self.profit))
 
         # format to match tradingview
