@@ -20,17 +20,17 @@ num_months = init.num_months
 isNetwork = init.isNetwork
 
 # genetic
-population_size = 120
-generations = 5
+population_size = 150
+generations = 7
 mutation_rate = 0.05
 fitness = Fitness(
     fits = [
-        # (Fit.PROFIT_FACTOR, 100),
-        (Fit.DRAWDOWN_PER_PROFIT, 50),
+        (Fit.PROFIT_FACTOR, 80),
+        # (Fit.DRAWDOWN_PER_PROFIT, 50),
         # (Fit.NUM_WINS, 50),
         # (Fit.PROFIT, 50),
-        # (Fit.CORRELATION, 20),
-        (Fit.EXPECTANCY, 50),
+        (Fit.CORRELATION, 20),
+        # (Fit.EXPECTANCY, 50),
         # (Fit.WIN_RATE, 90)
     ])
 

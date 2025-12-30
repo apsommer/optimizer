@@ -161,8 +161,9 @@ class Genetic:
             self.params.append(best_params)
 
         except StopIteration as e:
-            print(f'best_engine: {best_engine}')
-            print(f'best_params: {best_params}')
+            print(f'best_engine: {best_engine}\n\n')
+            print(self.engine_metrics)
+            print(f'\n\nbest_params: {best_params}')
             print(e.value)
             exit()
 
