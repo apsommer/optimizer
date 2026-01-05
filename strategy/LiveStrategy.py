@@ -128,7 +128,6 @@ class LiveStrategy(BaselineStrategy):
         longExitBarIndex = self.longExitBarIndex
         shortExitBarIndex = self.shortExitBarIndex
         fastCrossover = self.fastCrossover
-        fastMomentumMinutes = self.fastMomentumMinutes
         longTakeProfit = self.longTakeProfit
         shortTakeProfit = self.shortTakeProfit
         longStopLoss = self.longStopLoss
@@ -140,6 +139,11 @@ class LiveStrategy(BaselineStrategy):
         is_flat = self.is_flat
         is_long = self.is_long
         is_short = self.is_short
+
+        # decrease fast momentum exit on out-of-money fast/slow orientation
+        fastMomentumMinutes = self.fastMomentumMinutes
+        # if (is_long and slow > fast) or (is_short and fast > slow):
+        #     fastMomentumMinutes = 0.5 * fastMomentumMinutes
 
         ################################################################################################################
 
@@ -155,7 +159,7 @@ class LiveStrategy(BaselineStrategy):
         hasLongEntryDelayElapsed = bar_index - longExitBarIndex > coolOffMinutes
         hasShortEntryDelayElapsed = bar_index - shortExitBarIndex > coolOffMinutes
 
-        # exit, slow momentum drift against trade position
+        # exit, fast momentum drift against trade position
         isExitLongFastMomentum = (
             fastMomentumMinutes != 0
             and is_long
