@@ -42,9 +42,9 @@ def get_ticker(symbol):
             # 10-year, MTN (ZN): 0.015625, 1.5625
 
         # US equities
+        case 'NQ': return Ticker('MNQ', 0.25, 0.50)
         case 'ES': return Ticker('MES', 0.25, 1.25)
         case 'YM': return Ticker('MYM', 1.00, 0.50)
-            # Nasdaq-100, Ticker('MNQ', 0.25, 0.50)
             # Russell-2000, M2K?
 
         # Global equities
