@@ -3,12 +3,12 @@ from model.Ticker import get_ticker_decimals
 ########################################################################################################################
 
 # data, indicators
-asset = 'NG'
+asset = 'GC'
 num_months = 20
 isNetwork = False
 
 # strategy
-enable_flips = True
+enable_flips = False
 
 ########################################################################################################################
 

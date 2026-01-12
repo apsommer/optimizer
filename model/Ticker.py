@@ -17,7 +17,7 @@ def get_ticker(symbol):
     match symbol:
 
         # Metals
-        case 'MGC': return Ticker('MGC', 0.1, 1)
+        case 'GC': return Ticker('MGC', 0.1, 1)
             # Silver, SIL (SI): 0.001, 1
             # Copper, MHG (HG): 0.0005, 1.25
 

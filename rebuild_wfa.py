@@ -14,7 +14,7 @@ asset = 'NG'
 num_months = 20
 percent = 25
 runs = 9 # +1 added for final in-sample
-id = 'NG_20m_20251217_153137'
+id = 'NG_20m_20260110_155312'
 # todo only need id, pull rest from position in directory
 
 ###################################################################
