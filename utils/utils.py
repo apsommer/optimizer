@@ -49,7 +49,7 @@ def getOhlc(asset, num_months, isNetwork = False):
     # timespan
     delta = timedelta(days = num_months * 30.437)
     starting_date = (datetime.now() - delta).strftime("%Y-%m-%d") # trump elected 051124
-    ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24' 2025-12-26 23:00:00+00:00'
+    ending_date = datetime.now().strftime("%Y-%m-%d") # '2025-07-24' 2025-12-26 23:00:00+00:00' 2026-01-31 00:00:00+00:00
 
     # request network data, costs $$$, synchronous
     ohlc = db.Historical(keys.db).timeseries.get_range(

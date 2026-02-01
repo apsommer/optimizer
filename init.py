@@ -3,7 +3,7 @@ from model.Ticker import get_ticker_decimals
 ########################################################################################################################
 
 # data, indicators
-asset = 'GC'
+asset = '6E'
 num_months = 20
 isNetwork = False
 
